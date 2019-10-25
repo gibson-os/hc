@@ -1,0 +1,26 @@
+{
+  "name": "gibson-os/hc",
+  "require": {
+    "mdo/mdo": "dev-master",
+    "gibson-os/core": "dev-master",
+    "ext-mbstring": "*"
+  },
+  "require-dev": {
+    "codeception/codeception": "^3.1"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@wolli.dyndns.tv:/home/git/mdo.git"
+    },
+    {
+      "type": "vcs",
+      "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "GibsonOS\\Module\\Hc\\": "src/"
+    }
+  }
+}
