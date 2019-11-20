@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTime;
@@ -12,26 +14,32 @@ class Attribute extends AbstractModel
      * @var int|null
      */
     private $id;
+
     /**
      * @var int|null
      */
     private $typeId;
+
     /**
      * @var int|null
      */
     private $moduleId;
+
     /**
      * @var int|null
      */
     private $subId;
+
     /**
      * @var string
      */
     private $key;
+
     /**
      * @var string|null
      */
     private $type;
+
     /**
      * @var DateTime|null
      */
@@ -70,11 +78,13 @@ class Attribute extends AbstractModel
 
     /**
      * @param int $id
+     *
      * @return Attribute
      */
     public function setId(int $id): Attribute
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -88,11 +98,13 @@ class Attribute extends AbstractModel
 
     /**
      * @param int|null $typeId
+     *
      * @return Attribute
      */
     public function setTypeId(?int $typeId): Attribute
     {
         $this->typeId = $typeId;
+
         return $this;
     }
 
@@ -106,11 +118,13 @@ class Attribute extends AbstractModel
 
     /**
      * @param int|null $moduleId
+     *
      * @return Attribute
      */
     public function setModuleId(?int $moduleId): Attribute
     {
         $this->moduleId = $moduleId;
+
         return $this;
     }
 
@@ -124,11 +138,13 @@ class Attribute extends AbstractModel
 
     /**
      * @param int|null $subId
+     *
      * @return Attribute
      */
     public function setSubId(?int $subId): Attribute
     {
         $this->subId = $subId;
+
         return $this;
     }
 
@@ -142,16 +158,18 @@ class Attribute extends AbstractModel
 
     /**
      * @param string $key
+     *
      * @return Attribute
      */
     public function setKey(string $key): Attribute
     {
         $this->key = $key;
+
         return $this;
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getType(): ?string
     {
@@ -159,12 +177,14 @@ class Attribute extends AbstractModel
     }
 
     /**
-     * @param null|string $type
+     * @param string|null $type
+     *
      * @return Attribute
      */
     public function setType(?string $type): Attribute
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -178,11 +198,13 @@ class Attribute extends AbstractModel
 
     /**
      * @param DateTime|null $added
+     *
      * @return Attribute
      */
     public function setAdded(?DateTime $added): Attribute
     {
         $this->added = $added;
+
         return $this;
     }
 
@@ -196,6 +218,7 @@ class Attribute extends AbstractModel
 
     /**
      * @param Module $module
+     *
      * @return Attribute
      */
     public function setModule(Module $module): Attribute
@@ -209,6 +232,7 @@ class Attribute extends AbstractModel
 
     /**
      * @throws SelectError
+     *
      * @return Attribute
      */
     public function loadModule(): Attribute

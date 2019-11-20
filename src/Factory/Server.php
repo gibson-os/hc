@@ -1,15 +1,19 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Factory;
 
 use GibsonOS\Core\Exception\FileNotFound;
-use GibsonOS\Module\Hc\Service\Server as ServerService;
+use GibsonOS\Module\Hc\Service\ServerService as ServerService;
 
 class Server
 {
     /**
      * @param string $protocolName
-     * @return ServerService
+     *
      * @throws FileNotFound
+     *
+     * @return ServerService
      */
     public static function create($protocolName)
     {

@@ -1,11 +1,13 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Service\Protocol;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\Server\SendError;
 use GibsonOS\Core\Service\AbstractService;
-use GibsonOS\Module\Hc\Utility\Transform;
+use GibsonOS\Module\Hc\Utility\TransformService;
 
 abstract class AbstractProtocol extends AbstractService
 {
@@ -20,27 +22,35 @@ abstract class AbstractProtocol extends AbstractService
      * @return bool
      */
     abstract public function receive();
+
     /**
-     * @param int $type
+     * @param int    $type
      * @param string $data
-     * @param int $address
+     * @param int    $address
+     *
      * @throws AbstractException
      */
     abstract public function send($type, $data, $address);
+
     /**
-     * @return void
      * @throws SendError
+     *
+     * @return void
      */
     abstract public function sendReceiveReturn();
+
     /**
      * @param int $address
+     *
      * @return void
      */
     abstract public function receiveReceiveReturn($address);
+
     /**
      * @return void
      */
     abstract public function receiveReadData();
+
     /**
      * @return string
      */
@@ -51,7 +61,7 @@ abstract class AbstractProtocol extends AbstractService
      */
     public function getMasterAddress()
     {
-        return Transform::asciiToInt($this->data, 0);
+        return TransformService::asciiToInt($this->data, 0);
     }
 
     /**
@@ -59,7 +69,7 @@ abstract class AbstractProtocol extends AbstractService
      */
     public function getType()
     {
-        return Transform::asciiToInt($this->data, 1);
+        return TransformService::asciiToInt($this->data, 1);
     }
 
     /**
@@ -89,7 +99,7 @@ abstract class AbstractProtocol extends AbstractService
     {
         $checkSum = 0;
 
-        for ($i = 0; $i < strlen($this->data) - 1; $i++) {
+        for ($i = 0; $i < strlen($this->data) - 1; ++$i) {
             $checkSum += ord($this->data[$i]);
         }
 

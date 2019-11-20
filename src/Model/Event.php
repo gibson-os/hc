@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTime;
@@ -12,18 +14,22 @@ class Event extends AbstractModel
      * @var int
      */
     private $id;
+
     /**
      * @var string
      */
     private $name;
+
     /**
      * @var int
      */
     private $active;
+
     /**
      * @var int
      */
     private $async;
+
     /**
      * @var DateTime
      */
@@ -33,6 +39,7 @@ class Event extends AbstractModel
      * @var Element[]
      */
     private $elements;
+
     /**
      * @var Trigger[]
      */
@@ -56,11 +63,13 @@ class Event extends AbstractModel
 
     /**
      * @param int $id
+     *
      * @return Event
      */
     public function setId(int $id): Event
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -74,11 +83,13 @@ class Event extends AbstractModel
 
     /**
      * @param string $name
+     *
      * @return Event
      */
     public function setName(string $name): Event
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -92,11 +103,13 @@ class Event extends AbstractModel
 
     /**
      * @param int $active
+     *
      * @return Event
      */
     public function setActive(int $active): Event
     {
         $this->active = $active;
+
         return $this;
     }
 
@@ -110,11 +123,13 @@ class Event extends AbstractModel
 
     /**
      * @param int $async
+     *
      * @return Event
      */
     public function setAsync(int $async): Event
     {
         $this->async = $async;
+
         return $this;
     }
 
@@ -128,11 +143,13 @@ class Event extends AbstractModel
 
     /**
      * @param DateTime $modified
+     *
      * @return Event
      */
     public function setModified(DateTime $modified): Event
     {
         $this->modified = $modified;
+
         return $this;
     }
 
@@ -146,21 +163,25 @@ class Event extends AbstractModel
 
     /**
      * @param Element[]|AbstractModel[] $elements
+     *
      * @return Event
      */
     public function setElements(array $elements): Event
     {
         $this->elements = $elements;
+
         return $this;
     }
 
     /**
      * @param Element $element
+     *
      * @return Event
      */
     public function addElement(Element $element): Event
     {
         $this->elements[] = $element;
+
         return $this;
     }
 
@@ -186,21 +207,25 @@ class Event extends AbstractModel
 
     /**
      * @param Trigger[] $triggers
+     *
      * @return Event
      */
     public function setTriggers(array $triggers): Event
     {
         $this->triggers = $triggers;
+
         return $this;
     }
 
     /**
      * @param Trigger $trigger
+     *
      * @return Event
      */
     public function addTrigger(Trigger $trigger): Event
     {
         $this->triggers[] = $trigger;
+
         return $this;
     }
 

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Model\Event;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -14,46 +16,57 @@ class Trigger extends AbstractModel
      * @var int
      */
     private $id;
+
     /**
      * @var int
      */
     private $eventId;
+
     /**
      * @var string
      */
     private $trigger;
+
     /**
      * @var int
      */
     private $masterId;
+
     /**
      * @var int
      */
     private $moduleId;
+
     /**
      * @var int
      */
     private $weekday;
+
     /**
      * @var int
      */
     private $day;
+
     /**
      * @var int
      */
     private $month;
+
     /**
      * @var int
      */
     private $year;
+
     /**
      * @var int
      */
     private $hour;
+
     /**
      * @var int
      */
     private $minute;
+
     /**
      * @var int
      */
@@ -63,10 +76,12 @@ class Trigger extends AbstractModel
      * @var Event
      */
     private $event;
+
     /**
      * @var Master
      */
     private $master;
+
     /**
      * @var Module
      */
@@ -100,11 +115,13 @@ class Trigger extends AbstractModel
 
     /**
      * @param int $id
+     *
      * @return Trigger
      */
     public function setId(int $id): Trigger
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -118,11 +135,13 @@ class Trigger extends AbstractModel
 
     /**
      * @param int $eventId
+     *
      * @return Trigger
      */
     public function setEventId(int $eventId): Trigger
     {
         $this->eventId = $eventId;
+
         return $this;
     }
 
@@ -136,11 +155,13 @@ class Trigger extends AbstractModel
 
     /**
      * @param string $trigger
+     *
      * @return Trigger
      */
     public function setTrigger(string $trigger): Trigger
     {
         $this->trigger = $trigger;
+
         return $this;
     }
 
@@ -154,11 +175,13 @@ class Trigger extends AbstractModel
 
     /**
      * @param int $masterId
+     *
      * @return Trigger
      */
     public function setMasterId(int $masterId): Trigger
     {
         $this->masterId = $masterId;
+
         return $this;
     }
 
@@ -172,11 +195,13 @@ class Trigger extends AbstractModel
 
     /**
      * @param int $moduleId
+     *
      * @return Trigger
      */
     public function setModuleId(int $moduleId): Trigger
     {
         $this->moduleId = $moduleId;
+
         return $this;
     }
 
@@ -190,11 +215,13 @@ class Trigger extends AbstractModel
 
     /**
      * @param int $weekday
+     *
      * @return Trigger
      */
     public function setWeekday(int $weekday): Trigger
     {
         $this->weekday = $weekday;
+
         return $this;
     }
 
@@ -208,11 +235,13 @@ class Trigger extends AbstractModel
 
     /**
      * @param int $day
+     *
      * @return Trigger
      */
     public function setDay(int $day): Trigger
     {
         $this->day = $day;
+
         return $this;
     }
 
@@ -226,11 +255,13 @@ class Trigger extends AbstractModel
 
     /**
      * @param int $month
+     *
      * @return Trigger
      */
     public function setMonth(int $month): Trigger
     {
         $this->month = $month;
+
         return $this;
     }
 
@@ -244,11 +275,13 @@ class Trigger extends AbstractModel
 
     /**
      * @param int $year
+     *
      * @return Trigger
      */
     public function setYear(int $year): Trigger
     {
         $this->year = $year;
+
         return $this;
     }
 
@@ -262,11 +295,13 @@ class Trigger extends AbstractModel
 
     /**
      * @param int $hour
+     *
      * @return Trigger
      */
     public function setHour(int $hour): Trigger
     {
         $this->hour = $hour;
+
         return $this;
     }
 
@@ -280,11 +315,13 @@ class Trigger extends AbstractModel
 
     /**
      * @param int $minute
+     *
      * @return Trigger
      */
     public function setMinute(int $minute): Trigger
     {
         $this->minute = $minute;
+
         return $this;
     }
 
@@ -298,11 +335,13 @@ class Trigger extends AbstractModel
 
     /**
      * @param int $priority
+     *
      * @return Trigger
      */
     public function setPriority(int $priority): Trigger
     {
         $this->priority = $priority;
+
         return $this;
     }
 
@@ -316,6 +355,7 @@ class Trigger extends AbstractModel
 
     /**
      * @param Event $event
+     *
      * @return Trigger
      */
     public function setEvent(Event $event): Trigger
@@ -328,6 +368,7 @@ class Trigger extends AbstractModel
 
     /**
      * @throws SelectError
+     *
      * @return Trigger
      */
     public function loadEvent(): Trigger
@@ -348,6 +389,7 @@ class Trigger extends AbstractModel
 
     /**
      * @param Master $master
+     *
      * @return Trigger
      */
     public function setMaster(Master $master): Trigger
@@ -360,6 +402,7 @@ class Trigger extends AbstractModel
 
     /**
      * @throws SelectError
+     *
      * @return Trigger
      */
     public function loadMaster(): Trigger
@@ -380,6 +423,7 @@ class Trigger extends AbstractModel
 
     /**
      * @param Module $module
+     *
      * @return Trigger
      */
     public function setModule(Module $module): Trigger
@@ -392,6 +436,7 @@ class Trigger extends AbstractModel
 
     /**
      * @throws SelectError
+     *
      * @return Trigger
      */
     public function loadModule(): Trigger

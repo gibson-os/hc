@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Repository\Sequence;
 
 use GibsonOS\Core\Exception\Repository\DeleteError;
@@ -10,6 +12,7 @@ class Element extends AbstractRepository
 {
     /**
      * @param Sequence $sequence
+     *
      * @throws DeleteError
      */
     public static function deleteBySequence(Sequence $sequence)

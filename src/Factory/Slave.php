@@ -1,38 +1,42 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Factory;
 
+use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Utility\Dir;
-use GibsonOS\Core\Utility\Event\CodeGenerator;
+use GibsonOS\Core\Utility\Event\CodeGeneratorService;
 use GibsonOS\Core\Utility\File;
-use GibsonOS\Module\Hc\Model\Module as ModuleModel;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Module as ModuleModel;
 use GibsonOS\Module\Hc\Repository\Attribute as AttributeRepository;
 use GibsonOS\Module\Hc\Repository\Attribute\Value as ValueRepository;
-use GibsonOS\Module\Hc\Repository\Module as ModuleRepository;
 use GibsonOS\Module\Hc\Repository\Event\Trigger as TriggerRepository;
+use GibsonOS\Module\Hc\Repository\Module as ModuleRepository;
 use GibsonOS\Module\Hc\Repository\Type;
-use GibsonOS\Module\Hc\Service\Event;
-use GibsonOS\Module\Hc\Service\Master as MasterService;
+use GibsonOS\Module\Hc\Service\EventService;
+use GibsonOS\Module\Hc\Service\MasterService as MasterService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 
 class Slave
 {
     /**
-     * @param ModuleModel $slaveModel
+     * @param ModuleModel        $slaveModel
      * @param MasterService|null $master
-     * @return AbstractSlave
+     *
      * @throws FileNotFound
      * @throws SelectError
+     *
+     * @return AbstractSlave
      */
     public static function create(ModuleModel $slaveModel, MasterService $master = null): AbstractSlave
     {
         $slaveModel->loadType();
-        $ucFirstHelper =  ucfirst($slaveModel->getType()->getHelper());
+        $ucFirstHelper = ucfirst($slaveModel->getType()->getHelper());
 
-        if (is_null($master)) {
+        if ($master === null) {
             $slaveModel->loadMaster();
             $master = Master::create($slaveModel->getMaster());
         } else {
@@ -45,7 +49,7 @@ class Slave
             throw new FileNotFound('Slave Service ' . $ucFirstHelper . ' nicht gefunden!');
         }
 
-        $event = new Event();
+        $event = new EventService();
 
         if ($slaveModel->getId()) {
             $triggers = TriggerRepository::getByModuleId($slaveModel->getId());
@@ -53,7 +57,7 @@ class Slave
             foreach ($triggers as $trigger) {
                 $event->add(
                     $trigger->getTrigger(),
-                    CodeGenerator::generateByElements($trigger->getEvent()->getElements())
+                    CodeGeneratorService::generateByElements($trigger->getEvent()->getElements())
                 );
             }
         }
@@ -87,11 +91,13 @@ class Slave
     }
 
     /**
-     * @param int $address
+     * @param int                $address
      * @param MasterService|null $master
-     * @return AbstractSlave
+     *
      * @throws FileNotFound
      * @throws SelectError
+     *
+     * @return AbstractSlave
      */
     public static function createByDefaultAddress(int $address, MasterService $master = null): AbstractSlave
     {
@@ -106,13 +112,15 @@ class Slave
     }
 
     /**
-     * @param int $slaveId
-     * @param string|null $helperName
+     * @param int                $slaveId
+     * @param string|null        $helperName
      * @param MasterService|null $master
-     * @return AbstractSlave
+     *
      * @throws FileNotFound
      * @throws GetError
      * @throws SelectError
+     *
+     * @return AbstractSlave
      */
     public static function createBySlaveId(
         int $slaveId,
@@ -123,7 +131,7 @@ class Slave
         $slaveModel->loadType();
 
         if (
-            !is_null($helperName) &&
+            null !== $helperName &&
             $slaveModel->getType()->getHelper() != $helperName
         ) {
             throw new GetError('Slave passt nicht zum Typ');
@@ -133,11 +141,13 @@ class Slave
     }
 
     /**
-     * @param int $address
+     * @param int                $address
      * @param MasterService|null $master
-     * @return AbstractSlave
+     *
      * @throws FileNotFound
      * @throws SelectError
+     *
+     * @return AbstractSlave
      */
     public static function createBlank(int $address, MasterService $master = null): AbstractSlave
     {

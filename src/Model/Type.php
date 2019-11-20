@@ -1,10 +1,13 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Model;
 
 use GibsonOS\Core\Model\AbstractModel;
 
 /**
- * Class Type
+ * Class Type.
+ *
  * @package GibsonOS\Module\Hc\Model
  */
 class Type extends AbstractModel
@@ -13,26 +16,32 @@ class Type extends AbstractModel
      * @var int|null
      */
     private $id;
+
     /**
      * @var string
      */
     private $name;
+
     /**
      * @var string
      */
     private $helper;
+
     /**
      * @var int
      */
     private $network;
+
     /**
      * @var int
      */
     private $hertz;
+
     /**
      * @var int
      */
     private $isHcSlave;
+
     /**
      * @var string|null
      */
@@ -56,11 +65,13 @@ class Type extends AbstractModel
 
     /**
      * @param int $id
+     *
      * @return Type
      */
     public function setId(int $id): Type
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -74,11 +85,13 @@ class Type extends AbstractModel
 
     /**
      * @param string $name
+     *
      * @return Type
      */
     public function setName(string $name): Type
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -92,11 +105,13 @@ class Type extends AbstractModel
 
     /**
      * @param string $helper
+     *
      * @return Type
      */
     public function setHelper(string $helper): Type
     {
         $this->helper = $helper;
+
         return $this;
     }
 
@@ -110,11 +125,13 @@ class Type extends AbstractModel
 
     /**
      * @param int $network
+     *
      * @return Type
      */
     public function setNetwork(int $network): Type
     {
         $this->network = $network;
+
         return $this;
     }
 
@@ -128,11 +145,13 @@ class Type extends AbstractModel
 
     /**
      * @param int $hertz
+     *
      * @return Type
      */
     public function setHertz(int $hertz): Type
     {
         $this->hertz = $hertz;
+
         return $this;
     }
 
@@ -146,11 +165,13 @@ class Type extends AbstractModel
 
     /**
      * @param int $isHcSlave
+     *
      * @return Type
      */
     public function setIsHcSlave(int $isHcSlave): Type
     {
         $this->isHcSlave = $isHcSlave;
+
         return $this;
     }
 
@@ -164,11 +185,13 @@ class Type extends AbstractModel
 
     /**
      * @param string|null $uiSettings
+     *
      * @return Type
      */
     public function setUiSettings(?string $uiSettings): Type
     {
         $this->uiSettings = $uiSettings;
+
         return $this;
     }
 }

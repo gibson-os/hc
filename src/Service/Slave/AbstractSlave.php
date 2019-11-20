@@ -1,180 +1,163 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Service\Slave;
 
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Model\Log as LogModel;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Service\Event;
-use GibsonOS\Module\Hc\Service\Master;
-use GibsonOS\Module\Hc\Service\Server;
-use GibsonOS\Module\Hc\Utility\Transform;
+use GibsonOS\Module\Hc\Service\EventService;
+use GibsonOS\Module\Hc\Service\MasterService;
+use GibsonOS\Module\Hc\Service\ServerService;
+use GibsonOS\Module\Hc\Service\TransformService;
 
 abstract class AbstractSlave extends AbstractService
 {
     const READ_BIT = 1;
+
     const WRITE_BIT = 0;
 
     /**
-     * @var Module
-     */
-    protected $slave;
-    /**
-     * @var Master
+     * @var MasterService
      */
     protected $master;
-    /**
-     * @var Event
-     */
-    protected $event;
+
     /**
      * @var string|null
      */
     private $data;
+
     /**
      * @var int
      */
     private $command;
+
     /**
      * @var int
      */
     private $type;
+
     /**
      * @var array
      */
     protected $attributes;
 
-    abstract public function handshake(): void;
+    /**
+     * @var TransformService
+     */
+    protected $transform;
+
+    /**
+     * @var EventService
+     */
+    protected $event;
+
+    /**
+     * @param Module $slave
+     *
+     * @return Module
+     */
+    abstract public function handshake(Module $slave): Module;
 
     /**
      * Slave constructor.
-     * @param Module $slaveModel
-     * @param Master $master
-     * @param Event $event
-     * @param array $attributes
+     *
+     * @param MasterService    $master
+     * @param EventService     $event
+     * @param TransformService $transform
+     * @param array            $attributes
      */
-    public function __construct(Module $slaveModel, Master $master, Event $event, array $attributes = [])
+    public function __construct(MasterService $master, EventService $event, TransformService $transform, array $attributes = [])
     {
-        $this->slave = $slaveModel;
         $this->master = $master;
         $this->event = $event;
         $this->attributes = $attributes;
+        $this->transform = $transform;
     }
 
     /**
-     * @param int $type
-     * @param int $command
-     * @param null|string $data
-     */
-    public function receive(int $type, int $command, string $data = null): void
-    {
-        $this->type = $type;
-        $this->command = $command;
-        $this->data = $data;
-    }
-
-    /**
-     * @param int $command
+     * @param Module $slave
+     * @param int    $command
      * @param string $data
+     *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function write(int $command, string $data): void
+    public function write(Module $slave, int $command, string $data): void
     {
         $this->master->send(
-            Master::TYPE_DATA,
-            chr($this->getAddressWithReadWriteBit(self::WRITE_BIT)) . chr($command) . $data
+            $slave->getMaster(),
+            MasterService::TYPE_DATA,
+            chr($this->getAddressWithReadWriteBit($slave, self::WRITE_BIT)) . chr($command) . $data
         );
-        $this->master->receiveReceiveReturn();
-        $this->addLog(Master::TYPE_DATA, $command, $data, Server::DIRECTION_OUTPUT);
+        $this->master->receiveReceiveReturn($slave->getMaster());
+        $this->addLog($slave, MasterService::TYPE_DATA, $command, $data, ServerService::DIRECTION_OUTPUT);
     }
 
     /**
-     * @param int $command
-     * @param int $length
-     * @return string
-     * @throws ReceiveError
+     * @param Module $slave
+     * @param int    $command
+     * @param int    $length
+     *
      * @throws AbstractException
+     * @throws ReceiveError
+     * @throws SaveError
+     *
+     * @return string
      */
-    public function read(int $command, int $length): string
+    public function read(Module $slave, int $command, int $length): string
     {
         $this->master->send(
-            Master::TYPE_DATA,
-            chr($this->getAddressWithReadWriteBit(self::READ_BIT)) . chr($command) . chr($length)
+            $slave->getMaster(),
+            MasterService::TYPE_DATA,
+            chr($this->getAddressWithReadWriteBit($slave, self::READ_BIT)) . chr($command) . chr($length)
         );
 
-        $data = $this->master->receiveReadData($this->slave->getAddress(), Master::TYPE_DATA, $command);
-        $this->addLog(Master::TYPE_DATA, $command, $data, Server::DIRECTION_INPUT);
+        $data = $this->master->receiveReadData(
+            $slave->getMaster(),
+            $slave->getAddress(),
+            MasterService::TYPE_DATA,
+            $command
+        );
+        $this->addLog($slave, MasterService::TYPE_DATA, $command, $data, ServerService::DIRECTION_INPUT);
 
         return $data;
     }
 
     /**
-     * @return Module
-     */
-    public function getModel(): Module
-    {
-        return $this->slave;
-    }
-
-    /**
-     * @param int $bit
+     * @param Module $slave
+     * @param int    $bit
+     *
      * @return int
      */
-    private function getAddressWithReadWriteBit(int $bit): int
+    private function getAddressWithReadWriteBit(Module $slave, int $bit): int
     {
-        return ($this->slave->getAddress()<<1) | $bit;
+        return ($slave->getAddress() << 1) | $bit;
     }
 
     /**
-     * @return null|string
-     */
-    public function getData(): ?string
-    {
-        return $this->data;
-    }
-
-    /**
-     * @return int
-     */
-    public function getCommand(): int
-    {
-        return $this->command;
-    }
-
-    /**
-     * @return int
-     */
-    public function getType(): int
-    {
-        return $this->type;
-    }
-
-    /**
-     * @return Event
-     */
-    public function getEvent(): Event
-    {
-        return $this->event;
-    }
-
-    /**
-     * @param int $type
-     * @param int $command
+     * @param Module $slave
+     * @param int    $type
+     * @param int    $command
      * @param string $data
      * @param string $direction
+     *
      * @throws SaveError
+     * @throws DateTimeError
      */
-    private function addLog(int $type, int $command, string $data, string $direction): void
+    private function addLog(Module $slave, int $type, int $command, string $data, string $direction): void
     {
         (new LogModel())
-            ->setMasterId($this->master->getModel()->getId())
-            ->setModuleId($this->slave->getId())
-            ->setSlaveAddress($this->slave->getAddress())
+            ->setMasterId($slave->getMaster()->getId())
+            ->setModuleId($slave->getId())
+            ->setSlaveAddress($slave->getAddress())
             ->setType($type)
             ->setCommand($command)
-            ->setData(Transform::asciiToHex($data))
+            ->setData($this->transform->asciiToHex($data))
             ->setDirection($direction)
             ->save();
     }

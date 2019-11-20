@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Repository\Event;
 
 use DateTime;
@@ -13,6 +15,7 @@ class Trigger extends AbstractRepository
 {
     /**
      * @param int $masterId
+     *
      * @return TriggerModel[]
      */
     public static function getByMasterId($masterId)
@@ -29,6 +32,7 @@ class Trigger extends AbstractRepository
 
     /**
      * @param int $moduleId
+     *
      * @return TriggerModel[]
      */
     public static function getByModuleId($moduleId)
@@ -80,7 +84,7 @@ class Trigger extends AbstractRepository
             'triggerYear' => '`hc_event_trigger`.`year`',
             'triggerHour' => '`hc_event_trigger`.`hour`',
             'triggerMinute' => '`hc_event_trigger`.`minute`',
-            'triggerPriority' => '`hc_event_trigger`.`priority`'
+            'triggerPriority' => '`hc_event_trigger`.`priority`',
         ]);
 
         return $table;
@@ -88,16 +92,17 @@ class Trigger extends AbstractRepository
 
     /**
      * @param stdClass[] $events
+     *
      * @return TriggerModel[]
      */
     private static function matchModels($events)
     {
         /**
-         * @var TriggerModel[] $models
+         * @var TriggerModel[]
          */
         $models = [];
         /**
-         * @var EventModel[] $eventModels
+         * @var EventModel[]
          */
         $eventModels = [];
         $elementModels = [];

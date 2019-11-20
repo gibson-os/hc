@@ -6,7 +6,12 @@
     "ext-mbstring": "*"
   },
   "require-dev": {
-    "codeception/codeception": "^3.1"
+    "codeception/codeception": "^3.1",
+    "friendsofphp/php-cs-fixer": "^2.15",
+    "phpstan/phpstan": "^0.11.19",
+    "phpmd/phpmd": "^2.7",
+    "captainhook/captainhook": "^4.5",
+    "captainhook/plugin-composer": "^4.0"
   },
   "repositories": [
     {
@@ -22,5 +27,14 @@
     "psr-4": {
       "GibsonOS\\Module\\Hc\\": "src/"
     }
+  },
+  "scripts": {
+    "php-cs": "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose",
+    "php-cs-dry": "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose --dry-run",
+    "php-stan": "php ./vendor/phpstan/phpstan/bin/phpstan analyse -l 7 src",
+    "php-md": "php ./vendor/phpmd/phpmd/src/bin/phpmd src text ruleset.xml",
+    "php-unit": "php ./vendor/codeception/codeception/codecept run unit --ext DotReporter",
+    "php-unit-push": "php ./vendor/codeception/codeception/codecept run unit --ext DotReporter --no-ansi --no-colors",
+    "php-unit-add": "php ./vendor/codeception/codeception/codecept generate:test unit"
   }
 }

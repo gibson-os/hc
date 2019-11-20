@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Factory;
 
 use GibsonOS\Core\Exception\FileNotFound;
@@ -8,8 +10,10 @@ class Protocol
 {
     /**
      * @param string $protocolName
-     * @return AbstractProtocol
+     *
      * @throws FileNotFound
+     *
+     * @return AbstractProtocol
      */
     public static function create($protocolName)
     {

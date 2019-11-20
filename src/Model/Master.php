@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTime;
@@ -12,22 +14,27 @@ class Master extends AbstractModel
      * @var int|null
      */
     private $id;
+
     /**
      * @var string
      */
     private $name;
+
     /**
      * @var string
      */
     private $protocol;
+
     /**
      * @var int
      */
     private $address;
+
     /**
      * @var DateTime
      */
     private $added;
+
     /**
      * @var DateTime
      */
@@ -51,11 +58,13 @@ class Master extends AbstractModel
 
     /**
      * @param int $id
+     *
      * @return Master
      */
     public function setId(int $id): Master
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -69,11 +78,13 @@ class Master extends AbstractModel
 
     /**
      * @param string $name
+     *
      * @return Master
      */
     public function setName(string $name): Master
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -87,11 +98,13 @@ class Master extends AbstractModel
 
     /**
      * @param string $protocol
+     *
      * @return Master
      */
     public function setProtocol(string $protocol): Master
     {
         $this->protocol = $protocol;
+
         return $this;
     }
 
@@ -105,16 +118,18 @@ class Master extends AbstractModel
 
     /**
      * @param int $address
+     *
      * @return Master
      */
     public function setAddress(int $address): Master
     {
         $this->address = $address;
+
         return $this;
     }
 
     /**
-     * @return null|DateTime
+     * @return DateTime|null
      */
     public function getAdded(): DateTime
     {
@@ -123,16 +138,18 @@ class Master extends AbstractModel
 
     /**
      * @param DateTime $added
+     *
      * @return Master
      */
     public function setAdded(DateTime $added): Master
     {
         $this->added = $added;
+
         return $this;
     }
 
     /**
-     * @return null|DateTime
+     * @return DateTime|null
      */
     public function getModified(): ?DateTime
     {
@@ -141,11 +158,13 @@ class Master extends AbstractModel
 
     /**
      * @param DateTime $modified
+     *
      * @return Master
      */
     public function setModified(DateTime $modified): Master
     {
         $this->modified = $modified;
+
         return $this;
     }
 }

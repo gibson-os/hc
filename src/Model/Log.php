@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTime;
@@ -12,34 +14,42 @@ class Log extends AbstractModel
      * @var int|null
      */
     private $id;
+
     /**
      * @var int|null
      */
     private $moduleId;
+
     /**
      * @var DateTime|null
      */
     private $added;
+
     /**
      * @var int|null
      */
     private $masterId;
+
     /**
      * @var int|null
      */
     private $slaveAddress;
+
     /**
      * @var int
      */
     private $type;
+
     /**
      * @var int|null
      */
     private $command;
+
     /**
      * @var string
      */
     private $data;
+
     /**
      * @var string
      */
@@ -49,6 +59,7 @@ class Log extends AbstractModel
      * @var Module
      */
     private $module;
+
     /**
      * @var Master
      */
@@ -83,11 +94,13 @@ class Log extends AbstractModel
 
     /**
      * @param int $id
+     *
      * @return Log
      */
     public function setId(int $id): Log
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -101,11 +114,13 @@ class Log extends AbstractModel
 
     /**
      * @param int|null $moduleId
+     *
      * @return Log
      */
     public function setModuleId(?int $moduleId): Log
     {
         $this->moduleId = $moduleId;
+
         return $this;
     }
 
@@ -119,11 +134,13 @@ class Log extends AbstractModel
 
     /**
      * @param DateTime $added
+     *
      * @return Log
      */
     public function setAdded(DateTime $added): Log
     {
         $this->added = $added;
+
         return $this;
     }
 
@@ -137,11 +154,13 @@ class Log extends AbstractModel
 
     /**
      * @param int|null $masterId
+     *
      * @return Log
      */
     public function setMasterId(?int $masterId): Log
     {
         $this->masterId = $masterId;
+
         return $this;
     }
 
@@ -155,11 +174,13 @@ class Log extends AbstractModel
 
     /**
      * @param int|null $slaveAddress
+     *
      * @return Log
      */
     public function setSlaveAddress(?int $slaveAddress): Log
     {
         $this->slaveAddress = $slaveAddress;
+
         return $this;
     }
 
@@ -173,11 +194,13 @@ class Log extends AbstractModel
 
     /**
      * @param int $type
+     *
      * @return Log
      */
     public function setType(int $type): Log
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -191,11 +214,13 @@ class Log extends AbstractModel
 
     /**
      * @param int|null $command
+     *
      * @return Log
      */
     public function setCommand(?int $command): Log
     {
         $this->command = $command;
+
         return $this;
     }
 
@@ -209,11 +234,13 @@ class Log extends AbstractModel
 
     /**
      * @param string $data
+     *
      * @return Log
      */
     public function setData(string $data): Log
     {
         $this->data = $data;
+
         return $this;
     }
 
@@ -227,11 +254,13 @@ class Log extends AbstractModel
 
     /**
      * @param string $direction
+     *
      * @return Log
      */
     public function setDirection(string $direction): Log
     {
         $this->direction = $direction;
+
         return $this;
     }
 
@@ -245,6 +274,7 @@ class Log extends AbstractModel
 
     /**
      * @param Module $module
+     *
      * @return Log
      */
     public function setModule(Module $module): Log
@@ -265,6 +295,7 @@ class Log extends AbstractModel
 
     /**
      * @param Master $master
+     *
      * @return Log
      */
     public function setMaster(Master $master): Log
@@ -277,21 +308,25 @@ class Log extends AbstractModel
 
     /**
      * @throws SelectError
+     *
      * @return Log
      */
     public function loadMaster()
     {
         $this->loadForeignRecord($this->getMaster(), $this->getMasterId());
+
         return $this;
     }
 
     /**
      * @throws SelectError
+     *
      * @return Log
      */
     public function loadModule()
     {
         $this->loadForeignRecord($this->getModule(), $this->getModuleId());
+
         return $this;
     }
 }

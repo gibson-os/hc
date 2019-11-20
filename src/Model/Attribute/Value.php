@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Model\Attribute;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -12,10 +14,12 @@ class Value extends AbstractModel
      * @var int
      */
     private $attributeId;
+
     /**
      * @var int
      */
     private $order;
+
     /**
      * @var string
      */
@@ -54,11 +58,13 @@ class Value extends AbstractModel
 
     /**
      * @param int $attributeId
+     *
      * @return Value
      */
     public function setAttributeId(int $attributeId): Value
     {
         $this->attributeId = $attributeId;
+
         return $this;
     }
 
@@ -72,11 +78,13 @@ class Value extends AbstractModel
 
     /**
      * @param int $order
+     *
      * @return Value
      */
     public function setOrder(int $order): Value
     {
         $this->order = $order;
+
         return $this;
     }
 
@@ -90,11 +98,13 @@ class Value extends AbstractModel
 
     /**
      * @param string $value
+     *
      * @return Value
      */
     public function setValue(string $value): Value
     {
         $this->value = $value;
+
         return $this;
     }
 
@@ -108,6 +118,7 @@ class Value extends AbstractModel
 
     /**
      * @param Attribute $attribute
+     *
      * @return Value
      */
     public function setAttribute(Attribute $attribute): Value
@@ -120,11 +131,13 @@ class Value extends AbstractModel
 
     /**
      * @throws SelectError
+     *
      * @return Value
      */
     public function loadAttribute(): Value
     {
         $this->loadForeignRecord($this->getAttribute(), $this->getAttributeId());
+
         return $this;
     }
 }

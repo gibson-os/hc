@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Repository;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -9,8 +11,10 @@ class Type extends AbstractRepository
 {
     /**
      * @param int $address
-     * @return TypeModel
+     *
      * @throws SelectError
+     *
+     * @return TypeModel
      */
     public static function getByDefaultAddress($address)
     {
@@ -38,8 +42,10 @@ class Type extends AbstractRepository
 
     /**
      * @param int $id
-     * @return TypeModel
+     *
      * @throws SelectError
+     *
+     * @return TypeModel
      */
     public static function getById(int $id): TypeModel
     {
@@ -63,8 +69,10 @@ class Type extends AbstractRepository
 
     /**
      * @param string $helperName
-     * @return TypeModel
+     *
      * @throws SelectError
+     *
+     * @return TypeModel
      */
     public static function getByHelperName(string $helperName): TypeModel
     {
@@ -88,12 +96,14 @@ class Type extends AbstractRepository
 
     /**
      * @param string $name
-     * @param bool $onlyHcSlave
-     * @param null $network
-     * @return TypeModel[]
+     * @param bool   $onlyHcSlave
+     * @param null   $network
+     *
      * @throws SelectError
+     *
+     * @return TypeModel[]
      */
-    static function findByName($name, $onlyHcSlave = false, $network = null)
+    public static function findByName($name, $onlyHcSlave = false, $network = null)
     {
         $tableName = TypeModel::getTableName();
         $table = self::getTable($tableName);

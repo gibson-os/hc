@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Repository;
 
 use DateTime;
@@ -15,14 +17,16 @@ class Attribute extends AbstractRepository
 {
     /**
      * @param ModuleModel $module
-     * @param null|int $subId
-     * @param null|string $key
-     * @param null|string $type
-     * @return AttributeModel[]
+     * @param int|null    $subId
+     * @param string|null $key
+     * @param string|null $type
+     *
      * @throws SelectError
      * @throws Exception
+     *
+     * @return AttributeModel[]
      */
-    static function getByModule(ModuleModel $module, $subId = null, $key = null, $type = null): array
+    public static function getByModule(ModuleModel $module, $subId = null, $key = null, $type = null): array
     {
         $table = self::getTable(AttributeModel::getTableName());
 
@@ -30,15 +34,15 @@ class Attribute extends AbstractRepository
             '`type_id`=' . self::escape($module->getTypeId()) . ' AND ' .
             '`module_id`=' . self::escape($module->getId());
 
-        if (!is_null($subId)) {
+        if (null !== $subId) {
             $where .= ' AND `sub_id`=' . self::escape($subId);
         }
 
-        if (!is_null($key)) {
+        if (null !== $key) {
             $where .= ' AND `key`=' . self::escape($key);
         }
 
-        if (!is_null($type)) {
+        if (null !== $type) {
             $where .= ' AND `type`=' . self::escape($type);
         }
 
@@ -66,13 +70,14 @@ class Attribute extends AbstractRepository
 
     /**
      * @param ModuleModel $module
-     * @param array $values
-     * @param null|int $subId
-     * @param null|string $key
-     * @param null|string $type
+     * @param array       $values
+     * @param int|null    $subId
+     * @param string|null $key
+     * @param string|null $type
+     *
      * @throws SaveError
      */
-    static function addByModule(ModuleModel $module, $values, $subId = null, $key = null, $type = null)
+    public static function addByModule(ModuleModel $module, $values, $subId = null, $key = null, $type = null)
     {
         $attribute = (new AttributeModel())
             ->setModule($module)
@@ -92,8 +97,9 @@ class Attribute extends AbstractRepository
 
     /**
      * @param ModuleModel $module
-     * @param null $type
-     * @param null $subId
+     * @param null        $type
+     * @param null        $subId
+     *
      * @return int
      */
     public static function countByModule(ModuleModel $module, $type = null, $subId = null): int
@@ -104,25 +110,26 @@ class Attribute extends AbstractRepository
             '`module_id`=' . self::escape($module->getId()) . ' AND ' .
             '`type_id`=' . self::escape($module->getTypeId());
 
-        if (!is_null($type)) {
+        if (null !== $type) {
             $where .= ' AND `type`=' . self::escape($type);
         }
 
-        if (!is_null($subId)) {
+        if (null !== $subId) {
             $where .= ' AND `sub_id`=' . self::escape($subId);
         }
 
         $table->setWhere($where);
         $count = $table->selectAggregate('COUNT(`id`)');
 
-        return (int)$count[0];
+        return (int) $count[0];
     }
 
     /**
      * @param ModuleModel $module
-     * @param null $subId
-     * @param null $key
-     * @param null $type
+     * @param null        $subId
+     * @param null        $key
+     * @param null        $type
+     *
      * @throws DeleteError
      */
     public static function deleteWithBiggerSubIds(ModuleModel $module, $subId = null, $key = null, $type = null)
@@ -133,15 +140,15 @@ class Attribute extends AbstractRepository
             '`type_id`=' . self::escape($module->getTypeId()) . ' AND ' .
             '`module_id`=' . self::escape($module->getId());
 
-        if (!is_null($subId)) {
+        if (null !== $subId) {
             $where .= ' AND `sub_id`>' . self::escape($subId);
         }
 
-        if (!is_null($key)) {
+        if (null !== $key) {
             $where .= ' AND `key`=' . self::escape($key);
         }
 
-        if (!is_null($type)) {
+        if (null !== $type) {
             $where .= ' AND `type`=' . self::escape($type);
         }
 

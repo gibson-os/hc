@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Repository;
 
 use GibsonOS\Core\Exception\GetError;
@@ -11,16 +13,18 @@ use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 class Module extends AbstractRepository
 {
     const START_ADDRESS = 2;
+
     const MAX_GENERATE_DEVICE_ID_RETRY = 10;
 
-
     /**
-     * @param string $name
+     * @param string   $name
      * @param int|null $typeId
-     * @return ModuleModel[]
+     *
      * @throws SelectError
+     *
+     * @return ModuleModel[]
      */
-    static function findByName(string $name, int $typeId = null)
+    public static function findByName(string $name, int $typeId = null)
     {
         $tableName = ModuleModel::getTableName();
         $table = self::getTable($tableName);
@@ -53,6 +57,7 @@ class Module extends AbstractRepository
 
     /**
      * @param int $masterId
+     *
      * @return ModuleModel[]
      */
     public static function getByMasterId($masterId)
@@ -77,8 +82,10 @@ class Module extends AbstractRepository
 
     /**
      * @param int $deviceId
-     * @return ModuleModel
+     *
      * @throws SelectError
+     *
+     * @return ModuleModel
      */
     public static function getByDeviceId($deviceId)
     {
@@ -101,8 +108,10 @@ class Module extends AbstractRepository
 
     /**
      * @param int $id
-     * @return ModuleModel
+     *
      * @throws SelectError
+     *
+     * @return ModuleModel
      */
     public static function getById($id)
     {
@@ -126,8 +135,10 @@ class Module extends AbstractRepository
     /**
      * @param int $address
      * @param int $masterId
-     * @return ModuleModel
+     *
      * @throws SelectError
+     *
+     * @return ModuleModel
      */
     public static function getByAddress($address, $masterId)
     {
@@ -153,19 +164,21 @@ class Module extends AbstractRepository
 
     /**
      * @param int $tryCount
-     * @return int
+     *
      * @throws GetError
+     *
+     * @return int
      */
     public static function getFreeDeviceId($tryCount = 0)
     {
         $deviceId = mt_rand(1, AbstractHcSlave::MAX_DEVICE_ID);
-        $tryCount++;
+        ++$tryCount;
 
         $table = self::getTable(ModuleModel::getTableName());
         $table->setWhere('`device_id`=' . self::escape($deviceId));
         $table->setLimit(1);
 
-        $count = $table->selectAggregate("COUNT(`device_id`)");
+        $count = $table->selectAggregate('COUNT(`device_id`)');
 
         if ($count[0]) {
             if ($tryCount === self::MAX_GENERATE_DEVICE_ID_RETRY) {
@@ -180,9 +193,10 @@ class Module extends AbstractRepository
 
     /**
      * @param $id
+     *
      * @throws DeleteError
      */
-    static function deleteById($id)
+    public static function deleteById($id)
     {
         $table = self::getTable(ModuleModel::getTableName());
         $table->setWhere('`id`=' . self::escape($id));
@@ -190,6 +204,7 @@ class Module extends AbstractRepository
         if (!$table->delete()) {
             $exception = new DeleteError('Modul konnten nicht gelöscht werden!');
             $exception->setTable($table);
+
             throw $exception;
         }
     }

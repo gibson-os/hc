@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Repository;
 
 use DateTime;
@@ -16,6 +18,7 @@ class Master extends AbstractRepository
 
     /**
      * @param string $protocol
+     *
      * @return MasterModel[]
      */
     public static function getByProtocol($protocol)
@@ -40,8 +43,10 @@ class Master extends AbstractRepository
 
     /**
      * @param int $id
-     * @return MasterModel
+     *
      * @throws SelectError
+     *
+     * @return MasterModel
      */
     public static function getById($id)
     {
@@ -65,8 +70,10 @@ class Master extends AbstractRepository
     /**
      * @param int $address
      * @param int $protocol
-     * @return MasterModel
+     *
      * @throws SelectError
+     *
+     * @return MasterModel
      */
     public static function getByAddress($address, $protocol)
     {
@@ -92,9 +99,11 @@ class Master extends AbstractRepository
 
     /**
      * @param string $name
-     * @param int $protocol
-     * @return MasterModel
+     * @param int    $protocol
+     *
      * @throws SelectError
+     *
+     * @return MasterModel
      */
     public static function getByName($name, $protocol)
     {
@@ -121,24 +130,26 @@ class Master extends AbstractRepository
     /**
      * @param string $name
      * @param string $protocol
-     * @return MasterModel
+     *
      * @throws SaveError
      * @throws Exception
+     *
+     * @return MasterModel
      */
     public static function add($name, $protocol)
     {
         $table = self::getTable(MasterModel::getTableName());
 
-        $table->setWhere("`protocol`=" . self::escape($protocol));
-        $address = $table->selectAggregate("MAX(`address`)");
+        $table->setWhere('`protocol`=' . self::escape($protocol));
+        $address = $table->selectAggregate('MAX(`address`)');
 
         if (
             !$address ||
-            is_null($address[0])
+            $address[0] === null
         ) {
             $address = self::START_ADDRESS;
         } else {
-            $address = $address[0]+1;
+            $address = $address[0] + 1;
         }
 
         $model = new MasterModel();
@@ -153,8 +164,10 @@ class Master extends AbstractRepository
 
     /**
      * @param int $masterId
-     * @return int
+     *
      * @throws SelectError
+     *
+     * @return int
      */
     public static function getNextFreeAddress($masterId)
     {
@@ -166,7 +179,7 @@ class Master extends AbstractRepository
 
         $table->appendUnion(null, '`address`');
         $table->appendUnion($typeDefaultAddressTable->getSelect());
-        $table->setOrderBy("`address`");
+        $table->setOrderBy('`address`');
 
         if (!$table->selectUnion(false)) {
             $exception = new SelectError('Konnte reservierte Adressen nicht laden!');
@@ -179,7 +192,7 @@ class Master extends AbstractRepository
         $address = 3;
 
         while (in_array($address, $reservedAddresses)) {
-            $address++;
+            ++$address;
 
             if ($address > ModuleModel::MAX_ADDRESS) {
                 $exception = new SelectError('Keine freie Adresse vorhanden!');

@@ -1,6 +1,9 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Repository;
 
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Log as LogModel;
@@ -8,12 +11,14 @@ use GibsonOS\Module\Hc\Model\Log as LogModel;
 class Log extends AbstractRepository
 {
     /**
-     * @param int $moduleId
-     * @param null|int $command
-     * @param null|int $type
-     * @param null|string $direction
-     * @return LogModel
+     * @param int         $moduleId
+     * @param int|null    $command
+     * @param int|null    $type
+     * @param string|null $direction
+     *
      * @throws SelectError
+     *
+     * @return LogModel
      */
     public static function getLastEntryByModuleId($moduleId, $command = null, $type = null, $direction = null)
     {
@@ -36,12 +41,14 @@ class Log extends AbstractRepository
     }
 
     /**
-     * @param int $masterId
-     * @param null|int $command
-     * @param null|int $type
-     * @param null|string $direction
-     * @return LogModel
+     * @param int         $masterId
+     * @param int|null    $command
+     * @param int|null    $type
+     * @param string|null $direction
+     *
      * @throws SelectError
+     *
+     * @return LogModel
      */
     public static function getLastEntryByMasterId($masterId, $command = null, $type = null, $direction = null)
     {
@@ -64,44 +71,54 @@ class Log extends AbstractRepository
     }
 
     /**
-     * @param null|int $command
-     * @param null|int $type
-     * @param null|string $direction
+     * @param int|null    $command
+     * @param int|null    $type
+     * @param string|null $direction
+     *
      * @return string
      */
     private static function completeWhere($command = null, $type = null, $direction = null)
     {
         $where = '';
 
-        if (!is_null($command)) {
+        if (null !== $command) {
             $where .= ' AND `command`=' . self::escape($command);
         }
 
-        if (!is_null($type)) {
+        if (null !== $type) {
             $where .= ' AND `type`=' . self::escape($type);
         }
 
-        if (!is_null($direction)) {
+        if (null !== $direction) {
             $where .= ' AND `direction`=' . self::escape($direction);
         }
 
         return $where;
     }
+
     /**
-     * @param int $id
-     * @param int $moduleId
-     * @param null|int $command
-     * @param null|int $type
-     * @param null|string $direction
-     * @return LogModel
+     * @param int         $id
+     * @param int         $moduleId
+     * @param int|null    $command
+     * @param int|null    $type
+     * @param string|null $direction
+     *
      * @throws SelectError
+     * @throws DateTimeError
+     *
+     * @return LogModel
      */
-    public static function getPreviewEntryByModuleId($id, $moduleId, $command = null, $type = null, $direction = null)
-    {
+    public static function getPreviewEntryByModuleId(
+        int $id,
+        int $moduleId,
+        int $command = null,
+        int $type = null,
+        string $direction = null
+    ) {
         $table = self::getTable(LogModel::getTableName());
         $table->setWhere(
-            '`id`<' . self::escape($id) . ' AND ' .
-            '`module_id`=' . self::escape($moduleId) .
+            '`id`<' . self::escape((string) $id) . ' AND ' .
+            '`module_id`=' . self::escape((string) $moduleId) .
             self::completeWhere($command, $type, $direction)
         );
         $table->setLimit(1);

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTime;
@@ -12,22 +14,27 @@ class Sequence extends AbstractModel
      * @var int|null
      */
     private $id;
+
     /**
      * @var string
      */
     private $name;
+
     /**
      * @var int|null
      */
     private $typeId;
+
     /**
      * @var int|null
      */
     private $moduleId;
+
     /**
      * @var int|null
      */
     private $type;
+
     /**
      * @var DateTime|null
      */
@@ -37,10 +44,12 @@ class Sequence extends AbstractModel
      * @var Type|null
      */
     private $typeModel;
+
     /**
      * @var Module|null
      */
     private $module;
+
     /**
      * @var Element[]
      */
@@ -64,11 +73,13 @@ class Sequence extends AbstractModel
 
     /**
      * @param int|null $id
+     *
      * @return Sequence
      */
     public function setId(?int $id): Sequence
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -82,11 +93,13 @@ class Sequence extends AbstractModel
 
     /**
      * @param string $name
+     *
      * @return Sequence
      */
     public function setName(string $name): Sequence
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -100,11 +113,13 @@ class Sequence extends AbstractModel
 
     /**
      * @param int|null $typeId
+     *
      * @return Sequence
      */
     public function setTypeId(?int $typeId): Sequence
     {
         $this->typeId = $typeId;
+
         return $this;
     }
 
@@ -118,11 +133,13 @@ class Sequence extends AbstractModel
 
     /**
      * @param int|null $moduleId
+     *
      * @return Sequence
      */
     public function setModuleId(?int $moduleId): Sequence
     {
         $this->moduleId = $moduleId;
+
         return $this;
     }
 
@@ -136,11 +153,13 @@ class Sequence extends AbstractModel
 
     /**
      * @param int|null $type
+     *
      * @return Sequence
      */
     public function setType(?int $type): Sequence
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -154,11 +173,13 @@ class Sequence extends AbstractModel
 
     /**
      * @param DateTime|null $added
+     *
      * @return Sequence
      */
     public function setAdded(?DateTime $added): Sequence
     {
         $this->added = $added;
+
         return $this;
     }
 
@@ -172,6 +193,7 @@ class Sequence extends AbstractModel
 
     /**
      * @param Type|null $typeModel
+     *
      * @return Sequence
      */
     public function setTypeModel(?Type $typeModel): Sequence
@@ -192,6 +214,7 @@ class Sequence extends AbstractModel
 
     /**
      * @param Module|null $module
+     *
      * @return Sequence
      */
     public function setModule(?Module $module): Sequence
@@ -212,37 +235,44 @@ class Sequence extends AbstractModel
 
     /**
      * @param Element[] $elements
+     *
      * @return Sequence
      */
     public function setElements(array $elements): Sequence
     {
         $this->elements = $elements;
+
         return $this;
     }
 
     public function addElement(Element $element): Sequence
     {
         $this->elements[] = $element;
+
         return $this;
     }
 
     /**
      * @throws SelectError
+     *
      * @return Sequence
      */
     public function loadType(): Sequence
     {
         $this->loadForeignRecord($this->getTypeModel(), $this->getTypeId());
+
         return $this;
     }
 
     /**
      * @throws SelectError
+     *
      * @return Sequence
      */
     public function loadModule(): Sequence
     {
         $this->loadForeignRecord($this->getModule(), $this->getModuleId());
+
         return $this;
     }
 
@@ -259,6 +289,7 @@ class Sequence extends AbstractModel
                 'sequence_id'
             )
         );
+
         return $this;
     }
 }

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Model\Event;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -14,50 +16,62 @@ class Element extends AbstractModel
      * @var int
      */
     private $id;
+
     /**
      * @var int
      */
     private $eventId;
+
     /**
      * @var int
      */
     private $left;
+
     /**
      * @var int
      */
     private $right;
+
     /**
      * @var int
      */
     private $parentId;
+
     /**
      * @var int
      */
     private $masterId;
+
     /**
      * @var int
      */
     private $moduleId;
+
     /**
      * @var string
      */
     private $class;
+
     /**
      * @var string
      */
     private $function;
+
     /**
      * @var string
      */
     private $params;
+
     /**
      * @var string
      */
     private $command;
+
     /**
      * @var string
      */
     private $operator;
+
     /**
      * @var string
      */
@@ -67,14 +81,17 @@ class Element extends AbstractModel
      * @var Event
      */
     private $event;
+
     /**
      * @var Element
      */
     private $parent;
+
     /**
      * @var Master
      */
     private $master;
+
     /**
      * @var Module
      */
@@ -108,11 +125,13 @@ class Element extends AbstractModel
 
     /**
      * @param int $id
+     *
      * @return Element
      */
     public function setId(int $id): Element
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -126,11 +145,13 @@ class Element extends AbstractModel
 
     /**
      * @param int $eventId
+     *
      * @return Element
      */
     public function setEventId(int $eventId): Element
     {
         $this->eventId = $eventId;
+
         return $this;
     }
 
@@ -144,11 +165,13 @@ class Element extends AbstractModel
 
     /**
      * @param int $left
+     *
      * @return Element
      */
     public function setLeft(int $left): Element
     {
         $this->left = $left;
+
         return $this;
     }
 
@@ -162,11 +185,13 @@ class Element extends AbstractModel
 
     /**
      * @param int $right
+     *
      * @return Element
      */
     public function setRight(int $right): Element
     {
         $this->right = $right;
+
         return $this;
     }
 
@@ -180,11 +205,13 @@ class Element extends AbstractModel
 
     /**
      * @param int $parentId
+     *
      * @return Element
      */
     public function setParentId(int $parentId): Element
     {
         $this->parentId = $parentId;
+
         return $this;
     }
 
@@ -198,11 +225,13 @@ class Element extends AbstractModel
 
     /**
      * @param int $masterId
+     *
      * @return Element
      */
     public function setMasterId(int $masterId): Element
     {
         $this->masterId = $masterId;
+
         return $this;
     }
 
@@ -216,11 +245,13 @@ class Element extends AbstractModel
 
     /**
      * @param int $moduleId
+     *
      * @return Element
      */
     public function setModuleId(int $moduleId): Element
     {
         $this->moduleId = $moduleId;
+
         return $this;
     }
 
@@ -234,11 +265,13 @@ class Element extends AbstractModel
 
     /**
      * @param string $class
+     *
      * @return Element
      */
     public function setClass(string $class): Element
     {
         $this->class = $class;
+
         return $this;
     }
 
@@ -252,11 +285,13 @@ class Element extends AbstractModel
 
     /**
      * @param string $function
+     *
      * @return Element
      */
     public function setFunction(string $function): Element
     {
         $this->function = $function;
+
         return $this;
     }
 
@@ -270,11 +305,13 @@ class Element extends AbstractModel
 
     /**
      * @param string $params
+     *
      * @return Element
      */
     public function setParams(string $params): Element
     {
         $this->params = $params;
+
         return $this;
     }
 
@@ -288,11 +325,13 @@ class Element extends AbstractModel
 
     /**
      * @param string $command
+     *
      * @return Element
      */
     public function setCommand(string $command): Element
     {
         $this->command = $command;
+
         return $this;
     }
 
@@ -306,11 +345,13 @@ class Element extends AbstractModel
 
     /**
      * @param string $operator
+     *
      * @return Element
      */
     public function setOperator(string $operator): Element
     {
         $this->operator = $operator;
+
         return $this;
     }
 
@@ -324,11 +365,13 @@ class Element extends AbstractModel
 
     /**
      * @param string $value
+     *
      * @return Element
      */
     public function setValue(string $value): Element
     {
         $this->value = $value;
+
         return $this;
     }
 
@@ -342,6 +385,7 @@ class Element extends AbstractModel
 
     /**
      * @param Event $event
+     *
      * @return Element
      */
     public function setEvent(Event $event): Element
@@ -354,6 +398,7 @@ class Element extends AbstractModel
 
     /**
      * @throws SelectError
+     *
      * @return Element
      */
     public function loadEvent(): Element
@@ -374,6 +419,7 @@ class Element extends AbstractModel
 
     /**
      * @param Element $parent
+     *
      * @return Element
      */
     public function setParent(Element $parent): Element
@@ -386,6 +432,7 @@ class Element extends AbstractModel
 
     /**
      * @throws SelectError
+     *
      * @return Element
      */
     public function loadParent(): Element
@@ -406,6 +453,7 @@ class Element extends AbstractModel
 
     /**
      * @param Master $master
+     *
      * @return Element
      */
     public function setMaster(Master $master): Element
@@ -418,6 +466,7 @@ class Element extends AbstractModel
 
     /**
      * @throws SelectError
+     *
      * @return Element
      */
     public function loadMaster(): Element
@@ -438,6 +487,7 @@ class Element extends AbstractModel
 
     /**
      * @param Module $module
+     *
      * @return Element
      */
     public function setModule(Module $module): Element
@@ -450,6 +500,7 @@ class Element extends AbstractModel
 
     /**
      * @throws SelectError
+     *
      * @return Element
      */
     public function loadModule(): Element

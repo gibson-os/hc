@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Repository\Attribute;
 
 use DateTime;
@@ -7,38 +9,42 @@ use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Repository\UpdateError;
 use GibsonOS\Core\Repository\AbstractRepository;
+use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
-use GibsonOS\Module\Hc\Model\Attribute;
 
 class Value extends AbstractRepository
 {
     /**
-     * Gibt Werte anhand eine Sub ID zurück
+     * @param int         $typeId
+     * @param int|null    $subId
+     * @param int[]|null  $moduleIds
+     * @param string|null $type
+     * @param string|null $key
+     * @param string|null $order
      *
-     * Gibt Werte anhand der Sub ID $subId zurück.
-     *
-     * @param int $typeId Modul Typen ID
-     * @param bool $subId Sub ID
-     * @param int|array|bool|null $moduleId Wenn false alle Module. Wenn null alle ohne Modul.
-     * @param string|bool|null $type Wenn false alle Typen. Wenn null alle ohne Typen.
-     * @param null|string $key
-     * @param null|int $order
-     * @return ValueModel[]
      * @throws Exception
+     *
+     * @return ValueModel[]
      */
-    public static function getByTypeId($typeId, $subId = false, $moduleId = false, $type = false, $key = null, $order = null): array
-    {
-        $where = '`hc_attribute`.`type_id`=' . self::escape($typeId);
-        $where .= self::getModuleIdWhere($moduleId);
+    public static function getByTypeId(
+        int $typeId,
+        ?int $subId = 0,
+        ?array $moduleIds = [],
+        ?string $type = '',
+        string $key = null,
+        string $order = null
+    ): array {
+        $where = '`hc_attribute`.`type_id`=' . self::escape((string) $typeId);
+        $where .= self::getModuleIdWhere($moduleIds);
         $where .= self::getTypeWhere($type);
         $where .= self::getSubIdWhere($subId);
 
-        if (!is_null($key)) {
+        if (!empty($key)) {
             $where .= ' AND `hc_attribute`.`key`=' . self::escape($key);
         }
 
-        if (!is_null($order)) {
+        if (!empty($order)) {
             $where .= ' AND `hc_attribute_value`.`order`=' . self::escape($order);
         }
 
@@ -47,8 +53,8 @@ class Value extends AbstractRepository
         $table = self::getTable(AttributeModel::getTableName());
         $table->setWhere($where);
         $table->appendJoin('`hc_attribute_value`', '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`');
-        $table->setGroupBy("`hc_attribute`.`id`");
-        $table->setOrderBy("`hc_attribute`.`id`, `hc_attribute_value`.`order`");
+        $table->setGroupBy('`hc_attribute`.`id`');
+        $table->setOrderBy('`hc_attribute`.`id`, `hc_attribute_value`.`order`');
 
         $select =
             '`hc_attribute`.`id`, ' .
@@ -92,33 +98,41 @@ class Value extends AbstractRepository
     }
 
     /**
-     * @param $subId
-     * @param $typeId
-     * @param bool $moduleId
-     * @param bool $type
-     * @param null $key
-     * @param null $order
+     * @param int         $subId
+     * @param int         $typeId
+     * @param int[]|null  $moduleIds
+     * @param string|null $type
+     * @param string      $key
+     * @param string      $order
+     *
      * @throws DeleteError
      * @throws SelectError
      */
-    public static function deleteBySubId($subId, $typeId, $moduleId = false, $type = false, $key = null, $order = null)
-    {
+    public static function deleteBySubId(
+        int $subId,
+        int $typeId,
+        ?array $moduleIds = [],
+        ?string $type = '',
+        string $key = null,
+        string $order = null
+    ): void {
         $where =
-            '`sub_id`=' . self::escape($subId) . ' AND ' .
-            '`type_id`=' . self::escape($typeId);
-        $where .= self::getModuleIdWhere($moduleId);
+            '`sub_id`=' . self::escape((string) $subId) . ' AND ' .
+            '`type_id`=' . self::escape((string) $typeId);
+        $where .= self::getModuleIdWhere($moduleIds);
         $where .= self::getTypeWhere($type);
 
-        if (!is_null($key)) {
+        if (!empty($key)) {
             $where .= ' AND `key`=' . self::escape($key);
         }
 
         $table = self::getTable(AttributeModel::getTableName());
         $table->setWhere($where);
 
-        if (!$table->select(false, "`id`")) {
+        if (!$table->select(false, '`id`')) {
             $exception = new SelectError();
             $exception->setTable($table);
+
             throw $exception;
         }
 
@@ -131,7 +145,7 @@ class Value extends AbstractRepository
         $valueTable = self::getTable(ValueModel::getTableName());
         $where = '`attribute_id` IN (' . self::implode($ids) . ')';
 
-        if (!is_null($order)) {
+        if (!empty($order)) {
             $where .= ' AND `order`=' . self::escape($order);
         }
 
@@ -140,24 +154,33 @@ class Value extends AbstractRepository
         if (!$valueTable->delete()) {
             $exception = new DeleteError('Werte konnten nicht gelöscht werden!');
             $exception->setTable($table);
+
             throw $exception;
         }
     }
 
     /**
-     * @param int $typeId
-     * @param int $startOrder
-     * @param int $updateOrder
-     * @param int|array|bool|null $moduleId
-     * @param int|array|bool|null $type
-     * @param int|bool|null $subId
+     * @param int               $typeId
+     * @param int               $startOrder
+     * @param int               $updateOrder
+     * @param int[]|null        $moduleIds
+     * @param string|null       $type
+     * @param int|bool|null     $subId
      * @param string|array|null $key
+     *
      * @throws UpdateError
      */
-    public static function updateOrder($typeId, $startOrder, $updateOrder, $moduleId = false, $type = false, $subId = false, $key = null)
-    {
-        $where = '`hc_attribute`.`type_id`=' . self::escape($typeId);
-        $where .= self::getModuleIdWhere($moduleId);
+    public static function updateOrder(
+        int $typeId,
+        int $startOrder,
+        int $updateOrder,
+        ?array $moduleIds = [],
+        ?string $type = '',
+        ?int $subId = 0,
+        string $key = null
+    ): void {
+        $where = '`hc_attribute`.`type_id`=' . self::escape((string) $typeId);
+        $where .= self::getModuleIdWhere($moduleIds);
         $where .= self::getTypeWhere($type);
         $where .= self::getSubIdWhere($subId);
         $where .= self::getKeysWhere($key);
@@ -167,57 +190,67 @@ class Value extends AbstractRepository
 
         $table = self::getTable(ValueModel::getTableName());
         $table->setWhere(
-            '`order`>=' . self::escape($startOrder) . ' AND ' .
+            '`order`>=' . self::escape((string) $startOrder) . ' AND ' .
             '`attribute_id` IN (' . mb_substr($attributeTable->getSelect('`id`'), 0, -1) . ')'
         );
 
         if (!$table->update('`order`=`order`+' . $updateOrder)) {
             $exception = new UpdateError();
             $exception->setTable($table);
+
             throw $exception;
         }
     }
 
     /**
-     * Findet Attribute anhand eines Wertes
+     * Findet Attribute anhand eines Wertes.
      *
      * Findet Attribute anhand des Wertes $value.
      *
-     * @param string $value Wert
-     * @param int $typeId Modul Typen ID
-     * @param bool|array|null $keys Wenn null alle Schlüssel.
-     * @param int|array|bool|null $moduleId Wenn false alle Module. Wenn null alle ohne Modul.
-     * @param int|bool|null $subId Wenn false alle Sub IDs. Wenn null alle ohne Sub ID.
-     * @param string|bool|null $type Wenn false alle Typen. Wenn null alle ohne Typen.
-     * @return ValueModel[]
+     * @param string           $value     Wert
+     * @param int              $typeId    Modul Typen ID
+     * @param bool|array|null  $keys      wenn null alle Schlüssel
+     * @param int[]|null       $moduleIds Wenn false alle Module. Wenn null alle ohne Modul.
+     * @param int|bool|null    $subId     Wenn false alle Sub IDs. Wenn null alle ohne Sub ID.
+     * @param string|bool|null $type      Wenn false alle Typen. Wenn null alle ohne Typen.
+     *
+     *@throws Exception
      * @throws SelectError
-     * @throws Exception
+     *
+     * @return ValueModel[]
      */
-    public static function findAttributesByValue($value, $typeId, $keys = false, $moduleId = false, $subId = false, $type = false)
-    {
+    public static function findAttributesByValue(
+        string $value,
+        int $typeId,
+        array $keys = null,
+        ?array $moduleIds = [],
+        ?int $subId = 0,
+        ?string $type = ''
+    ): array {
         $where =
-            "`value`.`value` REGEXP " . self::getRegexString($value) . " AND " .
-            "`hc_attribute`.`type_id`=" . self::escape($typeId);
-        $where .= self::getModuleIdWhere($moduleId);
+            '`value`.`value` REGEXP ' . self::getRegexString($value) . ' AND ' .
+            '`hc_attribute`.`type_id`=' . self::escape((string) $typeId);
+        $where .= self::getModuleIdWhere($moduleIds);
         $where .= self::getSubIdWhere($subId);
         $where .= self::getTypeWhere($type);
         $where .= self::getKeysWhere($keys);
 
         $table = self::getTable(AttributeModel::getTableName());
         $table->setWhere($where);
-        $table->appendJoin("`hc_attribute_value` AS `value`", "`hc_attribute`.`id`=`value`.`attribute_id`");
+        $table->appendJoin('`hc_attribute_value` AS `value`', '`hc_attribute`.`id`=`value`.`attribute_id`');
         $table->appendJoin(
-            "`hc_attribute` AS `attribute`",
-            "IF(`hc_attribute`.`sub_id` IS NULL, `hc_attribute`.`sub_id` IS NULL, `hc_attribute`.`sub_id`=`attribute`.`sub_id`) AND " .
-            "`hc_attribute`.`type_id`=`attribute`.`type_id` AND " .
-            "IF(`hc_attribute`.`type` IS NULL, `hc_attribute`.`type` IS NULL, `hc_attribute`.`type`=`attribute`.`type`) AND " .
-            "IF(`hc_attribute`.`module_id` IS NULL, `hc_attribute`.`module_id` IS NULL, `hc_attribute`.`module_id`=`attribute`.`module_id`)"
+            '`hc_attribute` AS `attribute`',
+            'IF(`hc_attribute`.`sub_id` IS NULL, `hc_attribute`.`sub_id` IS NULL, `hc_attribute`.`sub_id`=`attribute`.`sub_id`) AND ' .
+            '`hc_attribute`.`type_id`=`attribute`.`type_id` AND ' .
+            'IF(`hc_attribute`.`type` IS NULL, `hc_attribute`.`type` IS NULL, `hc_attribute`.`type`=`attribute`.`type`) AND ' .
+            'IF(`hc_attribute`.`module_id` IS NULL, `hc_attribute`.`module_id` IS NULL, `hc_attribute`.`module_id`=`attribute`.`module_id`)'
         );
-        $table->appendJoin("`hc_attribute_value` AS `values`", "`attribute`.`id`=`values`.`attribute_id`");
+        $table->appendJoin('`hc_attribute_value` AS `values`', '`attribute`.`id`=`values`.`attribute_id`');
 
-        if (!$table->select(false, "DISTINCT `attribute`.*, `values`.`value`, `values`.`order`")) {
+        if (!$table->select(false, 'DISTINCT `attribute`.*, `values`.`value`, `values`.`order`')) {
             $exception = new SelectError('Keine Attribute gefunden!');
             $exception->setTable($table);
+
             throw $exception;
         }
 
@@ -233,123 +266,123 @@ class Value extends AbstractRepository
                     ->setSubId($attribute->sub_id)
                     ->setKey($attribute->key)
                     ->setType($attribute->type)
-                    ->setAdded(new DateTime($attribute->added));
+                    ->setAdded(new DateTime($attribute->added))
+                ;
             }
 
             $models[] = (new ValueModel())
                 ->setAttribute($attributeModels[$attribute->id])
                 ->setOrder($attribute->order)
-                ->setValue($attribute->value);
+                ->setValue($attribute->value)
+            ;
         }
 
         return $models;
     }
 
-    public static function countByKey(string $key, int $typeId, $moduleId = false, $type = false): array
+    /**
+     * @param string      $key
+     * @param int         $typeId
+     * @param array|null  $moduleIds
+     * @param string|null $type
+     *
+     * @return int[]
+     */
+    public static function countByKey(string $key, int $typeId, ?array $moduleIds = [], ?string $type = ''): array
     {
         $where =
-            "`hc_attribute`.`key`=" . self::escape($key) . " AND " .
-            "`hc_attribute`.`type_id`=" . self::escape($typeId);
-        $where .= self::getModuleIdWhere($moduleId);
+            '`hc_attribute`.`key`=' . self::escape($key) . ' AND ' .
+            '`hc_attribute`.`type_id`=' . self::escape((string) $typeId);
+        $where .= self::getModuleIdWhere($moduleIds);
         $where .= self::getTypeWhere($type);
 
         $table = self::getTable(AttributeModel::getTableName());
         $table->setWhere($where);
-        $table->appendJoin("`hc_attribute_value` AS `value`", "`hc_attribute`.`id`=`value`.`attribute_id`");
+        $table->appendJoin('`hc_attribute_value` AS `value`', '`hc_attribute`.`id`=`value`.`attribute_id`');
         $table->setGroupBy('`value`.`value`');
 
-        if (!$table->select(false, "`value`.`value`, COUNT(DISTINCT `hc_attribute`.`id`) AS `count`")) {
+        if (!$table->select(false, '`value`.`value`, COUNT(DISTINCT `hc_attribute`.`id`) AS `count`')) {
             return [];
         }
 
         $counts = [];
 
         foreach ($table->connection->fetchObjectList() as $attribute) {
-            $counts[$attribute->value] = $attribute->count;
+            $counts[$attribute->value] = (int) $attribute->count;
         }
 
         return $counts;
     }
 
     /**
-     * Gibt die SQL Where Bedingung für Modules zurück
+     * @param array|null $moduleId
+     * @param string     $table
      *
-     * Gibt die SQL Where Bedingung für Modules $moduleId zurück.
-     *
-     * @param int|array|bool|null $moduleId Wenn false alle Module. Wenn null alle ohne Modul.
-     * @param string $table MySQL Tabellen Präfix
-     * @return null|string
+     * @return string
      */
-    private static function getModuleIdWhere($moduleId, $table = 'hc_attribute')
+    private static function getModuleIdWhere(?array $moduleId, string $table = 'hc_attribute'): string
     {
-        if (is_null($moduleId)) {
+        if ($moduleId === null) {
             return ' AND `' . $table . '`.`module_id` IS NULL';
-        } else if (is_array($moduleId)) {
-            return ' AND `' . $table . '`.`module_id` IN (' . self::implode($moduleId) . ')';
-        } else if ($moduleId === false) {
-            return null;
-        } else {
-            return ' AND `' . $table . '`.`module_id`=' . self::escape($moduleId);
         }
+
+        if (empty($moduleId)) {
+            return '';
+        }
+
+        return ' AND `' . $table . '`.`module_id` IN (' . self::implode($moduleId) . ')';
     }
 
     /**
-     * Gibt die SQL Where Bedingung für Type zurück
+     * @param string|null $type
+     * @param string      $table
      *
-     * Gibt die SQL Where Bedingung für Type $type zurück.
-     *
-     * @param string|bool|null $type Wenn false alle Typen. Wenn null alle ohne Typen.
-     * @param string $table MySQL Tabellen Präfix
-     * @return null|string
+     * @return string
      */
-    private static function getTypeWhere($type, $table = 'hc_attribute')
+    private static function getTypeWhere(?string $type, string $table = 'hc_attribute'): string
     {
-        if (is_null($type)) {
+        if ($type === null) {
             return ' AND `' . $table . '`.`type` IS NULL';
-        } else if ($type === false) {
-            return null;
-        } else {
-            return ' AND `' . $table . '`.`type`=' . self::escape($type);
         }
+
+        if (empty($type)) {
+            return '';
+        }
+
+        return ' AND `' . $table . '`.`type`=' . self::escape($type);
     }
 
     /**
-     * Gibt die SQL Where Bedingung für Schlüssel zurück
+     * @param array|null $keys
+     * @param string     $table
      *
-     * Gibt die SQL Where Bedingung für die Schlüssel $keys zurück.
-     *
-     * @param string|array|null $keys Wenn null alle Schlüssel.
-     * @param string $table MySQL Tabellen Präfix
-     * @return null|string
+     * @return string
      */
-    private static function getKeysWhere($keys, $table = 'hc_attribute')
+    private static function getKeysWhere(?array $keys, string $table = 'hc_attribute'): string
     {
-        if (!$keys) {
-            return null;
-        } else if (is_array($keys)) {
-            return " AND `" . $table . "`.`key` IN (" . self::implode($keys) . ")";
-        } else {
-            return " AND `" . $table . "`.`key`=" . self::escape($keys);
+        if ($keys === null) {
+            return '';
         }
+
+        return ' AND `' . $table . '`.`key` IN (' . self::implode($keys) . ')';
     }
 
     /**
-     * Gibt die SQL Where Bedingung für Sub IDs zurück
+     * @param int|null $subId
+     * @param string   $table
      *
-     * Gibt die SQL Where Bedingung für Sub IDs $subId zurück.
-     *
-     * @param int|bool|null $subId Wenn false alle Sub IDs. Wenn null alle ohne Sub ID.
-     * @param string $table MySQL Tabellen Präfix
-     * @return null|string
+     * @return string
      */
-    private static function getSubIdWhere($subId, $table = 'hc_attribute')
+    private static function getSubIdWhere(?int $subId, string $table = 'hc_attribute'): string
     {
-        if (is_null($subId)) {
-            return " AND `" . $table . "`.`sub_id` IS NULL";
-        } else if ($subId === false) {
-            return null;
-        } else {
-            return " AND `" . $table . "`.`sub_id`=" . self::escape($subId);
+        if ($subId === null) {
+            return ' AND `' . $table . '`.`sub_id` IS NULL';
         }
+
+        if ($subId === 0) {
+            return '';
+        }
+
+        return ' AND `' . $table . '`.`sub_id`=' . self::escape((string) $subId);
     }
 }

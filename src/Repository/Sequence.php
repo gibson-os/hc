@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Repository;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -13,8 +15,10 @@ class Sequence extends AbstractRepository
 {
     /**
      * @param int $id
-     * @return SequenceModel
+     *
      * @throws SelectError
+     *
+     * @return SequenceModel
      */
     public static function getById(int $id): SequenceModel
     {
@@ -31,11 +35,13 @@ class Sequence extends AbstractRepository
     }
 
     /**
-     * @param Module $module
-     * @param string $name
+     * @param Module   $module
+     * @param string   $name
      * @param int|null $type
-     * @return SequenceModel
+     *
      * @throws SelectError
+     *
+     * @return SequenceModel
      */
     public static function getByName(Module $module, string $name, int $type = null): SequenceModel
     {
@@ -67,10 +73,12 @@ class Sequence extends AbstractRepository
     }
 
     /**
-     * @param Module $module
+     * @param Module   $module
      * @param int|null $type
-     * @return SequenceModel[]
+     *
      * @throws SelectError
+     *
+     * @return SequenceModel[]
      */
     public static function getByModule(Module $module, int $type = null): array
     {
@@ -95,10 +103,12 @@ class Sequence extends AbstractRepository
     }
 
     /**
-     * @param Type $typeModel
+     * @param Type     $typeModel
      * @param int|null $type
-     * @return array
+     *
      * @throws SelectError
+     *
+     * @return array
      */
     public static function getByType(Type $typeModel, int $type = null): array
     {
@@ -120,6 +130,7 @@ class Sequence extends AbstractRepository
 
     /**
      * @param mysqlTable $table
+     *
      * @return SequenceModel[]
      */
     private static function getModels(mysqlTable $table): array
@@ -135,6 +146,7 @@ class Sequence extends AbstractRepository
 
     /**
      * @param stdClass $sequence
+     *
      * @return SequenceModel
      */
     private static function getModel(stdClass $sequence): SequenceModel

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace GibsonOS\Module\Hc\Model\Sequence;
 
 use DateTime;
@@ -12,18 +14,22 @@ class Element extends AbstractModel
      * @var int|null
      */
     private $id;
+
     /**
      * @var int
      */
     private $sequenceId;
+
     /**
      * @var string
      */
     private $data;
+
     /**
      * @var int
      */
     private $order = 0;
+
     /**
      * @var DateTime|null
      */
@@ -52,11 +58,13 @@ class Element extends AbstractModel
 
     /**
      * @param int|null $id
+     *
      * @return Element
      */
     public function setId(?int $id): Element
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -70,11 +78,13 @@ class Element extends AbstractModel
 
     /**
      * @param int $sequenceId
+     *
      * @return Element
      */
     public function setSequenceId(int $sequenceId): Element
     {
         $this->sequenceId = $sequenceId;
+
         return $this;
     }
 
@@ -88,11 +98,13 @@ class Element extends AbstractModel
 
     /**
      * @param string $data
+     *
      * @return Element
      */
     public function setData(string $data): Element
     {
         $this->data = $data;
+
         return $this;
     }
 
@@ -106,11 +118,13 @@ class Element extends AbstractModel
 
     /**
      * @param int $order
+     *
      * @return Element
      */
     public function setOrder(int $order): Element
     {
         $this->order = $order;
+
         return $this;
     }
 
@@ -124,11 +138,13 @@ class Element extends AbstractModel
 
     /**
      * @param DateTime|null $added
+     *
      * @return Element
      */
     public function setAdded(?DateTime $added): Element
     {
         $this->added = $added;
+
         return $this;
     }
 
@@ -142,6 +158,7 @@ class Element extends AbstractModel
 
     /**
      * @param Sequence $sequence
+     *
      * @return Element
      */
     public function setSequence(Sequence $sequence): Element
@@ -154,11 +171,13 @@ class Element extends AbstractModel
 
     /**
      * @throws SelectError
+     *
      * @return Element
      */
     public function loadSequence()
     {
         $this->loadForeignRecord($this->getSequence(), $this->getSequenceId());
+
         return $this;
     }
 }
