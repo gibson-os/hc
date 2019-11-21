@@ -57,14 +57,16 @@ class AnimationService
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws Exception
      *
      * @return int|null
      */
-    public function getStarted(): ?int
+    public function getStarted(Module $slave): ?int
     {
         try {
-            $value = $this->getValueModel(self::ATTRIBUTE_KEY_STARTED)->getValue();
+            $value = $this->getValueModel($slave, self::ATTRIBUTE_KEY_STARTED)->getValue();
 
             return $value === '' ? null : (int) $value;
         } catch (SelectError $e) {
@@ -104,8 +106,8 @@ class AnimationService
         } catch (Exception $e) {
         }
 
-        $this->saveAttribute($pidAttribute, $pid ?? '');
-        $this->saveAttribute($startedAttribute, empty($pid) ? '' : (int) (microtime(true) * 1000000));
+        $this->saveAttribute($pidAttribute, (string) ($pid ?? ''));
+        $this->saveAttribute($startedAttribute, empty($pid) ? '' : (string) ((int) (microtime(true) * 1000000)));
 
         $this->attributeRepository->commit();
     }

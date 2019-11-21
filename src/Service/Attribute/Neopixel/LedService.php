@@ -125,12 +125,12 @@ class LedService
      */
     public function getNumberById(Module $slave, int $id): int
     {
-        $config = JsonUtility::decode($slave->getConfig());
+        $config = JsonUtility::decode((string) $slave->getConfig());
         $channelEndId = 0;
 
         foreach ($config['counts'] as $channel => $count) {
             if ($id < $channelEndId + $count) {
-                return $id - $channelEndId;
+                return (int) ($id - $channelEndId);
             }
 
             $channelEndId += $count;
@@ -307,7 +307,7 @@ class LedService
 
         $this->attributeRepository->deleteWithBiggerSubIds(
             $slave,
-            $id,
+            (int) $id,
             null,
             self::ATTRIBUTE_TYPE
         );
@@ -363,7 +363,7 @@ class LedService
      */
     private function getChannelById(Module $slave, int $id): int
     {
-        $config = JsonUtility::decode($slave->getConfig());
+        $config = JsonUtility::decode((string) $slave->getConfig());
         $channelEndId = 0;
 
         foreach ($config['counts'] as $channel => $count) {

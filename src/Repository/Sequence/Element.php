@@ -18,7 +18,7 @@ class Element extends AbstractRepository
     public static function deleteBySequence(Sequence $sequence)
     {
         $table = self::getTable(ElementModel::getTableName());
-        $table->setWhere('`sequence_id`=' . self::escape($sequence->getId()));
+        $table->setWhere('`sequence_id`=' . self::escape((string) $sequence->getId()));
 
         if (!$table->delete()) {
             throw new DeleteError();

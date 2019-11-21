@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Type as TypeModel;
@@ -13,10 +15,12 @@ class Type extends AbstractRepository
      * @param int $address
      *
      * @throws SelectError
+     * @throws DateTimeError
+     * @throws GetError
      *
      * @return TypeModel
      */
-    public static function getByDefaultAddress($address)
+    public static function getByDefaultAddress(int $address): TypeModel
     {
         $tableName = TypeModel::getTableName();
         $table = self::getTable($tableName);
@@ -24,7 +28,7 @@ class Type extends AbstractRepository
             '`hc_type_default_address`',
             '`' . $tableName . '`.`id`=`hc_type_default_address`.`type_id`'
         );
-        $table->setWhere('`hc_type_default_address`.`address`=' . self::escape($address));
+        $table->setWhere('`hc_type_default_address`.`address`=' . self::escape((string) $address));
         $table->setLimit(1);
 
         if (!$table->select()) {
@@ -43,6 +47,8 @@ class Type extends AbstractRepository
     /**
      * @param int $id
      *
+     * @throws DateTimeError
+     * @throws GetError
      * @throws SelectError
      *
      * @return TypeModel
@@ -51,7 +57,7 @@ class Type extends AbstractRepository
     {
         $tableName = TypeModel::getTableName();
         $table = self::getTable($tableName);
-        $table->setWhere('`id`=' . self::escape($id));
+        $table->setWhere('`id`=' . self::escape((string) $id));
         $table->setLimit(1);
 
         if (!$table->select()) {
@@ -70,6 +76,8 @@ class Type extends AbstractRepository
     /**
      * @param string $helperName
      *
+     * @throws DateTimeError
+     * @throws GetError
      * @throws SelectError
      *
      * @return TypeModel
@@ -95,20 +103,22 @@ class Type extends AbstractRepository
     }
 
     /**
-     * @param string $name
-     * @param bool   $onlyHcSlave
-     * @param null   $network
+     * @param string      $name
+     * @param bool        $onlyHcSlave
+     * @param string|null $network
      *
+     * @throws DateTimeError
+     * @throws GetError
      * @throws SelectError
      *
      * @return TypeModel[]
      */
-    public static function findByName($name, $onlyHcSlave = false, $network = null)
+    public static function findByName($name, $onlyHcSlave = false, string $network = null): array
     {
         $tableName = TypeModel::getTableName();
         $table = self::getTable($tableName);
 
-        $where = '`name` LIKE \'' . self::escape($name, false) . '%\'';
+        $where = '`name` LIKE \'' . self::escape($name) . '%\'';
 
         if ($onlyHcSlave) {
             $where .= ' AND `is_hc_slave`=1';

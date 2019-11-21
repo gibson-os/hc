@@ -16,14 +16,19 @@ class Log extends AbstractRepository
      * @param int|null    $type
      * @param string|null $direction
      *
+     * @throws DateTimeError
      * @throws SelectError
      *
      * @return LogModel
      */
-    public static function getLastEntryByModuleId($moduleId, $command = null, $type = null, $direction = null)
-    {
+    public static function getLastEntryByModuleId(
+        int $moduleId,
+        int $command = null,
+        int $type = null,
+        string $direction = null
+    ) {
         $table = self::getTable(LogModel::getTableName());
-        $table->setWhere('`module_id`=' . self::escape($moduleId) . self::completeWhere($command, $type, $direction));
+        $table->setWhere('`module_id`=' . $moduleId . self::completeWhere($command, $type, $direction));
         $table->setLimit(1);
         $table->setOrderBy('`id` DESC');
 
@@ -46,14 +51,19 @@ class Log extends AbstractRepository
      * @param int|null    $type
      * @param string|null $direction
      *
+     * @throws DateTimeError
      * @throws SelectError
      *
      * @return LogModel
      */
-    public static function getLastEntryByMasterId($masterId, $command = null, $type = null, $direction = null)
-    {
+    public static function getLastEntryByMasterId(
+        int $masterId,
+        int $command = null,
+        int $type = null,
+        string $direction = null
+    ) {
         $table = self::getTable(LogModel::getTableName());
-        $table->setWhere('`master_id`=' . self::escape($masterId) . self::completeWhere($command, $type, $direction));
+        $table->setWhere('`master_id`=' . $masterId . self::completeWhere($command, $type, $direction));
         $table->setLimit(1);
         $table->setOrderBy('`id` DESC');
 
@@ -77,19 +87,19 @@ class Log extends AbstractRepository
      *
      * @return string
      */
-    private static function completeWhere($command = null, $type = null, $direction = null)
+    private static function completeWhere(int $command = null, int $type = null, string $direction = null)
     {
         $where = '';
 
-        if (null !== $command) {
-            $where .= ' AND `command`=' . self::escape($command);
+        if ($command !== null) {
+            $where .= ' AND `command`=' . $command;
         }
 
-        if (null !== $type) {
-            $where .= ' AND `type`=' . self::escape($type);
+        if ($type !== null) {
+            $where .= ' AND `type`=' . $type;
         }
 
-        if (null !== $direction) {
+        if ($direction !== null) {
             $where .= ' AND `direction`=' . self::escape($direction);
         }
 

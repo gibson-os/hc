@@ -18,10 +18,10 @@ class Event extends AbstractRepository
      *
      * @return EventModel[]
      */
-    public static function getByMasterId($masterId)
+    public static function getByMasterId(int $masterId): array
     {
         $table = self::initializeTable();
-        $table->setWhere('`hc_event_trigger`.`master_id`=' . self::escape($masterId));
+        $table->setWhere('`hc_event_trigger`.`master_id`=' . $masterId);
 
         if (!$table->select(false)) {
             return [];
@@ -35,10 +35,10 @@ class Event extends AbstractRepository
      *
      * @return EventModel[]
      */
-    public static function getByModuleId($masterId)
+    public static function getByModuleId(int $masterId): array
     {
         $table = self::initializeTable();
-        $table->setWhere('`hc_event_trigger`.`module_id`=' . self::escape($masterId));
+        $table->setWhere('`hc_event_trigger`.`module_id`=' . $masterId);
 
         if (!$table->select(false)) {
             return [];

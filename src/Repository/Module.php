@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -21,18 +22,19 @@ class Module extends AbstractRepository
      * @param int|null $typeId
      *
      * @throws SelectError
+     * @throws DateTimeError
      *
      * @return ModuleModel[]
      */
-    public static function findByName(string $name, int $typeId = null)
+    public static function findByName(string $name, int $typeId = null): array
     {
         $tableName = ModuleModel::getTableName();
         $table = self::getTable($tableName);
 
-        $where = '`name` LIKE \'' . self::escape($name, false) . '%\'';
+        $where = '`name` LIKE \'' . self::escape($name) . '%\'';
 
         if ($typeId !== null) {
-            $where .= ' AND `type_id`=' . self::escape($typeId);
+            $where .= ' AND `type_id`=' . $typeId;
         }
 
         $table->setWhere($where);
@@ -58,12 +60,14 @@ class Module extends AbstractRepository
     /**
      * @param int $masterId
      *
+     * @throws DateTimeError
+     *
      * @return ModuleModel[]
      */
-    public static function getByMasterId($masterId)
+    public static function getByMasterId(int $masterId): array
     {
         $table = self::getTable(ModuleModel::getTableName());
-        $table->setWhere('`master_id`=' . self::escape($masterId));
+        $table->setWhere('`master_id`=' . $masterId);
 
         $models = [];
 
@@ -83,14 +87,15 @@ class Module extends AbstractRepository
     /**
      * @param int $deviceId
      *
+     * @throws DateTimeError
      * @throws SelectError
      *
      * @return ModuleModel
      */
-    public static function getByDeviceId($deviceId)
+    public static function getByDeviceId(int $deviceId): ModuleModel
     {
         $table = self::getTable(ModuleModel::getTableName());
-        $table->setWhere('`device_id`=' . self::escape($deviceId));
+        $table->setWhere('`device_id`=' . $deviceId);
         $table->setLimit(1);
 
         if (!$table->select()) {
@@ -109,14 +114,15 @@ class Module extends AbstractRepository
     /**
      * @param int $id
      *
+     * @throws DateTimeError
      * @throws SelectError
      *
      * @return ModuleModel
      */
-    public static function getById($id)
+    public static function getById(int $id): ModuleModel
     {
         $table = self::getTable(ModuleModel::getTableName());
-        $table->setWhere('`id`=' . self::escape($id));
+        $table->setWhere('`id`=' . $id);
         $table->setLimit(1);
 
         if (!$table->select()) {
@@ -136,16 +142,17 @@ class Module extends AbstractRepository
      * @param int $address
      * @param int $masterId
      *
+     * @throws DateTimeError
      * @throws SelectError
      *
      * @return ModuleModel
      */
-    public static function getByAddress($address, $masterId)
+    public static function getByAddress(int $address, int $masterId): ModuleModel
     {
         $table = self::getTable(ModuleModel::getTableName());
         $table->setWhere(
-            '`address`=' . self::escape($address) . ' AND ' .
-            '`master_id`=' . self::escape($masterId)
+            '`address`=' . $address . ' AND ' .
+            '`master_id`=' . $masterId
         );
         $table->setLimit(1);
 
@@ -169,13 +176,13 @@ class Module extends AbstractRepository
      *
      * @return int
      */
-    public static function getFreeDeviceId($tryCount = 0)
+    public static function getFreeDeviceId(int $tryCount = 0): int
     {
         $deviceId = mt_rand(1, AbstractHcSlave::MAX_DEVICE_ID);
         ++$tryCount;
 
         $table = self::getTable(ModuleModel::getTableName());
-        $table->setWhere('`device_id`=' . self::escape($deviceId));
+        $table->setWhere('`device_id`=' . $deviceId);
         $table->setLimit(1);
 
         $count = $table->selectAggregate('COUNT(`device_id`)');
@@ -192,14 +199,14 @@ class Module extends AbstractRepository
     }
 
     /**
-     * @param $id
+     * @param int $id
      *
      * @throws DeleteError
      */
-    public static function deleteById($id)
+    public static function deleteById(int $id)
     {
         $table = self::getTable(ModuleModel::getTableName());
-        $table->setWhere('`id`=' . self::escape($id));
+        $table->setWhere('`id`=' . $id);
 
         if (!$table->delete()) {
             $exception = new DeleteError('Modul konnten nicht gelöscht werden!');

@@ -21,9 +21,12 @@ class Master extends AbstractRepository
     /**
      * @param string $protocol
      *
+     * @throws DateTimeError
+     * @throws GetError
+     *
      * @return MasterModel[]
      */
-    public static function getByProtocol($protocol)
+    public static function getByProtocol(string $protocol): array
     {
         $table = self::getTable(MasterModel::getTableName());
         $table->setWhere('`protocol`=' . self::escape($protocol));
@@ -46,14 +49,16 @@ class Master extends AbstractRepository
     /**
      * @param int $id
      *
+     * @throws DateTimeError
+     * @throws GetError
      * @throws SelectError
      *
      * @return MasterModel
      */
-    public static function getById($id)
+    public static function getById(int $id): MasterModel
     {
         $table = self::getTable(MasterModel::getTableName());
-        $table->setWhere('`id`=' . self::escape($id));
+        $table->setWhere('`id`=' . $id);
         $table->setLimit(1);
 
         if (!$table->select()) {
@@ -84,7 +89,7 @@ class Master extends AbstractRepository
         $table = self::getTable(MasterModel::getTableName());
         $table->setWhere(
             '`protocol`=' . self::escape($protocol) . ' AND ' .
-            '`address`=' . self::escape((string) $address)
+            '`address`=' . $address
         );
         $table->setLimit(1);
 
@@ -149,13 +154,10 @@ class Master extends AbstractRepository
         $table->setWhere('`protocol`=' . self::escape($protocol));
         $address = $table->selectAggregate('MAX(`address`)');
 
-        if (
-            !$address ||
-            $address[0] === null
-        ) {
+        if (empty($address)) {
             $address = self::START_ADDRESS;
         } else {
-            $address = $address[0] + 1;
+            $address = ((int) $address[0]) + 1;
         }
 
         $model = new MasterModel();
@@ -175,10 +177,10 @@ class Master extends AbstractRepository
      *
      * @return int
      */
-    public static function getNextFreeAddress($masterId)
+    public static function getNextFreeAddress(int $masterId): int
     {
         $table = self::getTable(ModuleModel::getTableName());
-        $table->setWhere('`master_id`=' . self::escape($masterId));
+        $table->setWhere('`master_id`=' . $masterId);
 
         $typeDefaultAddressTable = self::getTable(DefaultAddress::getTableName());
         $typeDefaultAddressTable->setSelectString('`address`');

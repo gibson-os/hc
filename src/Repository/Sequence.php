@@ -23,7 +23,7 @@ class Sequence extends AbstractRepository
     public static function getById(int $id): SequenceModel
     {
         $table = self::getTable(SequenceModel::getTableName());
-        $where = '`id`=' . self::escape($id);
+        $where = '`id`=' . self::escape((string) $id);
 
         $table->setWhere($where);
 
@@ -31,7 +31,13 @@ class Sequence extends AbstractRepository
             throw new SelectError();
         }
 
-        return self::getModel($table->connection->fetchObject());
+        $record = $table->connection->fetchObject();
+
+        if (!$record instanceof stdClass) {
+            throw new SelectError();
+        }
+
+        return self::getModel($record);
     }
 
     /**
@@ -49,12 +55,12 @@ class Sequence extends AbstractRepository
         $table = self::getTable(SequenceModel::getTableName());
         $where =
             '`name`=' . self::escape($name) . ' AND ' .
-            '`type_id`=' . self::escape($module->getType()->getId()) . ' AND ' .
-            '(`module_id`=' . self::escape($module->getId()) . ' OR `module_id` IS NULL)'
+            '`type_id`=' . self::escape((string) $module->getType()->getId()) . ' AND ' .
+            '(`module_id`=' . self::escape((string) $module->getId()) . ' OR `module_id` IS NULL)'
         ;
 
         if ($type !== null) {
-            $where .= ' AND `type`=' . self::escape($type);
+            $where .= ' AND `type`=' . self::escape((string) $type);
         }
 
         $table->setWhere($where);
@@ -85,12 +91,12 @@ class Sequence extends AbstractRepository
         $module->loadType();
         $table = self::getTable(SequenceModel::getTableName());
         $where =
-            '`module_id`=' . self::escape($module->getId()) . ' AND ' .
-            '`type_id`=' . self::escape($module->getType()->getId())
+            '`module_id`=' . self::escape((string) $module->getId()) . ' AND ' .
+            '`type_id`=' . self::escape((string) $module->getType()->getId())
         ;
 
         if ($type !== null) {
-            $where .= ' AND `type`=' . self::escape($type);
+            $where .= ' AND `type`=' . self::escape((string) $type);
         }
 
         $table->setWhere($where);
@@ -113,10 +119,10 @@ class Sequence extends AbstractRepository
     public static function getByType(Type $typeModel, int $type = null): array
     {
         $table = self::getTable(SequenceModel::getTableName());
-        $where = '`type_id`=' . self::escape($typeModel->getId());
+        $where = '`type_id`=' . self::escape((string) $typeModel->getId());
 
         if ($type !== null) {
-            $where .= ' AND `type`=' . self::escape($type);
+            $where .= ' AND `type`=' . self::escape((string) $type);
         }
 
         $table->setWhere($where);

@@ -126,22 +126,26 @@ class Attribute extends AbstractRepository
 
     /**
      * @param ModuleModel $module
-     * @param null        $subId
-     * @param null        $key
-     * @param null        $type
+     * @param int         $subId
+     * @param string      $key
+     * @param string      $type
      *
      * @throws DeleteError
      */
-    public static function deleteWithBiggerSubIds(ModuleModel $module, $subId = null, $key = null, $type = null)
-    {
+    public static function deleteWithBiggerSubIds(
+        ModuleModel $module,
+        int $subId = null,
+        string $key = null,
+        string $type = null
+    ) {
         $table = self::getTable(AttributeModel::getTableName());
 
         $where =
-            '`type_id`=' . self::escape($module->getTypeId()) . ' AND ' .
-            '`module_id`=' . self::escape($module->getId());
+            '`type_id`=' . self::escape((string) $module->getTypeId()) . ' AND ' .
+            '`module_id`=' . self::escape((string) $module->getId());
 
         if (null !== $subId) {
-            $where .= ' AND `sub_id`>' . self::escape($subId);
+            $where .= ' AND `sub_id`>' . self::escape((string) $subId);
         }
 
         if (null !== $key) {
