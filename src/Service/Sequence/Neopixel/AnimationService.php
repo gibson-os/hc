@@ -3,11 +3,14 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Sequence\Neopixel;
 
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Utility\Json;
+use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\Sequence as SequenceRepository;
@@ -53,7 +56,7 @@ class AnimationService extends AbstractService
 
         foreach ($sequence->getElements() as $element) {
             //$steps[$element->getOrder()] = Json::decode($element->getData());
-            $steps[] = Json::decode($element->getData());
+            $steps[] = JsonUtility::decode($element->getData());
         }
 
         return $steps;
@@ -67,6 +70,8 @@ class AnimationService extends AbstractService
      * @throws DeleteError
      * @throws SaveError
      * @throws SelectError
+     * @throws DateTimeError
+     * @throws GetError
      *
      * @return Sequence
      */
@@ -105,7 +110,7 @@ class AnimationService extends AbstractService
             $sequenceElement = (new Sequence\Element())
                 ->setSequence($sequence)
                 ->setOrder($order)
-                ->setData(Json::encode($step))
+                ->setData(JsonUtility::encode($step))
             ;
 
             try {
@@ -131,7 +136,7 @@ class AnimationService extends AbstractService
     public function play(array $steps, int $iterations): void
     {
         $dataFilename = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'hcNeopixelAnimationData' . mt_rand() . '.json';
-        file_put_contents($dataFilename, Json::encode($steps));
+        file_put_contents($dataFilename, JsonUtility::encode($steps));
         /*errlog(
             'sudo -u www-data /usr/bin/php /home/gibson_os/offline/tools/hc/hcNeopixelAnimation.php ' .
             $this->slave->getId() . ' ' .

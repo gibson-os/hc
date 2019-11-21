@@ -4,16 +4,18 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service;
 
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FileNotFound;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\Server\SendError;
 use GibsonOS\Core\Service\AbstractService;
-use GibsonOS\Module\Hc\Factory\Master as MasterFactory;
 use GibsonOS\Module\Hc\Model\Log as LogModel;
 use GibsonOS\Module\Hc\Repository\Master as MasterRepository;
 use GibsonOS\Module\Hc\Service\Protocol\AbstractProtocol;
+use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
 class ServerService extends AbstractService
 {
@@ -32,26 +34,41 @@ class ServerService extends AbstractService
     private $transform;
 
     /**
+     * @var MasterRepository
+     */
+    private $masterRepository;
+
+    /**
      * Server constructor.
      *
      * @param AbstractProtocol $protocol
      * @param TransformService $transform
+     * @param MasterRepository $masterRepository
      */
-    public function __construct(AbstractProtocol $protocol, TransformService $transform)
-    {
+    public function __construct(
+        AbstractProtocol $protocol,
+        TransformService $transform,
+        MasterRepository $masterRepository
+    ) {
         $this->protocol = $protocol;
         $this->transform = $transform;
+        $this->masterRepository = $masterRepository;
     }
 
     /**
+     * @param MasterService   $master
+     * @param AbstractHcSlave $slave
+     *
      * @throws AbstractException
+     * @throws DateTimeError
      * @throws FileNotFound
+     * @throws GetError
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
      * @throws SendError
      */
-    public function receive()
+    public function receive(MasterService $master, AbstractHcSlave $slave): void
     {
         if (!$this->protocol->receive()) {
             return;
@@ -64,10 +81,12 @@ class ServerService extends AbstractService
         if ($this->protocol->getType() === MasterService::TYPE_HANDSHAKE) {
             $this->handshake();
         } else {
-            $master = MasterFactory::createByAddress($masterAddress, $this->protocol->getName(), $this);
+            $masterModel = $this->masterRepository->getByAddress($masterAddress, $this->protocol->getName());
             $master->receive(
+                $masterModel,
+                $slave,
                 $this->protocol->getType(),
-                $this->protocol->getData()
+                (string) $this->protocol->getData()
             );
         }
 
@@ -81,26 +100,25 @@ class ServerService extends AbstractService
      * @throws FileNotFound
      * @throws SaveError
      */
-    private function handshake()
+    private function handshake(): void
     {
         try {
-            $masterModel = MasterRepository::getByName($this->protocol->getData(), $this->protocol->getName());
+            $masterModel = $this->masterRepository->getByName((string) $this->protocol->getData(), $this->protocol->getName());
         } catch (SelectError $exception) {
-            $masterModel = MasterRepository::add($this->protocol->getData(), $this->protocol->getName());
+            $masterModel = $this->masterRepository->add((string) $this->protocol->getData(), $this->protocol->getName());
         }
 
-        $master = MasterFactory::create($masterModel, $this);
-        $address = $master->getModel()->getAddress();
-        $master->getModel()->setAddress($this->protocol->getMasterAddress());
+        $address = $masterModel->getAddress();
+        $masterModel->setAddress($this->protocol->getMasterAddress());
 
         (new LogModel())
-            ->setMasterId($master->getModel()->getId())
+            ->setMasterId((int) $masterModel->getId())
             ->setType(MasterService::TYPE_HANDSHAKE)
-            ->setData($this->transform->asciiToHex($this->protocol->getData()))
+            ->setData($this->transform->asciiToHex((string) $this->protocol->getData()))
             ->setDirection(self::DIRECTION_INPUT)
             ->save();
 
-        $master->setAddress($address);
+        $masterModel->setAddress($address);
     }
 
     /**
@@ -124,7 +142,7 @@ class ServerService extends AbstractService
      *
      * @return string
      */
-    public function receiveReadData($address, $type)
+    public function receiveReadData($address, $type): string
     {
         $this->protocol->receiveReadData();
         $this->protocol->checksumEqual();
@@ -137,7 +155,7 @@ class ServerService extends AbstractService
             throw new ReceiveError('Typ stimmt nicht überein!');
         }
 
-        return $this->protocol->getData();
+        return (string) $this->protocol->getData();
     }
 
     /**

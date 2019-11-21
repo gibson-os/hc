@@ -6,10 +6,12 @@ namespace GibsonOS\Module\Hc\Service\Event;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\GetError;
+use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Module\Hc\Factory\Slave;
 use GibsonOS\Module\Hc\Model\Event\Element as ElementModel;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Type;
 use GibsonOS\Module\Hc\Service\Event\Describer\DescriberInterface;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
@@ -39,325 +41,408 @@ abstract class AbstractHcService extends AbstractEventService
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writeAddress(array $params): void
+    public function writeAddress(Module $slave, array $params): void
     {
-        $this->slave->writeAddress($params['address']);
+        $this->slave->writeAddress($slave, $params['address']);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
+     * @throws ReceiveError
+     * @throws SaveError
      *
      * @return int
      */
-    public function readDeviceId(): int
+    public function readDeviceId(Module $slave): int
     {
-        return $this->slave->readDeviceId();
+        return $this->slave->readDeviceId($slave);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
      */
-    public function writeDeviceId(array $params): void
+    public function writeDeviceId(Module $slave, array $params): void
     {
-        $this->slave->writeDeviceId($params['deviceId']);
+        $this->slave->writeDeviceId($slave, $params['deviceId']);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
+     * @throws ReceiveError
+     * @throws SaveError
      *
      * @return int
      */
-    public function readTypeId(): int
+    public function readTypeId(Module $slave): int
     {
-        return $this->slave->readTypeId();
+        return $this->slave->readTypeId($slave);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
+     * @throws FileNotFound
+     * @throws SaveError
      * @throws SelectError
      */
-    public function writeTypeId(array $params): void
+    public function writeTypeId(Module $slave, array $params): void
     {
         $type = Type::getById($params['typeId']);
-        $this->slave->writeType($type);
+        $this->slave->writeType($slave, $type);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writeRestart(): void
+    public function writeRestart(Module $slave): void
     {
-        $this->slave->writeRestart();
+        $this->slave->writeRestart($slave);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return int
      */
-    public function readHertz(): int
+    public function readHertz(Module $slave): int
     {
-        return $this->slave->readHertz();
+        return $this->slave->readHertz($slave);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return int
      */
-    public function readEepromSize(): int
+    public function readEepromSize(Module $slave): int
     {
-        return $this->slave->readEepromSize();
+        return $this->slave->readEepromSize($slave);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return int
      */
-    public function readEepromFree(): int
+    public function readEepromFree(Module $slave): int
     {
-        return $this->slave->readEepromFree();
+        return $this->slave->readEepromFree($slave);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return int
      */
-    public function readEepromPosition(): int
+    public function readEepromPosition(Module $slave): int
     {
-        return $this->slave->readEepromPosition();
+        return $this->slave->readEepromPosition($slave);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writeEepromPosition($params): void
+    public function writeEepromPosition(Module $slave, array $params): void
     {
-        $this->slave->writeEepromPosition($params['position']);
+        $this->slave->writeEepromPosition($slave, $params['position']);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writeEepromErase(): void
+    public function writeEepromErase(Module $slave): void
     {
-        $this->slave->writeEepromErase();
+        $this->slave->writeEepromErase($slave);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return int
      */
-    public function readBufferSize(): int
+    public function readBufferSize(Module $slave): int
     {
-        return $this->slave->readBufferSize();
+        return $this->slave->readBufferSize($slave);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return int
      */
-    public function readPwmSpeed(): int
+    public function readPwmSpeed(Module $slave): int
     {
-        return $this->slave->readPwmSpeed();
+        return $this->slave->readPwmSpeed($slave);
     }
 
     /**
-     * @param int $pwmSpeed
+     * @param Module $slave
+     * @param int    $pwmSpeed
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writePwmSpeed(int $pwmSpeed): void
+    public function writePwmSpeed(Module $slave, int $pwmSpeed): void
     {
-        $this->slave->writePwmSpeed($pwmSpeed);
+        $this->slave->writePwmSpeed($slave, $pwmSpeed);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return array
      */
-    public function readLedStatus(): array
+    public function readLedStatus(Module $slave): array
     {
-        return $this->slave->readLedStatus();
+        return $this->slave->readLedStatus($slave);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writePowerLed(array $params): void
+    public function writePowerLed(Module $slave, array $params): void
     {
-        $this->slave->writePowerLed($params['on']);
+        $this->slave->writePowerLed($slave, $params['on']);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writeErrorLed(array $params): void
+    public function writeErrorLed(Module $slave, array $params): void
     {
-        $this->slave->writeErrorLed($params['on']);
+        $this->slave->writeErrorLed($slave, $params['on']);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writeConnectLed(array $params): void
+    public function writeConnectLed(Module $slave, array $params): void
     {
-        $this->slave->writeConnectLed($params['on']);
+        $this->slave->writeConnectLed($slave, $params['on']);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writeTransreceiveLed(array $params): void
+    public function writeTransreceiveLed(Module $slave, array $params): void
     {
-        $this->slave->writeTransreceiveLed($params['on']);
+        $this->slave->writeTransreceiveLed($slave, $params['on']);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writeTransceiveLed(array $params): void
+    public function writeTransceiveLed(Module $slave, array $params): void
     {
-        $this->slave->writeTransceiveLed($params['on']);
+        $this->slave->writeTransceiveLed($slave, $params['on']);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writeReceiveLed(array $params): void
+    public function writeReceiveLed(Module $slave, array $params): void
     {
-        $this->slave->writeReceiveLed($params['on']);
+        $this->slave->writeReceiveLed($slave, $params['on']);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writeCustomLed(array $params): void
+    public function writeCustomLed(Module $slave, array $params): void
     {
-        $this->slave->writeCustomLed($params['on']);
+        $this->slave->writeCustomLed($slave, $params['on']);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return bool
      */
-    public function readPowerLed(): bool
+    public function readPowerLed(Module $slave): bool
     {
-        return $this->slave->readPowerLed();
+        return $this->slave->readPowerLed($slave);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return bool
      */
-    public function readErrorLed(): bool
+    public function readErrorLed(Module $slave): bool
     {
-        return $this->slave->readErrorLed();
+        return $this->slave->readErrorLed($slave);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return bool
      */
-    public function readConnectLed(): bool
+    public function readConnectLed(Module $slave): bool
     {
-        return $this->slave->readConnectLed();
+        return $this->slave->readConnectLed($slave);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return bool
      */
-    public function readTransreceiveLed(): bool
+    public function readTransreceiveLed(Module $slave): bool
     {
-        return $this->slave->readTransreceiveLed();
+        return $this->slave->readTransreceiveLed($slave);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return bool
      */
-    public function readTransceiveLed(): bool
+    public function readTransceiveLed(Module $slave): bool
     {
-        return $this->slave->readTransceiveLed();
+        return $this->slave->readTransceiveLed($slave);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return bool
      */
-    public function readReceiveLed(): bool
+    public function readReceiveLed(Module $slave): bool
     {
-        return $this->slave->readReceiveLed();
+        return $this->slave->readReceiveLed($slave);
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return bool
      */
-    public function readCustomLed(): bool
+    public function readCustomLed(Module $slave): bool
     {
-        return $this->slave->readCustomLed();
+        return $this->slave->readCustomLed($slave);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writeRgbLed(array $params): void
+    public function writeRgbLed(Module $slave, array $params): void
     {
         $this->slave->writeRgbLed(
+            $slave,
             $params[AbstractHcSlave::POWER_LED_KEY],
             $params[AbstractHcSlave::ERROR_LED_KEY],
             $params[AbstractHcSlave::CONNECT_LED_KEY],
@@ -368,24 +453,30 @@ abstract class AbstractHcService extends AbstractEventService
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return array
      */
-    public function readRgbLed(): array
+    public function readRgbLed(Module $slave): array
     {
-        return $this->slave->readRgbLed();
+        return $this->slave->readRgbLed($slave);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writeAllLeds(array $params): void
+    public function writeAllLeds(Module $slave, array $params): void
     {
         $this->slave->writeAllLeds(
+            $slave,
             $params[AbstractHcSlave::POWER_LED_KEY],
             $params[AbstractHcSlave::ERROR_LED_KEY],
             $params[AbstractHcSlave::CONNECT_LED_KEY],
@@ -397,13 +488,16 @@ abstract class AbstractHcService extends AbstractEventService
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
      *
      * @return array
      */
-    public function readAllLeds(): array
+    public function readAllLeds(Module $slave): array
     {
-        return $this->slave->readAllLeds();
+        return $this->slave->readAllLeds($slave);
     }
 }

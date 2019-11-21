@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Sequence\Neopixel;
 
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\AbstractService;
-use GibsonOS\Core\Utility\Json;
+use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\Sequence as SequenceRepository;
@@ -43,9 +45,11 @@ class ImageService extends AbstractService
      * @param array    $leds
      * @param int|null $id
      *
-     * @throws SelectError
-     * @throws SaveError
      * @throws DeleteError
+     * @throws SaveError
+     * @throws SelectError
+     * @throws DateTimeError
+     * @throws GetError
      *
      * @return Sequence
      */
@@ -82,7 +86,7 @@ class ImageService extends AbstractService
 
         $sequenceElement = (new Sequence\Element())
             ->setSequence($sequence)
-            ->setData(Json::encode($leds))
+            ->setData(JsonUtility::encode($leds))
         ;
 
         try {

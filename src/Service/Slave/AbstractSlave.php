@@ -119,7 +119,7 @@ abstract class AbstractSlave extends AbstractService
 
         $data = $this->master->receiveReadData(
             $slave->getMaster(),
-            $slave->getAddress(),
+            (int) $slave->getAddress(),
             MasterService::TYPE_DATA,
             $command
         );

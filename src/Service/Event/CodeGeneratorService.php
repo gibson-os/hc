@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Core\Utility\Event;
+namespace GibsonOS\Module\Hc\Service\Event;
 
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Model\Event\Element as ElementModel;

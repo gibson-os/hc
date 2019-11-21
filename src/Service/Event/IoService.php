@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Service\Event;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoSlave;
 
 class IoService extends AbstractHcService
@@ -16,71 +17,85 @@ class IoService extends AbstractHcService
     protected $slave;
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
-     * @throws AbstractException
-     * @throws ReceiveError
-     *
-     * @return array
-     */
-    public function readPort($params)
-    {
-        return $this->slave->readPort($params['number']);
-    }
-
-    /**
-     * @throws AbstractException
-     * @throws ReceiveError
-     */
-    public function readPortsFromEeprom()
-    {
-        $this->slave->readPortsFromEeprom();
-    }
-
-    /**
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
      *
      * @return array
      */
-    public function getPorts()
+    public function readPort(Module $slave, $params)
     {
-        return $this->slave->getPorts();
+        return $this->slave->readPort($slave, $params['number']);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
      *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
+     */
+    public function readPortsFromEeprom(Module $slave): void
+    {
+        $this->slave->readPortsFromEeprom($slave);
+    }
+
+    /**
+     * @param Module $slave
+     *
+     * @throws AbstractException
+     * @throws ReceiveError
+     * @throws SaveError
      *
      * @return array
      */
-    public function readDirectConnect($params)
+    public function getPorts(Module $slave): array
     {
-        return $this->slave->readDirectConnect($params['port'], $params['order']);
+        return $this->slave->getPorts($slave);
     }
 
     /**
+     * @param Module $slave
+     * @param array  $params
+     *
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws SaveError
+     *
+     * @return array
+     */
+    public function readDirectConnect(Module $slave, array $params): array
+    {
+        return $this->slave->readDirectConnect($slave, $params['port'], $params['order']);
+    }
+
+    /**
+     * @param Module $slave
+     *
+     * @throws AbstractException
+     * @throws ReceiveError
+     * @throws SaveError
      *
      * @return bool
      */
-    public function isDirectConnectActive()
+    public function isDirectConnectActive(Module $slave): bool
     {
-        return $this->slave->isDirectConnectActive();
+        return $this->slave->isDirectConnectActive($slave);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
      */
-    public function setPort($params)
+    public function setPort(Module $slave, array $params): void
     {
         $this->slave->setPort(
+            $slave,
             $params['number'],
             $params[IoSlave::ATTRIBUTE_PORT_KEY_NAME],
             $params[IoSlave::ATTRIBUTE_PORT_KEY_DIRECTION],
@@ -94,21 +109,26 @@ class IoService extends AbstractHcService
     }
 
     /**
+     * @param Module $slave
+     *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function writePortsToEeprom()
+    public function writePortsToEeprom(Module $slave): void
     {
-        $this->slave->writePortsToEeprom();
+        $this->slave->writePortsToEeprom($slave);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
      */
-    public function saveDirectConnect($params)
+    public function saveDirectConnect(Module $slave, array $params): void
     {
         $this->slave->saveDirectConnect(
+            $slave,
             $params['inputPort'],
             $params[IoSlave::ATTRIBUTE_DIRECT_CONNECT_KEY_INPUT_PORT_VALUE],
             $params['order'],
@@ -122,39 +142,46 @@ class IoService extends AbstractHcService
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
      */
-    public function deleteDirectConnect($params)
+    public function deleteDirectConnect(Module $slave, array $params): void
     {
-        $this->slave->deleteDirectConnect($params['port'], $params['order']);
+        $this->slave->deleteDirectConnect($slave, $params['port'], $params['order']);
     }
 
     /**
-     * @param array $params
+     * @param Module $slave
+     * @param array  $params
      *
      * @throws AbstractException
      */
-    public function resetDirectConnect($params)
+    public function resetDirectConnect(Module $slave, array $params): void
     {
-        $this->slave->resetDirectConnect($params['port'], $params['databaseOnly']);
+        $this->slave->resetDirectConnect($slave, $params['port'], $params['databaseOnly']);
     }
 
     /**
-     * @throws AbstractException
-     */
-    public function defragmentDirectConnect()
-    {
-        $this->slave->defragmentDirectConnect();
-    }
-
-    /**
-     * @param array $params
+     * @param Module $slave
      *
      * @throws AbstractException
+     * @throws SaveError
      */
-    public function activateDirectConnect($params)
+    public function defragmentDirectConnect(Module $slave): void
+    {
+        $this->slave->defragmentDirectConnect($slave);
+    }
+
+    /**
+     * @param Module $slave
+     * @param array  $params
+     *
+     * @throws AbstractException
+     * @throws SaveError
+     */
+    public function activateDirectConnect(Module $slave, array $params): void
     {
         $this->slave->activateDirectConnect($params['active']);
     }

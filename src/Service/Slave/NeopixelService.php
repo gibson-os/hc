@@ -132,11 +132,12 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param int         $type
-     * @param int         $command
-     * @param string|null $data
+     * @param Module $slave
+     * @param int    $type
+     * @param int    $command
+     * @param string $data
      */
-    public function receive(int $type, int $command, string $data = null): void
+    public function receive(Module $slave, int $type, int $command, string $data): void
     {
         // TODO: Implement receive() method.
     }

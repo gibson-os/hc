@@ -151,12 +151,12 @@ abstract class AbstractHcSlave extends AbstractSlave
     abstract public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module;
 
     /**
-     * @param Module      $slave
-     * @param int         $type
-     * @param int         $command
-     * @param string|null $data
+     * @param Module $slave
+     * @param int    $type
+     * @param int    $command
+     * @param string $data
      */
-    abstract public function receive(Module $slave, int $type, int $command, string $data = null): void;
+    abstract public function receive(Module $slave, int $type, int $command, string $data): void;
 
     /**
      * @param Module $slave
@@ -207,10 +207,10 @@ abstract class AbstractHcSlave extends AbstractSlave
                 $this->writeDeviceId($slave, ModuleRepository::getFreeDeviceId());
             }
 
-            $slave->setAddress(Master::getNextFreeAddress($slave->getMaster()->getId()));
+            $slave->setAddress(Master::getNextFreeAddress((int) $slave->getMaster()->getId()));
         }
 
-        $address = $slave->getAddress();
+        $address = (int) $slave->getAddress();
         $slave->setAddress($setAddress);
 
         $this->writeAddress($slave, $address);
@@ -240,13 +240,13 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     private function handshakeExistingDevice(Module $slave): void
     {
-        $this->master->send($slave->getMaster(), MasterService::TYPE_SLAVE_IS_HC, chr($slave->getAddress()));
+        $this->master->send($slave->getMaster(), MasterService::TYPE_SLAVE_IS_HC, chr((int) $slave->getAddress()));
         $this->master->receiveReceiveReturn($slave->getMaster());
 
         (new LogModel())
             ->setMasterId($slave->getMaster()->getId())
             ->setType(MasterService::TYPE_SLAVE_IS_HC)
-            ->setData(dechex($slave->getAddress()))
+            ->setData(dechex((int) $slave->getAddress()))
             ->setDirection(ServerService::DIRECTION_OUTPUT)
             ->save();
 
@@ -382,14 +382,14 @@ abstract class AbstractHcSlave extends AbstractSlave
     {
         $this->event->fire(HcService::BEFORE_WRITE_TYPE, ['slave' => $slave, 'typeId' => $type->getId()]);
 
-        $this->write($slave, self::COMMAND_TYPE, chr($type->getId()));
+        $this->write($slave, self::COMMAND_TYPE, chr((int) $type->getId()));
 
         $this->event->fire(HcService::AFTER_WRITE_TYPE, ['slave' => $slave, 'typeId' => $type->getId()]);
 
-        $slave = SlaveFactory::create();
-        $slave->handshake($slave);
+        $slaveService = SlaveFactory::create();
+        $slaveService->handshake($slave);
 
-        return $slave;
+        return $slaveService;
     }
 
     /**

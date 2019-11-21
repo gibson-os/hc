@@ -97,25 +97,25 @@ class Attribute extends AbstractRepository
 
     /**
      * @param ModuleModel $module
-     * @param null        $type
-     * @param null        $subId
+     * @param string|null $type
+     * @param int|null    $subId
      *
      * @return int
      */
-    public static function countByModule(ModuleModel $module, $type = null, $subId = null): int
+    public static function countByModule(ModuleModel $module, string $type = null, int $subId = null): int
     {
         $table = self::getTable(AttributeModel::getTableName());
 
         $where =
-            '`module_id`=' . self::escape($module->getId()) . ' AND ' .
-            '`type_id`=' . self::escape($module->getTypeId());
+            '`module_id`=' . self::escape((string) $module->getId()) . ' AND ' .
+            '`type_id`=' . self::escape((string) $module->getTypeId());
 
-        if (null !== $type) {
+        if ($type !== null) {
             $where .= ' AND `type`=' . self::escape($type);
         }
 
-        if (null !== $subId) {
-            $where .= ' AND `sub_id`=' . self::escape($subId);
+        if ($subId !== null) {
+            $where .= ' AND `sub_id`=' . self::escape((string) $subId);
         }
 
         $table->setWhere($where);

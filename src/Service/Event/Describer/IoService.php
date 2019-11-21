@@ -4,14 +4,14 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Event\Describer;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Module\Hc\Config\Event\Describer\Method;
-use GibsonOS\Module\Hc\Config\Event\Describer\Parameter\AutoCompleteParameter;
-use GibsonOS\Module\Hc\Config\Event\Describer\Parameter\BoolParameter;
-use GibsonOS\Module\Hc\Config\Event\Describer\Parameter\IntParameter;
-use GibsonOS\Module\Hc\Config\Event\Describer\Parameter\OptionParameter;
-use GibsonOS\Module\Hc\Config\Event\Describer\Parameter\SlaveParameter;
-use GibsonOS\Module\Hc\Config\Event\Describer\Parameter\StringParameter;
-use GibsonOS\Module\Hc\Config\Event\Describer\Trigger;
+use GibsonOS\Module\Hc\Dto\Event\Describer\Method;
+use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\AutoCompleteParameter;
+use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\BoolParameter;
+use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\IntParameter;
+use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\OptionParameter;
+use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\SlaveParameter;
+use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\StringParameter;
+use GibsonOS\Module\Hc\Dto\Event\Describer\Trigger;
 use GibsonOS\Module\Hc\Repository\Type;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoSlave;
 

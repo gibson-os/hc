@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Event;
 
-class Time extends AbstractEventService
+class TimeService extends AbstractEventService
 {
     /**
      * @param int $seconds

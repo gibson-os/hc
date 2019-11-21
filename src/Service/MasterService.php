@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Service;
 use DateTime;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -15,7 +16,7 @@ use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Module as ModuleRepository;
 use GibsonOS\Module\Hc\Repository\Type;
-use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
+use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
 class MasterService extends AbstractService
 {
@@ -49,9 +50,14 @@ class MasterService extends AbstractService
     private $transform;
 
     /**
-     * @var AbstractSlave
+     * @var ModuleRepository
      */
-    private $slave;
+    private $moduleRepository;
+
+    /**
+     * @var Type
+     */
+    private $typeRepository;
 
     /**
      * Master constructor.
@@ -59,30 +65,37 @@ class MasterService extends AbstractService
      * @param ServerService    $server
      * @param EventService     $event
      * @param TransformService $transform
-     * @param AbstractSlave    $slave
+     * @param ModuleRepository $moduleRepository
+     * @param Type             $typeRepository
      */
     public function __construct(
         ServerService $server,
         EventService $event,
         TransformService $transform,
-        AbstractSlave $slave
+        ModuleRepository $moduleRepository,
+        Type $typeRepository
     ) {
         $this->server = $server;
         $this->event = $event;
         $this->transform = $transform;
-        $this->slave = $slave;
+        $this->moduleRepository = $moduleRepository;
+        $this->typeRepository = $typeRepository;
     }
 
     /**
-     * @param Master $master
-     * @param int    $type
-     * @param string $data
+     * @param Master          $master
+     * @param AbstractHcSlave $slave
+     * @param int             $type
+     * @param string          $data
      *
+     * @throws AbstractException
      * @throws DateTimeError
+     * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
+     * @throws GetError
      */
-    public function receive(Master $master, int $type, string $data): void
+    public function receive(Master $master, AbstractHcSlave $slave, int $type, string $data): void
     {
         $log = (new Log())
             ->setMasterId($master->getId())
@@ -102,7 +115,7 @@ class MasterService extends AbstractService
             echo 'New Slave ' . $address . PHP_EOL;
 
             try {
-                $slaveModel = ModuleRepository::getByAddress($address, $master->getId());
+                $slaveModel = $this->moduleRepository->getByAddress($address, (int) $master->getId());
             } catch (SelectError $exception) {
                 $slaveModel = (new Module())
                     ->setAddress($address)
@@ -110,18 +123,18 @@ class MasterService extends AbstractService
                 ;
 
                 try {
-                    $slaveModel->setType(Type::getByDefaultAddress($address));
+                    $slaveModel->setType($this->typeRepository->getByDefaultAddress($address));
                 } catch (SelectError $e) {
-                    $slaveModel->setType(Type::getById(255));
+                    $slaveModel->setType($this->typeRepository->getById(255));
                 }
 
                 $slaveModel->setName('Neues Modul');
             }
 
-            $this->slave->handshake($slaveModel);
+            $slave->handshake($slaveModel);
         } else {
-            $slaveModel = ModuleRepository::getByAddress($address, $master->getId());
-            $this->slave->receive($slaveModel, $type, $command, $data);
+            $slaveModel = $this->moduleRepository->getByAddress($address, (int) $master->getId());
+            $slave->receive($slaveModel, $type, $command, $data);
 
             $log
                 ->setModuleId($slaveModel->getId())
@@ -146,7 +159,7 @@ class MasterService extends AbstractService
      *
      * @throws AbstractException
      */
-    public function send(Master $master, int $type, string $data)
+    public function send(Master $master, int $type, string $data): void
     {
         $this->server->send($master->getAddress(), $type, $data);
     }
@@ -157,7 +170,7 @@ class MasterService extends AbstractService
      *
      * @throws AbstractException
      */
-    public function setAddress(Master $master, int $address)
+    public function setAddress(Master $master, int $address): void
     {
         try {
             $data = $master->getName() . chr($address);
@@ -183,7 +196,7 @@ class MasterService extends AbstractService
      *
      * @throws AbstractException
      */
-    public function scanBus(Master $master)
+    public function scanBus(Master $master): void
     {
         $this->send($master, self::TYPE_SCAN_BUS, '');
         $this->receiveReceiveReturn($master);

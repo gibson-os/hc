@@ -243,14 +243,15 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module      $slave
-     * @param int         $type
-     * @param int         $command
-     * @param string|null $data
+     * @param Module $slave
+     * @param int    $type
+     * @param int    $command
+     * @param string $data
      *
      * @throws SaveError
+     * @throws DateTimeError
      */
-    public function receive(Module $slave, int $type, int $command, string $data = null): void
+    public function receive(Module $slave, int $type, int $command, string $data): void
     {
         parent::receive($slave, $type, $command, $data);
 
@@ -527,7 +528,7 @@ class IoService extends AbstractHcSlave
     {
         $this->event->fire(IoDescriber::BEFORE_READ_PORTS, ['slave' => $slave]);
 
-        $length = $slave->getConfig() * self::PORT_BYTE_LENGTH;
+        $length = ((int) $slave->getConfig()) * self::PORT_BYTE_LENGTH;
         $data = $this->read($slave, self::COMMAND_STATUS, $length);
         $ports = $this->formatter->getPortsAsArray($data, (int) $slave->getConfig());
 
@@ -598,7 +599,7 @@ class IoService extends AbstractHcSlave
             [(int) $slave->getId()],
             self::ATTRIBUTE_TYPE_DIRECT_CONNECT,
             null,
-            $order
+            (string) $order
         );
         $changed = false;
         $new = false;
@@ -620,7 +621,7 @@ class IoService extends AbstractHcSlave
                     }
 
                     $changed = true;
-                    $valueModel->setValue($value);
+                    $valueModel->setValue((string) $value);
                     $valueModel->save();
                 }
             }
@@ -643,9 +644,9 @@ class IoService extends AbstractHcSlave
                         $inputValue,
                         $outputPort,
                         $outputValue,
-                        $pwm,
-                        $blink,
-                        $fadeIn,
+                        $pwm ?? 0,
+                        $blink ?? 0,
+                        $fadeIn ?? 0,
                         $addOrSub,
                         $new ? null : $order
                     )
@@ -680,7 +681,7 @@ class IoService extends AbstractHcSlave
     public function readDirectConnect(Module $slave, int $port, int $order): array
     {
         $this->event->fire(IoDescriber::BEFORE_READ_DIRECT_CONNECT, [
-            'slave' => $this,
+            'slave' => $slave,
             'port' => $port,
             'order' => $order,
         ]);
@@ -723,7 +724,7 @@ class IoService extends AbstractHcSlave
         $directConnect['hasMore'] = (($lastByte >> 5) & 1) ? true : false;
 
         $eventData = $directConnect;
-        $eventData['slave'] = $this;
+        $eventData['slave'] = $slave;
         $eventData['port'] = $port;
         $eventData['order'] = $order;
         $this->event->fire(IoDescriber::AFTER_READ_DIRECT_CONNECT, $eventData);
@@ -789,7 +790,7 @@ class IoService extends AbstractHcSlave
                 [(int) $slave->getId()],
                 self::ATTRIBUTE_TYPE_DIRECT_CONNECT,
                 null,
-                $order
+                (string) $order
             );
             ValueRepository::updateOrder(
                 $slave->getTypeId(),

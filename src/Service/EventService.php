@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Service;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Model\Event\Element as ElementModel;
 use GibsonOS\Module\Hc\Service\Event\AbstractEventService;
-use stdClass;
 
 class EventService extends AbstractService
 {
@@ -24,7 +23,7 @@ class EventService extends AbstractService
      * @param string   $trigger
      * @param callable $function
      */
-    public function add($trigger, $function)
+    public function add(string $trigger, $function): void
     {
         if (!isset($this->events[$trigger])) {
             $this->events[$trigger] = [];
@@ -34,10 +33,10 @@ class EventService extends AbstractService
     }
 
     /**
-     * @param string        $trigger
-     * @param stdClass|null $params
+     * @param string     $trigger
+     * @param array|null $params
      */
-    public function fire($trigger, $params = null)
+    public function fire(string $trigger, array $params = null): void
     {
         if (!isset($this->events[$trigger])) {
             return;
@@ -55,7 +54,7 @@ class EventService extends AbstractService
      *
      * @return mixed
      */
-    public function runFunction($serializedElement)
+    public function runFunction(string $serializedElement)
     {
         $service = $this->getService(unserialize($serializedElement));
 
@@ -67,7 +66,7 @@ class EventService extends AbstractService
      *
      * @return AbstractEventService
      */
-    private function getService(ElementModel $element)
+    private function getService(ElementModel $element): AbstractEventService
     {
         $key =
             'masterId' . $element->getMasterId() .

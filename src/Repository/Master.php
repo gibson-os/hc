@@ -5,6 +5,8 @@ namespace GibsonOS\Module\Hc\Repository;
 
 use DateTime;
 use Exception;
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
@@ -68,19 +70,21 @@ class Master extends AbstractRepository
     }
 
     /**
-     * @param int $address
-     * @param int $protocol
+     * @param int    $address
+     * @param string $protocol
      *
      * @throws SelectError
+     * @throws DateTimeError
+     * @throws GetError
      *
      * @return MasterModel
      */
-    public static function getByAddress($address, $protocol)
+    public static function getByAddress(int $address, string $protocol): MasterModel
     {
         $table = self::getTable(MasterModel::getTableName());
         $table->setWhere(
             '`protocol`=' . self::escape($protocol) . ' AND ' .
-            '`address`=' . self::escape($address)
+            '`address`=' . self::escape((string) $address)
         );
         $table->setLimit(1);
 
@@ -99,13 +103,15 @@ class Master extends AbstractRepository
 
     /**
      * @param string $name
-     * @param int    $protocol
+     * @param string $protocol
      *
+     * @throws DateTimeError
+     * @throws GetError
      * @throws SelectError
      *
      * @return MasterModel
      */
-    public static function getByName($name, $protocol)
+    public static function getByName(string $name, string $protocol): MasterModel
     {
         $table = self::getTable(MasterModel::getTableName());
         $table->setWhere(
@@ -136,7 +142,7 @@ class Master extends AbstractRepository
      *
      * @return MasterModel
      */
-    public static function add($name, $protocol)
+    public static function add(string $name, string $protocol): MasterModel
     {
         $table = self::getTable(MasterModel::getTableName());
 

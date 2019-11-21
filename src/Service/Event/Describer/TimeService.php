@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Event\Describer;
 
-use GibsonOS\Module\Hc\Config\Event\Describer\Method;
-use GibsonOS\Module\Hc\Config\Event\Describer\Parameter\IntParameter;
+use GibsonOS\Module\Hc\Dto\Event\Describer\Method;
+use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\IntParameter;
 
 class TimeService implements DescriberInterface
 {

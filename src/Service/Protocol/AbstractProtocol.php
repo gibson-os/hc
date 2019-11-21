@@ -7,7 +7,7 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\Server\SendError;
 use GibsonOS\Core\Service\AbstractService;
-use GibsonOS\Module\Hc\Utility\TransformService;
+use GibsonOS\Module\Hc\Service\TransformService;
 
 abstract class AbstractProtocol extends AbstractService
 {
@@ -17,6 +17,16 @@ abstract class AbstractProtocol extends AbstractService
      * @var string
      */
     protected $data;
+
+    /**
+     * @var TransformService
+     */
+    private $transform;
+
+    public function __construct(TransformService $transform)
+    {
+        $this->transform = $transform;
+    }
 
     /**
      * @return bool
@@ -61,7 +71,7 @@ abstract class AbstractProtocol extends AbstractService
      */
     public function getMasterAddress()
     {
-        return TransformService::asciiToInt($this->data, 0);
+        return $this->transform->asciiToInt($this->data, 0);
     }
 
     /**
@@ -69,7 +79,7 @@ abstract class AbstractProtocol extends AbstractService
      */
     public function getType()
     {
-        return TransformService::asciiToInt($this->data, 1);
+        return $this->transform->asciiToInt($this->data, 1);
     }
 
     /**

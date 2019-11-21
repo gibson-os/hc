@@ -10,6 +10,7 @@ use GibsonOS\Core\Exception\Server\SendError;
 use GibsonOS\Core\Exception\SetError;
 use GibsonOS\Core\Service\UdpService as CoreUdpService;
 use GibsonOS\Module\Hc\Service\MasterService;
+use GibsonOS\Module\Hc\Service\TransformService;
 
 class UdpService extends AbstractProtocol
 {
@@ -37,11 +38,15 @@ class UdpService extends AbstractProtocol
     /**
      * Udp constructor.
      *
+     * @param TransformService $transform
+     *
      * @throws GetError
      */
-    public function __construct()
+    public function __construct(TransformService $transform)
     {
-        $this->serverIp = getenv(self::ENV_SERVER_IP);
+        parent::__construct($transform);
+
+        $this->serverIp = (string) getenv(self::ENV_SERVER_IP);
 
         if (empty($this->serverIp) || !is_string($this->serverIp)) {
             throw new GetError(
@@ -52,7 +57,7 @@ class UdpService extends AbstractProtocol
             );
         }
 
-        $this->subnet = mb_substr($this->serverIp, 0, mb_strrpos($this->serverIp, '.'));
+        $this->subnet = mb_substr($this->serverIp, 0, mb_strrpos($this->serverIp, '.') ?: null);
     }
 
     /**
