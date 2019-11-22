@@ -10,7 +10,7 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Module\Hc\Factory\Slave as SlaveFactory;
+use GibsonOS\Module\Hc\Factory\SlaveFactory as SlaveFactory;
 use GibsonOS\Module\Hc\Model\Log as LogModel;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type as TypeModel;

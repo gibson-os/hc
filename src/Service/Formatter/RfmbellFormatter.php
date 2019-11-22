@@ -1,11 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Formatter;
+namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use GibsonOS\Module\Hc\Constant\Rfmbell as RfmbellConstant;
 use GibsonOS\Module\Hc\Service\ServerService;
-use GibsonOS\Module\Hc\Transform;
 
 class RfmbellFormatter extends AbstractFormatter
 {
@@ -22,7 +21,7 @@ class RfmbellFormatter extends AbstractFormatter
         $length = mb_strlen($this->data) / 2;
 
         for ($i = 0; $i < $length; ++$i) {
-            $value = Transform::hexToInt($this->data, $i);
+            $value = $this->transform->hexToInt($this->data, $i);
 
             if ($this->direction == ServerService::DIRECTION_INPUT) {
                 // Eingang

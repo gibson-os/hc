@@ -1,9 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Formatter;
-
-use GibsonOS\Module\Hc\Transform;
+namespace GibsonOS\Module\Hc\Service\Formatter;
 
 class BlankFormatter extends AbstractHcFormatter
 {
@@ -20,8 +18,8 @@ class BlankFormatter extends AbstractHcFormatter
             $return .= '<tr>';
             $return .= '<td>' . $byte . '</td>';
             $return .= '<td>' . $data . '</td>';
-            $return .= '<td>' . Transform::hexToBin($data) . '</td>';
-            $return .= '<td>' . Transform::hexToInt($data) . '</td>';
+            $return .= '<td>' . $this->transform->hexToBin($data) . '</td>';
+            $return .= '<td>' . $this->transform->hexToInt($data) . '</td>';
             $return .= '</tr>';
             ++$byte;
         }

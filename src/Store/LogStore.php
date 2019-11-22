@@ -7,7 +7,7 @@ use DateTime;
 use Exception;
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
-use GibsonOS\Module\Hc\Factory\Formatter;
+use GibsonOS\Module\Hc\Factory\FormatterFactory;
 use GibsonOS\Module\Hc\Service\ServerService;
 
 class LogStore extends AbstractDatabaseStore
@@ -144,7 +144,7 @@ class LogStore extends AbstractDatabaseStore
         $data = [];
 
         foreach ($this->table->connection->fetchAssocList() as $log) {
-            $formatter = Formatter::createByLog($log);
+            $formatter = FormatterFactory::createByLog($log);
 
             $data[] = [
                 'id' => $log['id'],

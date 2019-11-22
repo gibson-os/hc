@@ -7,10 +7,9 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Module\Hc\Factory\Slave;
-use GibsonOS\Module\Hc\Formatter\Bme280Formatter;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\EventService;
+use GibsonOS\Module\Hc\Service\Formatter\Bme280Formatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 

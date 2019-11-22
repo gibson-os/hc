@@ -1,8 +1,10 @@
 <?php
 declare(strict_types=1);
 
+namespace GibsonOS\Module\Hc\Factory\Event;
+
 use GibsonOS\Core\Factory\AbstractSingletonFactory;
-use GibsonOS\Core\Utility\Event\CodeGeneratorService;
+use GibsonOS\Module\Hc\Service\Event\CodeGeneratorService;
 
 class CodeGeneratorFactory extends AbstractSingletonFactory
 {

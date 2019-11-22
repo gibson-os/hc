@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Formatter;
+namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use Exception;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -10,7 +10,6 @@ use GibsonOS\Core\Service\ModuleSetting;
 use GibsonOS\Module\Hc\Constant\Ethbridge as EthbridgeConstant;
 use GibsonOS\Module\Hc\Repository\Attribute\Value;
 use GibsonOS\Module\Hc\Service\MasterService;
-use GibsonOS\Module\Hc\Transform;
 
 class EthbridgeFormatter extends AbstractFormatter
 {
@@ -32,7 +31,7 @@ class EthbridgeFormatter extends AbstractFormatter
             case MasterService::TYPE_STATUS:
                 return 'Status';
             case MasterService::TYPE_DATA:
-                switch (Transform::hexToInt($data, 0)) {
+                switch ($this->transform->hexToInt($data, 0)) {
                     case EthbridgeConstant::DATA_TYPE_IR:
                         $moduleSetting = ModuleSetting::getInstance();
                         $irProtocols = Json::decode(
@@ -74,14 +73,14 @@ class EthbridgeFormatter extends AbstractFormatter
     {
         $data = $this->data;
 
-        if (Transform::hexToInt($data, 0) != EthbridgeConstant::DATA_TYPE_IR) {
+        if ($this->transform->hexToInt($data, 0) != EthbridgeConstant::DATA_TYPE_IR) {
             return false;
         }
 
         return [
-            'protocol' => Transform::hexToInt($data, 1),
-            'address' => Transform::hexToInt(substr($data, 4, 4)),
-            'command' => Transform::hexToInt(substr($data, 8, 4)),
+            'protocol' => $this->transform->hexToInt($data, 1),
+            'address' => $this->transform->hexToInt(substr($data, 4, 4)),
+            'command' => $this->transform->hexToInt(substr($data, 8, 4)),
         ];
     }
 

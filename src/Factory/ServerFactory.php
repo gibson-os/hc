@@ -6,7 +6,7 @@ namespace GibsonOS\Module\Hc\Factory;
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Module\Hc\Service\ServerService as ServerService;
 
-class Server
+class ServerFactory
 {
     /**
      * @param string $protocolName
@@ -17,7 +17,7 @@ class Server
      */
     public static function create($protocolName)
     {
-        $protocol = Protocol::create($protocolName);
+        $protocol = ProtocolFactory::create($protocolName);
         $server = new ServerService($protocol);
 
         return $server;

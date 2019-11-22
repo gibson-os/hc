@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Formatter;
+namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use GibsonOS\Module\Hc\Constant\Rfmrgbpanel5x5 as Rfmrgbpanel5x5Constant;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\ServerService;
-use GibsonOS\Module\Hc\Transform;
 
 class Rfmrgbpanel5X5Formatter extends AbstractFormatter
 {
@@ -26,8 +25,8 @@ class Rfmrgbpanel5X5Formatter extends AbstractFormatter
                 return parent::text();
             }
 
-            $sequenceActive = Transform::hexToInt($data, 0);
-            $sequenceId = Transform::hexToInt(mb_substr($data, 2));
+            $sequenceActive = $this->transform->hexToInt($data, 0);
+            $sequenceId = $this->transform->hexToInt(mb_substr($data, 2));
 
             return 'Sequenz ' . $sequenceId . ($sequenceActive ? ' aktiv' : ' gestoppt');
         }
@@ -37,7 +36,7 @@ class Rfmrgbpanel5X5Formatter extends AbstractFormatter
 
             switch (mb_substr($data, 0, 2)) {
                 case Rfmrgbpanel5x5Constant::SEQUENCE_START_BYTE:
-                    return 'Übertragung von Sequenz ' . Transform::hexToInt($data) . ' starten';
+                    return 'Übertragung von Sequenz ' . $this->transform->hexToInt($data) . ' starten';
                 case Rfmrgbpanel5x5Constant::SEQUENCE_RUN_BYTE:
                     switch (mb_substr($data, 2, 2)) {
                         case Rfmrgbpanel5x5Constant::SEQUENCE_PLAY_BYTE:
@@ -49,7 +48,7 @@ class Rfmrgbpanel5X5Formatter extends AbstractFormatter
                     }
                     // no break
                 default:
-                    return 'Sequenz Step ' . Transform::hexToInt($data, 0);
+                    return 'Sequenz Step ' . $this->transform->hexToInt($data, 0);
             }
         }
 
@@ -144,7 +143,7 @@ class Rfmrgbpanel5X5Formatter extends AbstractFormatter
         } else {
             // 3 Bytes pro LED 1=Adresse; 2=Effekt|Red 3=Green|Blue
             for ($i = 2; $i < mb_strlen($data); $i += 6) {
-                $address = Transform::hexToInt(mb_substr($data, $i, 2));
+                $address = $this->transform->hexToInt(mb_substr($data, $i, 2));
 
                 if ($address > Rfmrgbpanel5x5Constant::LED_COUNT) { // compressed
                     $ledCount = $address - Rfmrgbpanel5x5Constant::LED_COUNT;
@@ -153,7 +152,7 @@ class Rfmrgbpanel5X5Formatter extends AbstractFormatter
 
                     for ($j = 0; $j < $ledCount; ++$j) {
                         $i += 2;
-                        $ledList['l' . Transform::hexToInt(mb_substr($data, $i, 2))] = [
+                        $ledList['l' . $this->transform->hexToInt(mb_substr($data, $i, 2))] = [
                             'effect' => $effect,
                             'color' => $color,
                         ];

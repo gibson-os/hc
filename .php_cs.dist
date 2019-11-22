@@ -43,8 +43,8 @@ return PhpCsFixer\Config::create()
         'class_attributes_separation' => true,
         'declare_strict_types' => true,
         'blank_line_after_opening_tag' => false,
-        'no_superfluous_phpdoc_tags' => false,
-        'no_empty_phpdoc' => false,
+        'no_superfluous_phpdoc_tags' => true,
+        'no_empty_phpdoc' => true,
         'no_extra_blank_lines' => false,
         'single_line_throw' => false,
     ])

@@ -440,7 +440,13 @@ class Module extends AbstractModel
     public function setType(Type $type): Module
     {
         $this->type = $type;
-        $this->setTypeId($type->getId());
+        $typeId = 0;
+
+        if ($type instanceof Type) {
+            $typeId = (int) $type->getId();
+        }
+
+        $this->setTypeId($typeId);
 
         return $this;
     }

@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Formatter;
+namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\ServerService;
-use GibsonOS\Module\Hc\Transform;
+use GibsonOS\Module\Hc\Service\TransformService;
 
 abstract class AbstractFormatter implements FormatterInterface
 {
@@ -19,6 +19,11 @@ abstract class AbstractFormatter implements FormatterInterface
      * @var Module
      */
     protected $module;
+
+    /**
+     * @var TransformService
+     */
+    protected $transform;
 
     /**
      * @var string
@@ -43,16 +48,25 @@ abstract class AbstractFormatter implements FormatterInterface
     /**
      * AbstractFormatter constructor.
      *
-     * @param Module   $module
-     * @param string   $direction
-     * @param int      $type
-     * @param string   $data
-     * @param int|null $command
-     * @param int|null $logId
+     * @param Module           $module
+     * @param TransformService $transform
+     * @param string           $direction
+     * @param int              $type
+     * @param string           $data
+     * @param int|null         $command
+     * @param int|null         $logId
      */
-    public function __construct(Module $module, $direction, $type, $data, $command = null, $logId = null)
-    {
+    public function __construct(
+        Module $module,
+        TransformService $transform,
+        string $direction,
+        int $type,
+        string $data,
+        int $command = null,
+        int $logId = null
+    ) {
         $this->module = $module;
+        $this->transform = $transform;
         $this->direction = $direction;
         $this->type = $type;
         $this->data = $data;
@@ -83,9 +97,9 @@ abstract class AbstractFormatter implements FormatterInterface
     {
         if ($this->type == MasterService::TYPE_HANDSHAKE) {
             return 'Adresse ' .
-                Transform::hexToInt(substr($this->data, 0, 2)) .
+                $this->transform->hexToInt(substr($this->data, 0, 2)) .
                 ' gesendet an ' .
-                Transform::hexToAscii(substr($this->data, 2));
+                $this->transform->hexToAscii(substr($this->data, 2));
         }
         if (
             $this->type == MasterService::TYPE_STATUS &&

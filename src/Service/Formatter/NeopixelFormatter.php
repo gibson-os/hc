@@ -1,10 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Formatter;
+namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService as LedAttribute;
-use GibsonOS\Module\Hc\Transform;
 
 class NeopixelFormatter extends AbstractHcFormatter
 {
@@ -48,28 +47,28 @@ class NeopixelFormatter extends AbstractHcFormatter
         $leds = [];
 
         for ($i = 2; $i < strlen($data);) {
-            $address = Transform::asciiToInt(substr($data, 0, 2));
+            $address = $this->transform->asciiToInt(substr($data, 0, 2));
 
             if ($address > self::MAX_PROTOCOL_LEDS) {
                 for ($j = 0; $j < $address - self::MAX_PROTOCOL_LEDS; ++$j) {
-                    $addressFromGroup = Transform::asciiToInt(substr($data, $i, 2));
+                    $addressFromGroup = $this->transform->asciiToInt(substr($data, $i, 2));
                     $i += 2;
                     $leds[$addressFromGroup] = [
-                        LedAttribute::ATTRIBUTE_KEY_RED => Transform::asciiToInt($data, $i++),
-                        LedAttribute::ATTRIBUTE_KEY_GREEN => Transform::asciiToInt($data, $i++),
-                        LedAttribute::ATTRIBUTE_KEY_BLUE => Transform::asciiToInt($data, $i++),
-                        LedAttribute::ATTRIBUTE_KEY_FADE_IN => Transform::asciiToInt($data, $i++) >> 4,
-                        LedAttribute::ATTRIBUTE_KEY_BLINK => Transform::asciiToInt($data, $i++) & 15,
+                        LedAttribute::ATTRIBUTE_KEY_RED => $this->transform->asciiToInt($data, $i++),
+                        LedAttribute::ATTRIBUTE_KEY_GREEN => $this->transform->asciiToInt($data, $i++),
+                        LedAttribute::ATTRIBUTE_KEY_BLUE => $this->transform->asciiToInt($data, $i++),
+                        LedAttribute::ATTRIBUTE_KEY_FADE_IN => $this->transform->asciiToInt($data, $i++) >> 4,
+                        LedAttribute::ATTRIBUTE_KEY_BLINK => $this->transform->asciiToInt($data, $i++) & 15,
                     ];
                 }
             }
 
             $leds[$address] = [
-                LedAttribute::ATTRIBUTE_KEY_RED => Transform::asciiToInt($data, $i++),
-                LedAttribute::ATTRIBUTE_KEY_GREEN => Transform::asciiToInt($data, $i++),
-                LedAttribute::ATTRIBUTE_KEY_BLUE => Transform::asciiToInt($data, $i++),
-                LedAttribute::ATTRIBUTE_KEY_FADE_IN => Transform::asciiToInt($data, $i++) >> 4,
-                LedAttribute::ATTRIBUTE_KEY_BLINK => Transform::asciiToInt($data, $i++) & 15,
+                LedAttribute::ATTRIBUTE_KEY_RED => $this->transform->asciiToInt($data, $i++),
+                LedAttribute::ATTRIBUTE_KEY_GREEN => $this->transform->asciiToInt($data, $i++),
+                LedAttribute::ATTRIBUTE_KEY_BLUE => $this->transform->asciiToInt($data, $i++),
+                LedAttribute::ATTRIBUTE_KEY_FADE_IN => $this->transform->asciiToInt($data, $i++) >> 4,
+                LedAttribute::ATTRIBUTE_KEY_BLINK => $this->transform->asciiToInt($data, $i++) & 15,
             ];
         }
 

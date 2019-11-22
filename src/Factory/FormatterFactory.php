@@ -6,13 +6,14 @@ namespace GibsonOS\Module\Hc\Factory;
 use DateTime;
 use Exception;
 use GibsonOS\Core\Exception\FileNotFound;
-use GibsonOS\Module\Hc\Formatter\AbstractFormatter;
-use GibsonOS\Module\Hc\Formatter\FormatterInterface;
-use GibsonOS\Module\Hc\Formatter\MasterFormatter;
+use GibsonOS\Core\Factory\AbstractSingletonFactory;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
+use GibsonOS\Module\Hc\Service\Formatter\AbstractFormatter;
+use GibsonOS\Module\Hc\Service\Formatter\FormatterInterface;
+use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 
-class Formatter
+class FormatterFactory extends AbstractSingletonFactory
 {
     /**
      * @param array $log

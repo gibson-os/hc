@@ -6,7 +6,7 @@ namespace GibsonOS\Module\Hc\Factory;
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Module\Hc\Service\Protocol\AbstractProtocol;
 
-class Protocol
+class ProtocolFactory
 {
     /**
      * @param string $protocolName

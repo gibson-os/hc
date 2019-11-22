@@ -5,15 +5,16 @@ namespace GibsonOS\Module\Hc\Factory;
 
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Factory\AbstractSingletonFactory;
 use GibsonOS\Core\Utility\Event\CodeGeneratorService;
 use GibsonOS\Module\Hc\Model\Master as MasterModel;
 use GibsonOS\Module\Hc\Repository\Event\Trigger as TriggerRepository;
 use GibsonOS\Module\Hc\Repository\Master as MasterRepository;
 use GibsonOS\Module\Hc\Service\EventService;
-use GibsonOS\Module\Hc\Service\MasterService as MasterService;
-use GibsonOS\Module\Hc\Service\ServerService as ServerService;
+use GibsonOS\Module\Hc\Service\MasterService;
+use GibsonOS\Module\Hc\Service\ServerService;
 
-class Master
+class MasterFactory extends AbstractSingletonFactory
 {
     /**
      * @param MasterModel        $masterModel
@@ -23,10 +24,10 @@ class Master
      *
      * @return MasterService
      */
-    public static function create(MasterModel $masterModel, ServerService $server = null): MasterService
+    public static function create(): MasterService
     {
         if ($server === null) {
-            $server = Server::create($masterModel->getProtocol());
+            $server = ServerFactory::create($masterModel->getProtocol());
         }
 
         $event = new EventService();
@@ -39,7 +40,7 @@ class Master
             );
         }
 
-        $master = new MasterService($masterModel, $server, $event);
+        $master = new MasterService(Ser, $server, $event);
 
         return $master;
     }

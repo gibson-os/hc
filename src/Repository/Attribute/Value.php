@@ -9,7 +9,6 @@ use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Repository\UpdateError;
 use GibsonOS\Core\Repository\AbstractRepository;
-use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
 
@@ -89,7 +88,7 @@ class Value extends AbstractRepository
             foreach (explode($separator, $attribute->values) as $pos => $value) {
                 $models[] = (new ValueModel())
                     ->setAttribute($attributeModel)
-                    ->setOrder($orders[$pos])
+                    ->setOrder((int) $orders[$pos])
                     ->setValue($value);
             }
         }
@@ -160,13 +159,13 @@ class Value extends AbstractRepository
     }
 
     /**
-     * @param int               $typeId
-     * @param int               $startOrder
-     * @param int               $updateOrder
-     * @param int[]|null        $moduleIds
-     * @param string|null       $type
-     * @param int|bool|null     $subId
-     * @param string|array|null $key
+     * @param int         $typeId
+     * @param int         $startOrder
+     * @param int         $updateOrder
+     * @param array|null  $moduleIds
+     * @param string|null $type
+     * @param int|null    $subId
+     * @param string|null $key
      *
      * @throws UpdateError
      */
@@ -183,7 +182,7 @@ class Value extends AbstractRepository
         $where .= self::getModuleIdWhere($moduleIds);
         $where .= self::getTypeWhere($type);
         $where .= self::getSubIdWhere($subId);
-        $where .= self::getKeysWhere($key);
+        $where .= self::getKeysWhere([$key]);
 
         $attributeTable = self::getTable(AttributeModel::getTableName());
         $attributeTable->setWhere($where);
@@ -203,21 +202,16 @@ class Value extends AbstractRepository
     }
 
     /**
-     * Findet Attribute anhand eines Wertes.
+     * @param string      $value
+     * @param int         $typeId
+     * @param array|null  $keys
+     * @param array|null  $moduleIds
+     * @param int|null    $subId
+     * @param string|null $type
      *
-     * Findet Attribute anhand des Wertes $value.
-     *
-     * @param string           $value     Wert
-     * @param int              $typeId    Modul Typen ID
-     * @param bool|array|null  $keys      wenn null alle Schlüssel
-     * @param int[]|null       $moduleIds Wenn false alle Module. Wenn null alle ohne Modul.
-     * @param int|bool|null    $subId     Wenn false alle Sub IDs. Wenn null alle ohne Sub ID.
-     * @param string|bool|null $type      Wenn false alle Typen. Wenn null alle ohne Typen.
-     *
-     *@throws Exception
      * @throws SelectError
      *
-     * @return ValueModel[]
+     * @return array
      */
     public static function findAttributesByValue(
         string $value,

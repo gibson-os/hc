@@ -13,7 +13,7 @@ class Method
     private $parameters = [];
 
     /**
-     * @var AbstractParameter[]
+     * @var AbstractParameter[]|AbstractParameter[][]
      */
     private $returnTypes = [];
 

@@ -20,7 +20,7 @@ use GibsonOS\Module\Hc\Service\EventService;
 use GibsonOS\Module\Hc\Service\MasterService as MasterService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 
-class Slave
+class SlaveFactory
 {
     /**
      * @param ModuleModel        $slaveModel
@@ -38,7 +38,7 @@ class Slave
 
         if ($master === null) {
             $slaveModel->loadMaster();
-            $master = Master::create($slaveModel->getMaster());
+            $master = MasterFactory::create($slaveModel->getMaster());
         } else {
             $slaveModel->setMaster($master->getModel());
         }

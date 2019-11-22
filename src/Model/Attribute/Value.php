@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model\Attribute;
 
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Attribute;
@@ -124,13 +125,14 @@ class Value extends AbstractModel
     public function setAttribute(Attribute $attribute): Value
     {
         $this->attribute = $attribute;
-        $this->setAttributeId($attribute->getId());
+        $this->setAttributeId((int) $attribute->getId());
 
         return $this;
     }
 
     /**
      * @throws SelectError
+     * @throws DateTimeError
      *
      * @return Value
      */

@@ -41,7 +41,7 @@ class AutoCompleteParameter extends AbstractParameter
 
     /**
      * @param string $key
-     * @param $value
+     * @param mixed  $value
      *
      * @return AutoCompleteParameter
      */

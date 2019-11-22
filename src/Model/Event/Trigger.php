@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model\Event;
 
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Event;
@@ -395,13 +396,14 @@ class Trigger extends AbstractModel
     public function setMaster(Master $master): Trigger
     {
         $this->master = $master;
-        $this->setMasterId($master->getId());
+        $this->setMasterId((int) $master->getId());
 
         return $this;
     }
 
     /**
      * @throws SelectError
+     * @throws DateTimeError
      *
      * @return Trigger
      */
@@ -429,12 +431,13 @@ class Trigger extends AbstractModel
     public function setModule(Module $module): Trigger
     {
         $this->module = $module;
-        $this->setModuleId($module->getId());
+        $this->setModuleId((int) $module->getId());
 
         return $this;
     }
 
     /**
+     * @throws DateTimeError
      * @throws SelectError
      *
      * @return Trigger

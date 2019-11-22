@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Repository;
 
 use DateTime;
 use Exception;
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -26,23 +27,27 @@ class Attribute extends AbstractRepository
      *
      * @return AttributeModel[]
      */
-    public static function getByModule(ModuleModel $module, $subId = null, $key = null, $type = null): array
-    {
+    public static function getByModule(
+        ModuleModel $module,
+        int $subId = null,
+        string $key = null,
+        string $type = null
+    ): array {
         $table = self::getTable(AttributeModel::getTableName());
 
         $where =
-            '`type_id`=' . self::escape($module->getTypeId()) . ' AND ' .
-            '`module_id`=' . self::escape($module->getId());
+            '`type_id`=' . $module->getTypeId() . ' AND ' .
+            '`module_id`=' . $module->getId();
 
         if (null !== $subId) {
-            $where .= ' AND `sub_id`=' . self::escape($subId);
+            $where .= ' AND `sub_id`=' . $subId;
         }
 
-        if (null !== $key) {
+        if ($key !== null) {
             $where .= ' AND `key`=' . self::escape($key);
         }
 
-        if (null !== $type) {
+        if ($type !== null) {
             $where .= ' AND `type`=' . self::escape($type);
         }
 
@@ -72,13 +77,19 @@ class Attribute extends AbstractRepository
      * @param ModuleModel $module
      * @param array       $values
      * @param int|null    $subId
-     * @param string|null $key
+     * @param string      $key
      * @param string|null $type
      *
      * @throws SaveError
+     * @throws DateTimeError
      */
-    public static function addByModule(ModuleModel $module, $values, $subId = null, $key = null, $type = null)
-    {
+    public static function addByModule(
+        ModuleModel $module,
+        array $values,
+        int $subId = null,
+        string $key = '',
+        string $type = null
+    ) {
         $attribute = (new AttributeModel())
             ->setModule($module)
             ->setType($type)

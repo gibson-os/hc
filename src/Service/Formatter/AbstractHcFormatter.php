@@ -1,10 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Formatter;
+namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
-use GibsonOS\Module\Hc\Transform;
 
 abstract class AbstractHcFormatter extends AbstractFormatter
 {
@@ -65,14 +64,14 @@ abstract class AbstractHcFormatter extends AbstractFormatter
     {
         switch ($this->command) {
             case AbstractHcSlave::COMMAND_DEVICE_ID:
-                return Transform::hexToInt($this->data);
+                return $this->transform->hexToInt($this->data);
             case AbstractHcSlave::COMMAND_TYPE:
-                return Transform::hexToInt($this->data, 0);
+                return $this->transform->hexToInt($this->data, 0);
             case AbstractHcSlave::COMMAND_ADDRESS:
-                return Transform::hexToInt($this->data, 2);
+                return $this->transform->hexToInt($this->data, 2);
             case AbstractHcSlave::COMMAND_HERTZ:
                 $units = ['Hz', 'kHz', 'MHz', 'GHz'];
-                $hertz = Transform::hexToInt($this->data);
+                $hertz = $this->transform->hexToInt($this->data);
 
                 for ($i = 0; $hertz > 1000; $hertz /= 1000) {
                     ++$i;
@@ -83,7 +82,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
             case AbstractHcSlave::COMMAND_EEPROM_FREE:
             case AbstractHcSlave::COMMAND_EEPROM_POSITION:
             case AbstractHcSlave::COMMAND_BUFFER_SIZE:
-                return Transform::hexToInt($this->data) . ' Byte';
+                return $this->transform->hexToInt($this->data) . ' Byte';
             case AbstractHcSlave::COMMAND_EEPROM_ERASE:
                 return 'formatiert';
         }

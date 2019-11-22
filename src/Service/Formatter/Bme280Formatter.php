@@ -1,11 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Formatter;
+namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use GibsonOS\Core\Json;
 use GibsonOS\Module\Hc\Service\Slave\Bme280Service as Bme280Service;
-use GibsonOS\Module\Hc\Transform;
 
 class Bme280Formatter extends AbstractFormatter
 {
@@ -17,16 +16,16 @@ class Bme280Formatter extends AbstractFormatter
         switch ($this->command) {
             case Bme280Service::COMMAND_MEASURE:
                 $config = Json::decode($this->module->getConfig());
-                $measureData = self::measureData(Transform::hexToAscii($this->data), $config);
+                $measureData = self::measureData($this->transform->hexToAscii($this->data), $config);
 
                 return
                     'Temperatur: ' . $measureData['temperature'] . ' °C<br/>' .
                     'Luftdruck: ' . $measureData['pressure'] . ' hPa<br/>' .
                     'Luftfeuchtigkeit: ' . $measureData['humidity'] . ' %';
             case Bme280Service::COMMAND_CONTROL_HUMIDITY:
-                return 'Luftdruck Konfiguration: ' . Transform::hexToInt($this->data, 0);
+                return 'Luftdruck Konfiguration: ' . $this->transform->hexToInt($this->data, 0);
             case Bme280Service::COMMAND_CONTROL:
-                return 'Konfiguration: ' . Transform::hexToInt($this->data, 0);
+                return 'Konfiguration: ' . $this->transform->hexToInt($this->data, 0);
             case Bme280Service::COMMAND_CALIBRATION1:
                 return 'Kalibrierungdaten 1';
             case Bme280Service::COMMAND_CALIBRATION2:
@@ -46,9 +45,9 @@ class Bme280Formatter extends AbstractFormatter
      */
     public function measureData($data, $calibration)
     {
-        $pressureRaw = (Transform::asciiToInt($data, 0) << 12) | (Transform::asciiToInt($data, 1) << 4) | (Transform::asciiToInt($data, 2) >> 4);
-        $temperatureRaw = (Transform::asciiToInt($data, 3) << 12) | (Transform::asciiToInt($data, 4) << 4) | (Transform::asciiToInt($data, 5) >> 4);
-        $humidityRaw = (Transform::asciiToInt($data, 6) << 8) | Transform::asciiToInt($data, 7);
+        $pressureRaw = ($this->transform->asciiToInt($data, 0) << 12) | ($this->transform->asciiToInt($data, 1) << 4) | ($this->transform->asciiToInt($data, 2) >> 4);
+        $temperatureRaw = ($this->transform->asciiToInt($data, 3) << 12) | ($this->transform->asciiToInt($data, 4) << 4) | ($this->transform->asciiToInt($data, 5) >> 4);
+        $humidityRaw = ($this->transform->asciiToInt($data, 6) << 8) | $this->transform->asciiToInt($data, 7);
 
         $var1 = ((((($temperatureRaw >> 3) - ($calibration['temperature'][0] << 1))) * ($calibration['temperature'][1])) >> 11);
         $var2 = (((((($temperatureRaw >> 4) - ($calibration['temperature'][0])) * (($temperatureRaw >> 4) - ($calibration['temperature'][0]))) >> 12) * ($calibration['temperature'][2])) >> 14);

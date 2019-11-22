@@ -162,7 +162,7 @@ class Event extends AbstractModel
     }
 
     /**
-     * @param Element[]|AbstractModel[] $elements
+     * @param Element[] $elements
      *
      * @return Event
      */
@@ -185,16 +185,20 @@ class Event extends AbstractModel
         return $this;
     }
 
+    /**
+     * @throws \GibsonOS\Core\Exception\DateTimeError
+     */
     public function loadElements()
     {
-        $this->setElements(
-            $this->loadForeignRecords(
-                Element::class,
-                $this->getId(),
-                Element::getTableName(),
-                'event_id'
-            )
+        /** @var Element[] $elements */
+        $elements = $this->loadForeignRecords(
+            Element::class,
+            $this->getId(),
+            Element::getTableName(),
+            'event_id'
         );
+
+        $this->setElements($elements);
     }
 
     /**
@@ -229,15 +233,19 @@ class Event extends AbstractModel
         return $this;
     }
 
+    /**
+     * @throws \GibsonOS\Core\Exception\DateTimeError
+     */
     public function loadTriggers()
     {
-        $this->setElements(
-            $this->loadForeignRecords(
-                Trigger::class,
-                $this->getId(),
-                Trigger::getTableName(),
-                'event_id'
-            )
+        /** @var Element[] $elements */
+        $elements = $this->loadForeignRecords(
+            Trigger::class,
+            $this->getId(),
+            Trigger::getTableName(),
+            'event_id'
         );
+
+        $this->setElements($elements);
     }
 }

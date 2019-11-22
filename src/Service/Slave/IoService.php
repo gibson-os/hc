@@ -10,7 +10,6 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Module\Hc\Formatter\IoFormatter;
 use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
 use GibsonOS\Module\Hc\Model\Module;
@@ -18,6 +17,7 @@ use GibsonOS\Module\Hc\Repository\Attribute as AttributeRepository;
 use GibsonOS\Module\Hc\Repository\Attribute\Value as ValueRepository;
 use GibsonOS\Module\Hc\Service\Event\Describer\IoService as IoDescriber;
 use GibsonOS\Module\Hc\Service\EventService;
+use GibsonOS\Module\Hc\Service\Formatter\IoFormatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 

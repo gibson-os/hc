@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTime;
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Sequence\Element;
@@ -199,7 +200,13 @@ class Sequence extends AbstractModel
     public function setTypeModel(?Type $typeModel): Sequence
     {
         $this->typeModel = $typeModel;
-        $this->setTypeId($typeModel->getId());
+        $typeId = 0;
+
+        if ($typeModel instanceof Type) {
+            $typeId = $typeModel->getId();
+        }
+
+        $this->setTypeId($typeId);
 
         return $this;
     }
@@ -220,7 +227,13 @@ class Sequence extends AbstractModel
     public function setModule(?Module $module): Sequence
     {
         $this->module = $module;
-        $this->setModuleId($module->getId());
+        $moduleId = 0;
+
+        if ($module instanceof Module) {
+            $moduleId = $module->getId();
+        }
+
+        $this->setModuleId($moduleId);
 
         return $this;
     }
@@ -254,41 +267,50 @@ class Sequence extends AbstractModel
 
     /**
      * @throws SelectError
+     * @throws DateTimeError
      *
      * @return Sequence
      */
     public function loadType(): Sequence
     {
-        $this->loadForeignRecord($this->getTypeModel(), $this->getTypeId());
+        if ($this->getTypeModel() instanceof Type) {
+            $this->loadForeignRecord($this->getTypeModel(), (string) $this->getTypeId());
+        }
 
         return $this;
     }
 
     /**
+     * @throws DateTimeError
      * @throws SelectError
      *
      * @return Sequence
      */
     public function loadModule(): Sequence
     {
-        $this->loadForeignRecord($this->getModule(), $this->getModuleId());
+        if ($this->getModule() instanceof Module) {
+            $this->loadForeignRecord($this->getModule(), (string) $this->getModuleId());
+        }
 
         return $this;
     }
 
     /**
+     * @throws DateTimeError
+     *
      * @return Sequence
      */
     public function loadElements(): Sequence
     {
-        $this->setElements(
-            $this->loadForeignRecords(
-                Element::class,
-                $this->getId(),
-                Element::getTableName(),
-                'sequence_id'
-            )
+        /** @var Element[] $elements */
+        $elements = $this->loadForeignRecords(
+            Element::class,
+            $this->getId(),
+            Element::getTableName(),
+            'sequence_id'
         );
+
+        $this->setElements($elements);
 
         return $this;
     }

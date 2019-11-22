@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model\Sequence;
 
 use DateTime;
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Sequence;
@@ -164,12 +165,13 @@ class Element extends AbstractModel
     public function setSequence(Sequence $sequence): Element
     {
         $this->sequence = $sequence;
-        $this->setSequenceId($sequence->getId());
+        $this->setSequenceId((int) $sequence->getId());
 
         return $this;
     }
 
     /**
+     * @throws DateTimeError
      * @throws SelectError
      *
      * @return Element

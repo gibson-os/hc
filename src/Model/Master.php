@@ -131,7 +131,7 @@ class Master extends AbstractModel
     /**
      * @return DateTime|null
      */
-    public function getAdded(): DateTime
+    public function getAdded(): ?DateTime
     {
         return $this->added;
     }

@@ -3,16 +3,11 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Event;
 
-use GibsonOS\Module\Hc\Model\Event\Element as ElementModel;
+use GibsonOS\Module\Hc\Model\Event\Element;
 use GibsonOS\Module\Hc\Service\Event\Describer\DescriberInterface;
 
 abstract class AbstractEventService
 {
-    /**
-     * @var ElementModel
-     */
-    private $element;
-
     /**
      * @var DescriberInterface
      */
@@ -21,29 +16,21 @@ abstract class AbstractEventService
     /**
      * AbstractEvent constructor.
      *
-     * @param ElementModel       $element
      * @param DescriberInterface $describer
      */
-    public function __construct(ElementModel $element, DescriberInterface $describer)
+    public function __construct(DescriberInterface $describer)
     {
-        $this->load($element);
         $this->describer = $describer;
     }
 
     /**
-     * @param ElementModel $element
-     */
-    public function load(ElementModel $element)
-    {
-        $this->element = $element;
-    }
-
-    /**
+     * @param Element $element
+     *
      * @return mixed
      */
-    public function run()
+    public function run(Element $element)
     {
-        $function = $this->element->getFunction();
+        $function = $element->getFunction();
 
         if (!isset($this->describer->getMethods()[$function])) {
             // @todo throw exception
@@ -52,8 +39,13 @@ abstract class AbstractEventService
         return $this->{$function}();
     }
 
-    protected function getParams()
+    /**
+     * @param Element $element
+     *
+     * @return mixed
+     */
+    protected function getParams(Element $element)
     {
-        return unserialize($this->element->getParams());
+        return unserialize($element->getParams());
     }
 }
