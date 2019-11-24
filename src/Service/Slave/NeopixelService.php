@@ -13,12 +13,12 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService as LedAttribute;
+use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\EventService;
 use GibsonOS\Module\Hc\Service\Formatter\NeopixelFormatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
-use GibsonOS\Module\Hc\Store\Neopixel\LedStore as LedStore;
+use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
 use LogicException;
 
 class NeopixelService extends AbstractHcSlave
@@ -54,7 +54,7 @@ class NeopixelService extends AbstractHcSlave
     private const CONFIG_COUNTS = 'counts';
 
     /**
-     * @var LedAttribute
+     * @var LedService
      */
     private $ledAttribute;
 
@@ -68,10 +68,10 @@ class NeopixelService extends AbstractHcSlave
         TransformService $transform,
         EventService $event,
         NeopixelFormatter $formatter,
-        array $attributes = []
+        LedService $ledAttribute
     ) {
         parent::__construct($master, $transform, $event);
-        $this->ledAttribute = $attributes[LedAttribute::class];
+        $this->ledAttribute = $ledAttribute;
         $this->formatter = $formatter;
     }
 
@@ -105,17 +105,17 @@ class NeopixelService extends AbstractHcSlave
 
         foreach ($config[self::CONFIG_COUNTS] as $channel => $count) {
             for ($i = 0; $i < $count; ++$i) {
-                $top = $this->ledAttribute->getById($slave, $id, LedAttribute::ATTRIBUTE_KEY_TOP);
-                $left = $this->ledAttribute->getById($slave, $id, LedAttribute::ATTRIBUTE_KEY_LEFT);
+                $top = $this->ledAttribute->getById($slave, $id, LedService::ATTRIBUTE_KEY_TOP);
+                $left = $this->ledAttribute->getById($slave, $id, LedService::ATTRIBUTE_KEY_LEFT);
                 $leds[$id] = [
-                    LedAttribute::ATTRIBUTE_KEY_CHANNEL => $channel,
-                    LedAttribute::ATTRIBUTE_KEY_RED => 0,
-                    LedAttribute::ATTRIBUTE_KEY_GREEN => 0,
-                    LedAttribute::ATTRIBUTE_KEY_BLUE => 0,
-                    LedAttribute::ATTRIBUTE_KEY_FADE_IN => 0,
-                    LedAttribute::ATTRIBUTE_KEY_BLINK => 0,
-                    LedAttribute::ATTRIBUTE_KEY_TOP => count($top) === 1 ? (int) $top[0]->getValue() : ($channel * 3),
-                    LedAttribute::ATTRIBUTE_KEY_LEFT => count($left) === 1 ? (int) $left[0]->getValue() : ($i * 3),
+                    LedService::ATTRIBUTE_KEY_CHANNEL => $channel,
+                    LedService::ATTRIBUTE_KEY_RED => 0,
+                    LedService::ATTRIBUTE_KEY_GREEN => 0,
+                    LedService::ATTRIBUTE_KEY_BLUE => 0,
+                    LedService::ATTRIBUTE_KEY_FADE_IN => 0,
+                    LedService::ATTRIBUTE_KEY_BLINK => 0,
+                    LedService::ATTRIBUTE_KEY_TOP => count($top) === 1 ? (int) $top[0]->getValue() : ($channel * 3),
+                    LedService::ATTRIBUTE_KEY_LEFT => count($left) === 1 ? (int) $left[0]->getValue() : ($i * 3),
                 ];
                 ++$id;
             }
@@ -377,7 +377,7 @@ class NeopixelService extends AbstractHcSlave
         return $this;
     }
 
-    public function getLedAttribute(): LedAttribute
+    public function getLedAttribute(): LedService
     {
         return $this->ledAttribute;
     }

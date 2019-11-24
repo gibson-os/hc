@@ -3,6 +3,7 @@
     <words>
       <w>eeprom</w>
       <w>leds</w>
+      <w>neopixel</w>
     </words>
   </dictionary>
 </component>

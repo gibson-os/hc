@@ -354,7 +354,7 @@ abstract class AbstractHcSlave extends AbstractSlave
 
         $this->event->fire(HcService::AFTER_WRITE_TYPE, ['slave' => $slave, 'typeId' => $type->getId()]);
 
-        $slaveService = SlaveFactory::create();
+        $slaveService = SlaveFactory::create($slave->getType()->getHelper());
         $slaveService->handshake($slave);
 
         return $slaveService;
