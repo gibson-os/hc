@@ -112,9 +112,6 @@ class IoService implements DescriberInterface
         ]]);
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return 'I/O';

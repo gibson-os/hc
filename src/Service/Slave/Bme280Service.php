@@ -8,7 +8,6 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Service\EventService;
 use GibsonOS\Module\Hc\Service\Formatter\Bme280Formatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
@@ -50,22 +49,16 @@ class Bme280Service extends AbstractSlave
 
     public function __construct(
         MasterService $master,
-        EventService $event,
         TransformService $transform,
-        Bme280Formatter $formatter,
-        array $attributes = []
+        Bme280Formatter $formatter
     ) {
-        parent::__construct($master, $event, $transform, $attributes);
+        parent::__construct($master, $transform);
         $this->formatter = $formatter;
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
-     *
-     * @return Module
      */
     public function handshake(Module $slave): Module
     {
@@ -76,8 +69,6 @@ class Bme280Service extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -89,8 +80,6 @@ class Bme280Service extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      */
@@ -109,13 +98,9 @@ class Bme280Service extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     public function measure(Module $slave): array
     {
@@ -131,13 +116,9 @@ class Bme280Service extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     private function calibrateTemperatureAndPressure(Module $slave): array
     {
@@ -165,13 +146,9 @@ class Bme280Service extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     private function calibrateHumidity(Module $slave): array
     {

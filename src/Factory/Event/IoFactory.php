@@ -10,6 +10,6 @@ class IoFactory extends AbstractSingletonFactory
 {
     protected static function createInstance()
     {
-        return new IoService()
+        return new IoService(Describer\IoFactory::create());
     }
 }

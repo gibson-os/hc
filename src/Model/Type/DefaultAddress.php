@@ -22,27 +22,16 @@ class DefaultAddress extends AbstractModel
      */
     private $address;
 
-    /**
-     * @return string
-     */
     public static function getTableName(): string
     {
         return 'hc_type_default_address';
     }
 
-    /**
-     * @return int
-     */
     public function getTypeId(): int
     {
         return $this->typeId;
     }
 
-    /**
-     * @param int $typeId
-     *
-     * @return DefaultAddress
-     */
     public function setTypeId(int $typeId): DefaultAddress
     {
         $this->typeId = $typeId;
@@ -50,19 +39,11 @@ class DefaultAddress extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getAddress(): int
     {
         return $this->address;
     }
 
-    /**
-     * @param int $address
-     *
-     * @return DefaultAddress
-     */
     public function setAddress(int $address): DefaultAddress
     {
         $this->address = $address;

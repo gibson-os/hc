@@ -5,42 +5,57 @@ namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use Exception;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Json;
-use GibsonOS\Core\Service\ModuleSetting;
+use GibsonOS\Core\Service\ModuleSettingService;
+use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Constant\Ethbridge as EthbridgeConstant;
+use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Attribute\Value;
 use GibsonOS\Module\Hc\Service\MasterService;
+use GibsonOS\Module\Hc\Service\TransformService;
 
 class EthbridgeFormatter extends AbstractFormatter
 {
     /**
+     * @var ModuleSettingService
+     */
+    private $moduleSetting;
+
+    public function __construct(TransformService $transform, ModuleSettingService $moduleSetting)
+    {
+        parent::__construct($transform);
+        $this->transform = $transform;
+        $this->moduleSetting = $moduleSetting;
+    }
+
+    /**
      * @throws SelectError
      * @throws Exception
-     *
-     * @return string|null
      */
-    public function text(): ?string
+    public function text(Log $log): ?string
     {
-        if ($this->isDefaultType()) {
-            return parent::text();
+        if ($this->isDefaultType($log)) {
+            return parent::text($log);
         }
 
-        $data = $this->data;
+        $data = $log->getData();
 
-        switch ($this->type) {
+        switch ($log->getType()) {
             case MasterService::TYPE_STATUS:
                 return 'Status';
             case MasterService::TYPE_DATA:
                 switch ($this->transform->hexToInt($data, 0)) {
                     case EthbridgeConstant::DATA_TYPE_IR:
-                        $moduleSetting = ModuleSetting::getInstance();
-                        $irProtocols = Json::decode(
-                            $moduleSetting->getByRegistry('ethbridgeIrProtocols')->getValue(),
-                            true
+                        $irProtocols = JsonUtility::decode(
+                            (string) $this->moduleSetting->getByRegistry('ethbridgeIrProtocols')->getValue()
                         );
-                        $irData = $this->getIrData();
+                        $irData = $this->getIrData($log);
 
-                        $irKey = $this->getIrKey($irData['protocol'], $irData['address'], $irData['command']);
+                        $irKey = $this->getIrKey(
+                            $log,
+                            (int) $irData['protocol'],
+                            (int) $irData['address'],
+                            (int) $irData['command']
+                        );
                         $return = '';
 
                         if (count($irKey)) {
@@ -59,22 +74,18 @@ class EthbridgeFormatter extends AbstractFormatter
                 }
         }
 
-        return parent::text();
+        return parent::text($log);
     }
 
     /**
-     * Gibt IR Daten zurück.
-     *
-     * Erzeugt aus einem Hex Datenstring ein Array mit den IR Daten.
-     *
-     * @return array|bool
+     * @return int[]|null
      */
-    public function getIrData()
+    public function getIrData(Log $log): ?array
     {
-        $data = $this->data;
+        $data = $log->getData();
 
         if ($this->transform->hexToInt($data, 0) != EthbridgeConstant::DATA_TYPE_IR) {
-            return false;
+            return null;
         }
 
         return [
@@ -85,26 +96,16 @@ class EthbridgeFormatter extends AbstractFormatter
     }
 
     /**
-     * Gibt IR Taste zurück.
-     *
-     * Gibt eine IR Taste zurück.
-     *
-     * @param int $protocol Protokol
-     * @param int $address  Adresse
-     * @param int $command  Kommando
-     *
      * @throws Exception
-     *
-     * @return array
      */
-    public function getIrKey($protocol, $address, $command)
+    public function getIrKey(Log $log, int $protocol, int $address, int $command): array
     {
-        $subId = $protocol . $address . $command;
+        $subId = (int) ($protocol . $address . $command);
 
         $valueModels = Value::getByTypeId(
-            $this->module->getTypeId(),
+            $log->getModule()->getTypeId(),
             $subId,
-            false,
+            [],
             EthbridgeConstant::ATTRIBUTE_TYPE_IR_KEY
         );
         $data = [];

@@ -11,14 +11,15 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Module\Hc\Factory\SlaveFactory as SlaveFactory;
-use GibsonOS\Module\Hc\Model\Log as LogModel;
+use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Model\Type as TypeModel;
+use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Repository\Master;
 use GibsonOS\Module\Hc\Repository\Module as ModuleRepository;
 use GibsonOS\Module\Hc\Service\Event\Describer\HcService;
+use GibsonOS\Module\Hc\Service\EventService;
 use GibsonOS\Module\Hc\Service\MasterService as MasterService;
-use GibsonOS\Module\Hc\Service\ServerService;
+use GibsonOS\Module\Hc\Service\TransformService;
 
 abstract class AbstractHcSlave extends AbstractSlave
 {
@@ -143,31 +144,26 @@ abstract class AbstractHcSlave extends AbstractSlave
     const RGB_LED_KEY = 'rgb';
 
     /**
-     * @param Module $slave
-     * @param Module $existingSlave
-     *
-     * @return Module
+     * @var EventService
      */
+    protected $event;
+
     abstract public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module;
 
-    /**
-     * @param Module $slave
-     * @param int    $type
-     * @param int    $command
-     * @param string $data
-     */
     abstract public function receive(Module $slave, int $type, int $command, string $data): void;
 
+    public function __construct(MasterService $master, TransformService $transform, EventService $event)
+    {
+        parent::__construct($master, $transform);
+        $this->event = $event;
+    }
+
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws GetError
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
-     *
-     * @return Module
      */
     public function handshake(Module $slave): Module
     {
@@ -181,14 +177,10 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws GetError
      * @throws ReceiveError
      * @throws SelectError
-     *
-     * @return Module
      */
     private function handshakeNewDevice(Module $slave): Module
     {
@@ -231,8 +223,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
@@ -243,11 +233,11 @@ abstract class AbstractHcSlave extends AbstractSlave
         $this->master->send($slave->getMaster(), MasterService::TYPE_SLAVE_IS_HC, chr((int) $slave->getAddress()));
         $this->master->receiveReceiveReturn($slave->getMaster());
 
-        (new LogModel())
+        (new Log())
             ->setMasterId($slave->getMaster()->getId())
             ->setType(MasterService::TYPE_SLAVE_IS_HC)
             ->setData(dechex((int) $slave->getAddress()))
-            ->setDirection(ServerService::DIRECTION_OUTPUT)
+            ->setDirection(Log::DIRECTION_OUTPUT)
             ->save();
 
         if (empty($slave->getHertz())) {
@@ -268,10 +258,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $command
-     * @param string $data
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -286,9 +272,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $address
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -310,13 +293,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return int
      */
     public function readDeviceId(Module $slave): int
     {
@@ -329,8 +308,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param int $deviceId
-     *
      * @throws AbstractException
      */
     public function writeDeviceId(Module $slave, int $deviceId): void
@@ -349,13 +326,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return int
      */
     public function readTypeId(Module $slave): int
     {
@@ -368,17 +341,12 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module    $slave
-     * @param TypeModel $type
-     *
      * @throws AbstractException
      * @throws SaveError
      * @throws SelectError
      * @throws FileNotFound
-     *
-     * @return AbstractSlave
      */
-    public function writeType(Module $slave, TypeModel $type): AbstractSlave
+    public function writeType(Module $slave, Type $type): AbstractSlave
     {
         $this->event->fire(HcService::BEFORE_WRITE_TYPE, ['slave' => $slave, 'typeId' => $type->getId()]);
 
@@ -393,8 +361,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -413,9 +379,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $speed
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -433,14 +396,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $length
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return string
      */
     protected function readConfig(Module $slave, int $length): string
     {
@@ -452,13 +410,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return int
      */
     public function readHertz(Module $slave): int
     {
@@ -471,13 +425,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return int
      */
     public function readPwmSpeed(Module $slave): int
     {
@@ -490,13 +440,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return int
      */
     public function readEepromSize(Module $slave): int
     {
@@ -509,13 +455,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return int
      */
     public function readEepromFree(Module $slave): int
     {
@@ -528,13 +470,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return int
      */
     public function readEepromPosition(Module $slave): int
     {
@@ -547,9 +485,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $position
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -567,8 +502,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -587,13 +520,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return int
      */
     public function readBufferSize(Module $slave): int
     {
@@ -606,13 +535,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     public function readLedStatus(Module $slave): array
     {
@@ -640,9 +565,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param bool   $on
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -656,9 +578,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param bool   $on
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -672,9 +591,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param bool   $on
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -688,9 +604,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param bool   $on
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -704,9 +617,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param bool   $on
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -720,9 +630,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param bool   $on
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -736,9 +643,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param bool   $on
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -752,13 +656,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return bool
      */
     public function readPowerLed(Module $slave): bool
     {
@@ -776,13 +676,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return bool
      */
     public function readErrorLed(Module $slave): bool
     {
@@ -800,13 +696,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return bool
      */
     public function readConnectLed(Module $slave): bool
     {
@@ -824,13 +716,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return bool
      */
     public function readTransreceiveLed(Module $slave): bool
     {
@@ -848,13 +736,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return bool
      */
     public function readTransceiveLed(Module $slave): bool
     {
@@ -872,13 +756,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return bool
      */
     public function readReceiveLed(Module $slave): bool
     {
@@ -896,13 +776,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return bool
      */
     public function readCustomLed(Module $slave): bool
     {
@@ -920,14 +796,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param string $power
-     * @param string $error
-     * @param string $connect
-     * @param string $transceive
-     * @param string $receive
-     * @param string $custom
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -978,13 +846,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     public function readRgbLed(Module $slave): array
     {
@@ -1010,15 +874,6 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     * @param bool   $power
-     * @param bool   $error
-     * @param bool   $connect
-     * @param bool   $transreceive
-     * @param bool   $transceive
-     * @param bool   $receive
-     * @param bool   $custom
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -1064,13 +919,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     public function readAllLeds(Module $slave): array
     {

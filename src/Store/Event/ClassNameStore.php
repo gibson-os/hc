@@ -46,8 +46,6 @@ class ClassNameStore extends AbstractStore
 
     /**
      * @throws GetError
-     *
-     * @return int
      */
     public function getCount(): int
     {

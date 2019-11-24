@@ -4,25 +4,22 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use GibsonOS\Module\Hc\Constant\Rfmrgbpanel5x5 as Rfmrgbpanel5x5Constant;
+use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\MasterService;
-use GibsonOS\Module\Hc\Service\ServerService;
 
 class Rfmrgbpanel5X5Formatter extends AbstractFormatter
 {
-    /**
-     * @return string|null
-     */
-    public function text(): ?string
+    public function text(Log $log): ?string
     {
-        if ($this->isDefaultType()) {
-            return parent::text();
+        if ($this->isDefaultType($log)) {
+            return parent::text($log);
         }
 
-        $data = $this->data;
+        $data = $log->getData();
 
-        if ($this->type == MasterService::TYPE_STATUS) {
-            if ($this->direction === ServerService::DIRECTION_OUTPUT) {
-                return parent::text();
+        if ($log->getType() === MasterService::TYPE_STATUS) {
+            if ($log->getDirection() === Log::DIRECTION_OUTPUT) {
+                return parent::text($log);
             }
 
             $sequenceActive = $this->transform->hexToInt($data, 0);
@@ -52,19 +49,16 @@ class Rfmrgbpanel5X5Formatter extends AbstractFormatter
             }
         }
 
-        return parent::text();
+        return parent::text($log);
     }
 
-    /**
-     * @return string|null
-     */
-    public function render(): ?string
+    public function render(Log $log): ?string
     {
-        if ($this->isDefaultType()) {
-            return parent::render();
+        if ($this->isDefaultType($log)) {
+            return parent::render($log);
         }
 
-        $data = $this->data;
+        $data = $log->getData();
 
         if (mb_substr($data, 0, 2) == Rfmrgbpanel5x5Constant::SEQUENCE_BYTE) {
             $data = mb_substr($data, 2);
@@ -72,7 +66,7 @@ class Rfmrgbpanel5X5Formatter extends AbstractFormatter
             switch (mb_substr($data, 0, 2)) {
                 case Rfmrgbpanel5x5Constant::SEQUENCE_START_BYTE:
                 case Rfmrgbpanel5x5Constant::SEQUENCE_RUN_BYTE:
-                    return parent::render();
+                    return parent::render($log);
             }
 
             $data = mb_substr($data, 4);

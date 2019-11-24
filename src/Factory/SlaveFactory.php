@@ -23,13 +23,8 @@ use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 class SlaveFactory
 {
     /**
-     * @param ModuleModel        $slaveModel
-     * @param MasterService|null $master
-     *
      * @throws FileNotFound
      * @throws SelectError
-     *
-     * @return AbstractSlave
      */
     public static function create(ModuleModel $slaveModel, MasterService $master = null): AbstractSlave
     {
@@ -91,13 +86,8 @@ class SlaveFactory
     }
 
     /**
-     * @param int                $address
-     * @param MasterService|null $master
-     *
      * @throws FileNotFound
      * @throws SelectError
-     *
-     * @return AbstractSlave
      */
     public static function createByDefaultAddress(int $address, MasterService $master = null): AbstractSlave
     {
@@ -112,15 +102,9 @@ class SlaveFactory
     }
 
     /**
-     * @param int                $slaveId
-     * @param string|null        $helperName
-     * @param MasterService|null $master
-     *
      * @throws FileNotFound
      * @throws GetError
      * @throws SelectError
-     *
-     * @return AbstractSlave
      */
     public static function createBySlaveId(
         int $slaveId,
@@ -141,13 +125,8 @@ class SlaveFactory
     }
 
     /**
-     * @param int                $address
-     * @param MasterService|null $master
-     *
      * @throws FileNotFound
      * @throws SelectError
-     *
-     * @return AbstractSlave
      */
     public static function createBlank(int $address, MasterService $master = null): AbstractSlave
     {

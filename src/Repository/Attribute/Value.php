@@ -15,12 +15,7 @@ use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
 class Value extends AbstractRepository
 {
     /**
-     * @param int         $typeId
-     * @param int|null    $subId
-     * @param int[]|null  $moduleIds
-     * @param string|null $type
-     * @param string|null $key
-     * @param string|null $order
+     * @param int[]|null $moduleIds
      *
      * @throws Exception
      *
@@ -97,12 +92,9 @@ class Value extends AbstractRepository
     }
 
     /**
-     * @param int         $subId
-     * @param int         $typeId
-     * @param int[]|null  $moduleIds
-     * @param string|null $type
-     * @param string      $key
-     * @param string      $order
+     * @param int[]|null $moduleIds
+     * @param string     $key
+     * @param string     $order
      *
      * @throws DeleteError
      * @throws SelectError
@@ -159,14 +151,6 @@ class Value extends AbstractRepository
     }
 
     /**
-     * @param int         $typeId
-     * @param int         $startOrder
-     * @param int         $updateOrder
-     * @param array|null  $moduleIds
-     * @param string|null $type
-     * @param int|null    $subId
-     * @param string|null $key
-     *
      * @throws UpdateError
      */
     public static function updateOrder(
@@ -202,16 +186,7 @@ class Value extends AbstractRepository
     }
 
     /**
-     * @param string      $value
-     * @param int         $typeId
-     * @param array|null  $keys
-     * @param array|null  $moduleIds
-     * @param int|null    $subId
-     * @param string|null $type
-     *
      * @throws SelectError
-     *
-     * @return array
      */
     public static function findAttributesByValue(
         string $value,
@@ -275,11 +250,6 @@ class Value extends AbstractRepository
     }
 
     /**
-     * @param string      $key
-     * @param int         $typeId
-     * @param array|null  $moduleIds
-     * @param string|null $type
-     *
      * @return int[]
      */
     public static function countByKey(string $key, int $typeId, ?array $moduleIds = [], ?string $type = ''): array
@@ -308,12 +278,6 @@ class Value extends AbstractRepository
         return $counts;
     }
 
-    /**
-     * @param array|null $moduleId
-     * @param string     $table
-     *
-     * @return string
-     */
     private static function getModuleIdWhere(?array $moduleId, string $table = 'hc_attribute'): string
     {
         if ($moduleId === null) {
@@ -327,12 +291,6 @@ class Value extends AbstractRepository
         return ' AND `' . $table . '`.`module_id` IN (' . self::implode($moduleId) . ')';
     }
 
-    /**
-     * @param string|null $type
-     * @param string      $table
-     *
-     * @return string
-     */
     private static function getTypeWhere(?string $type, string $table = 'hc_attribute'): string
     {
         if ($type === null) {
@@ -346,12 +304,6 @@ class Value extends AbstractRepository
         return ' AND `' . $table . '`.`type`=' . self::escape($type);
     }
 
-    /**
-     * @param array|null $keys
-     * @param string     $table
-     *
-     * @return string
-     */
     private static function getKeysWhere(?array $keys, string $table = 'hc_attribute'): string
     {
         if ($keys === null) {
@@ -361,12 +313,6 @@ class Value extends AbstractRepository
         return ' AND `' . $table . '`.`key` IN (' . self::implode($keys) . ')';
     }
 
-    /**
-     * @param int|null $subId
-     * @param string   $table
-     *
-     * @return string
-     */
     private static function getSubIdWhere(?int $subId, string $table = 'hc_attribute'): string
     {
         if ($subId === null) {

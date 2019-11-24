@@ -126,9 +126,6 @@ class HcService implements DescriberInterface
         $this->slaveParameter = new SlaveParameter();
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return 'HC Sklave';

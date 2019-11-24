@@ -9,17 +9,11 @@ use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService as AnimationSe
 
 class AnimationStore extends AbstractDatabaseStore
 {
-    /**
-     * @return string
-     */
     protected function getTableName(): string
     {
         return Sequence::getTableName();
     }
 
-    /**
-     * @return string
-     */
     protected function getCountField(): string
     {
         return '`' . $this->getTableName() . '`.`id`';
@@ -60,11 +54,6 @@ class AnimationStore extends AbstractDatabaseStore
         return $list;
     }
 
-    /**
-     * @param int $slaveId
-     *
-     * @return AnimationStore
-     */
     public function setSlave(int $slaveId): AnimationStore
     {
         if ($slaveId === 0) {

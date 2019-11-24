@@ -14,8 +14,6 @@ use stdClass;
 class Trigger extends AbstractRepository
 {
     /**
-     * @param int $masterId
-     *
      * @return TriggerModel[]
      */
     public static function getByMasterId(int $masterId): array
@@ -31,8 +29,6 @@ class Trigger extends AbstractRepository
     }
 
     /**
-     * @param int $moduleId
-     *
      * @return TriggerModel[]
      */
     public static function getByModuleId(int $moduleId): array

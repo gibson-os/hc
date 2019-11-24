@@ -4,14 +4,11 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Factory\Sequence\Neopixel;
 
 use GibsonOS\Core\Factory\AbstractSingletonFactory;
-use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService as AnimationService;
+use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService;
 
 class AnimationFactory extends AbstractSingletonFactory
 {
-    /**
-     * @return AnimationService
-     */
-    public static function createInstance(): AnimationService
+    protected static function createInstance(): AnimationService
     {
         return new AnimationService();
     }

@@ -76,9 +76,6 @@ class LedService
     }
 
     /**
-     * @param Module $slave
-     * @param array  $leds
-     *
      * @throws DateTimeError
      * @throws SaveError
      * @throws SelectError
@@ -101,9 +98,6 @@ class LedService
     }
 
     /**
-     * @param Module $slave
-     * @param array  $leds
-     *
      * @return int[]
      */
     public function getLastIds(Module $slave, array $leds): array
@@ -117,12 +111,6 @@ class LedService
         return $lastIds;
     }
 
-    /**
-     * @param Module $slave
-     * @param int    $id
-     *
-     * @return int
-     */
     public function getNumberById(Module $slave, int $id): int
     {
         $config = JsonUtility::decode((string) $slave->getConfig());
@@ -140,12 +128,7 @@ class LedService
     }
 
     /**
-     * @param Module $slave
-     * @param array  $leds
-     *
      * @throws Exception
-     *
-     * @return array
      */
     public function getChangedLeds(Module $slave, array $leds): array
     {
@@ -183,11 +166,6 @@ class LedService
         return $changedLeds;
     }
 
-    /**
-     * @param array $changedLeds
-     *
-     * @return array
-     */
     public function getChangedSlaveLeds(array $changedLeds): array
     {
         $slaveLedsChanges = [];
@@ -212,10 +190,6 @@ class LedService
     }
 
     /**
-     * @param Module $slave
-     * @param int    $id
-     * @param array  $led
-     *
      * @throws DateTimeError
      * @throws SaveError
      * @throws SelectError
@@ -237,15 +211,9 @@ class LedService
     }
 
     /**
-     * @param Module $slave
-     * @param int    $id
-     * @param string $key
-     *
      * @throws DateTimeError
      * @throws SaveError
      * @throws SelectError
-     *
-     * @return Attribute
      */
     private function getLedAttribute(Module $slave, int $id, string $key): Attribute
     {
@@ -271,10 +239,6 @@ class LedService
     }
 
     /**
-     * @param Module $slave
-     * @param int    $id
-     * @param string $key
-     *
      * @throws DateTimeError
      * @throws SaveError
      */
@@ -291,8 +255,6 @@ class LedService
     }
 
     /**
-     * @param array $leds
-     *
      * @throws DeleteError
      */
     public function deleteUnusedLeds(Module $slave, array $leds)
@@ -314,11 +276,7 @@ class LedService
     }
 
     /**
-     * @param array $leds
-     *
      * @throws OutOfRangeException
-     *
-     * @return array
      */
     public function getChannelCounts(array $leds): array
     {
@@ -336,10 +294,6 @@ class LedService
     }
 
     /**
-     * @param Module      $slave
-     * @param int         $id
-     * @param string|null $key
-     *
      * @throws Exception
      *
      * @return ValueModel[]
@@ -355,12 +309,6 @@ class LedService
         );
     }
 
-    /**
-     * @param Module $slave
-     * @param int    $id
-     *
-     * @return int
-     */
     private function getChannelById(Module $slave, int $id): int
     {
         $config = JsonUtility::decode((string) $slave->getConfig());

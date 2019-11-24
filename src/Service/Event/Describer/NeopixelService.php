@@ -8,9 +8,6 @@ use GibsonOS\Module\Hc\Dto\Event\Describer\Trigger;
 
 class NeopixelService implements DescriberInterface
 {
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return 'Neopixel';

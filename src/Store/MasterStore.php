@@ -7,17 +7,11 @@ use GibsonOS\Core\Store\AbstractDatabaseStore;
 
 class MasterStore extends AbstractDatabaseStore
 {
-    /**
-     * @return string
-     */
     protected function getTableName(): string
     {
         return 'hc_master';
     }
 
-    /**
-     * @return string
-     */
     protected function getCountField(): string
     {
         return '`' . $this->getTableName() . '`.`id`';

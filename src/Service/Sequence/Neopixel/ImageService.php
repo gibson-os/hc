@@ -19,48 +19,27 @@ class ImageService extends AbstractService
     public const SEQUENCE_TYPE = 0;
 
     /**
-     * @var Module
+     * @throws SelectError
      */
-    private $slave;
-
-    public function __construct(Module $slave)
+    public function getByName(Module $slave, string $name): Sequence
     {
-        $this->slave = $slave;
+        return SequenceRepository::getByName($slave, $name, self::SEQUENCE_TYPE);
     }
 
     /**
-     * @param string $name
-     *
-     * @throws SelectError
-     *
-     * @return Sequence
-     */
-    public function getByName(string $name): Sequence
-    {
-        return SequenceRepository::getByName($this->slave, $name, self::SEQUENCE_TYPE);
-    }
-
-    /**
-     * @param string   $name
-     * @param array    $leds
-     * @param int|null $id
-     *
-     * @throws DeleteError
-     * @throws SaveError
-     * @throws SelectError
      * @throws DateTimeError
+     * @throws DeleteError
      * @throws GetError
-     *
-     * @return Sequence
+     * @throws SaveError
      */
-    public function save(string $name, array $leds, int $id = null): Sequence
+    public function save(Module $slave, string $name, array $leds, int $id = null): Sequence
     {
         SequenceRepository::startTransaction();
 
         $sequence = (new Sequence())
             ->setName($name)
-            ->setTypeModel($this->slave->loadType()->getType())
-            ->setModule($this->slave)
+            ->setTypeModel($slave->getType())
+            ->setModule($slave)
             ->setType(self::SEQUENCE_TYPE)
         ;
 

@@ -15,19 +15,12 @@ abstract class AbstractEventService
 
     /**
      * AbstractEvent constructor.
-     *
-     * @param DescriberInterface $describer
      */
     public function __construct(DescriberInterface $describer)
     {
         $this->describer = $describer;
     }
 
-    /**
-     * @param Element $element
-     *
-     * @return mixed
-     */
     public function run(Element $element)
     {
         $function = $element->getFunction();
@@ -39,11 +32,6 @@ abstract class AbstractEventService
         return $this->{$function}();
     }
 
-    /**
-     * @param Element $element
-     *
-     * @return mixed
-     */
     protected function getParams(Element $element)
     {
         return unserialize($element->getParams());

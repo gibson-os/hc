@@ -12,9 +12,6 @@ class OptionParameter extends AbstractParameter
 
     /**
      * IntParameter constructor.
-     *
-     * @param string $title
-     * @param array  $options
      */
     public function __construct(string $title, array $options)
     {
@@ -22,9 +19,6 @@ class OptionParameter extends AbstractParameter
         $this->options = $options;
     }
 
-    /**
-     * @return array
-     */
     protected function getTypeConfig(): array
     {
         return [

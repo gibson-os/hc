@@ -20,33 +20,16 @@ class AnimationService extends AbstractService
     public const SEQUENCE_TYPE = 1;
 
     /**
-     * @var Module
+     * @throws SelectError
      */
-    private $slave;
-
-    public function __construct(Module $slave)
+    public function getByName(Module $slave, string $name): Sequence
     {
-        $this->slave = $slave;
+        return SequenceRepository::getByName($slave, $name, self::SEQUENCE_TYPE);
     }
 
     /**
-     * @param string $name
-     *
      * @throws SelectError
-     *
-     * @return Sequence
-     */
-    public function getByName(string $name): Sequence
-    {
-        return SequenceRepository::getByName($this->slave, $name, self::SEQUENCE_TYPE);
-    }
-
-    /**
-     * @param int $id
-     *
-     * @throws SelectError
-     *
-     * @return array
+     * @throws DateTimeError
      */
     public function getById(int $id): array
     {
@@ -63,26 +46,19 @@ class AnimationService extends AbstractService
     }
 
     /**
-     * @param string   $name
-     * @param array    $steps
-     * @param int|null $id
-     *
-     * @throws DeleteError
-     * @throws SaveError
-     * @throws SelectError
      * @throws DateTimeError
+     * @throws DeleteError
      * @throws GetError
-     *
-     * @return Sequence
+     * @throws SaveError
      */
-    public function save(string $name, array $steps, int $id = null): Sequence
+    public function save(Module $slave, string $name, array $steps, int $id = null): Sequence
     {
         SequenceRepository::startTransaction();
 
         $sequence = (new Sequence())
             ->setName($name)
-            ->setTypeModel($this->slave->loadType()->getType())
-            ->setModule($this->slave)
+            ->setTypeModel($slave->getType())
+            ->setModule($slave)
             ->setType(self::SEQUENCE_TYPE)
         ;
 
@@ -129,11 +105,7 @@ class AnimationService extends AbstractService
         return $sequence;
     }
 
-    /**
-     * @param array $steps
-     * @param int   $iterations
-     */
-    public function play(array $steps, int $iterations): void
+    public function play(Module $slave, array $steps, int $iterations): void
     {
         $dataFilename = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'hcNeopixelAnimationData' . mt_rand() . '.json';
         file_put_contents($dataFilename, JsonUtility::encode($steps));
@@ -145,18 +117,13 @@ class AnimationService extends AbstractService
         );*/
         system(
             '/usr/bin/php /home/gibson_os/offline/tools/hc/hcNeopixelAnimation.php ' .
-            $this->slave->getId() . ' ' .
+            $slave->getId() . ' ' .
             $iterations . ' ' .
             $dataFilename . ' ' .
             '>/dev/null 2>/dev/null &'
         );
     }
 
-    /**
-     * @param array $items
-     *
-     * @return array
-     */
     public function transformToTimeSteps(array $items): array
     {
         $times = [];

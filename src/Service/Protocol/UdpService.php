@@ -8,11 +8,11 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\Server\SendError;
 use GibsonOS\Core\Exception\SetError;
+use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Service\UdpService as CoreUdpService;
 use GibsonOS\Module\Hc\Service\MasterService;
-use GibsonOS\Module\Hc\Service\TransformService;
 
-class UdpService extends AbstractProtocol
+class UdpService extends AbstractService implements ProtocolInterface
 {
     const SEND_PORT = 7363;
 
@@ -38,14 +38,10 @@ class UdpService extends AbstractProtocol
     /**
      * Udp constructor.
      *
-     * @param TransformService $transform
-     *
      * @throws GetError
      */
-    public function __construct(TransformService $transform)
+    public function __construct()
     {
-        parent::__construct($transform);
-
         $this->serverIp = (string) getenv(self::ENV_SERVER_IP);
 
         if (empty($this->serverIp) || !is_string($this->serverIp)) {
@@ -73,38 +69,26 @@ class UdpService extends AbstractProtocol
     /**
      * @throws SetError
      * @throws CreateError
-     *
-     * @return bool
      */
-    public function receive()
+    public function receive(): ?string
     {
         if (!$this->udpReceiveService instanceof CoreUdpService) {
             $this->setReceiveServer();
         }
 
         try {
-            $this->data = $this->udpReceiveService->receive(self::RECEIVE_LENGTH);
+            return $this->udpReceiveService->receive(self::RECEIVE_LENGTH);
         } catch (ReceiveError $exception) {
-            return false;
+            return null;
         }
-        echo 'Receive Data: ' . $this->data . PHP_EOL;
-        if (!$this->data) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
-     * @param int    $type
-     * @param string $data
-     * @param int    $address
-     *
      * @throws SendError
      * @throws SetError
      * @throws CreateError
      */
-    public function send($type, $data, $address)
+    public function send(int $type, string $data, int $address): void
     {
         $udpSendService = new CoreUdpService($this->serverIp, self::SEND_PORT);
         $udpSendService->setTimeout(10);
@@ -119,12 +103,12 @@ class UdpService extends AbstractProtocol
      * @throws CreateError
      * @throws CreateError
      */
-    public function receiveReadData()
+    public function receiveReadData(): string
     {
         $udpSendService = $this->createSendService();
 
         try {
-            $this->data = $udpSendService->receive(self::RECEIVE_LENGTH);
+            $data = $udpSendService->receive(self::RECEIVE_LENGTH);
         } catch (ReceiveError $exception) {
             $udpSendService->close();
 
@@ -132,29 +116,29 @@ class UdpService extends AbstractProtocol
         }
 
         $udpSendService->close();
+
+        return $data;
     }
 
     /**
      * @throws SendError
      */
-    public function sendReceiveReturn()
+    public function sendReceiveReturn(int $address): void
     {
         $this->udpReceiveService->send(
             chr(MasterService::TYPE_RECEIVE_RETURN),
-            $this->subnet . '.' . $this->getMasterAddress(),
+            $this->subnet . '.' . $address,
             self::RECEIVE_PORT
         );
     }
 
     /**
-     * @param int $address
-     *
      * @throws ReceiveError
      * @throws SetError
      * @throws CreateError
      * @throws CreateError
      */
-    public function receiveReceiveReturn($address)
+    public function receiveReceiveReturn(int $address): void
     {
         $udpSendService = $this->createSendService();
 
@@ -174,12 +158,10 @@ class UdpService extends AbstractProtocol
     }
 
     /**
-     *@throws CreateError
+     * @throws CreateError
      * @throws SetError
-     *
-     * @return CoreUdpService
      */
-    private function createSendService()
+    private function createSendService(): CoreUdpService
     {
         $udpSendService = new CoreUdpService($this->serverIp, self::SEND_PORT);
         $udpSendService->setTimeout(3);
@@ -187,10 +169,7 @@ class UdpService extends AbstractProtocol
         return $udpSendService;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return 'udp';
     }

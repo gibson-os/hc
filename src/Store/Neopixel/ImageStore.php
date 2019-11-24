@@ -10,17 +10,11 @@ use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService as ImageService;
 
 class ImageStore extends AbstractDatabaseStore
 {
-    /**
-     * @return string
-     */
     protected function getTableName(): string
     {
         return Sequence::getTableName();
     }
 
-    /**
-     * @return string
-     */
     protected function getCountField(): string
     {
         return '`' . $this->getTableName() . '`.`id`';
@@ -68,11 +62,6 @@ class ImageStore extends AbstractDatabaseStore
         return $list;
     }
 
-    /**
-     * @param int $slaveId
-     *
-     * @return ImageStore
-     */
     public function setSlave(int $slaveId): ImageStore
     {
         if ($slaveId === 0) {

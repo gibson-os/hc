@@ -20,7 +20,6 @@ class EventService extends AbstractService
     private $events = [];
 
     /**
-     * @param string   $trigger
      * @param callable $function
      */
     public function add(string $trigger, $function): void
@@ -32,10 +31,6 @@ class EventService extends AbstractService
         $this->events[$trigger][] = $function;
     }
 
-    /**
-     * @param string     $trigger
-     * @param array|null $params
-     */
     public function fire(string $trigger, array $params = null): void
     {
         if (!isset($this->events[$trigger])) {
@@ -49,23 +44,14 @@ class EventService extends AbstractService
 
     // @todo besseren ort finden. Wird eigentlich nur vom db generierten code gebraucht
 
-    /**
-     * @param string $serializedElement
-     *
-     * @return mixed
-     */
     public function runFunction(string $serializedElement)
     {
-        $service = $this->getService(unserialize($serializedElement));
+        $element = unserialize($serializedElement);
+        $service = $this->getService($element);
 
-        return $service->run();
+        return $service->run($element);
     }
 
-    /**
-     * @param ElementModel $element
-     *
-     * @return AbstractEventService
-     */
     private function getService(ElementModel $element): AbstractEventService
     {
         $key =
@@ -76,8 +62,6 @@ class EventService extends AbstractService
         if (!isset($this->services[$key])) {
             $className = $element->getClass();
             $this->services[$key] = new $className($element);
-        } else {
-            $this->services[$key]->load($element);
         }
 
         return $this->services[$key];

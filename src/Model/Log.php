@@ -10,6 +10,10 @@ use mysqlDatabase;
 
 class Log extends AbstractModel
 {
+    public const DIRECTION_INPUT = 'input';
+
+    public const DIRECTION_OUTPUT = 'output';
+
     /**
      * @var int|null
      */
@@ -65,9 +69,6 @@ class Log extends AbstractModel
      */
     private $master;
 
-    /**
-     * @param mysqlDatabase|null $database
-     */
     public function __construct(mysqlDatabase $database = null)
     {
         parent::__construct($database);
@@ -76,27 +77,16 @@ class Log extends AbstractModel
         $this->master = new Master();
     }
 
-    /**
-     * @return string
-     */
     public static function getTableName(): string
     {
         return 'hc_log';
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @param int $id
-     *
-     * @return Log
-     */
     public function setId(int $id): Log
     {
         $this->id = $id;
@@ -104,19 +94,11 @@ class Log extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getModuleId(): ?int
     {
         return $this->moduleId;
     }
 
-    /**
-     * @param int|null $moduleId
-     *
-     * @return Log
-     */
     public function setModuleId(?int $moduleId): Log
     {
         $this->moduleId = $moduleId;
@@ -124,19 +106,11 @@ class Log extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return DateTime|null
-     */
     public function getAdded(): ?DateTime
     {
         return $this->added;
     }
 
-    /**
-     * @param DateTime $added
-     *
-     * @return Log
-     */
     public function setAdded(DateTime $added): Log
     {
         $this->added = $added;
@@ -144,19 +118,11 @@ class Log extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getMasterId(): ?int
     {
         return $this->masterId;
     }
 
-    /**
-     * @param int|null $masterId
-     *
-     * @return Log
-     */
     public function setMasterId(?int $masterId): Log
     {
         $this->masterId = $masterId;
@@ -164,19 +130,11 @@ class Log extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getSlaveAddress(): ?int
     {
         return $this->slaveAddress;
     }
 
-    /**
-     * @param int|null $slaveAddress
-     *
-     * @return Log
-     */
     public function setSlaveAddress(?int $slaveAddress): Log
     {
         $this->slaveAddress = $slaveAddress;
@@ -184,19 +142,11 @@ class Log extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getType(): int
     {
         return $this->type;
     }
 
-    /**
-     * @param int $type
-     *
-     * @return Log
-     */
     public function setType(int $type): Log
     {
         $this->type = $type;
@@ -204,19 +154,11 @@ class Log extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getCommand(): ?int
     {
         return $this->command;
     }
 
-    /**
-     * @param int|null $command
-     *
-     * @return Log
-     */
     public function setCommand(?int $command): Log
     {
         $this->command = $command;
@@ -224,19 +166,11 @@ class Log extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getData(): string
     {
         return $this->data;
     }
 
-    /**
-     * @param string $data
-     *
-     * @return Log
-     */
     public function setData(string $data): Log
     {
         $this->data = $data;
@@ -244,19 +178,11 @@ class Log extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getDirection(): string
     {
         return $this->direction;
     }
 
-    /**
-     * @param string $direction
-     *
-     * @return Log
-     */
     public function setDirection(string $direction): Log
     {
         $this->direction = $direction;
@@ -264,19 +190,11 @@ class Log extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return Module
-     */
     public function getModule(): Module
     {
         return $this->module;
     }
 
-    /**
-     * @param Module $module
-     *
-     * @return Log
-     */
     public function setModule(Module $module): Log
     {
         $this->module = $module;
@@ -285,19 +203,11 @@ class Log extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return Master
-     */
     public function getMaster(): Master
     {
         return $this->master;
     }
 
-    /**
-     * @param Master $master
-     *
-     * @return Log
-     */
     public function setMaster(Master $master): Log
     {
         $this->master = $master;

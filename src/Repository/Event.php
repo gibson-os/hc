@@ -14,8 +14,6 @@ use stdClass;
 class Event extends AbstractRepository
 {
     /**
-     * @param int $masterId
-     *
      * @return EventModel[]
      */
     public static function getByMasterId(int $masterId): array
@@ -31,8 +29,6 @@ class Event extends AbstractRepository
     }
 
     /**
-     * @param int $masterId
-     *
      * @return EventModel[]
      */
     public static function getByModuleId(int $masterId): array

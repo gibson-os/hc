@@ -39,9 +39,6 @@ class MethodStore extends AbstractStore
         return $this->list;
     }
 
-    /**
-     * @return int
-     */
     public function getCount(): int
     {
         return count($this->getList());
@@ -79,8 +76,6 @@ class MethodStore extends AbstractStore
 
     /**
      * @param AbstractParameter[] $parameters
-     *
-     * @return array
      */
     private function transformParameters(array $parameters): array
     {
@@ -99,8 +94,6 @@ class MethodStore extends AbstractStore
 
     /**
      * @param AbstractParameter[]|AbstractParameter[][] $returnTypes
-     *
-     * @return array
      */
     private function transformReturnTypes(array $returnTypes): array
     {

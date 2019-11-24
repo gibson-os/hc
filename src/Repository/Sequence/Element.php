@@ -11,8 +11,6 @@ use GibsonOS\Module\Hc\Model\Sequence\Element as ElementModel;
 class Element extends AbstractRepository
 {
     /**
-     * @param Sequence $sequence
-     *
      * @throws DeleteError
      */
     public static function deleteBySequence(Sequence $sequence)

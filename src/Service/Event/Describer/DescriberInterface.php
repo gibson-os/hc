@@ -8,9 +8,6 @@ use GibsonOS\Module\Hc\Dto\Event\Describer\Trigger;
 
 interface DescriberInterface
 {
-    /**
-     * @return string
-     */
     public function getTitle(): string;
 
     /**

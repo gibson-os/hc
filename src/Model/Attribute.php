@@ -50,9 +50,6 @@ class Attribute extends AbstractModel
      */
     private $module;
 
-    /**
-     * @param mysqlDatabase|null $database
-     */
     public function __construct(mysqlDatabase $database = null)
     {
         parent::__construct($database);
@@ -60,27 +57,16 @@ class Attribute extends AbstractModel
         $this->module = new Module();
     }
 
-    /**
-     * @return string
-     */
     public static function getTableName(): string
     {
         return 'hc_attribute';
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @param int $id
-     *
-     * @return Attribute
-     */
     public function setId(int $id): Attribute
     {
         $this->id = $id;
@@ -88,19 +74,11 @@ class Attribute extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getTypeId(): ?int
     {
         return $this->typeId;
     }
 
-    /**
-     * @param int|null $typeId
-     *
-     * @return Attribute
-     */
     public function setTypeId(?int $typeId): Attribute
     {
         $this->typeId = $typeId;
@@ -108,19 +86,11 @@ class Attribute extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getModuleId(): ?int
     {
         return $this->moduleId;
     }
 
-    /**
-     * @param int|null $moduleId
-     *
-     * @return Attribute
-     */
     public function setModuleId(?int $moduleId): Attribute
     {
         $this->moduleId = $moduleId;
@@ -128,19 +98,11 @@ class Attribute extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getSubId(): ?int
     {
         return $this->subId;
     }
 
-    /**
-     * @param int|null $subId
-     *
-     * @return Attribute
-     */
     public function setSubId(?int $subId): Attribute
     {
         $this->subId = $subId;
@@ -148,19 +110,11 @@ class Attribute extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getKey(): string
     {
         return $this->key;
     }
 
-    /**
-     * @param string $key
-     *
-     * @return Attribute
-     */
     public function setKey(string $key): Attribute
     {
         $this->key = $key;
@@ -168,19 +122,11 @@ class Attribute extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getType(): ?string
     {
         return $this->type;
     }
 
-    /**
-     * @param string|null $type
-     *
-     * @return Attribute
-     */
     public function setType(?string $type): Attribute
     {
         $this->type = $type;
@@ -188,19 +134,11 @@ class Attribute extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return DateTime|null
-     */
     public function getAdded(): ?DateTime
     {
         return $this->added;
     }
 
-    /**
-     * @param DateTime|null $added
-     *
-     * @return Attribute
-     */
     public function setAdded(?DateTime $added): Attribute
     {
         $this->added = $added;
@@ -208,19 +146,11 @@ class Attribute extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return Module
-     */
     public function getModule(): Module
     {
         return $this->module;
     }
 
-    /**
-     * @param Module $module
-     *
-     * @return Attribute
-     */
     public function setModule(Module $module): Attribute
     {
         $this->module = $module;
@@ -232,8 +162,6 @@ class Attribute extends AbstractModel
 
     /**
      * @throws SelectError
-     *
-     * @return Attribute
      */
     public function loadModule(): Attribute
     {

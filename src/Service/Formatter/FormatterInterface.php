@@ -3,20 +3,13 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Formatter;
 
+use GibsonOS\Module\Hc\Model\Log;
+
 interface FormatterInterface
 {
-    /**
-     * @return string|null
-     */
-    public function render(): ?string;
+    public function render(Log $log): ?string;
 
-    /**
-     * @return string|null
-     */
-    public function text(): ?string;
+    public function text(Log $log): ?string;
 
-    /**
-     * @return int|string|null
-     */
-    public function command();
+    public function command(Log $log): ?string;
 }

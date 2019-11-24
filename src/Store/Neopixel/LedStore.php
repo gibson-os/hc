@@ -13,9 +13,6 @@ use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService as LedAttribute;
  */
 class LedStore extends AbstractDatabaseStore
 {
-    /**
-     * @return string
-     */
     protected function getTableName(): string
     {
         return 'hc_attribute';
@@ -59,9 +56,6 @@ class LedStore extends AbstractDatabaseStore
         return $list;
     }
 
-    /**
-     * @return string
-     */
     public function getCountField(): string
     {
         return '`' . $this->getTableName() . '`.`sub_id`';
@@ -69,8 +63,6 @@ class LedStore extends AbstractDatabaseStore
 
     /**
      * @param int $moduleId
-     *
-     * @return LedStore
      */
     public function setModule($moduleId): LedStore
     {

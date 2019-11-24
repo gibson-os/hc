@@ -5,8 +5,8 @@ namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use GibsonOS\Core\Utility\ArrayKeyUtility;
 use GibsonOS\Module\Hc\Constant\Rfmrhinetower as RfmrhinetowerConstant;
+use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\MasterService;
-use GibsonOS\Module\Hc\Service\ServerService;
 
 class RfmrhinetowerFormatter extends AbstractFormatter
 {
@@ -31,16 +31,13 @@ class RfmrhinetowerFormatter extends AbstractFormatter
         7 => [0, 1, 2, 3, 4, 5, 6, 7],
     ];
 
-    /**
-     * @return string|null
-     */
-    public function text(): ?string
+    public function text(Log $log): ?string
     {
-        $data = $this->data;
+        $data = $log->getData();
 
-        switch ($this->type) {
+        switch ($log->getType()) {
             case MasterService::TYPE_STATUS:
-                if ($this->direction === ServerService::DIRECTION_INPUT) {
+                if ($log->getDirection() === Log::DIRECTION_INPUT) {
                     return $this->clockLogFormat($data);
                 }
 
@@ -60,19 +57,16 @@ class RfmrhinetowerFormatter extends AbstractFormatter
                 }
         }
 
-        return parent::text();
+        return parent::text($log);
     }
 
-    /**
-     * @return string|null
-     */
-    public function render(): ?string
+    public function render($log): ?string
     {
-        $data = $this->data;
+        $data = $log->getData();
 
-        switch ($this->type) {
+        switch ($log->getType()) {
             case MasterService::TYPE_STATUS:
-                if ($this->direction === ServerService::DIRECTION_INPUT) {
+                if ($log->getDirection() === Log::DIRECTION_INPUT) {
                     return $this->ledLogFormat(mb_substr($data, 16));
                 }
 
@@ -85,7 +79,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
                 break;
         }
 
-        return parent::render();
+        return parent::render($log);
     }
 
     /**
@@ -253,8 +247,6 @@ class RfmrhinetowerFormatter extends AbstractFormatter
      * Gibt LEDs formatiert zurück.
      *
      * @param string $data Daten
-     *
-     * @return string
      */
     private function ledLogFormat(string $data): string
     {

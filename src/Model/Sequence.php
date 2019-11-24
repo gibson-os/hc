@@ -56,27 +56,16 @@ class Sequence extends AbstractModel
      */
     private $elements = [];
 
-    /**
-     * @return string
-     */
     public static function getTableName(): string
     {
         return 'hc_sequence';
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @param int|null $id
-     *
-     * @return Sequence
-     */
     public function setId(?int $id): Sequence
     {
         $this->id = $id;
@@ -84,19 +73,11 @@ class Sequence extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return Sequence
-     */
     public function setName(string $name): Sequence
     {
         $this->name = $name;
@@ -104,19 +85,11 @@ class Sequence extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getTypeId(): ?int
     {
         return $this->typeId;
     }
 
-    /**
-     * @param int|null $typeId
-     *
-     * @return Sequence
-     */
     public function setTypeId(?int $typeId): Sequence
     {
         $this->typeId = $typeId;
@@ -124,19 +97,11 @@ class Sequence extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getModuleId(): ?int
     {
         return $this->moduleId;
     }
 
-    /**
-     * @param int|null $moduleId
-     *
-     * @return Sequence
-     */
     public function setModuleId(?int $moduleId): Sequence
     {
         $this->moduleId = $moduleId;
@@ -144,19 +109,11 @@ class Sequence extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getType(): ?int
     {
         return $this->type;
     }
 
-    /**
-     * @param int|null $type
-     *
-     * @return Sequence
-     */
     public function setType(?int $type): Sequence
     {
         $this->type = $type;
@@ -164,19 +121,11 @@ class Sequence extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return DateTime|null
-     */
     public function getAdded(): ?DateTime
     {
         return $this->added;
     }
 
-    /**
-     * @param DateTime|null $added
-     *
-     * @return Sequence
-     */
     public function setAdded(?DateTime $added): Sequence
     {
         $this->added = $added;
@@ -184,19 +133,11 @@ class Sequence extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return Type|null
-     */
     public function getTypeModel(): ?Type
     {
         return $this->typeModel;
     }
 
-    /**
-     * @param Type|null $typeModel
-     *
-     * @return Sequence
-     */
     public function setTypeModel(?Type $typeModel): Sequence
     {
         $this->typeModel = $typeModel;
@@ -211,19 +152,11 @@ class Sequence extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return Module|null
-     */
     public function getModule(): ?Module
     {
         return $this->module;
     }
 
-    /**
-     * @param Module|null $module
-     *
-     * @return Sequence
-     */
     public function setModule(?Module $module): Sequence
     {
         $this->module = $module;
@@ -248,8 +181,6 @@ class Sequence extends AbstractModel
 
     /**
      * @param Element[] $elements
-     *
-     * @return Sequence
      */
     public function setElements(array $elements): Sequence
     {
@@ -268,8 +199,6 @@ class Sequence extends AbstractModel
     /**
      * @throws SelectError
      * @throws DateTimeError
-     *
-     * @return Sequence
      */
     public function loadType(): Sequence
     {
@@ -283,8 +212,6 @@ class Sequence extends AbstractModel
     /**
      * @throws DateTimeError
      * @throws SelectError
-     *
-     * @return Sequence
      */
     public function loadModule(): Sequence
     {
@@ -297,8 +224,6 @@ class Sequence extends AbstractModel
 
     /**
      * @throws DateTimeError
-     *
-     * @return Sequence
      */
     public function loadElements(): Sequence
     {

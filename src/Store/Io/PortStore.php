@@ -13,9 +13,6 @@ use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
  */
 class PortStore extends AbstractDatabaseStore
 {
-    /**
-     * @return string
-     */
     protected function getTableName(): string
     {
         return 'hc_attribute';
@@ -67,9 +64,6 @@ class PortStore extends AbstractDatabaseStore
         return $list;
     }
 
-    /**
-     * @return string
-     */
     public function getCountField(): string
     {
         return '`' . $this->getTableName() . '`.`sub_id`';
@@ -77,8 +71,6 @@ class PortStore extends AbstractDatabaseStore
 
     /**
      * @param int $moduleId
-     *
-     * @return PortStore
      */
     public function setModule($moduleId): PortStore
     {

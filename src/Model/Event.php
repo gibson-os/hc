@@ -45,27 +45,16 @@ class Event extends AbstractModel
      */
     private $triggers;
 
-    /**
-     * @return string
-     */
     public static function getTableName(): string
     {
         return 'hc_event';
     }
 
-    /**
-     * @return int
-     */
     public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * @param int $id
-     *
-     * @return Event
-     */
     public function setId(int $id): Event
     {
         $this->id = $id;
@@ -73,19 +62,11 @@ class Event extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return Event
-     */
     public function setName(string $name): Event
     {
         $this->name = $name;
@@ -93,19 +74,11 @@ class Event extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getActive(): int
     {
         return $this->active;
     }
 
-    /**
-     * @param int $active
-     *
-     * @return Event
-     */
     public function setActive(int $active): Event
     {
         $this->active = $active;
@@ -113,19 +86,11 @@ class Event extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getAsync(): int
     {
         return $this->async;
     }
 
-    /**
-     * @param int $async
-     *
-     * @return Event
-     */
     public function setAsync(int $async): Event
     {
         $this->async = $async;
@@ -133,19 +98,11 @@ class Event extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return DateTime
-     */
     public function getModified(): DateTime
     {
         return $this->modified;
     }
 
-    /**
-     * @param DateTime $modified
-     *
-     * @return Event
-     */
     public function setModified(DateTime $modified): Event
     {
         $this->modified = $modified;
@@ -163,8 +120,6 @@ class Event extends AbstractModel
 
     /**
      * @param Element[] $elements
-     *
-     * @return Event
      */
     public function setElements(array $elements): Event
     {
@@ -173,11 +128,6 @@ class Event extends AbstractModel
         return $this;
     }
 
-    /**
-     * @param Element $element
-     *
-     * @return Event
-     */
     public function addElement(Element $element): Event
     {
         $this->elements[] = $element;
@@ -211,8 +161,6 @@ class Event extends AbstractModel
 
     /**
      * @param Trigger[] $triggers
-     *
-     * @return Event
      */
     public function setTriggers(array $triggers): Event
     {
@@ -221,11 +169,6 @@ class Event extends AbstractModel
         return $this;
     }
 
-    /**
-     * @param Trigger $trigger
-     *
-     * @return Event
-     */
     public function addTrigger(Trigger $trigger): Event
     {
         $this->triggers[] = $trigger;

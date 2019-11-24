@@ -13,8 +13,6 @@ class TransformService extends AbstractService
      * Macht aus einem ASCII String einen HEX String.
      *
      * @param string $data ASCII String
-     *
-     * @return string
      */
     public function asciiToHex(string $data): string
     {
@@ -33,8 +31,6 @@ class TransformService extends AbstractService
      * Macht aus einem ASCII String einen BIN String.
      *
      * @param string $data ASCII String
-     *
-     * @return string
      */
     public function asciiToBin(string $data): string
     {
@@ -55,8 +51,6 @@ class TransformService extends AbstractService
      * @param string   $data     ASCII String
      * @param int|null $byte     byte das in INT übersetzt werden soll
      * @param bool     $unsigned Ohne Vorzeichen
-     *
-     * @return int
      */
     public function asciiToInt(string $data, int $byte = null, bool $unsigned = true): int
     {
@@ -83,8 +77,6 @@ class TransformService extends AbstractService
      * Macht aus einem HEX String einen ASCII String.
      *
      * @param string $data HEX String
-     *
-     * @return string
      */
     public function hexToAscii(string $data): string
     {
@@ -104,8 +96,6 @@ class TransformService extends AbstractService
      *
      * @param string   $data HEX String
      * @param int|null $byte byte das in INT übersetzt werden soll
-     *
-     * @return int
      */
     public function hexToInt(string $data, int $byte = null): int
     {
@@ -123,8 +113,6 @@ class TransformService extends AbstractService
      *
      * @param string   $data HEX String
      * @param int|null $byte byte das in INT übersetzt werden soll
-     *
-     * @return string
      */
     public function hexToBin(string $data, int $byte = null): string
     {
@@ -138,12 +126,6 @@ class TransformService extends AbstractService
         );
     }
 
-    /**
-     * @param string   $data
-     * @param int|null $byte
-     *
-     * @return string
-     */
     public function binToAscii(string $data, int $byte = null): string
     {
         $data = trim($data);
@@ -167,11 +149,6 @@ class TransformService extends AbstractService
         return $return;
     }
 
-    /**
-     * @param int $integer
-     *
-     * @return int
-     */
     public function getSignedInt(int $integer): int
     {
         $bitLength = mb_strlen(decbin($integer));

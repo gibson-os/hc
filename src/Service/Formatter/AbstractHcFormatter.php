@@ -3,16 +3,14 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Formatter;
 
+use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
 abstract class AbstractHcFormatter extends AbstractFormatter
 {
-    /**
-     * @return int|string|null
-     */
-    public function command()
+    public function command(Log $log): ?string
     {
-        switch ($this->command) {
+        switch ($log->getCommand()) {
             case AbstractHcSlave::COMMAND_DEVICE_ID:
                 return 'Device ID';
             case AbstractHcSlave::COMMAND_TYPE:
@@ -54,24 +52,21 @@ abstract class AbstractHcFormatter extends AbstractFormatter
                 return 'Status';
         }
 
-        return parent::command();
+        return parent::command($log);
     }
 
-    /**
-     * @return string|null
-     */
-    public function text(): ?string
+    public function text(Log $log): ?string
     {
-        switch ($this->command) {
+        switch ($log->getCommand()) {
             case AbstractHcSlave::COMMAND_DEVICE_ID:
-                return $this->transform->hexToInt($this->data);
+                return (string) $this->transform->hexToInt($log->getData());
             case AbstractHcSlave::COMMAND_TYPE:
-                return $this->transform->hexToInt($this->data, 0);
+                return (string) $this->transform->hexToInt($log->getData(), 0);
             case AbstractHcSlave::COMMAND_ADDRESS:
-                return $this->transform->hexToInt($this->data, 2);
+                return (string) $this->transform->hexToInt($log->getData(), 2);
             case AbstractHcSlave::COMMAND_HERTZ:
                 $units = ['Hz', 'kHz', 'MHz', 'GHz'];
-                $hertz = $this->transform->hexToInt($this->data);
+                $hertz = $this->transform->hexToInt($log->getData());
 
                 for ($i = 0; $hertz > 1000; $hertz /= 1000) {
                     ++$i;
@@ -82,11 +77,11 @@ abstract class AbstractHcFormatter extends AbstractFormatter
             case AbstractHcSlave::COMMAND_EEPROM_FREE:
             case AbstractHcSlave::COMMAND_EEPROM_POSITION:
             case AbstractHcSlave::COMMAND_BUFFER_SIZE:
-                return $this->transform->hexToInt($this->data) . ' Byte';
+                return $this->transform->hexToInt($log->getData()) . ' Byte';
             case AbstractHcSlave::COMMAND_EEPROM_ERASE:
                 return 'formatiert';
         }
 
-        return parent::text();
+        return parent::text($log);
     }
 }

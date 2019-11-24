@@ -3,107 +3,46 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Formatter;
 
-use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\MasterService;
-use GibsonOS\Module\Hc\Service\ServerService;
 use GibsonOS\Module\Hc\Service\TransformService;
 
 abstract class AbstractFormatter implements FormatterInterface
 {
-    /**
-     * @var int|null
-     */
-    protected $logId;
-
-    /**
-     * @var Module
-     */
-    protected $module;
-
     /**
      * @var TransformService
      */
     protected $transform;
 
     /**
-     * @var string
-     */
-    protected $direction;
-
-    /**
-     * @var int
-     */
-    protected $type;
-
-    /**
-     * @var string
-     */
-    protected $data;
-
-    /**
-     * @var int|null
-     */
-    protected $command;
-
-    /**
      * AbstractFormatter constructor.
-     *
-     * @param Module           $module
-     * @param TransformService $transform
-     * @param string           $direction
-     * @param int              $type
-     * @param string           $data
-     * @param int|null         $command
-     * @param int|null         $logId
      */
-    public function __construct(
-        Module $module,
-        TransformService $transform,
-        string $direction,
-        int $type,
-        string $data,
-        int $command = null,
-        int $logId = null
-    ) {
-        $this->module = $module;
-        $this->transform = $transform;
-        $this->direction = $direction;
-        $this->type = $type;
-        $this->data = $data;
-        $this->command = $command;
-        $this->logId = $logId;
-    }
-
-    /**
-     * @return int|string|null
-     */
-    public function command()
+    public function __construct(TransformService $transform)
     {
-        return $this->command;
+        $this->transform = $transform;
     }
 
-    /**
-     * @return string|null
-     */
-    public function render(): ?string
+    public function command(Log $log): ?string
+    {
+        return empty($log->getCommand()) ? null : (string) $log->getCommand();
+    }
+
+    public function render(Log $log): ?string
     {
         return null;
     }
 
-    /**
-     * @return string|null
-     */
-    public function text(): ?string
+    public function text(Log $log): ?string
     {
-        if ($this->type == MasterService::TYPE_HANDSHAKE) {
+        if ($log->getType() == MasterService::TYPE_HANDSHAKE) {
             return 'Adresse ' .
-                $this->transform->hexToInt(substr($this->data, 0, 2)) .
+                $this->transform->hexToInt(substr($log->getData(), 0, 2)) .
                 ' gesendet an ' .
-                $this->transform->hexToAscii(substr($this->data, 2));
+                $this->transform->hexToAscii(substr($log->getData(), 2));
         }
         if (
-            $this->type == MasterService::TYPE_STATUS &&
-            $this->direction === ServerService::DIRECTION_OUTPUT
+            $log->getType() == MasterService::TYPE_STATUS &&
+            $log->getDirection() === Log::DIRECTION_OUTPUT
         ) {
             return 'Status abfragen';
         }
@@ -111,18 +50,15 @@ abstract class AbstractFormatter implements FormatterInterface
         return null;
     }
 
-    /**
-     * @return bool
-     */
-    protected function isDefaultType(): bool
+    protected function isDefaultType(Log $log): bool
     {
-        if ($this->type === MasterService::TYPE_HANDSHAKE) {
+        if ($log->getType() === MasterService::TYPE_HANDSHAKE) {
             return true;
         }
 
         if (
-            $this->type === MasterService::TYPE_STATUS &&
-            $this->direction === ServerService::DIRECTION_OUTPUT
+            $log->getType() === MasterService::TYPE_STATUS &&
+            $log->getDirection() === Log::DIRECTION_OUTPUT
         ) {
             return true;
         }

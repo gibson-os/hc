@@ -4,26 +4,23 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use GibsonOS\Module\Hc\Constant\Rfmbell as RfmbellConstant;
-use GibsonOS\Module\Hc\Service\ServerService;
+use GibsonOS\Module\Hc\Model\Log;
 
 class RfmbellFormatter extends AbstractFormatter
 {
-    /**
-     * @return string|null
-     */
-    public function text(): ?string
+    public function text(Log $log): ?string
     {
-        if ($this->isDefaultType()) {
-            return parent::text();
+        if ($this->isDefaultType($log)) {
+            return parent::text($log);
         }
 
         $returnList = [];
-        $length = mb_strlen($this->data) / 2;
+        $length = mb_strlen($log->getData()) / 2;
 
         for ($i = 0; $i < $length; ++$i) {
-            $value = $this->transform->hexToInt($this->data, $i);
+            $value = $this->transform->hexToInt($log->getData(), $i);
 
-            if ($this->direction == ServerService::DIRECTION_INPUT) {
+            if ($log->getDirection() === Log::DIRECTION_INPUT) {
                 // Eingang
                 switch ($i) {
                     case RfmbellConstant::BUTTON1:

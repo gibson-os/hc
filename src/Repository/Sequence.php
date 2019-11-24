@@ -14,11 +14,7 @@ use stdClass;
 class Sequence extends AbstractRepository
 {
     /**
-     * @param int $id
-     *
      * @throws SelectError
-     *
-     * @return SequenceModel
      */
     public static function getById(int $id): SequenceModel
     {
@@ -41,13 +37,7 @@ class Sequence extends AbstractRepository
     }
 
     /**
-     * @param Module   $module
-     * @param string   $name
-     * @param int|null $type
-     *
      * @throws SelectError
-     *
-     * @return SequenceModel
      */
     public static function getByName(Module $module, string $name, int $type = null): SequenceModel
     {
@@ -79,9 +69,6 @@ class Sequence extends AbstractRepository
     }
 
     /**
-     * @param Module   $module
-     * @param int|null $type
-     *
      * @throws SelectError
      *
      * @return SequenceModel[]
@@ -109,12 +96,7 @@ class Sequence extends AbstractRepository
     }
 
     /**
-     * @param Type     $typeModel
-     * @param int|null $type
-     *
      * @throws SelectError
-     *
-     * @return array
      */
     public static function getByType(Type $typeModel, int $type = null): array
     {
@@ -135,8 +117,6 @@ class Sequence extends AbstractRepository
     }
 
     /**
-     * @param mysqlTable $table
-     *
      * @return SequenceModel[]
      */
     private static function getModels(mysqlTable $table): array
@@ -150,11 +130,6 @@ class Sequence extends AbstractRepository
         return $models;
     }
 
-    /**
-     * @param stdClass $sequence
-     *
-     * @return SequenceModel
-     */
     private static function getModel(stdClass $sequence): SequenceModel
     {
         return (new SequenceModel())

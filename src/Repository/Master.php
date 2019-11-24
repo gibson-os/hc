@@ -19,8 +19,6 @@ class Master extends AbstractRepository
     const START_ADDRESS = 2;
 
     /**
-     * @param string $protocol
-     *
      * @throws DateTimeError
      * @throws GetError
      *
@@ -47,13 +45,9 @@ class Master extends AbstractRepository
     }
 
     /**
-     * @param int $id
-     *
      * @throws DateTimeError
      * @throws GetError
      * @throws SelectError
-     *
-     * @return MasterModel
      */
     public static function getById(int $id): MasterModel
     {
@@ -75,14 +69,9 @@ class Master extends AbstractRepository
     }
 
     /**
-     * @param int    $address
-     * @param string $protocol
-     *
      * @throws SelectError
      * @throws DateTimeError
      * @throws GetError
-     *
-     * @return MasterModel
      */
     public static function getByAddress(int $address, string $protocol): MasterModel
     {
@@ -107,14 +96,9 @@ class Master extends AbstractRepository
     }
 
     /**
-     * @param string $name
-     * @param string $protocol
-     *
      * @throws DateTimeError
      * @throws GetError
      * @throws SelectError
-     *
-     * @return MasterModel
      */
     public static function getByName(string $name, string $protocol): MasterModel
     {
@@ -139,13 +123,8 @@ class Master extends AbstractRepository
     }
 
     /**
-     * @param string $name
-     * @param string $protocol
-     *
      * @throws SaveError
      * @throws Exception
-     *
-     * @return MasterModel
      */
     public static function add(string $name, string $protocol): MasterModel
     {
@@ -171,11 +150,7 @@ class Master extends AbstractRepository
     }
 
     /**
-     * @param int $masterId
-     *
      * @throws SelectError
-     *
-     * @return int
      */
     public static function getNextFreeAddress(int $masterId): int
     {

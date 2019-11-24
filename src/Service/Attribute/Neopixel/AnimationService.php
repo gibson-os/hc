@@ -39,11 +39,7 @@ class AnimationService
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws Exception
-     *
-     * @return int|null
      */
     public function getPid(Module $slave): ?int
     {
@@ -57,11 +53,7 @@ class AnimationService
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws Exception
-     *
-     * @return int|null
      */
     public function getStarted(Module $slave): ?int
     {
@@ -75,9 +67,6 @@ class AnimationService
     }
 
     /**
-     * @param Module   $slave
-     * @param int|null $pid
-     *
      * @throws DateTimeError
      * @throws SaveError
      */
@@ -113,13 +102,8 @@ class AnimationService
     }
 
     /**
-     * @param Module $slave
-     * @param string $key
-     *
      * @throws Exception
      * @throws SelectError
-     *
-     * @return Attribute\Value
      */
     private function getValueModel(Module $slave, string $key): Attribute\Value
     {
@@ -138,12 +122,6 @@ class AnimationService
         return reset($valueModels);
     }
 
-    /**
-     * @param Module $slave
-     * @param string $key
-     *
-     * @return Attribute
-     */
     private function newAttribute(Module $slave, string $key): Attribute
     {
         return (new Attribute())
@@ -155,9 +133,6 @@ class AnimationService
     }
 
     /**
-     * @param Attribute $attribute
-     * @param string    $value
-     *
      * @throws DateTimeError
      * @throws SaveError
      */

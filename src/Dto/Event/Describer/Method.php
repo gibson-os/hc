@@ -24,8 +24,6 @@ class Method
 
     /**
      * Method constructor.
-     *
-     * @param string $title
      */
     public function __construct(string $title)
     {
@@ -42,8 +40,6 @@ class Method
 
     /**
      * @param AbstractParameter[] $parameters
-     *
-     * @return Method
      */
     public function setParameters(array $parameters): Method
     {
@@ -62,8 +58,6 @@ class Method
 
     /**
      * @param AbstractParameter[]|AbstractParameter[][] $returnTypes
-     *
-     * @return Method
      */
     public function setReturnTypes(array $returnTypes): Method
     {
@@ -72,9 +66,6 @@ class Method
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;

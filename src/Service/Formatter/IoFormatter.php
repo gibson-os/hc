@@ -4,10 +4,11 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use Exception;
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Attribute\Value;
 use GibsonOS\Module\Hc\Repository\Log as LogRepository;
-use GibsonOS\Module\Hc\Service\ServerService;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
 
 class IoFormatter extends AbstractHcFormatter
@@ -19,12 +20,10 @@ class IoFormatter extends AbstractHcFormatter
 
     /**
      * @throws Exception
-     *
-     * @return int|string|null
      */
-    public function command()
+    public function command(Log $log): ?string
     {
-        switch ($this->command) {
+        switch ($log->getCommand()) {
             case IoService::COMMAND_ADD_DIRECT_CONNECT:
                 return 'DC hinzufügen';
             case IoService::COMMAND_SET_DIRECT_CONNECT:
@@ -43,11 +42,11 @@ class IoFormatter extends AbstractHcFormatter
                 return 'DC aktiviert';
         }
 
-        if ($this->command < $this->module->getConfig()) {
+        if ($log->getCommand() < (int) $log->getModule()->getConfig()) {
             $name = Value::getByTypeId(
-                $this->module->getTypeId(),
-                $this->command,
-                [(int) $this->module->getId()],
+                $log->getModule()->getTypeId(),
+                $log->getCommand(),
+                [(int) $log->getModule()->getId()],
                 IoService::ATTRIBUTE_TYPE_PORT,
                 IoService::ATTRIBUTE_PORT_KEY_NAME
             );
@@ -55,63 +54,58 @@ class IoFormatter extends AbstractHcFormatter
             return $name[0]->getValue();
         }
 
-        return parent::command();
+        return parent::command($log);
     }
 
-    /**
-     * @return string|null
-     */
-    public function text(): ?string
+    public function text(Log $log): ?string
     {
-        switch ($this->command) {
+        switch ($log->getCommand()) {
             case IoService::COMMAND_CONFIGURATION:
-                return 'Port Anzahl: ' . $this->transform->hexToInt($this->data);
+                return 'Port Anzahl: ' . $this->transform->hexToInt($log->getData());
             case IoService::COMMAND_DEFRAGMENT_DIRECT_CONNECT:
                 return 'Defragmentieren';
             case IoService::COMMAND_READ_DIRECT_CONNECT:
-                if ($this->direction == ServerService::DIRECTION_OUTPUT) {
+                if ($log->getDirection() === Log::DIRECTION_OUTPUT) {
                     return null;
                 }
 
-                $lastByte = $this->transform->hexToInt($this->data, 2);
+                $lastByte = $this->transform->hexToInt($log->getData(), 2);
 
-                if ($lastByte == IoService::DIRECT_CONNECT_READ_NOT_SET) {
+                if ($lastByte === IoService::DIRECT_CONNECT_READ_NOT_SET) {
                     return 'Kein Port gesetzt';
                 }
 
-                if ($lastByte == IoService::DIRECT_CONNECT_READ_NOT_EXIST) {
+                if ($lastByte === IoService::DIRECT_CONNECT_READ_NOT_EXIST) {
                     return 'Kein Befehl vorhanden';
                 }
 
                 return null;
             case IoService::COMMAND_DIRECT_CONNECT_STATUS:
-                return $this->transform->hexToInt($this->data, 0) ? 'Aktiv' : 'Inaktiv';
+                return $this->transform->hexToInt($log->getData(), 0) ? 'Aktiv' : 'Inaktiv';
             case IoService::COMMAND_STATUS_IN_EEPROM:
-                if ($this->direction == ServerService::DIRECTION_OUTPUT) {
+                if ($log->getDirection() == Log::DIRECTION_OUTPUT) {
                     return 'Standard gesetzt';
                 }
 
-                if ($this->transform->hexToInt($this->data, 0)) {
+                if ($this->transform->hexToInt($log->getData(), 0)) {
                     return 'Standard geladen';
                 }
 
                 return 'Standard nicht vorhanden';
         }
 
-        return parent::text();
+        return parent::text($log);
     }
 
     /**
      * @throws Exception
-     *
-     * @return string|null
      */
-    public function render(): ?string
+    public function render(Log $log): ?string
     {
-        switch ($this->command) {
+        switch ($log->getCommand()) {
             case IoService::COMMAND_STATUS:
             case IoService::COMMAND_DATA_CHANGED:
-                $changedPorts = $this->getChangedPorts();
+                $changedPorts = $this->getChangedPorts($log);
 
                 if (!count($changedPorts)) {
                     return 'Keine Änderungen';
@@ -131,16 +125,16 @@ class IoFormatter extends AbstractHcFormatter
 
                 foreach ($changedPorts as $number => $port) {
                     $name = Value::getByTypeId(
-                        $this->module->getTypeId(),
+                        $log->getModule()->getTypeId(),
                         (int) $number,
-                        [(int) $this->module->getId()],
+                        [(int) $log->getModule()->getId()],
                         IoService::ATTRIBUTE_TYPE_PORT,
                         IoService::ATTRIBUTE_PORT_KEY_NAME
                     );
                     $valueNames = Value::getByTypeId(
-                        $this->module->getTypeId(),
+                        $log->getModule()->getTypeId(),
                         (int) $number,
-                        [(int) $this->module->getId()],
+                        [(int) $log->getModule()->getId()],
                         IoService::ATTRIBUTE_TYPE_PORT,
                         IoService::ATTRIBUTE_PORT_KEY_VALUE_NAMES
                     );
@@ -163,11 +157,11 @@ class IoFormatter extends AbstractHcFormatter
 
                 return $return . '</table>';
             case IoService::COMMAND_ADD_DIRECT_CONNECT:
-                $inputPort = $this->transform->hexToInt($this->data, 0);
+                $inputPort = $this->transform->hexToInt($log->getData(), 0);
                 $inputName = Value::getByTypeId(
-                    $this->module->getTypeId(),
+                    $log->getModule()->getTypeId(),
                     $inputPort,
-                    [(int) $this->module->getId()],
+                    [(int) $log->getModule()->getId()],
                     IoService::ATTRIBUTE_TYPE_PORT,
                     IoService::ATTRIBUTE_PORT_KEY_NAME
                 );
@@ -178,14 +172,14 @@ class IoFormatter extends AbstractHcFormatter
                             '<th>Eingangs Port</th>' .
                             '<td>' . $inputName[0]->getValue() . '</td>' .
                         '</tr>' .
-                        $this->getDirectConnectTableRows($inputPort, substr($this->transform->hexToAscii($this->data), 1)) .
+                        $this->getDirectConnectTableRows($log, $inputPort, substr($this->transform->hexToAscii($log->getData()), 1)) .
                     '</table>';
             case IoService::COMMAND_SET_DIRECT_CONNECT:
-                $inputPort = $this->transform->hexToInt($this->data, 0);
+                $inputPort = $this->transform->hexToInt($log->getData(), 0);
                 $inputName = Value::getByTypeId(
-                    $this->module->getTypeId(),
+                    $log->getModule()->getTypeId(),
                     $inputPort,
-                    [(int) $this->module->getId()],
+                    [(int) $log->getModule()->getId()],
                     IoService::ATTRIBUTE_TYPE_PORT,
                     IoService::ATTRIBUTE_PORT_KEY_NAME
                 );
@@ -198,16 +192,16 @@ class IoFormatter extends AbstractHcFormatter
                         '</tr>' .
                         '<tr>' .
                             '<th>Nummer</th>' .
-                            '<td>' . $this->transform->hexToInt($this->data, 1) . '</td>' .
+                            '<td>' . $this->transform->hexToInt($log->getData(), 1) . '</td>' .
                         '</tr>' .
-                    $this->getDirectConnectTableRows($inputPort, substr($this->transform->hexToAscii($this->data), 2)) .
+                    $this->getDirectConnectTableRows($log, $inputPort, substr($this->transform->hexToAscii($log->getData()), 2)) .
                     '</table>';
             case IoService::COMMAND_DELETE_DIRECT_CONNECT:
-                $inputPort = $this->transform->hexToInt($this->data, 0);
+                $inputPort = $this->transform->hexToInt($log->getData(), 0);
                 $inputName = Value::getByTypeId(
-                    $this->module->getTypeId(),
+                    $log->getModule()->getTypeId(),
                     $inputPort,
-                    [(int) $this->module->getId()],
+                    [(int) $log->getModule()->getId()],
                     IoService::ATTRIBUTE_TYPE_PORT,
                     IoService::ATTRIBUTE_PORT_KEY_NAME
                 );
@@ -220,15 +214,15 @@ class IoFormatter extends AbstractHcFormatter
                         '</tr>' .
                         '<tr>' .
                             '<th>Nummer</th>' .
-                            '<td>' . $this->transform->hexToInt($this->data, 1) . '</td>' .
+                            '<td>' . $this->transform->hexToInt($log->getData(), 1) . '</td>' .
                         '</tr>' .
                     '</table>';
             case IoService::COMMAND_RESET_DIRECT_CONNECT:
-                $inputPort = $this->transform->hexToInt($this->data, 0);
+                $inputPort = $this->transform->hexToInt($log->getData(), 0);
                 $inputName = Value::getByTypeId(
-                    $this->module->getTypeId(),
+                    $log->getModule()->getTypeId(),
                     $inputPort,
-                    [(int) $this->module->getId()],
+                    [(int) $log->getModule()->getId()],
                     IoService::ATTRIBUTE_TYPE_PORT,
                     IoService::ATTRIBUTE_PORT_KEY_NAME
                 );
@@ -241,12 +235,12 @@ class IoFormatter extends AbstractHcFormatter
                         '</tr>' .
                     '</table>';
             case IoService::COMMAND_READ_DIRECT_CONNECT:
-                if ($this->direction == ServerService::DIRECTION_OUTPUT) {
-                    self::$directConnectReadInputPort = $this->transform->hexToInt($this->data, 0);
+                if ($log->getDirection() === Log::DIRECTION_OUTPUT) {
+                    self::$directConnectReadInputPort = $this->transform->hexToInt($log->getData(), 0);
                     $inputName = Value::getByTypeId(
-                        $this->module->getTypeId(),
+                        $log->getModule()->getTypeId(),
                         self::$directConnectReadInputPort,
-                        [(int) $this->module->getId()],
+                        [(int) $log->getModule()->getId()],
                         IoService::ATTRIBUTE_TYPE_PORT,
                         IoService::ATTRIBUTE_PORT_KEY_NAME
                     );
@@ -259,12 +253,12 @@ class IoFormatter extends AbstractHcFormatter
                             '</tr>' .
                             '<tr>' .
                                 '<th>Nummer</th>' .
-                                '<td>' . $this->transform->hexToInt($this->data, 1) . '</td>' .
+                                '<td>' . $this->transform->hexToInt($log->getData(), 1) . '</td>' .
                             '</tr>' .
                         '</table>';
                 }
 
-                $lastByte = $this->transform->hexToInt($this->data, 2);
+                $lastByte = $this->transform->hexToInt($log->getData(), 2);
 
                 if ($lastByte == IoService::DIRECT_CONNECT_READ_NOT_SET) {
                     return null;
@@ -281,20 +275,21 @@ class IoFormatter extends AbstractHcFormatter
                 return
                     '<table>' .
                         $this->getDirectConnectTableRows(
+                            $log,
                             self::$directConnectReadInputPort,
-                            $this->transform->hexToAscii($this->data)
+                            $this->transform->hexToAscii($log->getData())
                         ) .
                     '</table>';
             case IoService::COMMAND_STATUS_IN_EEPROM:
                 //return 'Status in EEPROM';
         }
 
-        if ($this->command < $this->module->getConfig()) {
-            $port = self::getPortAsArray($this->transform->hexToAscii($this->data));
+        if ($log->getCommand() < (int) $log->getModule()->getConfig()) {
+            $port = self::getPortAsArray($this->transform->hexToAscii($log->getData()));
             $valueNames = Value::getByTypeId(
-                $this->module->getTypeId(),
-                $this->command,
-                [(int) $this->module->getId()],
+                $log->getModule()->getTypeId(),
+                $log->getCommand(),
+                [(int) $log->getModule()->getId()],
                 IoService::ATTRIBUTE_TYPE_PORT,
                 IoService::ATTRIBUTE_PORT_KEY_VALUE_NAMES
             );
@@ -317,33 +312,33 @@ class IoFormatter extends AbstractHcFormatter
             return $return . '</table>';
         }
 
-        return parent::render();
+        return parent::render($log);
     }
 
     /**
-     * @return array
+     * @throws DateTimeError
      */
-    private function getChangedPorts(): array
+    private function getChangedPorts(Log $log): array
     {
-        $ports = self::getPortsAsArray($this->transform->hexToAscii($this->data), (int) $this->module->getConfig());
+        $ports = $this->getPortsAsArray($this->transform->hexToAscii($log->getData()), (int) $log->getModule()->getConfig());
 
-        if ($this->logId === null) {
+        if ($log->getId() === null) {
             return $ports;
         }
 
         try {
             $lastData = LogRepository::getPreviewEntryByModuleId(
-                $this->logId,
-                (int) $this->module->getId(),
-                $this->command,
-                $this->type,
-                $this->direction
+                $log->getId(),
+                (int) $log->getModule()->getId(),
+                $log->getCommand(),
+                $log->getType(),
+                $log->getDirection()
             )->getData();
         } catch (SelectError $e) {
             return $ports;
         }
 
-        $lastPorts = self::getPortsAsArray($this->transform->hexToAscii($lastData), (int) $this->module->getConfig());
+        $lastPorts = self::getPortsAsArray($this->transform->hexToAscii($lastData), (int) $log->getModule()->getConfig());
         $changedPorts = [];
 
         foreach ($ports as $number => $port) {
@@ -398,34 +393,29 @@ class IoFormatter extends AbstractHcFormatter
     }
 
     /**
-     * @param int    $inputPort
-     * @param string $data
-     *
      * @throws Exception
-     *
-     * @return string
      */
-    private function getDirectConnectTableRows(int $inputPort, string $data): string
+    private function getDirectConnectTableRows(Log $log, int $inputPort, string $data): string
     {
         $directConnect = self::getDirectConnectAsArray($data);
-        $moduleIds = [(int) $this->module->getId()];
+        $moduleIds = [(int) $log->getModule()->getId()];
 
         $inputValueNames = Value::getByTypeId(
-            $this->module->getTypeId(),
+            $log->getModule()->getTypeId(),
             $inputPort,
             $moduleIds,
             IoService::ATTRIBUTE_TYPE_PORT,
             IoService::ATTRIBUTE_PORT_KEY_VALUE_NAMES
         );
         $outputName = Value::getByTypeId(
-            $this->module->getTypeId(),
+            $log->getModule()->getTypeId(),
             $directConnect[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT],
             $moduleIds,
             IoService::ATTRIBUTE_TYPE_PORT,
             IoService::ATTRIBUTE_PORT_KEY_NAME
         );
         $outputValueNames = Value::getByTypeId(
-            $this->module->getTypeId(),
+            $log->getModule()->getTypeId(),
             $directConnect[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT],
             $moduleIds,
             IoService::ATTRIBUTE_TYPE_PORT,
@@ -471,11 +461,6 @@ class IoFormatter extends AbstractHcFormatter
             '</tr>';
     }
 
-    /**
-     * @param string $data
-     *
-     * @return array
-     */
     public function getPortAsArray(string $data): array
     {
         $byte1 = $this->transform->asciiToInt($data, 0);
@@ -504,12 +489,6 @@ class IoFormatter extends AbstractHcFormatter
         return $port;
     }
 
-    /**
-     * @param string $data
-     * @param int    $portCount
-     *
-     * @return array
-     */
     public function getPortsAsArray(string $data, int $portCount): array
     {
         $byteCount = 0;
@@ -523,11 +502,6 @@ class IoFormatter extends AbstractHcFormatter
         return $ports;
     }
 
-    /**
-     * @param array $data
-     *
-     * @return string
-     */
     public function getPortAsString(array $data): string
     {
         if ($data[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] == IoService::DIRECTION_INPUT) {
@@ -556,11 +530,6 @@ class IoFormatter extends AbstractHcFormatter
                 chr($pwm);
     }
 
-    /**
-     * @param string $data
-     *
-     * @return array
-     */
     public function getDirectConnectAsArray(string $data): array
     {
         $inputValueAndOutputPortByte = $this->transform->asciiToInt($data, 0);
@@ -587,19 +556,6 @@ class IoFormatter extends AbstractHcFormatter
         ];
     }
 
-    /**
-     * @param int      $inputPort
-     * @param int      $inputValue
-     * @param int      $outputPort
-     * @param int      $value
-     * @param int      $pwm
-     * @param int      $blink
-     * @param int      $fadeIn
-     * @param int      $addOrSub
-     * @param int|null $order
-     *
-     * @return string
-     */
     public function getDirectConnectAsString(
         int $inputPort,
         int $inputValue,

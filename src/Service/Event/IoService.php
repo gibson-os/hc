@@ -17,8 +17,7 @@ class IoService extends AbstractHcService
     protected $slave;
 
     /**
-     * @param Module $slave
-     * @param array  $params
+     * @param array $params
      *
      * @throws AbstractException
      * @throws ReceiveError
@@ -32,8 +31,6 @@ class IoService extends AbstractHcService
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
@@ -44,13 +41,9 @@ class IoService extends AbstractHcService
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     public function getPorts(Module $slave): array
     {
@@ -58,14 +51,9 @@ class IoService extends AbstractHcService
     }
 
     /**
-     * @param Module $slave
-     * @param array  $params
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     public function readDirectConnect(Module $slave, array $params): array
     {
@@ -73,13 +61,9 @@ class IoService extends AbstractHcService
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return bool
      */
     public function isDirectConnectActive(Module $slave): bool
     {
@@ -87,9 +71,6 @@ class IoService extends AbstractHcService
     }
 
     /**
-     * @param Module $slave
-     * @param array  $params
-     *
      * @throws AbstractException
      */
     public function setPort(Module $slave, array $params): void
@@ -109,8 +90,6 @@ class IoService extends AbstractHcService
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -120,9 +99,6 @@ class IoService extends AbstractHcService
     }
 
     /**
-     * @param Module $slave
-     * @param array  $params
-     *
      * @throws AbstractException
      */
     public function saveDirectConnect(Module $slave, array $params): void
@@ -142,9 +118,6 @@ class IoService extends AbstractHcService
     }
 
     /**
-     * @param Module $slave
-     * @param array  $params
-     *
      * @throws AbstractException
      */
     public function deleteDirectConnect(Module $slave, array $params): void
@@ -153,9 +126,6 @@ class IoService extends AbstractHcService
     }
 
     /**
-     * @param Module $slave
-     * @param array  $params
-     *
      * @throws AbstractException
      */
     public function resetDirectConnect(Module $slave, array $params): void
@@ -164,8 +134,6 @@ class IoService extends AbstractHcService
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -175,9 +143,6 @@ class IoService extends AbstractHcService
     }
 
     /**
-     * @param Module $slave
-     * @param array  $params
-     *
      * @throws AbstractException
      * @throws SaveError
      */

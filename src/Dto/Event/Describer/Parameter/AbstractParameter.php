@@ -24,9 +24,6 @@ abstract class AbstractParameter
 
     /**
      * AbstractParameter constructor.
-     *
-     * @param string $title
-     * @param string $type
      */
     public function __construct(string $title, string $type)
     {
@@ -34,25 +31,16 @@ abstract class AbstractParameter
         $this->type = $type;
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @return string
-     */
     public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * @return array
-     */
     public function getConfig(): array
     {
         return array_merge([
@@ -60,10 +48,6 @@ abstract class AbstractParameter
         ], $this->getTypeConfig());
     }
 
-    /**
-     * @param string $field
-     * @param array  $options
-     */
     public function setListener(string $field, array $options): void
     {
         $this->listeners[$field] = $options;

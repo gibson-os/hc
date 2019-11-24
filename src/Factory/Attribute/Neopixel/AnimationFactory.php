@@ -10,10 +10,7 @@ use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService;
 
 class AnimationFactory extends AbstractSingletonFactory
 {
-    /**
-     * @return AnimationService
-     */
-    public static function createInstance(): AnimationService
+    protected static function createInstance(): AnimationService
     {
         return new AnimationService(new AttributeRepository(), new ValueRepository());
     }

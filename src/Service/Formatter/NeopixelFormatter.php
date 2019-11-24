@@ -16,15 +16,12 @@ class NeopixelFormatter extends AbstractHcFormatter
     private const MIN_GROUP_LEDS = 2;
 
     /**
-     * @param array $leds
-     * @param int   $maxLength
-     *
      * @return string[]
      */
     public function getLedsAsStrings(array $leds, int $maxLength): array
     {
         ksort($leds);
-        $colors = self::getColorsByLeds($leds);
+        $colors = $this->getColorsByLeds($leds);
         $data = [];
 
         foreach ($colors as $color) {
@@ -37,11 +34,6 @@ class NeopixelFormatter extends AbstractHcFormatter
         return $data;
     }
 
-    /**
-     * @param string $data
-     *
-     * @return array
-     */
     public function getLedsAsArray(string $data): array
     {
         $leds = [];
@@ -53,34 +45,30 @@ class NeopixelFormatter extends AbstractHcFormatter
                 for ($j = 0; $j < $address - self::MAX_PROTOCOL_LEDS; ++$j) {
                     $addressFromGroup = $this->transform->asciiToInt(substr($data, $i, 2));
                     $i += 2;
-                    $leds[$addressFromGroup] = [
-                        LedAttribute::ATTRIBUTE_KEY_RED => $this->transform->asciiToInt($data, $i++),
-                        LedAttribute::ATTRIBUTE_KEY_GREEN => $this->transform->asciiToInt($data, $i++),
-                        LedAttribute::ATTRIBUTE_KEY_BLUE => $this->transform->asciiToInt($data, $i++),
-                        LedAttribute::ATTRIBUTE_KEY_FADE_IN => $this->transform->asciiToInt($data, $i++) >> 4,
-                        LedAttribute::ATTRIBUTE_KEY_BLINK => $this->transform->asciiToInt($data, $i++) & 15,
-                    ];
+                    $leds[$addressFromGroup] = $this->getLedAsArray($data, $i);
                 }
             }
 
-            $leds[$address] = [
-                LedAttribute::ATTRIBUTE_KEY_RED => $this->transform->asciiToInt($data, $i++),
-                LedAttribute::ATTRIBUTE_KEY_GREEN => $this->transform->asciiToInt($data, $i++),
-                LedAttribute::ATTRIBUTE_KEY_BLUE => $this->transform->asciiToInt($data, $i++),
-                LedAttribute::ATTRIBUTE_KEY_FADE_IN => $this->transform->asciiToInt($data, $i++) >> 4,
-                LedAttribute::ATTRIBUTE_KEY_BLINK => $this->transform->asciiToInt($data, $i++) & 15,
-            ];
+            $leds[$address] = $this->getLedAsArray($data, $i);
         }
 
         return $leds;
     }
 
     /**
-     * @param array $leds
-     * @param array $color
-     *
-     * @return string
+     * @return int[]
      */
+    private function getLedAsArray(string $data, int &$i): array
+    {
+        return [
+            LedAttribute::ATTRIBUTE_KEY_RED => $this->transform->asciiToInt($data, $i++),
+            LedAttribute::ATTRIBUTE_KEY_GREEN => $this->transform->asciiToInt($data, $i++),
+            LedAttribute::ATTRIBUTE_KEY_BLUE => $this->transform->asciiToInt($data, $i++),
+            LedAttribute::ATTRIBUTE_KEY_FADE_IN => $this->transform->asciiToInt($data, $i++) >> 4,
+            LedAttribute::ATTRIBUTE_KEY_BLINK => $this->transform->asciiToInt($data, $i++) & 15,
+        ];
+    }
+
     private function getRangedColorString(array &$leds, array &$color): string
     {
         if (count($color['leds']) < self::MIN_RANGE_LEDS) {
@@ -132,11 +120,6 @@ class NeopixelFormatter extends AbstractHcFormatter
         return $data . $recursiveData;
     }
 
-    /**
-     * @param array $color
-     *
-     * @return string
-     */
     private function getSingleColorString(array $color): string
     {
         if (count($color['leds']) !== 1) {
@@ -156,9 +139,6 @@ class NeopixelFormatter extends AbstractHcFormatter
     }
 
     /**
-     * @param array $color
-     * @param int   $maxLength
-     *
      * @return string[]
      */
     private function getGroupedColorStrings(array $color, int $maxLength): array
@@ -206,11 +186,6 @@ class NeopixelFormatter extends AbstractHcFormatter
             );
     }
 
-    /**
-     * @param array $leds
-     *
-     * @return array
-     */
     private function getColorsByLeds(array $leds): array
     {
         $colors = [];

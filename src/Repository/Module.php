@@ -18,9 +18,6 @@ class Module extends AbstractRepository
     const MAX_GENERATE_DEVICE_ID_RETRY = 10;
 
     /**
-     * @param string   $name
-     * @param int|null $typeId
-     *
      * @throws SelectError
      * @throws DateTimeError
      *
@@ -58,8 +55,6 @@ class Module extends AbstractRepository
     }
 
     /**
-     * @param int $masterId
-     *
      * @throws DateTimeError
      *
      * @return ModuleModel[]
@@ -85,12 +80,8 @@ class Module extends AbstractRepository
     }
 
     /**
-     * @param int $deviceId
-     *
      * @throws DateTimeError
      * @throws SelectError
-     *
-     * @return ModuleModel
      */
     public static function getByDeviceId(int $deviceId): ModuleModel
     {
@@ -112,12 +103,8 @@ class Module extends AbstractRepository
     }
 
     /**
-     * @param int $id
-     *
      * @throws DateTimeError
      * @throws SelectError
-     *
-     * @return ModuleModel
      */
     public static function getById(int $id): ModuleModel
     {
@@ -139,13 +126,8 @@ class Module extends AbstractRepository
     }
 
     /**
-     * @param int $address
-     * @param int $masterId
-     *
      * @throws DateTimeError
      * @throws SelectError
-     *
-     * @return ModuleModel
      */
     public static function getByAddress(int $address, int $masterId): ModuleModel
     {
@@ -170,11 +152,7 @@ class Module extends AbstractRepository
     }
 
     /**
-     * @param int $tryCount
-     *
      * @throws GetError
-     *
-     * @return int
      */
     public static function getFreeDeviceId(int $tryCount = 0): int
     {
@@ -199,8 +177,6 @@ class Module extends AbstractRepository
     }
 
     /**
-     * @param int $id
-     *
      * @throws DeleteError
      */
     public static function deleteById(int $id)

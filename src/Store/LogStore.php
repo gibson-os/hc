@@ -8,13 +8,13 @@ use Exception;
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Factory\FormatterFactory;
-use GibsonOS\Module\Hc\Service\ServerService;
+use GibsonOS\Module\Hc\Model\Log;
+use GibsonOS\Module\Hc\Model\Master;
+use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Type;
 
 class LogStore extends AbstractDatabaseStore
 {
-    /**
-     * @return string
-     */
     protected function getTableName(): string
     {
         return 'hc_log';
@@ -22,8 +22,6 @@ class LogStore extends AbstractDatabaseStore
 
     /**
      * @param int $masterId
-     *
-     * @return LogStore
      */
     public function setMasterId($masterId): LogStore
     {
@@ -36,11 +34,6 @@ class LogStore extends AbstractDatabaseStore
         return $this;
     }
 
-    /**
-     * @param int $moduleId
-     *
-     * @return LogStore
-     */
     public function setModuleId(int $moduleId): LogStore
     {
         if ($moduleId === 0) {
@@ -52,11 +45,6 @@ class LogStore extends AbstractDatabaseStore
         return $this;
     }
 
-    /**
-     * @param string|null $direction
-     *
-     * @return LogStore
-     */
     public function setDirection(?string $direction): LogStore
     {
         if ($direction === null) {
@@ -68,11 +56,6 @@ class LogStore extends AbstractDatabaseStore
         return $this;
     }
 
-    /**
-     * @param array $types
-     *
-     * @return LogStore
-     */
     public function setTypes(array $types): LogStore
     {
         if (!empty($types)) {
@@ -144,37 +127,72 @@ class LogStore extends AbstractDatabaseStore
         $data = [];
 
         foreach ($this->table->connection->fetchAssocList() as $log) {
-            $formatter = FormatterFactory::createByLog($log);
+            $logModel = (new Log())
+                ->setType($log['type'])
+                ->setModuleId($log['module_id'])
+                ->setModule(
+                    (new Module())
+                    ->setId($log['module_id'])
+                    ->setName($log['name'])
+                    ->setDeviceId($log['device_id'])
+                    ->setConfig($log['config'])
+                    ->setHertz($log['hertz'])
+                    ->setAddress($log['address'])
+                    ->setIp($log['ip'])
+                    ->setOffline($log['offline'])
+                    ->setAdded($log['module_added'])
+                    ->setModified($log['module_modifies'])
+                    ->setTypeId($log['type_id'])
+                    ->setType(
+                        (new Type())
+                        ->setId($log['type_id'])
+                        ->setName($log['type_name'])
+                        ->setHertz($log['type_hertz'])
+                        ->setNetwork($log['network'])
+                        ->setUiSettings($log['ui_settings'])
+                        ->setHelper($log['helper'])
+                    )
+                    ->setMasterId($log['master_id'])
+                    ->setMaster(
+                        (new Master())
+                        ->setName($log['name'])
+                        ->setProtocol($log['protocol'])
+                        ->setAddress($log['address'])
+                    )
+                )
+                ->setData($log['data'])
+                ->setId($log['id'])
+                ->setAdded($log['added'])
+                ->setCommand($log['command'])
+                ->setDirection($log['direction'])
+                ->setMasterId($log['master_id'])
+                ->setSlaveAddress($log['address'])
+            ;
+            $formatter = FormatterFactory::create($logModel);
 
             $data[] = [
                 'id' => $log['id'],
                 'master' => $log['master_name'],
                 'module' => $log['name'],
                 'type' => $log['type'],
-                'command' => $formatter->command(),
+                'command' => $formatter->command($logModel),
                 'helper' => $log['helper'],
-                'text' => $formatter->text(),
-                'rendered' => $formatter->render(),
+                'text' => $formatter->text($logModel),
+                'rendered' => $formatter->render($logModel),
                 'plain' => $log['data'],
                 'added' => (new DateTime($log['added']))->format('Y-m-d H:i:s'),
-                'direction' => $log['direction'] === ServerService::DIRECTION_INPUT ? 1 : 0,
+                'direction' => $log['direction'] === Log::DIRECTION_INPUT ? 1 : 0,
             ];
         }
 
         return $data;
     }
 
-    /**
-     * @return string
-     */
     public function getCountField(): string
     {
         return '`' . $this->getTableName() . '`.`id`';
     }
 
-    /**
-     * @return mixed
-     */
     public function getTraffic()
     {
         $this->table->clearJoin();

@@ -104,26 +104,21 @@ class IoService extends AbstractHcSlave
 
     public function __construct(
         MasterService $master,
-        EventService $event,
         TransformService $transform,
-        IoFormatter $formatter,
-        array $attributes = []
+        EventService $event,
+        IoFormatter $formatter
     ) {
-        parent::__construct($master, $event, $transform, $attributes);
+        parent::__construct($master, $transform, $event);
         $this->formatter = $formatter;
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
      * @throws GetError
      * @throws Exception
      * @throws AbstractException
-     *
-     * @return Module
      */
     public function handshake(Module $slave): Module
     {
@@ -228,12 +223,6 @@ class IoService extends AbstractHcSlave
         return $slave;
     }
 
-    /**
-     * @param Module $slave
-     * @param Module $existingSlave
-     *
-     * @return Module
-     */
     public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module
     {
         // @todo IOs setzen
@@ -243,11 +232,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $type
-     * @param int    $command
-     * @param string $data
-     *
      * @throws SaveError
      * @throws DateTimeError
      */
@@ -261,14 +245,9 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $number
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     public function readPort(Module $slave, int $number): array
     {
@@ -285,10 +264,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $number
-     * @param array  $data
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -304,8 +279,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
@@ -322,8 +295,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -335,13 +306,7 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $number
-     * @param array  $data
-     *
      * @throws Exception
-     *
-     * @return array
      */
     private function completePortAttributes(Module $slave, int $number, array $data): array
     {
@@ -366,14 +331,8 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $number
-     * @param array  $data
-     *
      * @throws DateTimeError
      * @throws SaveError
-     *
-     * @return bool
      */
     private function updatePortAttributes(Module $slave, int $number, array $data): bool
     {
@@ -420,9 +379,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $number
-     *
      * @throws AbstractException
      * @throws Exception
      */
@@ -459,15 +415,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module   $slave
-     * @param int      $number
-     * @param string   $name
-     * @param int      $direction
-     * @param int      $pullUp
-     * @param int      $delay
-     * @param int      $pwm
-     * @param int      $blink
-     * @param int      $fade
      * @param string[] $valueNames
      *
      * @throws AbstractException
@@ -516,13 +463,9 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     private function readPorts(Module $slave): array
     {
@@ -538,13 +481,9 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     public function getPorts(Module $slave): array
     {
@@ -558,17 +497,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module   $slave
-     * @param int      $inputPort
-     * @param int      $inputValue
-     * @param int      $order
-     * @param int      $outputPort
-     * @param int      $outputValue
-     * @param int|null $pwm
-     * @param int|null $blink
-     * @param int|null $fadeIn
-     * @param int      $addOrSub
-     *
      * @throws AbstractException
      * @throws Exception
      */
@@ -668,15 +596,9 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $port
-     * @param int    $order
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     public function readDirectConnect(Module $slave, int $port, int $order): array
     {
@@ -733,11 +655,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $port
-     * @param array  $data
-     * @param int    $order
-     *
      * @throws SaveError
      * @throws SelectError
      * @throws DateTimeError
@@ -767,10 +684,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $port
-     * @param int    $order
-     *
      * @throws AbstractException
      */
     public function deleteDirectConnect(Module $slave, int $port, int $order): void
@@ -818,10 +731,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $port
-     * @param bool   $databaseOnly
-     *
      * @throws AbstractException
      */
     public function resetDirectConnect(Module $slave, int $port, bool $databaseOnly = false): void
@@ -861,8 +770,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -874,9 +781,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param bool   $active
-     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -888,13 +792,9 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return bool
      */
     public function isDirectConnectActive(Module $slave): bool
     {

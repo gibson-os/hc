@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Service;
 use DateTime;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -35,9 +36,9 @@ class MasterService extends AbstractService
     const TYPE_DATA = 255;
 
     /**
-     * @var ServerService
+     * @var SenderService
      */
-    private $server;
+    private $sender;
 
     /**
      * @var EventService
@@ -61,21 +62,15 @@ class MasterService extends AbstractService
 
     /**
      * Master constructor.
-     *
-     * @param ServerService    $server
-     * @param EventService     $event
-     * @param TransformService $transform
-     * @param ModuleRepository $moduleRepository
-     * @param Type             $typeRepository
      */
     public function __construct(
-        ServerService $server,
+        SenderService $sender,
         EventService $event,
         TransformService $transform,
         ModuleRepository $moduleRepository,
         Type $typeRepository
     ) {
-        $this->server = $server;
+        $this->sender = $sender;
         $this->event = $event;
         $this->transform = $transform;
         $this->moduleRepository = $moduleRepository;
@@ -83,11 +78,6 @@ class MasterService extends AbstractService
     }
 
     /**
-     * @param Master          $master
-     * @param AbstractHcSlave $slave
-     * @param int             $type
-     * @param string          $data
-     *
      * @throws AbstractException
      * @throws DateTimeError
      * @throws ReceiveError
@@ -101,7 +91,7 @@ class MasterService extends AbstractService
             ->setMasterId($master->getId())
             ->setType($type)
             ->setData($this->transform->asciiToHex($data))
-            ->setDirection(ServerService::DIRECTION_INPUT);
+            ->setDirection(Log::DIRECTION_INPUT);
 
         $address = $this->transform->asciiToInt($data, 0);
         $command = $this->transform->asciiToInt($data, 1);
@@ -153,21 +143,14 @@ class MasterService extends AbstractService
     }
 
     /**
-     * @param Master $master
-     * @param int    $type
-     * @param string $data
-     *
      * @throws AbstractException
      */
     public function send(Master $master, int $type, string $data): void
     {
-        $this->server->send($master->getAddress(), $type, $data);
+        $this->sender->send($master, $type, $data);
     }
 
     /**
-     * @param Master $master
-     * @param int    $address
-     *
      * @throws AbstractException
      */
     public function setAddress(Master $master, int $address): void
@@ -181,7 +164,7 @@ class MasterService extends AbstractService
                 ->setMasterId($master->getId())
                 ->setType(MasterService::TYPE_HANDSHAKE)
                 ->setData($this->transform->asciiToHex($data))
-                ->setDirection(ServerService::DIRECTION_OUTPUT)
+                ->setDirection(Log::DIRECTION_OUTPUT)
                 ->save();
         } catch (AbstractException $exception) {
             throw $exception;
@@ -192,8 +175,6 @@ class MasterService extends AbstractService
     }
 
     /**
-     * @param Master $master
-     *
      * @throws AbstractException
      */
     public function scanBus(Master $master): void
@@ -203,18 +184,12 @@ class MasterService extends AbstractService
     }
 
     /**
-     * @param Master $master
-     * @param int    $address
-     * @param int    $type
-     * @param int    $command
-     *
      * @throws ReceiveError
-     *
-     * @return string
+     * @throws FileNotFound
      */
     public function receiveReadData(Master $master, int $address, int $type, int $command): string
     {
-        $data = $this->server->receiveReadData($master->getAddress(), $type);
+        $data = $this->sender->receiveReadData($master, $type);
 
         if ($address !== $this->transform->asciiToInt($data, 0)) {
             new ReceiveError('Slave Adresse stimmt nicht überein!');
@@ -228,10 +203,10 @@ class MasterService extends AbstractService
     }
 
     /**
-     * @param Master $master
+     * @throws FileNotFound
      */
     public function receiveReceiveReturn(Master $master): void
     {
-        $this->server->receiveReceiveReturn($master->getAddress());
+        $this->sender->receiveReceiveReturn($master);
     }
 }

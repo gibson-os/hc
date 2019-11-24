@@ -12,13 +12,9 @@ use GibsonOS\Module\Hc\Model\Type as TypeModel;
 class Type extends AbstractRepository
 {
     /**
-     * @param int $address
-     *
      * @throws SelectError
      * @throws DateTimeError
      * @throws GetError
-     *
-     * @return TypeModel
      */
     public static function getByDefaultAddress(int $address): TypeModel
     {
@@ -45,13 +41,9 @@ class Type extends AbstractRepository
     }
 
     /**
-     * @param int $id
-     *
      * @throws DateTimeError
      * @throws GetError
      * @throws SelectError
-     *
-     * @return TypeModel
      */
     public static function getById(int $id): TypeModel
     {
@@ -74,13 +66,9 @@ class Type extends AbstractRepository
     }
 
     /**
-     * @param string $helperName
-     *
      * @throws DateTimeError
      * @throws GetError
      * @throws SelectError
-     *
-     * @return TypeModel
      */
     public static function getByHelperName(string $helperName): TypeModel
     {
@@ -103,9 +91,8 @@ class Type extends AbstractRepository
     }
 
     /**
-     * @param string      $name
-     * @param bool        $onlyHcSlave
-     * @param string|null $network
+     * @param string $name
+     * @param bool   $onlyHcSlave
      *
      * @throws DateTimeError
      * @throws GetError

@@ -8,9 +8,6 @@ use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\IntParameter;
 
 class TimeService implements DescriberInterface
 {
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return 'Zeit';
@@ -18,8 +15,6 @@ class TimeService implements DescriberInterface
 
     /**
      * Liste der Möglichen Events.
-     *
-     * @return array
      */
     public function getTriggers(): array
     {

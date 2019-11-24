@@ -12,13 +12,8 @@ use GibsonOS\Module\Hc\Repository\Module as ModuleRepository;
 class SlaveService extends AbstractService
 {
     /**
-     * @param int    $slaveId
-     * @param string $helperName
-     *
      * @throws GetError
      * @throws SelectError
-     *
-     * @return Module
      */
     public function getModelById(int $slaveId, string $helperName): Module
     {

@@ -7,17 +7,11 @@ use GibsonOS\Core\Store\AbstractDatabaseStore;
 
 class SlaveStore extends AbstractDatabaseStore
 {
-    /**
-     * @return string
-     */
     protected function getTableName(): string
     {
         return 'hc_module';
     }
 
-    /**
-     * @return string
-     */
     protected function getCountField(): string
     {
         return '`' . $this->getTableName() . '`.`id`';
@@ -67,11 +61,6 @@ class SlaveStore extends AbstractDatabaseStore
         return $this->table->connection->fetchAssocList();
     }
 
-    /**
-     * @param int|null $masterId
-     *
-     * @return SlaveStore
-     */
     public function setMasterId(?int $masterId): SlaveStore
     {
         if ($masterId === null) {

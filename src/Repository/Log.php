@@ -11,11 +11,6 @@ use GibsonOS\Module\Hc\Model\Log as LogModel;
 class Log extends AbstractRepository
 {
     /**
-     * @param int         $moduleId
-     * @param int|null    $command
-     * @param int|null    $type
-     * @param string|null $direction
-     *
      * @throws DateTimeError
      * @throws SelectError
      *
@@ -46,11 +41,6 @@ class Log extends AbstractRepository
     }
 
     /**
-     * @param int         $masterId
-     * @param int|null    $command
-     * @param int|null    $type
-     * @param string|null $direction
-     *
      * @throws DateTimeError
      * @throws SelectError
      *
@@ -81,10 +71,6 @@ class Log extends AbstractRepository
     }
 
     /**
-     * @param int|null    $command
-     * @param int|null    $type
-     * @param string|null $direction
-     *
      * @return string
      */
     private static function completeWhere(int $command = null, int $type = null, string $direction = null)
@@ -107,12 +93,6 @@ class Log extends AbstractRepository
     }
 
     /**
-     * @param int         $id
-     * @param int         $moduleId
-     * @param int|null    $command
-     * @param int|null    $type
-     * @param string|null $direction
-     *
      * @throws SelectError
      * @throws DateTimeError
      *

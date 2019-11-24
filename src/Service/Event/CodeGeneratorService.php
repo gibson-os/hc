@@ -38,8 +38,6 @@ class CodeGeneratorService extends AbstractService
 
     /**
      * @param ElementModel[] $elements
-     *
-     * @return string
      */
     public function generateByElements(array $elements): string
     {
@@ -55,11 +53,6 @@ class CodeGeneratorService extends AbstractService
         return $code;
     }
 
-    /**
-     * @param ElementModel $element
-     *
-     * @return string
-     */
     private function generateCommandStart(ElementModel $element): string
     {
         $command = '$this->runFunction(\'' . serialize($element) . '\')';
@@ -92,11 +85,6 @@ class CodeGeneratorService extends AbstractService
         return $command . ';';
     }
 
-    /**
-     * @param ElementModel $element
-     *
-     * @return string
-     */
     private function generateCommandEnd(ElementModel $element): string
     {
         if ($this->parentId === $element->getParentId()) {

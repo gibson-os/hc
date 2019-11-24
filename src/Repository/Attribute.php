@@ -17,11 +17,6 @@ use GibsonOS\Module\Hc\Model\Module as ModuleModel;
 class Attribute extends AbstractRepository
 {
     /**
-     * @param ModuleModel $module
-     * @param int|null    $subId
-     * @param string|null $key
-     * @param string|null $type
-     *
      * @throws SelectError
      * @throws Exception
      *
@@ -74,12 +69,6 @@ class Attribute extends AbstractRepository
     }
 
     /**
-     * @param ModuleModel $module
-     * @param array       $values
-     * @param int|null    $subId
-     * @param string      $key
-     * @param string|null $type
-     *
      * @throws SaveError
      * @throws DateTimeError
      */
@@ -106,13 +95,6 @@ class Attribute extends AbstractRepository
         }
     }
 
-    /**
-     * @param ModuleModel $module
-     * @param string|null $type
-     * @param int|null    $subId
-     *
-     * @return int
-     */
     public static function countByModule(ModuleModel $module, string $type = null, int $subId = null): int
     {
         $table = self::getTable(AttributeModel::getTableName());
@@ -136,10 +118,9 @@ class Attribute extends AbstractRepository
     }
 
     /**
-     * @param ModuleModel $module
-     * @param int         $subId
-     * @param string      $key
-     * @param string      $type
+     * @param int    $subId
+     * @param string $key
+     * @param string $type
      *
      * @throws DeleteError
      */

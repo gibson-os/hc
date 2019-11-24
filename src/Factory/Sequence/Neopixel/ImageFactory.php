@@ -4,17 +4,11 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Factory\Sequence\Neopixel;
 
 use GibsonOS\Core\Factory\AbstractSingletonFactory;
-use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService as ImageService;
+use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService;
 
 class ImageFactory extends AbstractSingletonFactory
 {
-    /**
-     * @param Module $slave
-     *
-     * @return ImageService
-     */
-    public static function createInstance(): ImageService
+    protected static function createInstance(): ImageService
     {
         return new ImageService();
     }

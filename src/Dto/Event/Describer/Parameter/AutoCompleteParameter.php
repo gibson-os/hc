@@ -27,11 +27,6 @@ class AutoCompleteParameter extends AbstractParameter
         $this->model = $model;
     }
 
-    /**
-     * @param array $parameters
-     *
-     * @return AutoCompleteParameter
-     */
     public function setParameters(array $parameters): AutoCompleteParameter
     {
         $this->parameters = $parameters;
@@ -39,12 +34,6 @@ class AutoCompleteParameter extends AbstractParameter
         return $this;
     }
 
-    /**
-     * @param string $key
-     * @param mixed  $value
-     *
-     * @return AutoCompleteParameter
-     */
     public function setParameter(string $key, $value): AutoCompleteParameter
     {
         $this->parameters[$key] = $value;
@@ -52,9 +41,6 @@ class AutoCompleteParameter extends AbstractParameter
         return $this;
     }
 
-    /**
-     * @return array
-     */
     protected function getTypeConfig(): array
     {
         return [

@@ -41,27 +41,16 @@ class Element extends AbstractModel
      */
     private $sequence;
 
-    /**
-     * @return string
-     */
     public static function getTableName(): string
     {
         return 'hc_sequence_element';
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @param int|null $id
-     *
-     * @return Element
-     */
     public function setId(?int $id): Element
     {
         $this->id = $id;
@@ -69,19 +58,11 @@ class Element extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getSequenceId(): int
     {
         return $this->sequenceId;
     }
 
-    /**
-     * @param int $sequenceId
-     *
-     * @return Element
-     */
     public function setSequenceId(int $sequenceId): Element
     {
         $this->sequenceId = $sequenceId;
@@ -89,19 +70,11 @@ class Element extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getData(): string
     {
         return $this->data;
     }
 
-    /**
-     * @param string $data
-     *
-     * @return Element
-     */
     public function setData(string $data): Element
     {
         $this->data = $data;
@@ -109,19 +82,11 @@ class Element extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getOrder(): int
     {
         return $this->order;
     }
 
-    /**
-     * @param int $order
-     *
-     * @return Element
-     */
     public function setOrder(int $order): Element
     {
         $this->order = $order;
@@ -129,19 +94,11 @@ class Element extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return DateTime|null
-     */
     public function getAdded(): ?DateTime
     {
         return $this->added;
     }
 
-    /**
-     * @param DateTime|null $added
-     *
-     * @return Element
-     */
     public function setAdded(?DateTime $added): Element
     {
         $this->added = $added;
@@ -149,19 +106,11 @@ class Element extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return Sequence
-     */
     public function getSequence(): Sequence
     {
         return $this->sequence;
     }
 
-    /**
-     * @param Sequence $sequence
-     *
-     * @return Element
-     */
     public function setSequence(Sequence $sequence): Element
     {
         $this->sequence = $sequence;

@@ -15,9 +15,6 @@ class DirectConnectStore extends AbstractDatabaseStore
 {
     private $moduleId;
 
-    /**
-     * @return string
-     */
     protected function getTableName(): string
     {
         return 'hc_attribute';
@@ -81,9 +78,6 @@ class DirectConnectStore extends AbstractDatabaseStore
         return array_values($list);
     }
 
-    /**
-     * @return string
-     */
     public function getCountField(): string
     {
         return '`hc_attribute`.`sub_id`';
@@ -91,8 +85,6 @@ class DirectConnectStore extends AbstractDatabaseStore
 
     /**
      * @param int $moduleId
-     *
-     * @return DirectConnectStore
      */
     public function setModule($moduleId): DirectConnectStore
     {
@@ -109,8 +101,6 @@ class DirectConnectStore extends AbstractDatabaseStore
 
     /**
      * @param array $inputPort
-     *
-     * @return array
      */
     private function getInputElement($inputPort): array
     {

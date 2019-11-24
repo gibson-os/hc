@@ -31,9 +31,6 @@ class Value extends AbstractModel
      */
     private $attribute;
 
-    /**
-     * @param mysqlDatabase|null $database
-     */
     public function __construct(mysqlDatabase $database = null)
     {
         parent::__construct($database);
@@ -41,27 +38,16 @@ class Value extends AbstractModel
         $this->attribute = new Attribute();
     }
 
-    /**
-     * @return string
-     */
     public static function getTableName(): string
     {
         return 'hc_attribute_value';
     }
 
-    /**
-     * @return int
-     */
     public function getAttributeId(): int
     {
         return $this->attributeId;
     }
 
-    /**
-     * @param int $attributeId
-     *
-     * @return Value
-     */
     public function setAttributeId(int $attributeId): Value
     {
         $this->attributeId = $attributeId;
@@ -69,19 +55,11 @@ class Value extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getOrder(): int
     {
         return $this->order;
     }
 
-    /**
-     * @param int $order
-     *
-     * @return Value
-     */
     public function setOrder(int $order): Value
     {
         $this->order = $order;
@@ -89,19 +67,11 @@ class Value extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getValue(): string
     {
         return $this->value;
     }
 
-    /**
-     * @param string $value
-     *
-     * @return Value
-     */
     public function setValue(string $value): Value
     {
         $this->value = $value;
@@ -109,19 +79,11 @@ class Value extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return Attribute
-     */
     public function getAttribute(): Attribute
     {
         return $this->attribute;
     }
 
-    /**
-     * @param Attribute $attribute
-     *
-     * @return Value
-     */
     public function setAttribute(Attribute $attribute): Value
     {
         $this->attribute = $attribute;
@@ -133,8 +95,6 @@ class Value extends AbstractModel
     /**
      * @throws SelectError
      * @throws DateTimeError
-     *
-     * @return Value
      */
     public function loadAttribute(): Value
     {

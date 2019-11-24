@@ -40,9 +40,6 @@ class Master extends AbstractModel
      */
     private $modified;
 
-    /**
-     * @return string
-     */
     public static function getTableName(): string
     {
         return 'hc_master';
@@ -56,11 +53,6 @@ class Master extends AbstractModel
         return $this->id;
     }
 
-    /**
-     * @param int $id
-     *
-     * @return Master
-     */
     public function setId(int $id): Master
     {
         $this->id = $id;
@@ -68,19 +60,11 @@ class Master extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return Master
-     */
     public function setName(string $name): Master
     {
         $this->name = $name;
@@ -88,19 +72,11 @@ class Master extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getProtocol(): string
     {
         return $this->protocol;
     }
 
-    /**
-     * @param string $protocol
-     *
-     * @return Master
-     */
     public function setProtocol(string $protocol): Master
     {
         $this->protocol = $protocol;
@@ -108,19 +84,11 @@ class Master extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getAddress(): int
     {
         return $this->address;
     }
 
-    /**
-     * @param int $address
-     *
-     * @return Master
-     */
     public function setAddress(int $address): Master
     {
         $this->address = $address;
@@ -128,19 +96,11 @@ class Master extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return DateTime|null
-     */
     public function getAdded(): ?DateTime
     {
         return $this->added;
     }
 
-    /**
-     * @param DateTime $added
-     *
-     * @return Master
-     */
     public function setAdded(DateTime $added): Master
     {
         $this->added = $added;
@@ -148,19 +108,11 @@ class Master extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return DateTime|null
-     */
     public function getModified(): ?DateTime
     {
         return $this->modified;
     }
 
-    /**
-     * @param DateTime $modified
-     *
-     * @return Master
-     */
     public function setModified(DateTime $modified): Master
     {
         $this->modified = $modified;

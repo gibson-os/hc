@@ -65,19 +65,17 @@ class NeopixelService extends AbstractHcSlave
 
     public function __construct(
         MasterService $master,
-        EventService $event,
         TransformService $transform,
+        EventService $event,
         NeopixelFormatter $formatter,
         array $attributes = []
     ) {
-        parent::__construct($master, $event, $transform, $attributes);
-        $this->ledAttribute = $this->attributes[LedAttribute::class];
+        parent::__construct($master, $transform, $event);
+        $this->ledAttribute = $attributes[LedAttribute::class];
         $this->formatter = $formatter;
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
@@ -86,8 +84,6 @@ class NeopixelService extends AbstractHcSlave
      * @throws GetError
      * @throws DeleteError
      * @throws Exception
-     *
-     * @return Module
      */
     public function handshake(Module $slave): Module
     {
@@ -131,25 +127,14 @@ class NeopixelService extends AbstractHcSlave
         return $slave;
     }
 
-    /**
-     * @param Module $slave
-     * @param int    $type
-     * @param int    $command
-     * @param string $data
-     */
     public function receive(Module $slave, int $type, int $command, string $data): void
     {
         // TODO: Implement receive() method.
     }
 
     /**
-     * @param Module $slave
-     * @param Module $existingSlave
-     *
      * @throws AbstractException
      * @throws ReceiveError
-     *
-     * @return Module
      */
     public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module
     {
@@ -204,13 +189,8 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param array  $leds
-     *
      * @throws AbstractException
      * @throws SaveError
-     *
-     * @return NeopixelService
      */
     public function writeSetLeds(Module $slave, array $leds): NeopixelService
     {
@@ -224,14 +204,8 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $channel
-     * @param int    $length
-     *
      * @throws AbstractException
      * @throws SaveError
-     *
-     * @return NeopixelService
      */
     public function writeChannel(Module $slave, int $channel, int $length = 0): NeopixelService
     {
@@ -245,15 +219,8 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $channel
-     * @param int    $startAddress
-     * @param int    $length
-     *
      * @throws AbstractException
      * @throws SaveError
-     *
-     * @return NeopixelService
      */
     public function writeChannelStatus(Module $slave, int $channel, int $startAddress, int $length): NeopixelService
     {
@@ -270,14 +237,9 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $length
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     public function readChannelStatus(Module $slave, int $length): array
     {
@@ -296,13 +258,10 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $repeat
+     * @param int $repeat
      *
      * @throws AbstractException
      * @throws SaveError
-     *
-     * @return NeopixelService
      */
     public function writeSequenceStart(Module $slave, $repeat = 255): NeopixelService
     {
@@ -312,12 +271,8 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws SaveError
-     *
-     * @return NeopixelService
      */
     public function writeSequencePause(Module $slave): NeopixelService
     {
@@ -327,13 +282,8 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $address
-     *
      * @throws AbstractException
      * @throws SaveError
-     *
-     * @return NeopixelService
      */
     public function writeSequenceEepromAddress(Module $slave, int $address): NeopixelService
     {
@@ -347,13 +297,9 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return int
      */
     public function readSequenceEepromAddress(Module $slave): int
     {
@@ -365,12 +311,8 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws SaveError
-     *
-     * @return NeopixelService
      */
     public function writeSequenceNew(Module $slave): NeopixelService
     {
@@ -380,14 +322,8 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int    $runtime
-     * @param array  $leds
-     *
      * @throws AbstractException
      * @throws SaveError
-     *
-     * @return NeopixelService
      */
     public function writeSequenceAddStep(Module $slave, int $runtime, array $leds): NeopixelService
     {
@@ -401,8 +337,6 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
@@ -425,13 +359,10 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     * @param int[]  $counts
+     * @param int[] $counts
      *
      * @throws AbstractException
      * @throws SaveError
-     *
-     * @return NeopixelService
      */
     public function writeLedCounts(Module $slave, array $counts): NeopixelService
     {
@@ -446,16 +377,12 @@ class NeopixelService extends AbstractHcSlave
         return $this;
     }
 
-    /**
-     * @return LedAttribute
-     */
     public function getLedAttribute(): LedAttribute
     {
         return $this->ledAttribute;
     }
 
     /**
-     * @param Module   $slave
      * @param string[] $data
      *
      * @return string[]
@@ -484,13 +411,9 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param Module $slave
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
     private function getConfig(Module $slave): array
     {
