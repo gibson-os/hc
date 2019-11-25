@@ -244,8 +244,14 @@ class Trigger extends AbstractModel
         return $this;
     }
 
+    /**
+     * @throws DateTimeError
+     * @throws SelectError
+     */
     public function getEvent(): Event
     {
+        $this->loadForeignRecord($this->event, $this->getEventId());
+
         return $this->event;
     }
 
@@ -259,17 +265,12 @@ class Trigger extends AbstractModel
 
     /**
      * @throws SelectError
+     * @throws DateTimeError
      */
-    public function loadEvent(): Trigger
-    {
-        $this->loadForeignRecord($this->getEvent(), $this->getEventId());
-        $this->setEvent($this->getEvent());
-
-        return $this;
-    }
-
     public function getMaster(): Master
     {
+        $this->loadForeignRecord($this->master, $this->getMasterId());
+
         return $this->master;
     }
 
@@ -282,19 +283,13 @@ class Trigger extends AbstractModel
     }
 
     /**
-     * @throws SelectError
      * @throws DateTimeError
+     * @throws SelectError
      */
-    public function loadMaster(): Trigger
-    {
-        $this->loadForeignRecord($this->getMaster(), $this->getMasterId());
-        $this->setMaster($this->getMaster());
-
-        return $this;
-    }
-
     public function getModule(): Module
     {
+        $this->loadForeignRecord($this->module, $this->getModuleId());
+
         return $this->module;
     }
 
@@ -302,18 +297,6 @@ class Trigger extends AbstractModel
     {
         $this->module = $module;
         $this->setModuleId((int) $module->getId());
-
-        return $this;
-    }
-
-    /**
-     * @throws DateTimeError
-     * @throws SelectError
-     */
-    public function loadModule(): Trigger
-    {
-        $this->loadForeignRecord($this->getModule(), $this->getModuleId());
-        $this->setModule($this->getModule());
 
         return $this;
     }

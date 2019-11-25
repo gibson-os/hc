@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTime;
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use mysqlDatabase;
@@ -146,8 +147,14 @@ class Attribute extends AbstractModel
         return $this;
     }
 
+    /**
+     * @throws DateTimeError
+     * @throws SelectError
+     */
     public function getModule(): Module
     {
+        $this->loadForeignRecord($this->module, $this->getModuleId());
+
         return $this->module;
     }
 
@@ -156,17 +163,6 @@ class Attribute extends AbstractModel
         $this->module = $module;
         $this->setModuleId($module->getId());
         $this->setTypeId($module->getTypeId());
-
-        return $this;
-    }
-
-    /**
-     * @throws SelectError
-     */
-    public function loadModule(): Attribute
-    {
-        $this->loadForeignRecord($this->getModule(), $this->getModuleId());
-        $this->setModule($this->getModule());
 
         return $this;
     }

@@ -84,7 +84,7 @@ class Element extends AbstractModel
     private $event;
 
     /**
-     * @var Element
+     * @var Element|null
      */
     private $parent;
 
@@ -103,6 +103,8 @@ class Element extends AbstractModel
         parent::__construct($database);
 
         $this->event = new Event();
+        $this->master = new Master();
+        $this->module = new Module();
     }
 
     public static function getTableName(): string
@@ -269,8 +271,14 @@ class Element extends AbstractModel
         return $this;
     }
 
+    /**
+     * @throws DateTimeError
+     * @throws SelectError
+     */
     public function getEvent(): Event
     {
+        $this->loadForeignRecord($this->event, $this->getEventId());
+
         return $this->event;
     }
 
@@ -283,18 +291,15 @@ class Element extends AbstractModel
     }
 
     /**
+     * @throws DateTimeError
      * @throws SelectError
      */
-    public function loadEvent(): Element
+    public function getParent(): ?Element
     {
-        $this->loadForeignRecord($this->getEvent(), $this->getEventId());
-        $this->setEvent($this->getEvent());
+        if ($this->parent instanceof Element) {
+            $this->loadForeignRecord($this->parent, $this->getParentId());
+        }
 
-        return $this;
-    }
-
-    public function getParent(): Element
-    {
         return $this->parent;
     }
 
@@ -308,17 +313,12 @@ class Element extends AbstractModel
 
     /**
      * @throws SelectError
+     * @throws DateTimeError
      */
-    public function loadParent(): Element
-    {
-        $this->loadForeignRecord($this->getParent(), $this->getParentId());
-        $this->setParent($this->getParent());
-
-        return $this;
-    }
-
     public function getMaster(): Master
     {
+        $this->loadForeignRecord($this->master, $this->getMasterId());
+
         return $this->master;
     }
 
@@ -331,19 +331,13 @@ class Element extends AbstractModel
     }
 
     /**
-     * @throws SelectError
      * @throws DateTimeError
+     * @throws SelectError
      */
-    public function loadMaster(): Element
-    {
-        $this->loadForeignRecord($this->getMaster(), $this->getMasterId());
-        $this->setMaster($this->getMaster());
-
-        return $this;
-    }
-
     public function getModule(): Module
     {
+        $this->loadForeignRecord($this->module, $this->getModuleId());
+
         return $this->module;
     }
 
@@ -351,17 +345,6 @@ class Element extends AbstractModel
     {
         $this->module = $module;
         $this->setModuleId((int) $module->getId());
-
-        return $this;
-    }
-
-    /**
-     * @throws SelectError
-     */
-    public function loadModule(): Element
-    {
-        $this->loadForeignRecord($this->getModule(), $this->getModuleId());
-        $this->setModule($this->getModule());
 
         return $this;
     }

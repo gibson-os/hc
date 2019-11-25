@@ -106,8 +106,14 @@ class Element extends AbstractModel
         return $this;
     }
 
+    /**
+     * @throws DateTimeError
+     * @throws SelectError
+     */
     public function getSequence(): Sequence
     {
+        $this->loadForeignRecord($this->sequence, $this->getSequenceId());
+
         return $this->sequence;
     }
 
@@ -115,19 +121,6 @@ class Element extends AbstractModel
     {
         $this->sequence = $sequence;
         $this->setSequenceId((int) $sequence->getId());
-
-        return $this;
-    }
-
-    /**
-     * @throws DateTimeError
-     * @throws SelectError
-     *
-     * @return Element
-     */
-    public function loadSequence()
-    {
-        $this->loadForeignRecord($this->getSequence(), $this->getSequenceId());
 
         return $this;
     }

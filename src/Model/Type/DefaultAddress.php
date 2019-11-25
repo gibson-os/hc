@@ -3,7 +3,11 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model\Type;
 
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Module\Hc\Model\Type;
+use mysqlDatabase;
 
 /**
  * Class Type.
@@ -21,6 +25,18 @@ class DefaultAddress extends AbstractModel
      * @var int
      */
     private $address;
+
+    /**
+     * @var Type
+     */
+    private $type;
+
+    public function __construct(mysqlDatabase $database = null)
+    {
+        parent::__construct($database);
+
+        $this->type = new Type();
+    }
 
     public static function getTableName(): string
     {
@@ -47,6 +63,25 @@ class DefaultAddress extends AbstractModel
     public function setAddress(int $address): DefaultAddress
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    /**
+     * @throws DateTimeError
+     * @throws SelectError
+     */
+    public function getType(): Type
+    {
+        $this->loadForeignRecord($this->type, $this->getTypeId());
+
+        return $this->type;
+    }
+
+    public function setType(Type $type): DefaultAddress
+    {
+        $this->type = $type;
+        $this->setTypeId($type->getId());
 
         return $this;
     }

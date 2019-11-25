@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTime;
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Event\Element;
 use GibsonOS\Module\Hc\Model\Event\Trigger;
@@ -111,10 +112,16 @@ class Event extends AbstractModel
     }
 
     /**
+     * @throws DateTimeError
+     *
      * @return Element[]
      */
     public function getElements(): array
     {
+        if ($this->elements === null) {
+            $this->loadElements();
+        }
+
         return $this->elements;
     }
 
@@ -136,7 +143,7 @@ class Event extends AbstractModel
     }
 
     /**
-     * @throws \GibsonOS\Core\Exception\DateTimeError
+     * @throws DateTimeError
      */
     public function loadElements()
     {
@@ -152,10 +159,16 @@ class Event extends AbstractModel
     }
 
     /**
+     * @throws DateTimeError
+     *
      * @return Trigger[]
      */
     public function getTriggers(): array
     {
+        if ($this->triggers === null) {
+            $this->loadTriggers();
+        }
+
         return $this->triggers;
     }
 
@@ -177,18 +190,18 @@ class Event extends AbstractModel
     }
 
     /**
-     * @throws \GibsonOS\Core\Exception\DateTimeError
+     * @throws DateTimeError
      */
     public function loadTriggers()
     {
-        /** @var Element[] $elements */
-        $elements = $this->loadForeignRecords(
+        /** @var Trigger[] $triggers */
+        $triggers = $this->loadForeignRecords(
             Trigger::class,
             $this->getId(),
             Trigger::getTableName(),
             'event_id'
         );
 
-        $this->setElements($elements);
+        $this->setTriggers($triggers);
     }
 }

@@ -13,7 +13,7 @@ use GibsonOS\Core\Model\AbstractModel;
 class Type extends AbstractModel
 {
     /**
-     * @var int|null
+     * @var int
      */
     private $id;
 
@@ -52,7 +52,7 @@ class Type extends AbstractModel
         return 'hc_type';
     }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }

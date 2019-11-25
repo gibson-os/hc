@@ -207,13 +207,7 @@ abstract class AbstractHcSlave extends AbstractSlave
 
         $this->writeAddress($slave, $address);
 
-        $oldType = $slave->getTypeId();
         $this->readTypeId($slave);
-
-        if ($oldType !== $slave->getTypeId()) {
-            $slave->loadType();
-        }
-
         $this->readHertz($slave);
         $this->readBufferSize($slave);
         $this->readEepromSize($slave);

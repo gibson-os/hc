@@ -133,15 +133,23 @@ class Sequence extends AbstractModel
         return $this;
     }
 
+    /**
+     * @throws DateTimeError
+     * @throws SelectError
+     */
     public function getTypeModel(): ?Type
     {
+        if ($this->typeModel instanceof Type) {
+            $this->loadForeignRecord($this->typeModel, $this->getTypeId());
+        }
+
         return $this->typeModel;
     }
 
     public function setTypeModel(?Type $typeModel): Sequence
     {
         $this->typeModel = $typeModel;
-        $typeId = 0;
+        $typeId = null;
 
         if ($typeModel instanceof Type) {
             $typeId = $typeModel->getId();
@@ -152,15 +160,23 @@ class Sequence extends AbstractModel
         return $this;
     }
 
+    /**
+     * @throws DateTimeError
+     * @throws SelectError
+     */
     public function getModule(): ?Module
     {
+        if ($this->module instanceof Module) {
+            $this->loadForeignRecord($this->module, $this->getModuleId());
+        }
+
         return $this->module;
     }
 
     public function setModule(?Module $module): Sequence
     {
         $this->module = $module;
-        $moduleId = 0;
+        $moduleId = null;
 
         if ($module instanceof Module) {
             $moduleId = $module->getId();
@@ -172,10 +188,16 @@ class Sequence extends AbstractModel
     }
 
     /**
+     * @throws DateTimeError
+     *
      * @return Element[]
      */
     public function getElements(): array
     {
+        if ($this->elements === null) {
+            $this->loadElements();
+        }
+
         return $this->elements;
     }
 
@@ -192,32 +214,6 @@ class Sequence extends AbstractModel
     public function addElement(Element $element): Sequence
     {
         $this->elements[] = $element;
-
-        return $this;
-    }
-
-    /**
-     * @throws SelectError
-     * @throws DateTimeError
-     */
-    public function loadType(): Sequence
-    {
-        if ($this->getTypeModel() instanceof Type) {
-            $this->loadForeignRecord($this->getTypeModel(), (string) $this->getTypeId());
-        }
-
-        return $this;
-    }
-
-    /**
-     * @throws DateTimeError
-     * @throws SelectError
-     */
-    public function loadModule(): Sequence
-    {
-        if ($this->getModule() instanceof Module) {
-            $this->loadForeignRecord($this->getModule(), (string) $this->getModuleId());
-        }
 
         return $this;
     }

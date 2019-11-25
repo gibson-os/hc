@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Module;
@@ -38,10 +39,10 @@ class Sequence extends AbstractRepository
 
     /**
      * @throws SelectError
+     * @throws DateTimeError
      */
     public static function getByName(Module $module, string $name, int $type = null): SequenceModel
     {
-        $module->loadType();
         $table = self::getTable(SequenceModel::getTableName());
         $where =
             '`name`=' . self::escape($name) . ' AND ' .
@@ -69,13 +70,13 @@ class Sequence extends AbstractRepository
     }
 
     /**
+     * @throws DateTimeError
      * @throws SelectError
      *
      * @return SequenceModel[]
      */
     public static function getByModule(Module $module, int $type = null): array
     {
-        $module->loadType();
         $table = self::getTable(SequenceModel::getTableName());
         $where =
             '`module_id`=' . self::escape((string) $module->getId()) . ' AND ' .

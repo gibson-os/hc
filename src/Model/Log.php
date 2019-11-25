@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTime;
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use mysqlDatabase;
@@ -190,8 +191,14 @@ class Log extends AbstractModel
         return $this;
     }
 
+    /**
+     * @throws SelectError
+     * @throws DateTimeError
+     */
     public function getModule(): Module
     {
+        $this->loadForeignRecord($this->module, $this->getModuleId());
+
         return $this->module;
     }
 
@@ -203,8 +210,14 @@ class Log extends AbstractModel
         return $this;
     }
 
+    /**
+     * @throws DateTimeError
+     * @throws SelectError
+     */
     public function getMaster(): Master
     {
+        $this->loadForeignRecord($this->master, $this->getMasterId());
+
         return $this->master;
     }
 
@@ -212,30 +225,6 @@ class Log extends AbstractModel
     {
         $this->master = $master;
         $this->setMasterId($master->getId());
-
-        return $this;
-    }
-
-    /**
-     * @throws SelectError
-     *
-     * @return Log
-     */
-    public function loadMaster()
-    {
-        $this->loadForeignRecord($this->getMaster(), $this->getMasterId());
-
-        return $this;
-    }
-
-    /**
-     * @throws SelectError
-     *
-     * @return Log
-     */
-    public function loadModule()
-    {
-        $this->loadForeignRecord($this->getModule(), $this->getModuleId());
 
         return $this;
     }

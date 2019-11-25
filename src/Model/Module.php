@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTime;
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use mysqlDatabase;
@@ -13,7 +14,7 @@ class Module extends AbstractModel
     const MAX_ADDRESS = 119;
 
     /**
-     * @var int|null
+     * @var int
      */
     private $id;
 
@@ -110,7 +111,7 @@ class Module extends AbstractModel
         return 'hc_module';
     }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -295,27 +296,33 @@ class Module extends AbstractModel
         return $this;
     }
 
+    /**
+     * @throws DateTimeError
+     * @throws SelectError
+     */
     public function getType(): Type
     {
+        $this->loadForeignRecord($this->type, $this->getTypeId());
+
         return $this->type;
     }
 
     public function setType(Type $type): Module
     {
         $this->type = $type;
-        $typeId = 0;
-
-        if ($type instanceof Type) {
-            $typeId = (int) $type->getId();
-        }
-
-        $this->setTypeId($typeId);
+        $this->setTypeId($type->getId());
 
         return $this;
     }
 
+    /**
+     * @throws SelectError
+     * @throws DateTimeError
+     */
     public function getMaster(): Master
     {
+        $this->loadForeignRecord($this->master, $this->getMasterId());
+
         return $this->master;
     }
 
@@ -323,30 +330,6 @@ class Module extends AbstractModel
     {
         $this->master = $master;
         $this->setMasterId($master->getId());
-
-        return $this;
-    }
-
-    /**
-     * @throws SelectError
-     *
-     * @return Module
-     */
-    public function loadType()
-    {
-        $this->loadForeignRecord($this->getType(), $this->getTypeId());
-
-        return $this;
-    }
-
-    /**
-     * @throws SelectError
-     *
-     * @return Module
-     */
-    public function loadMaster()
-    {
-        $this->loadForeignRecord($this->getMaster(), $this->getMasterId());
 
         return $this;
     }

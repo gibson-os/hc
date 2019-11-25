@@ -79,8 +79,14 @@ class Value extends AbstractModel
         return $this;
     }
 
+    /**
+     * @throws DateTimeError
+     * @throws SelectError
+     */
     public function getAttribute(): Attribute
     {
+        $this->loadForeignRecord($this->attribute, $this->getAttributeId());
+
         return $this->attribute;
     }
 
@@ -88,17 +94,6 @@ class Value extends AbstractModel
     {
         $this->attribute = $attribute;
         $this->setAttributeId((int) $attribute->getId());
-
-        return $this;
-    }
-
-    /**
-     * @throws SelectError
-     * @throws DateTimeError
-     */
-    public function loadAttribute(): Value
-    {
-        $this->loadForeignRecord($this->getAttribute(), $this->getAttributeId());
 
         return $this;
     }
