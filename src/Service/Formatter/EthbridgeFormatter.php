@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use Exception;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Model\Setting;
 use GibsonOS\Core\Service\ModuleSettingService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Constant\Ethbridge as EthbridgeConstant;
@@ -45,9 +47,13 @@ class EthbridgeFormatter extends AbstractFormatter
             case MasterService::TYPE_DATA:
                 switch ($this->transform->hexToInt($data, 0)) {
                     case EthbridgeConstant::DATA_TYPE_IR:
-                        $irProtocols = JsonUtility::decode(
-                            (string) $this->moduleSetting->getByRegistry('ethbridgeIrProtocols')->getValue()
-                        );
+                        $irProtocols = $this->moduleSetting->getByRegistry('ethbridgeIrProtocols');
+
+                        if (!$irProtocols instanceof Setting) {
+                            throw new GetError('Protokolle konnten nicht geladen werden!');
+                        }
+
+                        $irProtocols = JsonUtility::decode((string) $irProtocols->getValue());
                         $irData = $this->getIrData($log);
 
                         $irKey = $this->getIrKey(

@@ -236,10 +236,10 @@ class IoFormatter extends AbstractHcFormatter
                     '</table>';
             case IoService::COMMAND_READ_DIRECT_CONNECT:
                 if ($log->getDirection() === Log::DIRECTION_OUTPUT) {
-                    self::$directConnectReadInputPort = $this->transform->hexToInt($log->getData(), 0);
+                    $this->directConnectReadInputPort = $this->transform->hexToInt($log->getData(), 0);
                     $inputName = Value::getByTypeId(
                         $log->getModule()->getTypeId(),
-                        self::$directConnectReadInputPort,
+                        $this->directConnectReadInputPort,
                         [(int) $log->getModule()->getId()],
                         IoService::ATTRIBUTE_TYPE_PORT,
                         IoService::ATTRIBUTE_PORT_KEY_NAME
@@ -268,7 +268,7 @@ class IoFormatter extends AbstractHcFormatter
                     return null;
                 }
 
-                if (self::$directConnectReadInputPort === null) {
+                if ($this->directConnectReadInputPort === null) {
                     return null;
                 }
 
@@ -276,7 +276,7 @@ class IoFormatter extends AbstractHcFormatter
                     '<table>' .
                         $this->getDirectConnectTableRows(
                             $log,
-                            self::$directConnectReadInputPort,
+                            $this->directConnectReadInputPort,
                             $this->transform->hexToAscii($log->getData())
                         ) .
                     '</table>';
