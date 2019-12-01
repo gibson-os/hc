@@ -317,12 +317,13 @@ class IoFormatter extends AbstractHcFormatter
 
     /**
      * @throws DateTimeError
+     * @throws SelectError
      */
     private function getChangedPorts(Log $log): array
     {
         $ports = $this->getPortsAsArray($this->transform->hexToAscii($log->getData()), (int) $log->getModule()->getConfig());
 
-        if ($log->getId() === null) {
+        if ($log->getId() === 0) {
             return $ports;
         }
 

@@ -12,7 +12,7 @@ use mysqlDatabase;
 class Attribute extends AbstractModel
 {
     /**
-     * @var int|null
+     * @var int
      */
     private $id;
 
@@ -63,7 +63,7 @@ class Attribute extends AbstractModel
         return 'hc_attribute';
     }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }

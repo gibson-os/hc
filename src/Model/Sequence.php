@@ -12,7 +12,7 @@ use GibsonOS\Module\Hc\Model\Sequence\Element;
 class Sequence extends AbstractModel
 {
     /**
-     * @var int|null
+     * @var int
      */
     private $id;
 
@@ -61,12 +61,12 @@ class Sequence extends AbstractModel
         return 'hc_sequence';
     }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function setId(?int $id): Sequence
+    public function setId(int $id): Sequence
     {
         $this->id = $id;
 
