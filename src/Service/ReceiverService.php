@@ -14,7 +14,6 @@ use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Master as MasterRepository;
 use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
-use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
 class ReceiverService extends AbstractService
 {
@@ -61,7 +60,7 @@ class ReceiverService extends AbstractService
      * @throws SaveError
      * @throws SelectError
      */
-    public function receive(ProtocolInterface $protocol, AbstractHcSlave $slave): void
+    public function receive(ProtocolInterface $protocol): void
     {
         $data = $protocol->receive();
 
@@ -80,7 +79,7 @@ class ReceiverService extends AbstractService
             $this->handshake($protocol, $data);
         } else {
             $masterModel = $this->masterRepository->getByAddress($masterAddress, $protocol->getName());
-            $this->master->receive($masterModel, $slave, $type, $this->formatter->getData($data));
+            $this->master->receive($masterModel, $type, $this->formatter->getData($data));
         }
 
         // Log schreiben

@@ -12,6 +12,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
+use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
@@ -85,7 +86,7 @@ class MasterService extends AbstractService
      * @throws SelectError
      * @throws GetError
      */
-    public function receive(Master $master, AbstractHcSlave $slave, int $type, string $data): void
+    public function receive(Master $master, int $type, string $data): void
     {
         $log = (new Log())
             ->setMasterId($master->getId())
@@ -121,10 +122,15 @@ class MasterService extends AbstractService
                 $slaveModel->setName('Neues Modul');
             }
 
+            $slave = SlaveFactory::create($slaveModel->getType()->getHelper());
             $slave->handshake($slaveModel);
         } else {
             $slaveModel = $this->moduleRepository->getByAddress($address, (int) $master->getId());
-            $slave->receive($slaveModel, $type, $command, $data);
+            $slave = SlaveFactory::create($slaveModel->getType()->getHelper());
+
+            if ($slave instanceof AbstractHcSlave) {
+                $slave->receive($slaveModel, $type, $command, $data);
+            }
 
             $log
                 ->setModuleId($slaveModel->getId())
