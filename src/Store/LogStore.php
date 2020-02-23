@@ -128,46 +128,56 @@ class LogStore extends AbstractDatabaseStore
 
         foreach ($this->table->connection->fetchAssocList() as $log) {
             $logModel = (new Log())
-                ->setType($log['type'])
-                ->setModuleId($log['module_id'])
-                ->setModule(
-                    (new Module())
-                    ->setId($log['module_id'])
+                ->setType((int) $log['type'])
+                ->setData($log['data'])
+                ->setId((int) $log['id'])
+                ->setAdded(new DateTime($log['added']))
+                ->setCommand((int) $log['command'])
+                ->setDirection($log['direction'])
+                ->setSlaveAddress((int) $log['address'])
+            ;
+
+            $module = null;
+
+            if ($log['module_id']) {
+                $module = (new Module())
+                    ->setId((int) $log['module_id'])
                     ->setName($log['name'])
-                    ->setDeviceId($log['device_id'])
+                    ->setDeviceId((int) $log['device_id'])
                     ->setConfig($log['config'])
-                    ->setHertz($log['hertz'])
-                    ->setAddress($log['address'])
-                    ->setIp($log['ip'])
-                    ->setOffline($log['offline'])
-                    ->setAdded($log['module_added'])
-                    ->setModified($log['module_modifies'])
-                    ->setTypeId($log['type_id'])
+                    ->setHertz((int) $log['hertz'])
+                    ->setAddress((int) $log['address'])
+                    ->setIp((int) $log['ip'])
+                    ->setOffline((bool) $log['offline'])
+                    ->setAdded(empty($log['module_added']) ? null : new DateTime($log['module_added']))
+                    ->setModified(new DateTime(empty($log['module_modified']) ? null : $log['module_modified']))
                     ->setType(
                         (new Type())
-                        ->setId($log['type_id'])
-                        ->setName($log['type_name'])
-                        ->setHertz($log['type_hertz'])
-                        ->setNetwork($log['network'])
-                        ->setUiSettings($log['ui_settings'])
-                        ->setHelper($log['helper'])
+                            ->setId((int) $log['type_id'])
+                            ->setName($log['type_name'])
+                            ->setHertz((int) $log['type_hertz'])
+                            ->setNetwork((int) $log['network'])
+                            ->setUiSettings($log['ui_settings'])
+                            ->setHelper($log['helper'])
                     )
-                    ->setMasterId($log['master_id'])
-                    ->setMaster(
-                        (new Master())
-                        ->setName($log['name'])
-                        ->setProtocol($log['protocol'])
-                        ->setAddress($log['address'])
-                    )
-                )
-                ->setData($log['data'])
-                ->setId($log['id'])
-                ->setAdded($log['added'])
-                ->setCommand($log['command'])
-                ->setDirection($log['direction'])
-                ->setMasterId($log['master_id'])
-                ->setSlaveAddress($log['address'])
-            ;
+                ;
+                $logModel->setModule($module);
+            }
+
+            if ($log['master_id']) {
+                $master = (new Master())
+                    ->setId((int) $log['master_id'])
+                    ->setName($log['master_name'])
+                    ->setProtocol($log['master_protocol'])
+                    ->setAddress((int) $log['master_address'])
+                ;
+                $logModel->setMaster($master);
+
+                if ($module instanceof Module) {
+                    $logModel->getModule()->setMaster($master);
+                }
+            }
+
             $formatter = FormatterFactory::create($logModel);
 
             $data[] = [
