@@ -58,7 +58,7 @@ class LogStore extends AbstractDatabaseStore
 
     public function setTypes(array $types): LogStore
     {
-        if (!empty($types)) {
+        if (empty($types)) {
             unset($this->where['types']);
 
             return $this;
