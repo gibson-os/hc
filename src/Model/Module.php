@@ -14,7 +14,7 @@ class Module extends AbstractModel
     const MAX_ADDRESS = 119;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $id;
 
@@ -111,7 +111,7 @@ class Module extends AbstractModel
         return 'hc_module';
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -310,7 +310,7 @@ class Module extends AbstractModel
     public function setType(Type $type): Module
     {
         $this->type = $type;
-        $this->setTypeId($type->getId());
+        $this->setTypeId((int) $type->getId());
 
         return $this;
     }

@@ -11,7 +11,7 @@ class Master extends AbstractModel
     const PROTOCOL_UDP = 'udp';
 
     /**
-     * @var int
+     * @var int|null
      */
     private $id;
 
@@ -45,7 +45,7 @@ class Master extends AbstractModel
         return 'hc_master';
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

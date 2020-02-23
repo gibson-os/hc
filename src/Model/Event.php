@@ -12,7 +12,7 @@ use GibsonOS\Module\Hc\Model\Event\Trigger;
 class Event extends AbstractModel
 {
     /**
-     * @var int
+     * @var int|null
      */
     private $id;
 
@@ -51,7 +51,7 @@ class Event extends AbstractModel
         return 'hc_event';
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

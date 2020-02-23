@@ -16,7 +16,7 @@ class Log extends AbstractModel
     public const DIRECTION_OUTPUT = 'output';
 
     /**
-     * @var int
+     * @var int|null
      */
     private $id;
 
@@ -83,7 +83,7 @@ class Log extends AbstractModel
         return 'hc_log';
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

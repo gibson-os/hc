@@ -329,7 +329,7 @@ class IoFormatter extends AbstractHcFormatter
 
         try {
             $lastData = LogRepository::getPreviewEntryByModuleId(
-                $log->getId(),
+                (int) $log->getId(),
                 (int) $log->getModule()->getId(),
                 $log->getCommand(),
                 $log->getType(),

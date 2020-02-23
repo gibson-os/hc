@@ -14,7 +14,7 @@ use mysqlDatabase;
 class Element extends AbstractModel
 {
     /**
-     * @var int
+     * @var int|null
      */
     private $id;
 
@@ -112,7 +112,7 @@ class Element extends AbstractModel
         return 'hc_event_element';
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -285,7 +285,7 @@ class Element extends AbstractModel
     public function setEvent(Event $event): Element
     {
         $this->event = $event;
-        $this->setEventId($event->getId());
+        $this->setEventId((int) $event->getId());
 
         return $this;
     }
@@ -306,7 +306,7 @@ class Element extends AbstractModel
     public function setParent(Element $parent): Element
     {
         $this->parent = $parent;
-        $this->setParentId($parent->getId());
+        $this->setParentId((int) $parent->getId());
 
         return $this;
     }

@@ -81,7 +81,7 @@ class DefaultAddress extends AbstractModel
     public function setType(Type $type): DefaultAddress
     {
         $this->type = $type;
-        $this->setTypeId($type->getId());
+        $this->setTypeId((int) $type->getId());
 
         return $this;
     }

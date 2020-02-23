@@ -12,7 +12,7 @@ use GibsonOS\Module\Hc\Model\Sequence;
 class Element extends AbstractModel
 {
     /**
-     * @var int
+     * @var int|null
      */
     private $id;
 

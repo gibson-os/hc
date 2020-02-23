@@ -14,7 +14,7 @@ use mysqlDatabase;
 class Trigger extends AbstractModel
 {
     /**
-     * @var int
+     * @var int|null
      */
     private $id;
 
@@ -100,7 +100,7 @@ class Trigger extends AbstractModel
         return 'hc_event_trigger';
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -258,7 +258,7 @@ class Trigger extends AbstractModel
     public function setEvent(Event $event): Trigger
     {
         $this->event = $event;
-        $this->setEventId($event->getId());
+        $this->setEventId((int) $event->getId());
 
         return $this;
     }
