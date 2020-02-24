@@ -204,7 +204,7 @@ class LedService
             (new ValueModel())
                 ->setAttribute($this->getLedAttribute($slave, $id, $attribute))
                 ->setOrder(0)
-                ->setValue($value)
+                ->setValue((string) $value)
                 ->save()
             ;
         }

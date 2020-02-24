@@ -92,7 +92,6 @@ class UdpService extends AbstractService implements ProtocolInterface
     {
         $udpSendService = new CoreUdpService($this->serverIp, self::SEND_PORT);
         $udpSendService->setTimeout(10);
-        echo 'Send Data: ' . $data . PHP_EOL;
         $udpSendService->send(chr($type) . $data, $this->subnet . '.' . $address, self::SEND_PORT);
         $udpSendService->close();
     }
