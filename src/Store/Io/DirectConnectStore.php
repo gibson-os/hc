@@ -83,15 +83,12 @@ class DirectConnectStore extends AbstractDatabaseStore
         return '`hc_attribute`.`sub_id`';
     }
 
-    /**
-     * @param int $moduleId
-     */
-    public function setModule($moduleId): DirectConnectStore
+    public function setModule(int $moduleId): DirectConnectStore
     {
         if ($moduleId === 0) {
             unset($this->where['moduleId']);
         } else {
-            $this->where['moduleId'] = '`hc_attribute`.`module_id`=' . $this->database->escape($moduleId);
+            $this->where['moduleId'] = '`hc_attribute`.`module_id`=' . $moduleId;
         }
 
         $this->moduleId = $moduleId;

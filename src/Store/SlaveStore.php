@@ -69,7 +69,7 @@ class SlaveStore extends AbstractDatabaseStore
             return $this;
         }
 
-        $this->where['masterId'] = '`' . $this->getTableName() . '`.`master_id`=' . $this->database->escape($masterId);
+        $this->where['masterId'] = '`' . $this->getTableName() . '`.`master_id`=' . $masterId;
 
         return $this;
     }

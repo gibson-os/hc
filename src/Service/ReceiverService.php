@@ -94,10 +94,12 @@ class ReceiverService extends AbstractService
      */
     private function handshake(ProtocolInterface $protocol, string $data): void
     {
+        $cleanData = $this->formatter->getData($data);
+
         try {
-            $masterModel = $this->masterRepository->getByName($data, $protocol->getName());
+            $masterModel = $this->masterRepository->getByName($cleanData, $protocol->getName());
         } catch (SelectError $exception) {
-            $masterModel = $this->masterRepository->add($data, $protocol->getName());
+            $masterModel = $this->masterRepository->add($cleanData, $protocol->getName());
         }
 
         $address = $masterModel->getAddress();
@@ -106,7 +108,7 @@ class ReceiverService extends AbstractService
         (new Log())
             ->setMasterId((int) $masterModel->getId())
             ->setType(MasterService::TYPE_HANDSHAKE)
-            ->setData($this->transform->asciiToHex((string) $this->formatter->getData($data)))
+            ->setData($this->transform->asciiToHex($cleanData))
             ->setDirection(Log::DIRECTION_INPUT)
             ->save();
 

@@ -20,15 +20,12 @@ class LogStore extends AbstractDatabaseStore
         return 'hc_log';
     }
 
-    /**
-     * @param int $masterId
-     */
-    public function setMasterId($masterId): LogStore
+    public function setMasterId(int $masterId): LogStore
     {
         if ($masterId === 0) {
             unset($this->where['masterId']);
         } else {
-            $this->where['masterId'] = '`' . $this->getTableName() . '`.`master_id`=' . $this->database->escape($masterId);
+            $this->where['masterId'] = '`' . $this->getTableName() . '`.`master_id`=' . $masterId;
         }
 
         return $this;
@@ -39,7 +36,7 @@ class LogStore extends AbstractDatabaseStore
         if ($moduleId === 0) {
             unset($this->where['moduleId']);
         } else {
-            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $this->database->escape($moduleId);
+            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $moduleId;
         }
 
         return $this;

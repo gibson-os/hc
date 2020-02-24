@@ -61,15 +61,12 @@ class LedStore extends AbstractDatabaseStore
         return '`' . $this->getTableName() . '`.`sub_id`';
     }
 
-    /**
-     * @param int $moduleId
-     */
-    public function setModule($moduleId): LedStore
+    public function setModule(int $moduleId): LedStore
     {
         if ($moduleId === 0) {
             unset($this->where['moduleId']);
         } else {
-            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $this->database->escape($moduleId);
+            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $moduleId;
         }
 
         return $this;

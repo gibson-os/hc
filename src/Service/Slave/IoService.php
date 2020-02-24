@@ -234,11 +234,10 @@ class IoService extends AbstractHcSlave
     /**
      * @throws SaveError
      * @throws DateTimeError
+     * @throws SelectError
      */
     public function receive(Module $slave, int $type, int $command, string $data): void
     {
-        parent::receive($slave, $type, $command, $data);
-
         foreach ($this->formatter->getPortsAsArray($data, (int) $slave->getConfig()) as $number => $port) {
             $this->updatePortAttributes($slave, $number, $port);
         }
@@ -333,6 +332,8 @@ class IoService extends AbstractHcSlave
     /**
      * @throws DateTimeError
      * @throws SaveError
+     * @throws SelectError
+     * @throws Exception
      */
     private function updatePortAttributes(Module $slave, int $number, array $data): bool
     {

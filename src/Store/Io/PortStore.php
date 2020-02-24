@@ -69,15 +69,12 @@ class PortStore extends AbstractDatabaseStore
         return '`' . $this->getTableName() . '`.`sub_id`';
     }
 
-    /**
-     * @param int $moduleId
-     */
-    public function setModule($moduleId): PortStore
+    public function setModule(int $moduleId): PortStore
     {
         if ($moduleId === 0) {
             unset($this->where['moduleId']);
         } else {
-            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $this->database->escape($moduleId);
+            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $moduleId;
         }
 
         return $this;

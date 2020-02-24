@@ -33,7 +33,7 @@ class ImageStore extends AbstractDatabaseStore
      */
     public function getList(): array
     {
-        $this->where[] = '`' . $this->getTableName() . '`.`type`=' . $this->database->escape(ImageService::SEQUENCE_TYPE);
+        $this->where[] = '`' . $this->getTableName() . '`.`type`=' . ImageService::SEQUENCE_TYPE;
 
         $this->table->appendJoinLeft(
             '`gibson_os`.`' . Sequence\Element::getTableName() . '`',
@@ -67,7 +67,7 @@ class ImageStore extends AbstractDatabaseStore
         if ($slaveId === 0) {
             unset($this->where['moduleId']);
         } else {
-            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $this->database->escape($slaveId);
+            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $slaveId;
         }
 
         return $this;

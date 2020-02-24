@@ -32,7 +32,7 @@ class AnimationStore extends AbstractDatabaseStore
      */
     public function getList(): array
     {
-        $this->where[] = '`' . $this->getTableName() . '`.`type`=' . $this->database->escape(AnimationService::SEQUENCE_TYPE);
+        $this->where[] = '`' . $this->getTableName() . '`.`type`=' . AnimationService::SEQUENCE_TYPE;
 
         $this->table->setWhere($this->getWhere());
         $this->table->setOrderBy('`' . $this->getTableName() . '`.`name` ASC');
@@ -59,7 +59,7 @@ class AnimationStore extends AbstractDatabaseStore
         if ($slaveId === 0) {
             unset($this->where['moduleId']);
         } else {
-            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $this->database->escape($slaveId);
+            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $slaveId;
         }
 
         return $this;
