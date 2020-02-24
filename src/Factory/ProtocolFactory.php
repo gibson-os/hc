@@ -21,6 +21,6 @@ class ProtocolFactory
             throw new FileNotFound('Protokoll ' . $protocolName . ' nicht gefunden!');
         }
 
-        return new $className();
+        return $className::create();
     }
 }

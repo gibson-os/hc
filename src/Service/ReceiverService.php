@@ -104,14 +104,6 @@ class ReceiverService extends AbstractService
 
         $address = $masterModel->getAddress();
         $masterModel->setAddress($this->formatter->getMasterAddress($data));
-
-        (new Log())
-            ->setMasterId((int) $masterModel->getId())
-            ->setType(MasterService::TYPE_HANDSHAKE)
-            ->setData($this->transform->asciiToHex($cleanData))
-            ->setDirection(Log::DIRECTION_INPUT)
-            ->save();
-
-        $masterModel->setAddress($address);
+        $this->master->setAddress($masterModel, $address);
     }
 }

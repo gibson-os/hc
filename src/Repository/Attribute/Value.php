@@ -70,13 +70,14 @@ class Value extends AbstractRepository
 
         foreach ($attributes as $attribute) {
             $attributeModel = (new AttributeModel())
-                ->setId($attribute->id)
-                ->setTypeId($attribute->type_id)
-                ->setModuleId($attribute->module_id)
-                ->setSubId($attribute->sub_id)
+                ->setId((int) $attribute->id)
+                ->setTypeId(empty($attribute->type_id) ? null : (int) $attribute->type_id)
+                ->setModuleId(empty($attribute->module_id) ? null : (int) $attribute->module_id)
+                ->setSubId(empty($attribute->sub_id) ? null : (int) $attribute->sub_id)
                 ->setKey($attribute->key)
                 ->setType($attribute->type)
-                ->setAdded(new DateTime($attribute->added));
+                ->setAdded(new DateTime($attribute->added))
+            ;
 
             $orders = explode($separator, $attribute->orders);
 

@@ -145,14 +145,12 @@ class UdpService extends AbstractService implements ProtocolInterface
         try {
             $data = $udpSendService->receive(2);
         } catch (ReceiveError $exception) {
-            $udpSendService->close();
-
             throw new ReceiveError('Empfangsbestätigung nicht erhalten!');
+        } finally {
+            $udpSendService->close();
         }
 
-        $udpSendService->close();
-
-        if ($data != chr($address) . chr(MasterService::TYPE_RECEIVE_RETURN)) {
+        if ($data !== chr($address) . chr(MasterService::TYPE_RECEIVE_RETURN)) {
             throw new ReceiveError('Empfangsbestätigung nicht erhalten!');
         }
     }

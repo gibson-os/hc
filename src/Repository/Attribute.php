@@ -56,13 +56,14 @@ class Attribute extends AbstractRepository
 
         foreach ($table->connection->fetchObjectList() as $attribute) {
             $models[] = (new AttributeModel())
-                ->setId($attribute->id)
-                ->setTypeId($attribute->type_id)
-                ->setModuleId($attribute->module_id)
-                ->setSubId($attribute->sub_id)
+                ->setId((int) $attribute->id)
+                ->setTypeId(empty($attribute->type_id) ? null : (int) $attribute->type_id)
+                ->setModuleId(empty($attribute->module_id) ? null : (int) $attribute->module_id)
+                ->setSubId(empty($attribute->sub_id) ? null : (int) $attribute->sub_id)
                 ->setKey($attribute->key)
                 ->setType($attribute->type)
-                ->setAdded(new DateTime($attribute->added));
+                ->setAdded(new DateTime($attribute->added))
+            ;
         }
 
         return $models;
@@ -83,7 +84,8 @@ class Attribute extends AbstractRepository
             ->setModule($module)
             ->setType($type)
             ->setSubId($subId)
-            ->setKey($key);
+            ->setKey($key)
+        ;
         $attribute->save();
 
         foreach ($values as $order => $value) {
@@ -91,7 +93,8 @@ class Attribute extends AbstractRepository
                 ->setAttribute($attribute)
                 ->setValue($value)
                 ->setOrder($order)
-                ->save();
+                ->save()
+            ;
         }
     }
 
@@ -101,7 +104,8 @@ class Attribute extends AbstractRepository
 
         $where =
             '`module_id`=' . self::escape((string) $module->getId()) . ' AND ' .
-            '`type_id`=' . self::escape((string) $module->getTypeId());
+            '`type_id`=' . self::escape((string) $module->getTypeId())
+        ;
 
         if ($type !== null) {
             $where .= ' AND `type`=' . self::escape($type);
@@ -134,7 +138,8 @@ class Attribute extends AbstractRepository
 
         $where =
             '`type_id`=' . self::escape((string) $module->getTypeId()) . ' AND ' .
-            '`module_id`=' . self::escape((string) $module->getId());
+            '`module_id`=' . self::escape((string) $module->getId())
+        ;
 
         if (null !== $subId) {
             $where .= ' AND `sub_id`>' . self::escape((string) $subId);
