@@ -18,8 +18,9 @@ class Module extends AbstractRepository
     const MAX_GENERATE_DEVICE_ID_RETRY = 10;
 
     /**
-     * @throws SelectError
      * @throws DateTimeError
+     * @throws GetError
+     * @throws SelectError
      *
      * @return ModuleModel[]
      */
@@ -28,7 +29,7 @@ class Module extends AbstractRepository
         $tableName = ModuleModel::getTableName();
         $table = self::getTable($tableName);
 
-        $where = '`name` LIKE \'' . self::escape($name) . '%\'';
+        $where = '`name` LIKE \'' . self::escapeWithoutQuotes($name) . '%\'';
 
         if ($typeId !== null) {
             $where .= ' AND `type_id`=' . $typeId;
@@ -56,6 +57,7 @@ class Module extends AbstractRepository
 
     /**
      * @throws DateTimeError
+     * @throws GetError
      *
      * @return ModuleModel[]
      */
@@ -81,6 +83,7 @@ class Module extends AbstractRepository
 
     /**
      * @throws DateTimeError
+     * @throws GetError
      * @throws SelectError
      */
     public static function getByDeviceId(int $deviceId): ModuleModel
@@ -104,6 +107,7 @@ class Module extends AbstractRepository
 
     /**
      * @throws DateTimeError
+     * @throws GetError
      * @throws SelectError
      */
     public static function getById(int $id): ModuleModel
@@ -127,6 +131,7 @@ class Module extends AbstractRepository
 
     /**
      * @throws DateTimeError
+     * @throws GetError
      * @throws SelectError
      */
     public static function getByAddress(int $address, int $masterId): ModuleModel

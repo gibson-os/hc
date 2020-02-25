@@ -91,24 +91,21 @@ class Type extends AbstractRepository
     }
 
     /**
-     * @param string $name
-     * @param bool   $onlyHcSlave
-     *
      * @throws DateTimeError
      * @throws GetError
      * @throws SelectError
      *
      * @return TypeModel[]
      */
-    public static function findByName($name, $onlyHcSlave = false, string $network = null): array
+    public static function findByName(string $name, bool $getHcSlaves = null, string $network = null): array
     {
         $tableName = TypeModel::getTableName();
         $table = self::getTable($tableName);
 
-        $where = '`name` LIKE \'' . self::escape($name) . '%\'';
+        $where = '`name` LIKE \'' . self::escapeWithoutQuotes($name) . '%\'';
 
-        if ($onlyHcSlave) {
-            $where .= ' AND `is_hc_slave`=1';
+        if ($getHcSlaves !== null) {
+            $where .= ' AND `is_hc_slave`=' . ($getHcSlaves ? 1 : 0);
         }
 
         if ($network !== null) {
