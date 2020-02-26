@@ -184,34 +184,35 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     private function handshakeNewDevice(Module $slave): Module
     {
-        $deviceId = $this->readDeviceId($slave);
+        $slave->setDeviceId($this->readDeviceId($slave));
         $setAddress = $slave->getAddress();
 
         try {
-            $slave = ModuleRepository::getByDeviceId($deviceId);
+            $slave = ModuleRepository::getByDeviceId((int) $slave->getDeviceId());
         } catch (SelectError $exception) {
-            $slave->setDeviceId($deviceId);
-
             if (
-                $deviceId == 0 ||
-                $deviceId > self::MAX_DEVICE_ID
+                $slave->getDeviceId() == 0 ||
+                $slave->getDeviceId() > self::MAX_DEVICE_ID
             ) {
-                $this->writeDeviceId($slave, ModuleRepository::getFreeDeviceId());
+                $deviceId = ModuleRepository::getFreeDeviceId();
+                $this->writeDeviceId($slave, $deviceId);
+                $slave->setDeviceId($deviceId);
             }
 
             $slave->setAddress(Master::getNextFreeAddress((int) $slave->getMaster()->getId()));
         }
 
-        $address = (int) $slave->getAddress();
-        $slave->setAddress($setAddress);
+        if ($setAddress !== $slave->getAddress()) {
+            $address = (int) $slave->getAddress();
+            $slave->setAddress($setAddress);
 
-        $this->writeAddress($slave, $address);
+            $this->writeAddress($slave, $address);
+        }
 
-        $this->readTypeId($slave);
-        $this->readHertz($slave);
-        $this->readBufferSize($slave);
-        $this->readEepromSize($slave);
-        $this->readPwmSpeed($slave);
+        $slave->setHertz($this->readHertz($slave));
+        $slave->setBufferSize($this->readBufferSize($slave));
+        $slave->setEepromSize($this->readEepromSize($slave));
+        $slave->setPwmSpeed($this->readPwmSpeed($slave));
 
         return $slave;
     }
@@ -232,22 +233,40 @@ abstract class AbstractHcSlave extends AbstractSlave
             ->setType(MasterService::TYPE_SLAVE_IS_HC)
             ->setData(dechex((int) $slave->getAddress()))
             ->setDirection(Log::DIRECTION_OUTPUT)
-            ->save();
+            ->save()
+        ;
 
-        if (empty($slave->getHertz())) {
-            $this->readHertz($slave);
-        }
+        $deviceId = $this->readDeviceId($slave);
 
-        if (empty($slave->getBufferSize())) {
-            $this->readBufferSize($slave);
-        }
+        if ($deviceId !== $slave->getDeviceId()) {
+            $slave->setDeviceId($deviceId);
+            $slave->setHertz($this->readHertz($slave));
+            $slave->setBufferSize($this->readBufferSize($slave));
+            $slave->setEepromSize($this->readEepromSize($slave));
+            $slave->setPwmSpeed($this->readPwmSpeed($slave));
+            $typeId = $this->readTypeId($slave);
 
-        if (empty($slave->getEepromSize())) {
-            $this->readEepromSize($slave);
-        }
+            if ($typeId !== $slave->getTypeId()) {
+                $slave->setTypeId($typeId);
+                $slaveService = SlaveFactory::create($slave->getType()->getHelper());
+                $slaveService->handshake($slave);
+            }
+        } else {
+            if (empty($slave->getHertz())) {
+                $slave->setHertz($this->readHertz($slave));
+            }
 
-        if (empty($slave->getPwmSpeed())) {
-            $this->readPwmSpeed($slave);
+            if (empty($slave->getBufferSize())) {
+                $slave->setBufferSize($this->readBufferSize($slave));
+            }
+
+            if (empty($slave->getEepromSize())) {
+                $slave->setEepromSize($this->readEepromSize($slave));
+            }
+
+            if (empty($slave->getPwmSpeed())) {
+                $slave->setPwmSpeed($this->readPwmSpeed($slave));
+            }
         }
     }
 
@@ -316,7 +335,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             chr($deviceId >> 8) . chr($deviceId & 255)
         );
 
-        $this->event->fire(HcService::AFTER_WRITE_ADDRESS, ['slave' => $slave, 'newDeviceId' => $deviceId]);
+        $this->event->fire(HcService::AFTER_WRITE_DEVICE_ID, ['slave' => $slave, 'newDeviceId' => $deviceId]);
     }
 
     /**

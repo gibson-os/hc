@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service;
 
 use DateTime;
+use Exception;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FileNotFound;
@@ -19,6 +20,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Module as ModuleRepository;
 use GibsonOS\Module\Hc\Repository\Type;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
+use GibsonOS\Module\Hc\Service\Slave\BlankService;
 
 class MasterService extends AbstractService
 {
@@ -92,7 +94,8 @@ class MasterService extends AbstractService
             ->setMasterId($master->getId())
             ->setType($type)
             ->setData($this->transform->asciiToHex($data))
-            ->setDirection(Log::DIRECTION_INPUT);
+            ->setDirection(Log::DIRECTION_INPUT)
+        ;
 
         $address = $this->transform->asciiToInt($data, 0);
         $command = $this->transform->asciiToInt($data, 1);
@@ -109,17 +112,27 @@ class MasterService extends AbstractService
                 $slaveModel = $this->moduleRepository->getByAddress($address, (int) $master->getId());
             } catch (SelectError $exception) {
                 $slaveModel = (new Module())
+                    ->setName('Neues Modul')
                     ->setAddress($address)
                     ->setMaster($master)
                 ;
 
                 try {
-                    $slaveModel->setType($this->typeRepository->getByDefaultAddress($address));
+                    $slaveType = $this->typeRepository->getByDefaultAddress($address);
+                    echo 'get by default address' . PHP_EOL;
                 } catch (SelectError $e) {
-                    $slaveModel->setType($this->typeRepository->getById(255));
+                    $slaveType = $this->typeRepository->getById(255);
+                    /** @var BlankService $defaultSlave */
+                    $defaultSlave = SlaveFactory::create($slaveType->getHelper());
+
+                    try {
+                        echo 'read type' . PHP_EOL;
+                        $slaveType = $this->typeRepository->getById($defaultSlave->readTypeId($slaveModel));
+                    } catch (Exception $exception) {
+                    }
                 }
 
-                $slaveModel->setName('Neues Modul');
+                $slaveModel->setType($slaveType);
             }
 
             $slave = SlaveFactory::create($slaveModel->getType()->getHelper());
