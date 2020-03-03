@@ -76,7 +76,7 @@ class Module extends AbstractModel
     /**
      * @var bool
      */
-    private $offline;
+    private $offline = false;
 
     /**
      * @var DateTime|null

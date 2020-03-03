@@ -38,7 +38,7 @@ class Type extends AbstractModel
     private $hertz;
 
     /**
-     * @var int
+     * @var bool
      */
     private $isHcSlave;
 
@@ -112,12 +112,12 @@ class Type extends AbstractModel
         return $this;
     }
 
-    public function getisHcSlave(): int
+    public function getIsHcSlave(): bool
     {
         return $this->isHcSlave;
     }
 
-    public function setIsHcSlave(int $isHcSlave): Type
+    public function setIsHcSlave(bool $isHcSlave): Type
     {
         $this->isHcSlave = $isHcSlave;
 

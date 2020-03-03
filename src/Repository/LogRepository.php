@@ -4,25 +4,34 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Repository;
 
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
-use GibsonOS\Module\Hc\Model\Log as LogModel;
+use GibsonOS\Module\Hc\Model\Log;
 
-class Log extends AbstractRepository
+class LogRepository extends AbstractRepository
 {
+    public function create(int $type, string $data, string $direction): Log
+    {
+        return (new Log())
+            ->setType($type)
+            ->setData($data)
+            ->setDirection($direction)
+        ;
+    }
+
     /**
      * @throws DateTimeError
      * @throws SelectError
-     *
-     * @return LogModel
+     * @throws GetError
      */
     public static function getLastEntryByModuleId(
         int $moduleId,
         int $command = null,
         int $type = null,
         string $direction = null
-    ) {
-        $table = self::getTable(LogModel::getTableName());
+    ): Log {
+        $table = self::getTable(Log::getTableName());
         $table->setWhere('`module_id`=' . $moduleId . self::completeWhere($command, $type, $direction));
         $table->setLimit(1);
         $table->setOrderBy('`id` DESC');
@@ -34,17 +43,17 @@ class Log extends AbstractRepository
             throw $exception;
         }
 
-        $model = new LogModel();
+        $model = new Log();
         $model->loadFromMysqlTable($table);
 
         return $model;
     }
 
     /**
+     *@throws SelectError
      * @throws DateTimeError
-     * @throws SelectError
      *
-     * @return LogModel
+     * @return Log
      */
     public static function getLastEntryByMasterId(
         int $masterId,
@@ -52,7 +61,7 @@ class Log extends AbstractRepository
         int $type = null,
         string $direction = null
     ) {
-        $table = self::getTable(LogModel::getTableName());
+        $table = self::getTable(Log::getTableName());
         $table->setWhere('`master_id`=' . $masterId . self::completeWhere($command, $type, $direction));
         $table->setLimit(1);
         $table->setOrderBy('`id` DESC');
@@ -64,7 +73,7 @@ class Log extends AbstractRepository
             throw $exception;
         }
 
-        $model = new LogModel();
+        $model = new Log();
         $model->loadFromMysqlTable($table);
 
         return $model;
@@ -93,10 +102,10 @@ class Log extends AbstractRepository
     }
 
     /**
+     *@throws DateTimeError
      * @throws SelectError
-     * @throws DateTimeError
      *
-     * @return LogModel
+     * @return Log
      */
     public static function getPreviewEntryByModuleId(
         int $id,
@@ -105,7 +114,7 @@ class Log extends AbstractRepository
         int $type = null,
         string $direction = null
     ) {
-        $table = self::getTable(LogModel::getTableName());
+        $table = self::getTable(Log::getTableName());
         $table->setWhere(
             '`id`<' . self::escape((string) $id) . ' AND ' .
             '`module_id`=' . self::escape((string) $moduleId) .
@@ -121,7 +130,7 @@ class Log extends AbstractRepository
             throw $exception;
         }
 
-        $model = new LogModel();
+        $model = new Log();
         $model->loadFromMysqlTable($table);
 
         return $model;

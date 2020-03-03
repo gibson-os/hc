@@ -8,7 +8,10 @@ use GibsonOS\Module\Hc\Factory\Attribute\Neopixel\LedFactory;
 use GibsonOS\Module\Hc\Factory\EventFactory;
 use GibsonOS\Module\Hc\Factory\Formatter\NeopixelFactory as NeopixelFormatterFactory;
 use GibsonOS\Module\Hc\Factory\MasterFactory;
+use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Factory\TransformFactory;
+use GibsonOS\Module\Hc\Repository\ModuleRepository;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 
 class NeopixelFactory extends AbstractSingletonFactory
@@ -20,7 +23,10 @@ class NeopixelFactory extends AbstractSingletonFactory
             TransformFactory::create(),
             EventFactory::create(),
             NeopixelFormatterFactory::create(),
-            LedFactory::create()
+            LedFactory::create(),
+            new ModuleRepository(),
+            new TypeRepository(),
+            SlaveFactory::create()
         );
     }
 

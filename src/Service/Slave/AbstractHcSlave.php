@@ -10,15 +10,16 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Module\Hc\Factory\SlaveFactory as SlaveFactory;
+use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Repository\Master;
-use GibsonOS\Module\Hc\Repository\Module as ModuleRepository;
+use GibsonOS\Module\Hc\Repository\ModuleRepository;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Event\Describer\HcService;
 use GibsonOS\Module\Hc\Service\EventService;
-use GibsonOS\Module\Hc\Service\MasterService as MasterService;
+use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 
 abstract class AbstractHcSlave extends AbstractSlave
@@ -148,14 +149,38 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     protected $event;
 
+    /**
+     * @var ModuleRepository
+     */
+    private $moduleRepository;
+
+    /**
+     * @var TypeRepository
+     */
+    private $typeRepository;
+
+    /**
+     * @var SlaveFactory
+     */
+    private $slaveFactory;
+
     abstract public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module;
 
     abstract public function receive(Module $slave, int $type, int $command, string $data): void;
 
-    public function __construct(MasterService $master, TransformService $transform, EventService $event)
-    {
+    public function __construct(
+        MasterService $master,
+        TransformService $transform,
+        EventService $event,
+        ModuleRepository $moduleRepository,
+        TypeRepository $typeRepository,
+        SlaveFactory $slaveFactory
+    ) {
         parent::__construct($master, $transform);
         $this->event = $event;
+        $this->moduleRepository = $moduleRepository;
+        $this->typeRepository = $typeRepository;
+        $this->slaveFactory = $slaveFactory;
     }
 
     /**
@@ -167,46 +192,31 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function handshake(Module $slave): Module
     {
-        if ($slave->getId() !== null) {
-            $this->handshakeExistingDevice($slave);
+        $typeId = $this->readTypeId($slave);
+
+        if ($typeId !== $slave->getTypeId()) {
+            $slave->setType($this->typeRepository->getById($typeId));
+            $this->slaveFactory->get($slave->getType()->getHelper())
+                ->handshake($slave)
+            ;
 
             return $slave;
         }
 
-        return $this->handshakeNewDevice($slave);
-    }
+        $deviceId = $this->readDeviceId($slave);
 
-    /**
-     * @throws AbstractException
-     * @throws GetError
-     * @throws ReceiveError
-     * @throws SelectError
-     */
-    private function handshakeNewDevice(Module $slave): Module
-    {
-        $slave->setDeviceId($this->readDeviceId($slave));
-        $setAddress = $slave->getAddress();
-
-        try {
-            $slave = ModuleRepository::getByDeviceId((int) $slave->getDeviceId());
-        } catch (SelectError $exception) {
-            if (
-                $slave->getDeviceId() == 0 ||
-                $slave->getDeviceId() > self::MAX_DEVICE_ID
-            ) {
-                $deviceId = ModuleRepository::getFreeDeviceId();
-                $this->writeDeviceId($slave, $deviceId);
+        if (
+            $deviceId !== $slave->getDeviceId() ||
+            $slave->getId() === null
+        ) {
+            try {
+                $slave = $this->moduleRepository->getByDeviceId($deviceId);
+            } catch (SelectError $e) {
                 $slave->setDeviceId($deviceId);
+                $slave = $this->handshakeNewSlave($slave);
             }
-
-            $slave->setAddress(Master::getNextFreeAddress((int) $slave->getMaster()->getId()));
-        }
-
-        if ($setAddress !== $slave->getAddress()) {
-            $address = (int) $slave->getAddress();
-            $slave->setAddress($setAddress);
-
-            $this->writeAddress($slave, $address);
+        } else {
+            $slave = $this->handshakeExistingSlave($slave);
         }
 
         $slave->setHertz($this->readHertz($slave));
@@ -219,55 +229,48 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws GetError
      * @throws ReceiveError
-     * @throws SaveError
-     * @throws DateTimeError
+     * @throws SelectError
      */
-    private function handshakeExistingDevice(Module $slave): void
+    private function handshakeNewSlave(Module $slave): Module
+    {
+        if (
+            $slave->getDeviceId() === 0 ||
+            $slave->getDeviceId() > self::MAX_DEVICE_ID
+        ) {
+            $deviceId = $this->moduleRepository->getFreeDeviceId();
+            $this->writeDeviceId($slave, $deviceId);
+            $slave->setDeviceId($deviceId);
+        }
+
+        $this->writeAddress($slave, Master::getNextFreeAddress((int) $slave->getMaster()->getId()));
+
+        return $slave;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws DateTimeError
+     * @throws FileNotFound
+     * @throws GetError
+     * @throws SaveError
+     * @throws SelectError
+     */
+    private function handshakeExistingSlave(Module $slave): Module
     {
         $this->master->send($slave->getMaster(), MasterService::TYPE_SLAVE_IS_HC, chr((int) $slave->getAddress()));
         $this->master->receiveReceiveReturn($slave->getMaster());
 
-        (new Log())
+        /*(new Log())
             ->setMasterId($slave->getMaster()->getId())
             ->setType(MasterService::TYPE_SLAVE_IS_HC)
             ->setData(dechex((int) $slave->getAddress()))
             ->setDirection(Log::DIRECTION_OUTPUT)
             ->save()
-        ;
+        ;*/
 
-        $deviceId = $this->readDeviceId($slave);
-
-        if ($deviceId !== $slave->getDeviceId()) {
-            $slave->setDeviceId($deviceId);
-            $slave->setHertz($this->readHertz($slave));
-            $slave->setBufferSize($this->readBufferSize($slave));
-            $slave->setEepromSize($this->readEepromSize($slave));
-            $slave->setPwmSpeed($this->readPwmSpeed($slave));
-            $typeId = $this->readTypeId($slave);
-
-            if ($typeId !== $slave->getTypeId()) {
-                $slave->setTypeId($typeId);
-                $slaveService = SlaveFactory::create($slave->getType()->getHelper());
-                $slaveService->handshake($slave);
-            }
-        } else {
-            if (empty($slave->getHertz())) {
-                $slave->setHertz($this->readHertz($slave));
-            }
-
-            if (empty($slave->getBufferSize())) {
-                $slave->setBufferSize($this->readBufferSize($slave));
-            }
-
-            if (empty($slave->getEepromSize())) {
-                $slave->setEepromSize($this->readEepromSize($slave));
-            }
-
-            if (empty($slave->getPwmSpeed())) {
-                $slave->setPwmSpeed($this->readPwmSpeed($slave));
-            }
-        }
+        return $slave;
     }
 
     /**
@@ -367,7 +370,7 @@ abstract class AbstractHcSlave extends AbstractSlave
 
         $this->event->fire(HcService::AFTER_WRITE_TYPE, ['slave' => $slave, 'typeId' => $type->getId()]);
 
-        $slaveService = SlaveFactory::create($slave->getType()->getHelper());
+        $slaveService = $this->slaveFactory->get($slave->getType()->getHelper());
         $slaveService->handshake($slave);
 
         return $slaveService;

@@ -9,11 +9,23 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Repository\Type;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
+use GibsonOS\Module\Hc\Service\Event\Describer\DescriberInterface;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
 abstract class AbstractHcService extends AbstractEventService
 {
+    /**
+     * @var TypeRepository
+     */
+    private $typeRepository;
+
+    public function __construct(DescriberInterface $describer, TypeRepository $typeRepository)
+    {
+        parent::__construct($describer);
+        $this->typeRepository = $typeRepository;
+    }
+
     /**
      * @throws AbstractException
      * @throws SaveError
@@ -59,7 +71,7 @@ abstract class AbstractHcService extends AbstractEventService
      */
     public function writeTypeId(AbstractHcSlave $slaveService, Module $slave, array $params): void
     {
-        $type = Type::getById($params['typeId']);
+        $type = $this->typeRepository->getById($params['typeId']);
         $slaveService->writeType($slave, $type);
     }
 

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Event\Describer;
 
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Method;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\AutoCompleteParameter;
@@ -12,7 +14,7 @@ use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\OptionParameter;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\StringParameter;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Trigger;
-use GibsonOS\Module\Hc\Repository\Type;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoSlave;
 
 class IoService implements DescriberInterface
@@ -89,14 +91,23 @@ class IoService implements DescriberInterface
     private $portParameter;
 
     /**
+     * @var TypeRepository
+     */
+    private $typeRepository;
+
+    /**
      * Io constructor.
      *
      * @throws SelectError
+     * @throws DateTimeError
+     * @throws GetError
      */
-    public function __construct()
+    public function __construct(TypeRepository $typeRepository)
     {
+        $this->typeRepository = $typeRepository;
         $this->slaveParameter = (new SlaveParameter())
-            ->setSlaveType(Type::getByHelperName('io'));
+            ->setSlaveType($this->typeRepository->getByHelperName('io'))
+        ;
         $this->directionParameter = new OptionParameter('Richtung', [
             IoSlave::DIRECTION_INPUT => 'Eingang',
             IoSlave::DIRECTION_OUTPUT => 'Ausgang',

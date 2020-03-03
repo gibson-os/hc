@@ -8,25 +8,34 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
-use GibsonOS\Module\Hc\Model\Module as ModuleModel;
+use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
-class Module extends AbstractRepository
+class ModuleRepository extends AbstractRepository
 {
     const START_ADDRESS = 2;
 
     const MAX_GENERATE_DEVICE_ID_RETRY = 10;
 
-    /**
-     * @throws DateTimeError
-     * @throws GetError
-     * @throws SelectError
-     *
-     * @return ModuleModel[]
-     */
-    public static function findByName(string $name, int $typeId = null): array
+    public function create(string $name, Type $type): Module
     {
-        $tableName = ModuleModel::getTableName();
+        return (new Module())
+            ->setName($name)
+            ->setType($type)
+        ;
+    }
+
+    /**
+     *@throws GetError
+     * @throws SelectError
+     * @throws DateTimeError
+     *
+     * @return Module[]
+     */
+    public function findByName(string $name, int $typeId = null): array
+    {
+        $tableName = Module::getTableName();
         $table = self::getTable($tableName);
 
         $where = '`name` LIKE \'' . self::escapeWithoutQuotes($name) . '%\'';
@@ -47,7 +56,7 @@ class Module extends AbstractRepository
         $models = [];
 
         do {
-            $model = new ModuleModel();
+            $model = new Module();
             $model->loadFromMysqlTable($table);
             $models[] = $model;
         } while ($table->next());
@@ -56,14 +65,14 @@ class Module extends AbstractRepository
     }
 
     /**
+     *@throws GetError
      * @throws DateTimeError
-     * @throws GetError
      *
-     * @return ModuleModel[]
+     * @return Module[]
      */
-    public static function getByMasterId(int $masterId): array
+    public function getByMasterId(int $masterId): array
     {
-        $table = self::getTable(ModuleModel::getTableName());
+        $table = self::getTable(Module::getTableName());
         $table->setWhere('`master_id`=' . $masterId);
 
         $models = [];
@@ -73,7 +82,7 @@ class Module extends AbstractRepository
         }
 
         do {
-            $model = new ModuleModel();
+            $model = new Module();
             $model->loadFromMysqlTable($table);
             $models[] = $model;
         } while ($table->next());
@@ -86,9 +95,9 @@ class Module extends AbstractRepository
      * @throws GetError
      * @throws SelectError
      */
-    public static function getByDeviceId(int $deviceId): ModuleModel
+    public function getByDeviceId(int $deviceId): Module
     {
-        $table = self::getTable(ModuleModel::getTableName());
+        $table = self::getTable(Module::getTableName());
         $table->setWhere('`device_id`=' . $deviceId);
         $table->setLimit(1);
 
@@ -99,7 +108,7 @@ class Module extends AbstractRepository
             throw $exception;
         }
 
-        $model = new ModuleModel();
+        $model = new Module();
         $model->loadFromMysqlTable($table);
 
         return $model;
@@ -110,9 +119,9 @@ class Module extends AbstractRepository
      * @throws GetError
      * @throws SelectError
      */
-    public static function getById(int $id): ModuleModel
+    public function getById(int $id): Module
     {
-        $table = self::getTable(ModuleModel::getTableName());
+        $table = self::getTable(Module::getTableName());
         $table->setWhere('`id`=' . $id);
         $table->setLimit(1);
 
@@ -123,7 +132,7 @@ class Module extends AbstractRepository
             throw $exception;
         }
 
-        $model = new ModuleModel();
+        $model = new Module();
         $model->loadFromMysqlTable($table);
 
         return $model;
@@ -134,9 +143,9 @@ class Module extends AbstractRepository
      * @throws GetError
      * @throws SelectError
      */
-    public static function getByAddress(int $address, int $masterId): ModuleModel
+    public function getByAddress(int $address, int $masterId): Module
     {
-        $table = self::getTable(ModuleModel::getTableName());
+        $table = self::getTable(Module::getTableName());
         $table->setWhere(
             '`address`=' . $address . ' AND ' .
             '`master_id`=' . $masterId
@@ -150,7 +159,7 @@ class Module extends AbstractRepository
             throw $exception;
         }
 
-        $model = new ModuleModel();
+        $model = new Module();
         $model->loadFromMysqlTable($table);
 
         return $model;
@@ -159,12 +168,12 @@ class Module extends AbstractRepository
     /**
      * @throws GetError
      */
-    public static function getFreeDeviceId(int $tryCount = 0): int
+    public function getFreeDeviceId(int $tryCount = 0): int
     {
         $deviceId = mt_rand(1, AbstractHcSlave::MAX_DEVICE_ID);
         ++$tryCount;
 
-        $table = self::getTable(ModuleModel::getTableName());
+        $table = self::getTable(Module::getTableName());
         $table->setWhere('`device_id`=' . $deviceId);
         $table->setLimit(1);
 
@@ -184,9 +193,9 @@ class Module extends AbstractRepository
     /**
      * @throws DeleteError
      */
-    public static function deleteById(int $id)
+    public function deleteById(int $id)
     {
-        $table = self::getTable(ModuleModel::getTableName());
+        $table = self::getTable(Module::getTableName());
         $table->setWhere('`id`=' . $id);
 
         if (!$table->delete()) {

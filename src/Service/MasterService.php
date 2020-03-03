@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service;
 
 use DateTime;
-use Exception;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FileNotFound;
@@ -17,10 +16,10 @@ use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Repository\Module as ModuleRepository;
-use GibsonOS\Module\Hc\Repository\Type;
+use GibsonOS\Module\Hc\Repository\LogRepository;
+use GibsonOS\Module\Hc\Repository\ModuleRepository;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
-use GibsonOS\Module\Hc\Service\Slave\BlankService;
 
 class MasterService extends AbstractService
 {
@@ -59,9 +58,19 @@ class MasterService extends AbstractService
     private $moduleRepository;
 
     /**
-     * @var Type
+     * @var TypeRepository
      */
     private $typeRepository;
+
+    /**
+     * @var SlaveFactory
+     */
+    private $slaveFactory;
+
+    /**
+     * @var LogRepository
+     */
+    private $logRepository;
 
     /**
      * Master constructor.
@@ -70,93 +79,60 @@ class MasterService extends AbstractService
         SenderService $sender,
         EventService $event,
         TransformService $transform,
+        SlaveFactory $slaveFactory,
+        LogRepository $logRepository,
         ModuleRepository $moduleRepository,
-        Type $typeRepository
+        TypeRepository $typeRepository
     ) {
         $this->sender = $sender;
         $this->event = $event;
         $this->transform = $transform;
+        $this->slaveFactory = $slaveFactory;
+        $this->logRepository = $logRepository;
         $this->moduleRepository = $moduleRepository;
         $this->typeRepository = $typeRepository;
     }
 
     /**
-     * @throws AbstractException
      * @throws DateTimeError
+     * @throws FileNotFound
+     * @throws GetError
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
-     * @throws GetError
      */
     public function receive(Master $master, int $type, string $data): void
     {
-        $log = (new Log())
-            ->setMasterId($master->getId())
-            ->setType($type)
-            ->setData($this->transform->asciiToHex($data))
-            ->setDirection(Log::DIRECTION_INPUT)
+        // @todo Log Service erstellen. Zum besseren testen
+        $log = $this->logRepository->create(
+            $type,
+            $this->transform->asciiToHex(substr($data, 2)),
+            Log::DIRECTION_INPUT
+        )
+            ->setMaster($master)
         ;
 
         $address = $this->transform->asciiToInt($data, 0);
-        $command = $this->transform->asciiToInt($data, 1);
-        $data = substr($data, 2);
 
         echo 'Type: ' . $type . PHP_EOL;
-        echo 'Command: ' . $command . PHP_EOL;
+
         if ($type === MasterService::TYPE_NEW_SLAVE) {
-            $log->save();
-
             echo 'New Slave ' . $address . PHP_EOL;
-
-            try {
-                $slaveModel = $this->moduleRepository->getByAddress($address, (int) $master->getId());
-            } catch (SelectError $exception) {
-                $slaveModel = (new Module())
-                    ->setName('Neues Modul')
-                    ->setAddress($address)
-                    ->setMaster($master)
-                ;
-
-                try {
-                    $slaveType = $this->typeRepository->getByDefaultAddress($address);
-                    echo 'get by default address' . PHP_EOL;
-                } catch (SelectError $e) {
-                    $slaveType = $this->typeRepository->getById(255);
-                    /** @var BlankService $defaultSlave */
-                    $defaultSlave = SlaveFactory::create($slaveType->getHelper());
-
-                    try {
-                        echo 'read type' . PHP_EOL;
-                        $slaveType = $this->typeRepository->getById($defaultSlave->readTypeId($slaveModel));
-                    } catch (Exception $exception) {
-                    }
-                }
-
-                $slaveModel->setType($slaveType);
-            }
-
-            $slave = SlaveFactory::create($slaveModel->getType()->getHelper());
-            $slave->handshake($slaveModel);
+            $slave = $this->slaveHandshake($master, $address);
         } else {
-            $slaveModel = $this->moduleRepository->getByAddress($address, (int) $master->getId());
-            $slave = SlaveFactory::create($slaveModel->getType()->getHelper());
-
-            if ($slave instanceof AbstractHcSlave) {
-                $slave->receive($slaveModel, $type, $command, $data);
-            }
-
-            $log
-                ->setModuleId($slaveModel->getId())
-                ->setCommand($command)
-                ->setData($this->transform->asciiToHex($data))
-                ->save()
-            ;
+            $command = $this->transform->asciiToInt($data, 1);
+            echo 'Command: ' . $command . PHP_EOL;
+            $slave = $this->slaveReceive($master, $address, $type, $command, substr($data, 2));
+            $log->setCommand($command);
         }
 
-        $slaveModel
+        $slave
             ->setOffline(false)
             ->setModified(new DateTime())
-            ->setMaster($master)
+            ->save()
+        ;
+        $log
+            ->setModule($slave)
             ->save()
         ;
     }
@@ -171,26 +147,29 @@ class MasterService extends AbstractService
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws FileNotFound
+     * @throws SaveError
      */
     public function setAddress(Master $master, int $address): void
     {
-        try {
-            $data = $master->getName() . chr($address);
-            $this->send($master, MasterService::TYPE_HANDSHAKE, $data);
-            $this->receiveReceiveReturn($master);
+        $data = $master->getName() . chr($address);
+        $this->send($master, MasterService::TYPE_HANDSHAKE, $data);
+        $this->receiveReceiveReturn($master);
 
-            (new Log())
-                ->setMasterId($master->getId())
-                ->setType(MasterService::TYPE_HANDSHAKE)
-                ->setData($this->transform->asciiToHex($data))
-                ->setDirection(Log::DIRECTION_OUTPUT)
-                ->save();
-        } catch (AbstractException $exception) {
-            throw $exception;
-        }
+        $this->logRepository->create(
+            MasterService::TYPE_HANDSHAKE,
+            $this->transform->asciiToHex($data),
+            Log::DIRECTION_OUTPUT
+        )
+            ->setMaster($master)
+            ->save()
+        ;
 
-        $master->setAddress($address);
-        $master->save();
+        $master
+            ->setAddress($address)
+            ->save()
+        ;
     }
 
     /**
@@ -211,11 +190,11 @@ class MasterService extends AbstractService
         $data = $this->sender->receiveReadData($master, $type);
 
         if ($address !== $this->transform->asciiToInt($data, 0)) {
-            new ReceiveError('Slave Adresse stimmt nicht überein!');
+            throw new ReceiveError('Slave Adresse stimmt nicht überein!');
         }
 
         if ($command !== $this->transform->asciiToInt($data, 1)) {
-            new ReceiveError('Kommando stimmt nicht überein!');
+            throw new ReceiveError('Kommando stimmt nicht überein!');
         }
 
         return substr($data, 2);
@@ -227,5 +206,63 @@ class MasterService extends AbstractService
     public function receiveReceiveReturn(Master $master): void
     {
         $this->sender->receiveReceiveReturn($master);
+    }
+
+    /**
+     * @throws DateTimeError
+     * @throws FileNotFound
+     * @throws GetError
+     * @throws SaveError
+     * @throws SelectError
+     */
+    private function slaveHandshake(Master $master, int $address): Module
+    {
+        try {
+            $slave = $this->moduleRepository->getByAddress($address, (int) $master->getId());
+        } catch (SelectError $exception) {
+            try {
+                $slave = $this->moduleRepository->create(
+                    'Neues Modul',
+                    $this->typeRepository->getByDefaultAddress($address)
+                )
+                    ->setAddress($address)
+                    ->setMaster($master)
+                ;
+                $slave->save();
+            } catch (SelectError $exception) {
+                // @todo Sklave mit unbekannter Adresse gefunden
+                throw $exception;
+            }
+        }
+
+        $slaveService = $this->slaveFactory->get($slave->getType()->getHelper());
+        $slaveService->handshake($slave);
+
+        return $slave;
+    }
+
+    /**
+     * @throws DateTimeError
+     * @throws FileNotFound
+     * @throws GetError
+     * @throws ReceiveError
+     * @throws SelectError
+     */
+    private function slaveReceive(Master $master, int $address, int $type, int $command, string $data): Module
+    {
+        $slaveModel = $this->moduleRepository->getByAddress($address, (int) $master->getId());
+        $slave = $this->slaveFactory->get($slaveModel->getType()->getHelper());
+
+        if (!$slave instanceof AbstractHcSlave) {
+            throw new ReceiveError(sprintf(
+                '%s ist vom Typ %s und damit kein HC Sklave!',
+                $slaveModel->getName(),
+                $slaveModel->getType()->getName()
+            ));
+        }
+
+        $slave->receive($slaveModel, $type, $command, $data);
+
+        return $slaveModel;
     }
 }

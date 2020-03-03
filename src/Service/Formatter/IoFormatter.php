@@ -8,7 +8,7 @@ use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Attribute\Value;
-use GibsonOS\Module\Hc\Repository\Log as LogRepository;
+use GibsonOS\Module\Hc\Repository\LogRepository as LogRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
 
 class IoFormatter extends AbstractHcFormatter

@@ -12,7 +12,10 @@ use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Repository\ModuleRepository as ModuleRepository;
+use GibsonOS\Module\Hc\Repository\TypeRepository as TypeRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\EventService;
 use GibsonOS\Module\Hc\Service\Formatter\NeopixelFormatter;
@@ -68,9 +71,12 @@ class NeopixelService extends AbstractHcSlave
         TransformService $transform,
         EventService $event,
         NeopixelFormatter $formatter,
-        LedService $ledAttribute
+        LedService $ledAttribute,
+        ModuleRepository $moduleRepository,
+        TypeRepository $typeRepository,
+        SlaveFactory $slaveFactory
     ) {
-        parent::__construct($master, $transform, $event);
+        parent::__construct($master, $transform, $event, $moduleRepository, $typeRepository, $slaveFactory);
         $this->ledAttribute = $ledAttribute;
         $this->formatter = $formatter;
     }

@@ -9,14 +9,14 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Type as TypeModel;
 
-class Type extends AbstractRepository
+class TypeRepository extends AbstractRepository
 {
     /**
      * @throws SelectError
      * @throws DateTimeError
      * @throws GetError
      */
-    public static function getByDefaultAddress(int $address): TypeModel
+    public function getByDefaultAddress(int $address): TypeModel
     {
         $tableName = TypeModel::getTableName();
         $table = self::getTable($tableName);
@@ -45,7 +45,7 @@ class Type extends AbstractRepository
      * @throws GetError
      * @throws SelectError
      */
-    public static function getById(int $id): TypeModel
+    public function getById(int $id): TypeModel
     {
         $tableName = TypeModel::getTableName();
         $table = self::getTable($tableName);
@@ -70,7 +70,7 @@ class Type extends AbstractRepository
      * @throws GetError
      * @throws SelectError
      */
-    public static function getByHelperName(string $helperName): TypeModel
+    public function getByHelperName(string $helperName): TypeModel
     {
         $tableName = TypeModel::getTableName();
         $table = self::getTable($tableName);
@@ -97,7 +97,7 @@ class Type extends AbstractRepository
      *
      * @return TypeModel[]
      */
-    public static function findByName(string $name, bool $getHcSlaves = null, string $network = null): array
+    public function findByName(string $name, bool $getHcSlaves = null, string $network = null): array
     {
         $tableName = TypeModel::getTableName();
         $table = self::getTable($tableName);
