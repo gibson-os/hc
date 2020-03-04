@@ -27,11 +27,6 @@ use Prophecy\Prophecy\ObjectProphecy;
 class MasterServiceTest extends Unit
 {
     /**
-     * @var \UnitTester
-     */
-    protected $tester;
-
-    /**
      * @var ObjectProphecy|SenderService
      */
     private $senderService;

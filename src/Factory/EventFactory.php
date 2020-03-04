@@ -4,13 +4,14 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Factory;
 
 use GibsonOS\Core\Factory\AbstractSingletonFactory;
+use GibsonOS\Module\Hc\Factory\Event\ServiceFactory;
 use GibsonOS\Module\Hc\Service\EventService;
 
 class EventFactory extends AbstractSingletonFactory
 {
     protected static function createInstance(): EventService
     {
-        return new EventService();
+        return new EventService(ServiceFactory::create());
     }
 
     public static function create(): EventService

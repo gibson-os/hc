@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service;
 
+use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Service\AbstractService;
+use GibsonOS\Module\Hc\Factory\Event\ServiceFactory;
 use GibsonOS\Module\Hc\Model\Event\Element as ElementModel;
 use GibsonOS\Module\Hc\Service\Event\AbstractEventService;
 
@@ -18,6 +20,16 @@ class EventService extends AbstractService
      * @var array
      */
     private $events = [];
+
+    /**
+     * @var ServiceFactory
+     */
+    private $serviceFactory;
+
+    public function __construct(ServiceFactory $serviceFactory)
+    {
+        $this->serviceFactory = $serviceFactory;
+    }
 
     /**
      * @param callable $function
@@ -42,28 +54,13 @@ class EventService extends AbstractService
         }
     }
 
-    // @todo besseren ort finden. Wird eigentlich nur vom db generierten code gebraucht
-
-    public function runFunction(string $serializedElement)
+    /**
+     * @throws FileNotFound
+     */
+    public function runFunction(ElementModel $element)
     {
-        $element = unserialize($serializedElement);
-        $service = $this->getService($element);
+        $service = $this->serviceFactory->get($element->getClass());
 
         return $service->run($element);
-    }
-
-    private function getService(ElementModel $element): AbstractEventService
-    {
-        $key =
-            'masterId' . $element->getMasterId() .
-            'moduleId' . $element->getModuleId() .
-            $element->getClass();
-
-        if (!isset($this->services[$key])) {
-            $className = $element->getClass();
-            $this->services[$key] = new $className($element);
-        }
-
-        return $this->services[$key];
     }
 }
