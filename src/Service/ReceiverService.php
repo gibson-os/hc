@@ -5,13 +5,13 @@ namespace GibsonOS\Module\Hc\Service;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
-use GibsonOS\Module\Hc\Model\Log;
-use GibsonOS\Module\Hc\Repository\Master as MasterRepository;
+use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 
@@ -70,16 +70,17 @@ class ReceiverService extends AbstractService
 
         $this->formatter->checksumEqual($data);
 
+        $cleanData = $this->formatter->getData($data);
         $masterAddress = $this->formatter->getMasterAddress($data);
         $type = $this->formatter->getType($data);
 
         $protocol->sendReceiveReturn($masterAddress);
 
         if ($type === MasterService::TYPE_HANDSHAKE) {
-            $this->handshake($protocol, $data);
+            $this->handshake($protocol, $cleanData, $masterAddress);
         } else {
             $masterModel = $this->masterRepository->getByAddress($masterAddress, $protocol->getName());
-            $this->master->receive($masterModel, $type, $this->formatter->getData($data));
+            $this->master->receive($masterModel, $type, $cleanData);
         }
 
         // Log schreiben
@@ -88,22 +89,24 @@ class ReceiverService extends AbstractService
     }
 
     /**
+     * @throws AbstractException
      * @throws DateTimeError
      * @throws GetError
      * @throws SaveError
+     * @throws FileNotFound
      */
-    private function handshake(ProtocolInterface $protocol, string $data): void
+    private function handshake(ProtocolInterface $protocol, string $data, int $masterAddress): void
     {
-        $cleanData = $this->formatter->getData($data);
+        $protocolName = $protocol->getName();
 
         try {
-            $masterModel = $this->masterRepository->getByName($cleanData, $protocol->getName());
+            $masterModel = $this->masterRepository->getByName($data, $protocolName);
         } catch (SelectError $exception) {
-            $masterModel = $this->masterRepository->add($cleanData, $protocol->getName());
+            $masterModel = $this->masterRepository->add($data, $protocolName);
         }
 
         $address = $masterModel->getAddress();
-        $masterModel->setAddress($this->formatter->getMasterAddress($data));
+        $masterModel->setAddress($masterAddress);
         $this->master->setAddress($masterModel, $address);
     }
 }

@@ -14,7 +14,7 @@ use GibsonOS\Module\Hc\Model\Master as MasterModel;
 use GibsonOS\Module\Hc\Model\Module as ModuleModel;
 use GibsonOS\Module\Hc\Model\Type\DefaultAddress;
 
-class Master extends AbstractRepository
+class MasterRepository extends AbstractRepository
 {
     const START_ADDRESS = 2;
 
@@ -24,7 +24,7 @@ class Master extends AbstractRepository
      *
      * @return MasterModel[]
      */
-    public static function getByProtocol(string $protocol): array
+    public function getByProtocol(string $protocol): array
     {
         $table = self::getTable(MasterModel::getTableName());
         $table->setWhere('`protocol`=' . self::escape($protocol));
@@ -49,7 +49,7 @@ class Master extends AbstractRepository
      * @throws GetError
      * @throws SelectError
      */
-    public static function getById(int $id): MasterModel
+    public function getById(int $id): MasterModel
     {
         $table = self::getTable(MasterModel::getTableName());
         $table->setWhere('`id`=' . $id);
@@ -73,7 +73,7 @@ class Master extends AbstractRepository
      * @throws DateTimeError
      * @throws GetError
      */
-    public static function getByAddress(int $address, string $protocol): MasterModel
+    public function getByAddress(int $address, string $protocol): MasterModel
     {
         $table = self::getTable(MasterModel::getTableName());
         $table->setWhere(
@@ -100,7 +100,7 @@ class Master extends AbstractRepository
      * @throws GetError
      * @throws SelectError
      */
-    public static function getByName(string $name, string $protocol): MasterModel
+    public function getByName(string $name, string $protocol): MasterModel
     {
         $table = self::getTable(MasterModel::getTableName());
         $table->setWhere(
@@ -126,7 +126,7 @@ class Master extends AbstractRepository
      * @throws SaveError
      * @throws Exception
      */
-    public static function add(string $name, string $protocol): MasterModel
+    public function add(string $name, string $protocol): MasterModel
     {
         $table = self::getTable(MasterModel::getTableName());
 
@@ -152,7 +152,7 @@ class Master extends AbstractRepository
     /**
      * @throws SelectError
      */
-    public static function getNextFreeAddress(int $masterId): int
+    public function getNextFreeAddress(int $masterId): int
     {
         $table = self::getTable(ModuleModel::getTableName());
         $table->setWhere('`master_id`=' . $masterId);

@@ -14,7 +14,7 @@ use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
-use GibsonOS\Module\Hc\Repository\Master;
+use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Event\Describer\HcService;
@@ -160,6 +160,11 @@ abstract class AbstractHcSlave extends AbstractSlave
     private $typeRepository;
 
     /**
+     * @var MasterRepository
+     */
+    private $masterRepository;
+
+    /**
      * @var SlaveFactory
      */
     private $slaveFactory;
@@ -174,12 +179,14 @@ abstract class AbstractHcSlave extends AbstractSlave
         EventService $event,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
+        MasterRepository $masterRepository,
         SlaveFactory $slaveFactory
     ) {
         parent::__construct($master, $transform);
         $this->event = $event;
         $this->moduleRepository = $moduleRepository;
         $this->typeRepository = $typeRepository;
+        $this->masterRepository = $masterRepository;
         $this->slaveFactory = $slaveFactory;
     }
 
@@ -244,7 +251,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             $slave->setDeviceId($deviceId);
         }
 
-        $this->writeAddress($slave, Master::getNextFreeAddress((int) $slave->getMaster()->getId()));
+        $this->writeAddress($slave, $this->masterRepository->getNextFreeAddress((int) $slave->getMaster()->getId()));
 
         return $slave;
     }

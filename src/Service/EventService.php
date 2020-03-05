@@ -7,15 +7,9 @@ use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Factory\Event\ServiceFactory;
 use GibsonOS\Module\Hc\Model\Event\Element as ElementModel;
-use GibsonOS\Module\Hc\Service\Event\AbstractEventService;
 
 class EventService extends AbstractService
 {
-    /**
-     * @var AbstractEventService[]
-     */
-    private $services = [];
-
     /**
      * @var array
      */

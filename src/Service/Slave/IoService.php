@@ -16,6 +16,7 @@ use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Attribute as AttributeRepository;
 use GibsonOS\Module\Hc\Repository\Attribute\Value as ValueRepository;
+use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository as ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository as TypeRepository;
 use GibsonOS\Module\Hc\Service\Event\Describer\IoService as IoDescriber;
@@ -112,9 +113,18 @@ class IoService extends AbstractHcSlave
         IoFormatter $formatter,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
+        MasterRepository $masterRepository,
         SlaveFactory $slaveFactory
     ) {
-        parent::__construct($master, $transform, $event, $moduleRepository, $typeRepository, $slaveFactory);
+        parent::__construct(
+            $master,
+            $transform,
+            $event,
+            $moduleRepository,
+            $typeRepository,
+            $masterRepository,
+            $slaveFactory
+        );
         $this->formatter = $formatter;
     }
 

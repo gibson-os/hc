@@ -2,13 +2,14 @@
 
 namespace Service;
 
+use Codeception\Test\Unit;
 use GibsonOS\Module\Hc\Factory\Event\ServiceFactory;
 use GibsonOS\Module\Hc\Model\Event\Element;
 use GibsonOS\Module\Hc\Service\Event\AbstractEventService;
 use GibsonOS\Module\Hc\Service\EventService;
 use Prophecy\Prophecy\ObjectProphecy;
 
-class EventServiceTest extends \Codeception\Test\Unit
+class EventServiceTest extends Unit
 {
     /**
      * @var EventService
