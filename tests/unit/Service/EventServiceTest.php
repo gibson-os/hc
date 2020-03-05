@@ -21,13 +21,13 @@ class EventServiceTest extends Unit
      */
     private $serviceFactory;
 
-    protected function _before()
+    protected function _before(): void
     {
         $this->serviceFactory = $this->prophesize(ServiceFactory::class);
         $this->eventService = new EventService($this->serviceFactory->reveal());
     }
 
-    public function testFire()
+    public function testFire(): void
     {
         $globalParams = null;
 
@@ -41,7 +41,7 @@ class EventServiceTest extends Unit
         $this->assertEquals(['Handtuch' => true], $globalParams);
     }
 
-    public function testRunFunction()
+    public function testRunFunction(): void
     {
         $element = $this->prophesize(Element::class);
         $element->getClass()

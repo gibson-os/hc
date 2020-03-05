@@ -39,7 +39,7 @@ class ReceiverServiceTest extends \Codeception\Test\Unit
      */
     private $receiverService;
 
-    protected function _before()
+    protected function _before(): void
     {
         $this->transformService = $this->prophesize(TransformService::class);
         $this->masterService = $this->prophesize(MasterService::class);
@@ -56,7 +56,7 @@ class ReceiverServiceTest extends \Codeception\Test\Unit
     /**
      * @dataProvider getReceiveData
      */
-    public function testReceive(?string $data, ?string $cleanData, int $type, bool $newMaster = false)
+    public function testReceive(?string $data, ?string $cleanData, int $type, bool $newMaster = false): void
     {
         $protocol = $this->prophesize(ProtocolInterface::class);
         $protocol->receive()

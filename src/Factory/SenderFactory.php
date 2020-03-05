@@ -12,7 +12,12 @@ class SenderFactory extends AbstractSingletonFactory
 {
     protected static function createInstance(): SenderService
     {
-        return new SenderService(MasterFactory::create(), TransformFactory::create(), new MasterRepository());
+        return new SenderService(
+            MasterFactory::create(),
+            TransformFactory::create(),
+            new MasterRepository(),
+            ProtocolFactory::create()
+        );
     }
 
     public static function create(): SenderService

@@ -66,7 +66,7 @@ class MasterServiceTest extends Unit
      */
     private $masterService;
 
-    protected function _before()
+    protected function _before(): void
     {
         $this->senderService = $this->prophesize(SenderService::class);
         $this->eventService = $this->prophesize(EventService::class);
@@ -84,10 +84,6 @@ class MasterServiceTest extends Unit
             $this->moduleRepository->reveal(),
             $this->typeRepository->reveal()
         );
-    }
-
-    protected function _after()
-    {
     }
 
     /**

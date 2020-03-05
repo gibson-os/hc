@@ -11,7 +11,6 @@ use GibsonOS\Module\Hc\Factory\ProtocolFactory;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Repository\MasterRepository as MasterRepository;
 use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
-use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 
 class SenderService extends AbstractService
 {
@@ -30,17 +29,24 @@ class SenderService extends AbstractService
      */
     private $masterRepository;
 
+    /**
+     * @var ProtocolFactory
+     */
+    private $protocolFactory;
+
     /**$data
      * Server constructor.
      */
     public function __construct(
         MasterFormatter $masterFormatter,
         TransformService $transformService,
-        MasterRepository $masterRepository
+        MasterRepository $masterRepository,
+        ProtocolFactory $protocolFactory
     ) {
         $this->masterFormatter = $masterFormatter;
         $this->transformService = $transformService;
         $this->masterRepository = $masterRepository;
+        $this->protocolFactory = $protocolFactory;
     }
 
     /**
@@ -48,7 +54,7 @@ class SenderService extends AbstractService
      */
     public function send(Master $master, int $type, string $data)
     {
-        $this->getProtocol($master)->send($type, $data, $master->getAddress());
+        $this->protocolFactory->get($master->getProtocol())->send($type, $data, $master->getAddress());
         usleep(1);
     }
 
@@ -58,8 +64,8 @@ class SenderService extends AbstractService
      */
     public function receiveReadData(Master $master, int $type): string
     {
-        $protocol = $this->getProtocol($master);
-        $data = $protocol->receiveReadData();
+        $protocolService = $this->protocolFactory->get($master->getProtocol());
+        $data = $protocolService->receiveReadData();
 
         $this->masterFormatter->checksumEqual($data);
 
@@ -79,14 +85,6 @@ class SenderService extends AbstractService
      */
     public function receiveReceiveReturn(Master $master): void
     {
-        $this->getProtocol($master)->receiveReceiveReturn($master->getAddress());
-    }
-
-    /**
-     * @throws FileNotFound
-     */
-    private function getProtocol(Master $master): ProtocolInterface
-    {
-        return ProtocolFactory::create($master->getProtocol());
+        $this->protocolFactory->get($master->getProtocol())->receiveReceiveReturn($master->getAddress());
     }
 }
