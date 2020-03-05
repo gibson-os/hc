@@ -60,35 +60,35 @@ class NeopixelService extends AbstractHcSlave
     /**
      * @var LedService
      */
-    private $ledAttribute;
+    private $ledService;
 
     /**
      * @var NeopixelFormatter
      */
-    private $formatter;
+    private $neopixelFormatter;
 
     public function __construct(
-        MasterService $master,
-        TransformService $transform,
-        EventService $event,
-        NeopixelFormatter $formatter,
-        LedService $ledAttribute,
+        MasterService $masterService,
+        TransformService $transformService,
+        EventService $eventService,
+        NeopixelFormatter $neopixelFormatter,
+        LedService $ledService,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
         SlaveFactory $slaveFactory
     ) {
         parent::__construct(
-            $master,
-            $transform,
-            $event,
+            $masterService,
+            $transformService,
+            $eventService,
             $moduleRepository,
             $typeRepository,
             $masterRepository,
             $slaveFactory
         );
-        $this->ledAttribute = $ledAttribute;
-        $this->formatter = $formatter;
+        $this->ledService = $ledService;
+        $this->neopixelFormatter = $neopixelFormatter;
     }
 
     /**
@@ -121,8 +121,8 @@ class NeopixelService extends AbstractHcSlave
 
         foreach ($config[self::CONFIG_COUNTS] as $channel => $count) {
             for ($i = 0; $i < $count; ++$i) {
-                $top = $this->ledAttribute->getById($slave, $id, LedService::ATTRIBUTE_KEY_TOP);
-                $left = $this->ledAttribute->getById($slave, $id, LedService::ATTRIBUTE_KEY_LEFT);
+                $top = $this->ledService->getById($slave, $id, LedService::ATTRIBUTE_KEY_TOP);
+                $left = $this->ledService->getById($slave, $id, LedService::ATTRIBUTE_KEY_LEFT);
                 $leds[$id] = [
                     LedService::ATTRIBUTE_KEY_CHANNEL => $channel,
                     LedService::ATTRIBUTE_KEY_RED => 0,
@@ -137,8 +137,8 @@ class NeopixelService extends AbstractHcSlave
             }
         }
 
-        $this->ledAttribute->deleteUnusedLeds($slave, $leds);
-        $this->ledAttribute->saveLeds($slave, $leds);
+        $this->ledService->deleteUnusedLeds($slave, $leds);
+        $this->ledService->saveLeds($slave, $leds);
 
         return $slave;
     }
@@ -210,7 +210,7 @@ class NeopixelService extends AbstractHcSlave
      */
     public function writeSetLeds(Module $slave, array $leds): NeopixelService
     {
-        $data = $this->formatter->getLedsAsStrings($leds, (int) $slave->getDataBufferSize());
+        $data = $this->neopixelFormatter->getLedsAsStrings($leds, (int) $slave->getDataBufferSize());
 
         foreach ($this->getWriteStrings($slave, $data) as $writeString) {
             $this->write($slave, self::COMMAND_SET_LEDS, $writeString);
@@ -260,7 +260,7 @@ class NeopixelService extends AbstractHcSlave
     public function readChannelStatus(Module $slave, int $length): array
     {
         $data = $this->read($slave, self::COMMAND_CHANNEL_STATUS, $length);
-        $firstByte = $this->transform->asciiToInt($data, 0);
+        $firstByte = $this->transformService->asciiToInt($data, 0);
 
         if ($firstByte === self::CHANNEL_READ_STATUS_NOT_SET) {
             throw new ReceiveError('Es ist kein Channel gesetzt!', self::CHANNEL_READ_STATUS_NOT_SET);
@@ -270,7 +270,7 @@ class NeopixelService extends AbstractHcSlave
             throw new ReceiveError('Es existiert keine LED!', self::CHANNEL_READ_STATUS_NO_LEDS);
         }
 
-        return $this->formatter->getLedsAsArray($data);
+        return $this->neopixelFormatter->getLedsAsArray($data);
     }
 
     /**
@@ -319,7 +319,7 @@ class NeopixelService extends AbstractHcSlave
      */
     public function readSequenceEepromAddress(Module $slave): int
     {
-        return $this->transform->asciiToInt($this->read(
+        return $this->transformService->asciiToInt($this->read(
             $slave,
             self::COMMAND_SEQUENCE_EEPROM_ADDRESS,
             2
@@ -343,7 +343,7 @@ class NeopixelService extends AbstractHcSlave
      */
     public function writeSequenceAddStep(Module $slave, int $runtime, array $leds): NeopixelService
     {
-        $dataStrings = $this->formatter->getLedsAsStrings($leds, (int) $slave->getDataBufferSize());
+        $dataStrings = $this->neopixelFormatter->getLedsAsStrings($leds, (int) $slave->getDataBufferSize());
 
         foreach ($this->getWriteStrings($slave, $dataStrings) as $writeString) {
             $this->write($slave, self::COMMAND_SEQUENCE_ADD_STEP, $writeString);
@@ -367,7 +367,7 @@ class NeopixelService extends AbstractHcSlave
         $position = 0;
 
         for ($i = 0; $i < $config['channels']; ++$i) {
-            $channelCounts[$i] = $this->transform->asciiToInt(substr($counts, $position, 2));
+            $channelCounts[$i] = $this->transformService->asciiToInt(substr($counts, $position, 2));
             $position += 2;
         }
 
@@ -393,9 +393,9 @@ class NeopixelService extends AbstractHcSlave
         return $this;
     }
 
-    public function getLedAttribute(): LedService
+    public function getLedService(): LedService
     {
-        return $this->ledAttribute;
+        return $this->ledService;
     }
 
     /**
@@ -435,8 +435,8 @@ class NeopixelService extends AbstractHcSlave
     {
         $config = $this->readConfig($slave, self::COMMAND_CONFIGURATION_READ_LENGTH);
         $config = [
-            self::CONFIG_CHANNELS => $this->transform->asciiToInt($config, 0),
-            self::CONFIG_MAX_LEDS => $this->transform->asciiToInt(substr($config, 1)),
+            self::CONFIG_CHANNELS => $this->transformService->asciiToInt($config, 0),
+            self::CONFIG_MAX_LEDS => $this->transformService->asciiToInt(substr($config, 1)),
             self::CONFIG_COUNTS => [],
         ];
 

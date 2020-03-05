@@ -45,15 +45,15 @@ class Bme280Service extends AbstractSlave
     /**
      * @var Bme280Formatter
      */
-    private $formatter;
+    private $bme280Formatter;
 
     public function __construct(
-        MasterService $master,
-        TransformService $transform,
-        Bme280Formatter $formatter
+        MasterService $masterService,
+        TransformService $transformService,
+        Bme280Formatter $bme280Formatter
     ) {
-        parent::__construct($master, $transform);
-        $this->formatter = $formatter;
+        parent::__construct($masterService, $transformService);
+        $this->bme280Formatter = $bme280Formatter;
     }
 
     /**
@@ -112,7 +112,7 @@ class Bme280Service extends AbstractSlave
         $config = JsonUtility::decode((string) $slave->getConfig());
         $data = $this->read($slave, self::COMMAND_MEASURE, self::COMMAND_MEASURE_READ_LENGTH);
 
-        return $this->formatter->measureData($data, $config);
+        return $this->bme280Formatter->measureData($data, $config);
     }
 
     /**
@@ -125,20 +125,20 @@ class Bme280Service extends AbstractSlave
         $data = $this->read($slave, self::COMMAND_CALIBRATION1, self::COMMAND_CALIBRATION1_READ_LENGTH);
         $config = [
             'temperature' => [
-                ($this->transform->asciiToInt($data, 1) << 8) | $this->transform->asciiToInt($data, 0),
-                $this->transform->getSignedInt(($this->transform->asciiToInt($data, 3) << 8) | $this->transform->asciiToInt($data, 2)),
-                $this->transform->getSignedInt(($this->transform->asciiToInt($data, 5) << 8) | $this->transform->asciiToInt($data, 4)),
+                ($this->transformService->asciiToInt($data, 1) << 8) | $this->transformService->asciiToInt($data, 0),
+                $this->transformService->getSignedInt(($this->transformService->asciiToInt($data, 3) << 8) | $this->transformService->asciiToInt($data, 2)),
+                $this->transformService->getSignedInt(($this->transformService->asciiToInt($data, 5) << 8) | $this->transformService->asciiToInt($data, 4)),
             ],
             'pressure' => [
-                ($this->transform->asciiToInt($data, 7) << 8) | $this->transform->asciiToInt($data, 6),
-                $this->transform->getSignedInt(($this->transform->asciiToInt($data, 9) << 8) | $this->transform->asciiToInt($data, 8)),
-                $this->transform->getSignedInt(($this->transform->asciiToInt($data, 11) << 8) | $this->transform->asciiToInt($data, 10)),
-                $this->transform->getSignedInt(($this->transform->asciiToInt($data, 13) << 8) | $this->transform->asciiToInt($data, 12)),
-                $this->transform->getSignedInt(($this->transform->asciiToInt($data, 15) << 8) | $this->transform->asciiToInt($data, 14)),
-                $this->transform->getSignedInt(($this->transform->asciiToInt($data, 17) << 8) | $this->transform->asciiToInt($data, 16)),
-                $this->transform->getSignedInt(($this->transform->asciiToInt($data, 19) << 8) | $this->transform->asciiToInt($data, 18)),
-                $this->transform->getSignedInt(($this->transform->asciiToInt($data, 21) << 8) | $this->transform->asciiToInt($data, 20)),
-                $this->transform->getSignedInt(($this->transform->asciiToInt($data, 23) << 8) | $this->transform->asciiToInt($data, 22)),
+                ($this->transformService->asciiToInt($data, 7) << 8) | $this->transformService->asciiToInt($data, 6),
+                $this->transformService->getSignedInt(($this->transformService->asciiToInt($data, 9) << 8) | $this->transformService->asciiToInt($data, 8)),
+                $this->transformService->getSignedInt(($this->transformService->asciiToInt($data, 11) << 8) | $this->transformService->asciiToInt($data, 10)),
+                $this->transformService->getSignedInt(($this->transformService->asciiToInt($data, 13) << 8) | $this->transformService->asciiToInt($data, 12)),
+                $this->transformService->getSignedInt(($this->transformService->asciiToInt($data, 15) << 8) | $this->transformService->asciiToInt($data, 14)),
+                $this->transformService->getSignedInt(($this->transformService->asciiToInt($data, 17) << 8) | $this->transformService->asciiToInt($data, 16)),
+                $this->transformService->getSignedInt(($this->transformService->asciiToInt($data, 19) << 8) | $this->transformService->asciiToInt($data, 18)),
+                $this->transformService->getSignedInt(($this->transformService->asciiToInt($data, 21) << 8) | $this->transformService->asciiToInt($data, 20)),
+                $this->transformService->getSignedInt(($this->transformService->asciiToInt($data, 23) << 8) | $this->transformService->asciiToInt($data, 22)),
             ],
         ];
 
@@ -153,14 +153,14 @@ class Bme280Service extends AbstractSlave
     private function calibrateHumidity(Module $slave): array
     {
         $data = $this->read($slave, self::COMMAND_CALIBRATION2, self::COMMAND_CALIBRATION2_READ_LENGTH);
-        $config = ['humidity' => [$this->transform->asciiToInt($data, 0)]];
+        $config = ['humidity' => [$this->transformService->asciiToInt($data, 0)]];
 
         $data = $this->read($slave, self::COMMAND_CALIBRATION3, self::COMMAND_CALIBRATION3_READ_LENGTH);
-        $config['humidity'][] = $this->transform->getSignedInt(($this->transform->asciiToInt($data, 1) << 8) | $this->transform->asciiToInt($data, 0));
-        $config['humidity'][] = $this->transform->asciiToInt($data, 2);
-        $config['humidity'][] = ($this->transform->asciiToInt($data, 3, false) << 4) | ($this->transform->asciiToInt($data, 4) & 0x0F);
-        $config['humidity'][] = ($this->transform->asciiToInt($data, 5, false) << 4) | (($this->transform->asciiToInt($data, 4) >> 4) & 0x0F);
-        $config['humidity'][] = $this->transform->asciiToInt($data, 6, false);
+        $config['humidity'][] = $this->transformService->getSignedInt(($this->transformService->asciiToInt($data, 1) << 8) | $this->transformService->asciiToInt($data, 0));
+        $config['humidity'][] = $this->transformService->asciiToInt($data, 2);
+        $config['humidity'][] = ($this->transformService->asciiToInt($data, 3, false) << 4) | ($this->transformService->asciiToInt($data, 4) & 0x0F);
+        $config['humidity'][] = ($this->transformService->asciiToInt($data, 5, false) << 4) | (($this->transformService->asciiToInt($data, 4) >> 4) & 0x0F);
+        $config['humidity'][] = $this->transformService->asciiToInt($data, 6, false);
 
         return $config;
     }

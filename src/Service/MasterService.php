@@ -40,17 +40,17 @@ class MasterService extends AbstractService
     /**
      * @var SenderService
      */
-    private $sender;
+    private $senderService;
 
     /**
      * @var EventService
      */
-    private $event;
+    private $eventService;
 
     /**
      * @var TransformService
      */
-    private $transform;
+    private $transformService;
 
     /**
      * @var ModuleRepository
@@ -76,17 +76,17 @@ class MasterService extends AbstractService
      * Master constructor.
      */
     public function __construct(
-        SenderService $sender,
-        EventService $event,
-        TransformService $transform,
+        SenderService $senderService,
+        EventService $eventService,
+        TransformService $transformService,
         SlaveFactory $slaveFactory,
         LogRepository $logRepository,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository
     ) {
-        $this->sender = $sender;
-        $this->event = $event;
-        $this->transform = $transform;
+        $this->senderService = $senderService;
+        $this->eventService = $eventService;
+        $this->transformService = $transformService;
         $this->slaveFactory = $slaveFactory;
         $this->logRepository = $logRepository;
         $this->moduleRepository = $moduleRepository;
@@ -106,13 +106,13 @@ class MasterService extends AbstractService
         // @todo Log Service erstellen. Zum besseren testen
         $log = $this->logRepository->create(
             $type,
-            $this->transform->asciiToHex(substr($data, 2)),
+            $this->transformService->asciiToHex(substr($data, 2)),
             Log::DIRECTION_INPUT
         )
             ->setMaster($master)
         ;
 
-        $address = $this->transform->asciiToInt($data, 0);
+        $address = $this->transformService->asciiToInt($data, 0);
 
         echo 'Type: ' . $type . PHP_EOL;
 
@@ -120,7 +120,7 @@ class MasterService extends AbstractService
             echo 'New Slave ' . $address . PHP_EOL;
             $slave = $this->slaveHandshake($master, $address);
         } else {
-            $command = $this->transform->asciiToInt($data, 1);
+            $command = $this->transformService->asciiToInt($data, 1);
             echo 'Command: ' . $command . PHP_EOL;
             $slave = $this->slaveReceive($master, $address, $type, $command, substr($data, 2));
             $log->setCommand($command);
@@ -142,7 +142,7 @@ class MasterService extends AbstractService
      */
     public function send(Master $master, int $type, string $data): void
     {
-        $this->sender->send($master, $type, $data);
+        $this->senderService->send($master, $type, $data);
     }
 
     /**
@@ -159,7 +159,7 @@ class MasterService extends AbstractService
 
         $this->logRepository->create(
             MasterService::TYPE_HANDSHAKE,
-            $this->transform->asciiToHex($data),
+            $this->transformService->asciiToHex($data),
             Log::DIRECTION_OUTPUT
         )
             ->setMaster($master)
@@ -187,13 +187,13 @@ class MasterService extends AbstractService
      */
     public function receiveReadData(Master $master, int $address, int $type, int $command): string
     {
-        $data = $this->sender->receiveReadData($master, $type);
+        $data = $this->senderService->receiveReadData($master, $type);
 
-        if ($address !== $this->transform->asciiToInt($data, 0)) {
+        if ($address !== $this->transformService->asciiToInt($data, 0)) {
             throw new ReceiveError('Slave Adresse stimmt nicht überein!');
         }
 
-        if ($command !== $this->transform->asciiToInt($data, 1)) {
+        if ($command !== $this->transformService->asciiToInt($data, 1)) {
             throw new ReceiveError('Kommando stimmt nicht überein!');
         }
 
@@ -205,7 +205,7 @@ class MasterService extends AbstractService
      */
     public function receiveReceiveReturn(Master $master): void
     {
-        $this->sender->receiveReceiveReturn($master);
+        $this->senderService->receiveReceiveReturn($master);
     }
 
     /**

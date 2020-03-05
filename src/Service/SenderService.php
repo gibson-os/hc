@@ -18,12 +18,12 @@ class SenderService extends AbstractService
     /**
      * @var MasterFormatter
      */
-    private $formatter;
+    private $masterFormatter;
 
     /**
      * @var TransformService
      */
-    private $transform;
+    private $transformService;
 
     /**
      * @var MasterRepository
@@ -34,12 +34,12 @@ class SenderService extends AbstractService
      * Server constructor.
      */
     public function __construct(
-        MasterFormatter $formatter,
-        TransformService $transform,
+        MasterFormatter $masterFormatter,
+        TransformService $transformService,
         MasterRepository $masterRepository
     ) {
-        $this->formatter = $formatter;
-        $this->transform = $transform;
+        $this->masterFormatter = $masterFormatter;
+        $this->transformService = $transformService;
         $this->masterRepository = $masterRepository;
     }
 
@@ -61,13 +61,13 @@ class SenderService extends AbstractService
         $protocol = $this->getProtocol($master);
         $data = $protocol->receiveReadData();
 
-        $this->formatter->checksumEqual($data);
+        $this->masterFormatter->checksumEqual($data);
 
-        if ($this->formatter->getMasterAddress($data) !== $master->getAddress()) {
+        if ($this->masterFormatter->getMasterAddress($data) !== $master->getAddress()) {
             throw new ReceiveError('Master Adresse stimmt nicht überein!');
         }
 
-        if ($this->formatter->getType($data) !== $type) {
+        if ($this->masterFormatter->getType($data) !== $type) {
             throw new ReceiveError('Typ stimmt nicht überein!');
         }
 

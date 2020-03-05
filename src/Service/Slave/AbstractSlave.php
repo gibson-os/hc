@@ -23,12 +23,12 @@ abstract class AbstractSlave extends AbstractService
     /**
      * @var MasterService
      */
-    protected $master;
+    protected $masterService;
 
     /**
      * @var TransformService
      */
-    protected $transform;
+    protected $transformService;
 
     abstract public function handshake(Module $slave): Module;
 
@@ -36,11 +36,11 @@ abstract class AbstractSlave extends AbstractService
      * Slave constructor.
      */
     public function __construct(
-        MasterService $master,
-        TransformService $transform
+        MasterService $masterService,
+        TransformService $transformService
     ) {
-        $this->master = $master;
-        $this->transform = $transform;
+        $this->masterService = $masterService;
+        $this->transformService = $transformService;
     }
 
     /**
@@ -49,12 +49,12 @@ abstract class AbstractSlave extends AbstractService
      */
     public function write(Module $slave, int $command, string $data): void
     {
-        $this->master->send(
+        $this->masterService->send(
             $slave->getMaster(),
             MasterService::TYPE_DATA,
             chr($this->getAddressWithReadWriteBit($slave, self::WRITE_BIT)) . chr($command) . $data
         );
-        $this->master->receiveReceiveReturn($slave->getMaster());
+        $this->masterService->receiveReceiveReturn($slave->getMaster());
         $this->addLog($slave, MasterService::TYPE_DATA, $command, $data, Log::DIRECTION_OUTPUT);
     }
 
@@ -65,13 +65,13 @@ abstract class AbstractSlave extends AbstractService
      */
     public function read(Module $slave, int $command, int $length): string
     {
-        $this->master->send(
+        $this->masterService->send(
             $slave->getMaster(),
             MasterService::TYPE_DATA,
             chr($this->getAddressWithReadWriteBit($slave, self::READ_BIT)) . chr($command) . chr($length)
         );
 
-        $data = $this->master->receiveReadData(
+        $data = $this->masterService->receiveReadData(
             $slave->getMaster(),
             (int) $slave->getAddress(),
             MasterService::TYPE_DATA,
@@ -100,7 +100,7 @@ abstract class AbstractSlave extends AbstractService
             ->setSlaveAddress($slave->getAddress())
             ->setType($type)
             ->setCommand($command)
-            ->setData($this->transform->asciiToHex($data))
+            ->setData($this->transformService->asciiToHex($data))
             ->setDirection($direction)
             ->save();
     }

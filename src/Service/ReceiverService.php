@@ -20,17 +20,17 @@ class ReceiverService extends AbstractService
     /**
      * @var TransformService
      */
-    private $transform;
+    private $transformService;
 
     /**
      * @var MasterService
      */
-    private $master;
+    private $masterService;
 
     /**
      * @var MasterFormatter
      */
-    private $formatter;
+    private $masterFormatter;
 
     /**
      * @var MasterRepository
@@ -41,14 +41,14 @@ class ReceiverService extends AbstractService
      * Server constructor.
      */
     public function __construct(
-        TransformService $transform,
-        MasterService $master,
-        MasterFormatter $formatter,
+        TransformService $transformService,
+        MasterService $masterService,
+        MasterFormatter $masterFormatter,
         MasterRepository $masterRepository
     ) {
-        $this->transform = $transform;
-        $this->master = $master;
-        $this->formatter = $formatter;
+        $this->transformService = $transformService;
+        $this->masterService = $masterService;
+        $this->masterFormatter = $masterFormatter;
         $this->masterRepository = $masterRepository;
     }
 
@@ -60,27 +60,27 @@ class ReceiverService extends AbstractService
      * @throws SaveError
      * @throws SelectError
      */
-    public function receive(ProtocolInterface $protocol): void
+    public function receive(ProtocolInterface $protocolService): void
     {
-        $data = $protocol->receive();
+        $data = $protocolService->receive();
 
         if (empty($data)) {
             return;
         }
 
-        $this->formatter->checksumEqual($data);
+        $this->masterFormatter->checksumEqual($data);
 
-        $cleanData = $this->formatter->getData($data);
-        $masterAddress = $this->formatter->getMasterAddress($data);
-        $type = $this->formatter->getType($data);
+        $cleanData = $this->masterFormatter->getData($data);
+        $masterAddress = $this->masterFormatter->getMasterAddress($data);
+        $type = $this->masterFormatter->getType($data);
 
-        $protocol->sendReceiveReturn($masterAddress);
+        $protocolService->sendReceiveReturn($masterAddress);
 
         if ($type === MasterService::TYPE_HANDSHAKE) {
-            $this->handshake($protocol, $cleanData, $masterAddress);
+            $this->handshake($protocolService, $cleanData, $masterAddress);
         } else {
-            $masterModel = $this->masterRepository->getByAddress($masterAddress, $protocol->getName());
-            $this->master->receive($masterModel, $type, $cleanData);
+            $masterModel = $this->masterRepository->getByAddress($masterAddress, $protocolService->getName());
+            $this->masterService->receive($masterModel, $type, $cleanData);
         }
 
         // Log schreiben
@@ -95,9 +95,9 @@ class ReceiverService extends AbstractService
      * @throws SaveError
      * @throws FileNotFound
      */
-    private function handshake(ProtocolInterface $protocol, string $data, int $masterAddress): void
+    private function handshake(ProtocolInterface $protocolService, string $data, int $masterAddress): void
     {
-        $protocolName = $protocol->getName();
+        $protocolName = $protocolService->getName();
 
         try {
             $masterModel = $this->masterRepository->getByName($data, $protocolName);
@@ -107,6 +107,6 @@ class ReceiverService extends AbstractService
 
         $address = $masterModel->getAddress();
         $masterModel->setAddress($masterAddress);
-        $this->master->setAddress($masterModel, $address);
+        $this->masterService->setAddress($masterModel, $address);
     }
 }
