@@ -5,12 +5,13 @@ namespace GibsonOS\Module\Hc\Service\Slave;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 
@@ -30,6 +31,11 @@ abstract class AbstractSlave extends AbstractService
      */
     protected $transformService;
 
+    /**
+     * @var LogRepository
+     */
+    private $logRepository;
+
     abstract public function handshake(Module $slave): Module;
 
     /**
@@ -37,10 +43,12 @@ abstract class AbstractSlave extends AbstractService
      */
     public function __construct(
         MasterService $masterService,
-        TransformService $transformService
+        TransformService $transformService,
+        LogRepository $logRepository
     ) {
         $this->masterService = $masterService;
         $this->transformService = $transformService;
+        $this->logRepository = $logRepository;
     }
 
     /**
@@ -88,20 +96,17 @@ abstract class AbstractSlave extends AbstractService
     }
 
     /**
-     * @throws SaveError
      * @throws DateTimeError
-     * @throws GetError
+     * @throws SaveError
+     * @throws SelectError
      */
     private function addLog(Module $slave, int $type, int $command, string $data, string $direction): void
     {
-        (new Log())
-            ->setMasterId($slave->getMaster()->getId())
-            ->setModuleId($slave->getId())
+        $this->logRepository->create($type, $this->transformService->asciiToHex($data), $direction)
+            ->setMaster($slave->getMaster())
+            ->setModule($slave)
             ->setSlaveAddress($slave->getAddress())
-            ->setType($type)
             ->setCommand($command)
-            ->setData($this->transformService->asciiToHex($data))
-            ->setDirection($direction)
             ->save();
     }
 }

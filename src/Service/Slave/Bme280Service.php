@@ -8,6 +8,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\Formatter\Bme280Formatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
@@ -50,9 +51,10 @@ class Bme280Service extends AbstractSlave
     public function __construct(
         MasterService $masterService,
         TransformService $transformService,
+        LogRepository $logRepository,
         Bme280Formatter $bme280Formatter
     ) {
-        parent::__construct($masterService, $transformService);
+        parent::__construct($masterService, $transformService, $logRepository);
         $this->bme280Formatter = $bme280Formatter;
     }
 

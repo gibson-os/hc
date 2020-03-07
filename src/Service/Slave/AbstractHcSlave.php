@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
+use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
@@ -179,9 +180,10 @@ abstract class AbstractHcSlave extends AbstractSlave
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
+        LogRepository $logRepository,
         SlaveFactory $slaveFactory
     ) {
-        parent::__construct($masterService, $transformService);
+        parent::__construct($masterService, $transformService, $logRepository);
         $this->eventService = $eventService;
         $this->moduleRepository = $moduleRepository;
         $this->typeRepository = $typeRepository;

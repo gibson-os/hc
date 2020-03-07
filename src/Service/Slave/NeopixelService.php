@@ -14,6 +14,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository as ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository as TypeRepository;
@@ -76,6 +77,7 @@ class NeopixelService extends AbstractHcSlave
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
+        LogRepository $logRepository,
         SlaveFactory $slaveFactory
     ) {
         parent::__construct(
@@ -85,6 +87,7 @@ class NeopixelService extends AbstractHcSlave
             $moduleRepository,
             $typeRepository,
             $masterRepository,
+            $logRepository,
             $slaveFactory
         );
         $this->ledService = $ledService;

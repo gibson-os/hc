@@ -8,6 +8,7 @@ use GibsonOS\Module\Hc\Factory\EventFactory;
 use GibsonOS\Module\Hc\Factory\MasterFactory;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Factory\TransformFactory;
+use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
@@ -24,6 +25,7 @@ class BlankFactory extends AbstractSingletonFactory
             new ModuleRepository(),
             new TypeRepository(),
             new MasterRepository(),
+            new LogRepository(),
             SlaveFactory::create()
         );
     }
