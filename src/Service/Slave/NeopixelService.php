@@ -260,7 +260,7 @@ class NeopixelService extends AbstractHcSlave
     public function readChannelStatus(Module $slave, int $length): array
     {
         $data = $this->read($slave, self::COMMAND_CHANNEL_STATUS, $length);
-        $firstByte = $this->transformService->asciiToInt($data, 0);
+        $firstByte = $this->transformService->asciiToUnsignedInt($data, 0);
 
         if ($firstByte === self::CHANNEL_READ_STATUS_NOT_SET) {
             throw new ReceiveError('Es ist kein Channel gesetzt!', self::CHANNEL_READ_STATUS_NOT_SET);
@@ -319,7 +319,7 @@ class NeopixelService extends AbstractHcSlave
      */
     public function readSequenceEepromAddress(Module $slave): int
     {
-        return $this->transformService->asciiToInt($this->read(
+        return $this->transformService->asciiToUnsignedInt($this->read(
             $slave,
             self::COMMAND_SEQUENCE_EEPROM_ADDRESS,
             2
@@ -367,7 +367,7 @@ class NeopixelService extends AbstractHcSlave
         $position = 0;
 
         for ($i = 0; $i < $config['channels']; ++$i) {
-            $channelCounts[$i] = $this->transformService->asciiToInt(substr($counts, $position, 2));
+            $channelCounts[$i] = $this->transformService->asciiToUnsignedInt(substr($counts, $position, 2));
             $position += 2;
         }
 
@@ -435,8 +435,8 @@ class NeopixelService extends AbstractHcSlave
     {
         $config = $this->readConfig($slave, self::COMMAND_CONFIGURATION_READ_LENGTH);
         $config = [
-            self::CONFIG_CHANNELS => $this->transformService->asciiToInt($config, 0),
-            self::CONFIG_MAX_LEDS => $this->transformService->asciiToInt(substr($config, 1)),
+            self::CONFIG_CHANNELS => $this->transformService->asciiToUnsignedInt($config, 0),
+            self::CONFIG_MAX_LEDS => $this->transformService->asciiToUnsignedInt(substr($config, 1)),
             self::CONFIG_COUNTS => [],
         ];
 

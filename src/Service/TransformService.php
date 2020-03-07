@@ -7,143 +7,104 @@ use GibsonOS\Core\Service\AbstractService;
 
 class TransformService extends AbstractService
 {
-    /**
-     * Macht ASCII zu HEX.
-     *
-     * Macht aus einem ASCII String einen HEX String.
-     *
-     * @param string $data ASCII String
-     */
-    public function asciiToHex(string $data): string
+    public function asciiToHex(string $asciiString): string
     {
         $return = '';
 
-        for ($i = 0; $i < strlen($data); ++$i) {
-            $return .= sprintf('%02x', ord($data[$i]));
+        for ($i = 0; $i < strlen($asciiString); ++$i) {
+            $return .= sprintf('%02x', ord($asciiString[$i]));
         }
 
         return $return;
     }
 
-    /**
-     * Macht ASCII zu BIN.
-     *
-     * Macht aus einem ASCII String einen BIN String.
-     *
-     * @param string $data ASCII String
-     */
-    public function asciiToBin(string $data): string
+    public function asciiToBin(string $asciiString, int $byte = null): string
     {
+        if ($byte !== null) {
+            return sprintf("%'.08d", decbin(ord(substr($asciiString, $byte, 1))));
+        }
+
         $return = '';
 
-        for ($i = 0; $i < strlen($data); ++$i) {
-            $return .= sprintf("%'.08d ", decbin(ord($data[$i])));
+        for ($i = 0; $i < strlen($asciiString); ++$i) {
+            $return .= sprintf("%'.08d ", decbin(ord(substr($asciiString, $i, 1))));
         }
 
         return trim($return);
     }
 
-    /**
-     * Macht ASCII zu INT.
-     *
-     * Macht aus einem ASCII String eine INT Zahl.
-     *
-     * @param string   $data     ASCII String
-     * @param int|null $byte     byte das in INT übersetzt werden soll
-     * @param bool     $unsigned Ohne Vorzeichen
-     */
-    public function asciiToInt(string $data, int $byte = null, bool $unsigned = true): int
+    public function asciiToUnsignedInt(string $asciiString, int $byte = null): int
     {
         $return = 0;
 
         if ($byte === null) {
-            for ($i = 0; $i < strlen($data); ++$i) {
-                $return = ($return << 8) + ord(substr($data, $i, 1));
+            for ($i = 0; $i < strlen($asciiString); ++$i) {
+                $return = ($return << 8) + ord(substr($asciiString, $i, 1));
             }
         } else {
-            $return = ord(substr($data, $byte, 1));
-        }
-
-        if (!$unsigned) {
-            $return = self::getSignedInt($return);
+            $return = ord(substr($asciiString, $byte, 1));
         }
 
         return $return;
     }
 
-    /**
-     * Macht HEX zu ASCII.
-     *
-     * Macht aus einem HEX String einen ASCII String.
-     *
-     * @param string $data HEX String
-     */
-    public function hexToAscii(string $data): string
+    public function asciiToSignedInt(string $asciiString, int $byte = null): int
+    {
+        return self::getSignedInt($this->asciiToUnsignedInt($asciiString, $byte));
+    }
+
+    public function hexToAscii(string $hexString): string
     {
         $return = '';
 
-        for ($i = 0; $i < strlen($data); $i += 2) {
-            $return .= chr((int) hexdec(substr($data, $i, 2)));
+        for ($i = 0; $i < strlen($hexString); $i += 2) {
+            $return .= chr((int) hexdec(substr($hexString, $i, 2)));
         }
 
         return $return;
     }
 
-    /**
-     * Macht HEX zu INT.
-     *
-     * Macht aus einem HEX String eine INT Zahl.
-     *
-     * @param string   $data HEX String
-     * @param int|null $byte byte das in INT übersetzt werden soll
-     */
-    public function hexToInt(string $data, int $byte = null): int
+    public function hexToInt(string $hexString, int $byte = null): int
     {
         if ($byte === null) {
-            return (int) hexdec($data);
+            return (int) hexdec($hexString);
         }
 
-        return (int) hexdec(substr($data, $byte * 2, 2));
+        return (int) hexdec(substr($hexString, $byte * 2, 2));
     }
 
-    /**
-     * Macht HEX zu BIN.
-     *
-     * Macht aus einem HEX String eine BIN string.
-     *
-     * @param string   $data HEX String
-     * @param int|null $byte byte das in INT übersetzt werden soll
-     */
-    public function hexToBin(string $data, int $byte = null): string
+    public function hexToBin(string $hexString, int $byte = null): string
     {
-        if ($byte === null) {
-            return sprintf("%'.08d ", decbin(self::hexToInt($data)));
+        if ($byte !== null) {
+            return sprintf("%'.08d", decbin($this->hexToInt($hexString, $byte)));
         }
 
-        return sprintf(
-            "%'.08d ",
-            decbin((int) substr((string) self::hexToInt($data, $byte), $byte * 2, 2))
-        );
+        $return = '';
+
+        for ($i = 0; $i < strlen($hexString) / 2; ++$i) {
+            $return .= sprintf("%'.08d ", decbin($this->hexToInt($hexString, $i)));
+        }
+
+        return trim($return);
     }
 
-    public function binToAscii(string $data, int $byte = null): string
+    public function binToAscii(string $binString, int $byte = null): string
     {
-        $data = trim($data);
-        $dataBytes = explode(' ', $data);
+        $binString = trim($binString);
+        $dataBytes = explode(' ', $binString);
 
         foreach ($dataBytes as $key => $dataByte) {
             $dataBytes[$key] = sprintf("%'.08d", $dataByte);
         }
 
-        $data = implode('', $dataBytes);
         $return = '';
 
         if ($byte === null) {
-            for ($i = 0; $i < strlen($data); $i += 8) {
-                $return .= chr(bindec(substr($data, $i, 8)));
+            for ($i = 0; $i < count($dataBytes); ++$i) {
+                $return .= chr(bindec($dataBytes[$i]));
             }
         } else {
-            $return = chr(bindec(substr($data, $byte * 8, 8)));
+            $return = chr(bindec($dataBytes[$byte]));
         }
 
         return $return;

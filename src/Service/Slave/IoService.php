@@ -142,7 +142,7 @@ class IoService extends AbstractHcSlave
 
         if ($slave->getConfig() === null) {
             $slave->setConfig(
-                (string) $this->transformService->asciiToInt(
+                (string) $this->transformService->asciiToUnsignedInt(
                     $this->readConfig($slave, self::COMMAND_CONFIGURATION_READ_LENGTH)
                 )
             );
@@ -302,7 +302,7 @@ class IoService extends AbstractHcSlave
     {
         $this->eventService->fire(IoDescriber::BEFORE_READ_PORTS_FROM_EEPROM, ['slave' => $slave]);
 
-        if (!$this->transformService->asciiToInt($this->read($slave, self::COMMAND_STATUS_IN_EEPROM, self::COMMAND_STATUS_IN_EEPROM_LENGTH))) {
+        if (!$this->transformService->asciiToUnsignedInt($this->read($slave, self::COMMAND_STATUS_IN_EEPROM, self::COMMAND_STATUS_IN_EEPROM_LENGTH))) {
             throw new ReceiveError('Kein Status im EEPROM vorhanden!');
         }
 
@@ -631,7 +631,7 @@ class IoService extends AbstractHcSlave
             $this->write($slave, self::COMMAND_READ_DIRECT_CONNECT, chr($port) . chr($order));
             $data = $this->read($slave, self::COMMAND_READ_DIRECT_CONNECT, self::COMMAND_READ_DIRECT_CONNECT_READ_LENGTH);
 
-            $lastByte = $this->transformService->asciiToInt($data, 2);
+            $lastByte = $this->transformService->asciiToUnsignedInt($data, 2);
 
             if ($lastByte == self::DIRECT_CONNECT_READ_NOT_SET) {
                 if ($i == self::DIRECT_CONNECT_READ_RETRY) {
@@ -817,7 +817,7 @@ class IoService extends AbstractHcSlave
     {
         $this->eventService->fire(IoDescriber::BEFORE_IS_DIRECT_CONNECT_ACTIVE, ['slave' => $slave]);
 
-        $active = $this->transformService->asciiToInt($this->read(
+        $active = $this->transformService->asciiToUnsignedInt($this->read(
             $slave,
             self::COMMAND_DIRECT_CONNECT_STATUS,
             self::COMMAND_DIRECT_CONNECT_STATUS_READ_LENGTH

@@ -38,18 +38,18 @@ class Bme280Formatter extends AbstractFormatter
     public function measureData(string $data, array $calibration): array
     {
         $pressureRaw =
-            ($this->transform->asciiToInt($data, 0) << 12) |
-            ($this->transform->asciiToInt($data, 1) << 4) |
-            ($this->transform->asciiToInt($data, 2) >> 4)
+            ($this->transform->asciiToUnsignedInt($data, 0) << 12) |
+            ($this->transform->asciiToUnsignedInt($data, 1) << 4) |
+            ($this->transform->asciiToUnsignedInt($data, 2) >> 4)
         ;
         $temperatureRaw =
-            ($this->transform->asciiToInt($data, 3) << 12) |
-            ($this->transform->asciiToInt($data, 4) << 4) |
-            ($this->transform->asciiToInt($data, 5) >> 4)
+            ($this->transform->asciiToUnsignedInt($data, 3) << 12) |
+            ($this->transform->asciiToUnsignedInt($data, 4) << 4) |
+            ($this->transform->asciiToUnsignedInt($data, 5) >> 4)
         ;
         $humidityRaw =
-            ($this->transform->asciiToInt($data, 6) << 8) |
-            $this->transform->asciiToInt($data, 7)
+            ($this->transform->asciiToUnsignedInt($data, 6) << 8) |
+            $this->transform->asciiToUnsignedInt($data, 7)
         ;
 
         $var1 = ((((($temperatureRaw >> 3) - ($calibration['temperature'][0] << 1))) * ($calibration['temperature'][1])) >> 11);

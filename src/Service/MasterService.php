@@ -112,7 +112,7 @@ class MasterService extends AbstractService
             ->setMaster($master)
         ;
 
-        $address = $this->transformService->asciiToInt($data, 0);
+        $address = $this->transformService->asciiToUnsignedInt($data, 0);
 
         echo 'Type: ' . $type . PHP_EOL;
 
@@ -120,7 +120,7 @@ class MasterService extends AbstractService
             echo 'New Slave ' . $address . PHP_EOL;
             $slave = $this->slaveHandshake($master, $address);
         } else {
-            $command = $this->transformService->asciiToInt($data, 1);
+            $command = $this->transformService->asciiToUnsignedInt($data, 1);
             echo 'Command: ' . $command . PHP_EOL;
             $slave = $this->slaveReceive($master, $address, $type, $command, substr($data, 2));
             $log->setCommand($command);
@@ -189,11 +189,11 @@ class MasterService extends AbstractService
     {
         $data = $this->senderService->receiveReadData($master, $type);
 
-        if ($address !== $this->transformService->asciiToInt($data, 0)) {
+        if ($address !== $this->transformService->asciiToUnsignedInt($data, 0)) {
             throw new ReceiveError('Slave Adresse stimmt nicht überein!');
         }
 
-        if ($command !== $this->transformService->asciiToInt($data, 1)) {
+        if ($command !== $this->transformService->asciiToUnsignedInt($data, 1)) {
             throw new ReceiveError('Kommando stimmt nicht überein!');
         }
 

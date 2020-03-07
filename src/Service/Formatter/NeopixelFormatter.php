@@ -39,11 +39,11 @@ class NeopixelFormatter extends AbstractHcFormatter
         $leds = [];
 
         for ($i = 2; $i < strlen($data);) {
-            $address = $this->transform->asciiToInt(substr($data, 0, 2));
+            $address = $this->transform->asciiToUnsignedInt(substr($data, 0, 2));
 
             if ($address > self::MAX_PROTOCOL_LEDS) {
                 for ($j = 0; $j < $address - self::MAX_PROTOCOL_LEDS; ++$j) {
-                    $addressFromGroup = $this->transform->asciiToInt(substr($data, $i, 2));
+                    $addressFromGroup = $this->transform->asciiToUnsignedInt(substr($data, $i, 2));
                     $i += 2;
                     $leds[$addressFromGroup] = $this->getLedAsArray($data, $i);
                 }
@@ -61,11 +61,11 @@ class NeopixelFormatter extends AbstractHcFormatter
     private function getLedAsArray(string $data, int &$i): array
     {
         return [
-            LedAttribute::ATTRIBUTE_KEY_RED => $this->transform->asciiToInt($data, $i++),
-            LedAttribute::ATTRIBUTE_KEY_GREEN => $this->transform->asciiToInt($data, $i++),
-            LedAttribute::ATTRIBUTE_KEY_BLUE => $this->transform->asciiToInt($data, $i++),
-            LedAttribute::ATTRIBUTE_KEY_FADE_IN => $this->transform->asciiToInt($data, $i++) >> 4,
-            LedAttribute::ATTRIBUTE_KEY_BLINK => $this->transform->asciiToInt($data, $i++) & 15,
+            LedAttribute::ATTRIBUTE_KEY_RED => $this->transform->asciiToUnsignedInt($data, $i++),
+            LedAttribute::ATTRIBUTE_KEY_GREEN => $this->transform->asciiToUnsignedInt($data, $i++),
+            LedAttribute::ATTRIBUTE_KEY_BLUE => $this->transform->asciiToUnsignedInt($data, $i++),
+            LedAttribute::ATTRIBUTE_KEY_FADE_IN => $this->transform->asciiToUnsignedInt($data, $i++) >> 4,
+            LedAttribute::ATTRIBUTE_KEY_BLINK => $this->transform->asciiToUnsignedInt($data, $i++) & 15,
         ];
     }
 

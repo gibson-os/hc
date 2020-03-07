@@ -113,7 +113,7 @@ class MasterServiceTest extends Unit
             ->shouldBeCalledOnce()
             ->willReturn($log->reveal())
         ;
-        $this->transformService->asciiToInt($data, 0)
+        $this->transformService->asciiToUnsignedInt($data, 0)
             ->shouldBeCalledOnce()
             ->willReturn($address)
         ;
@@ -183,7 +183,7 @@ class MasterServiceTest extends Unit
                 }
             }
 
-            $this->transformService->asciiToInt($data, 1)
+            $this->transformService->asciiToUnsignedInt($data, 1)
                 ->shouldBeCalledOnce()
                 ->willReturn($command)
             ;
@@ -266,7 +266,7 @@ class MasterServiceTest extends Unit
             ->shouldBeCalledOnce()
             ->willReturn('**Handtuch')
         ;
-        $this->transformService->asciiToInt('**Handtuch', 0)
+        $this->transformService->asciiToUnsignedInt('**Handtuch', 0)
             ->shouldBeCalledOnce()
             ->willReturn($address)
         ;
@@ -274,7 +274,7 @@ class MasterServiceTest extends Unit
         if ($address !== 42) {
             $this->expectException(ReceiveError::class);
         } else {
-            $this->transformService->asciiToInt('**Handtuch', 1)
+            $this->transformService->asciiToUnsignedInt('**Handtuch', 1)
                 ->shouldBeCalledOnce()
                 ->willReturn($command)
             ;

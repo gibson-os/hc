@@ -464,8 +464,8 @@ class IoFormatter extends AbstractHcFormatter
 
     public function getPortAsArray(string $data): array
     {
-        $byte1 = $this->transform->asciiToInt($data, 0);
-        $byte2 = $this->transform->asciiToInt($data, 1);
+        $byte1 = $this->transform->asciiToUnsignedInt($data, 0);
+        $byte2 = $this->transform->asciiToUnsignedInt($data, 1);
 
         $port = [
             IoService::ATTRIBUTE_PORT_KEY_DIRECTION => $byte1 & 1,
@@ -533,9 +533,9 @@ class IoFormatter extends AbstractHcFormatter
 
     public function getDirectConnectAsArray(string $data): array
     {
-        $inputValueAndOutputPortByte = $this->transform->asciiToInt($data, 0);
-        $setByte = $this->transform->asciiToInt($data, 1);
-        $pwmByte = $this->transform->asciiToInt($data, 2);
+        $inputValueAndOutputPortByte = $this->transform->asciiToUnsignedInt($data, 0);
+        $setByte = $this->transform->asciiToUnsignedInt($data, 1);
+        $pwmByte = $this->transform->asciiToUnsignedInt($data, 2);
         $addOrSub = 0;
 
         if ($setByte & 1) {

@@ -36,12 +36,12 @@ class MasterFormatter implements FormatterInterface
 
     public function getMasterAddress(string $data): int
     {
-        return $this->transform->asciiToInt($data, 0);
+        return $this->transform->asciiToUnsignedInt($data, 0);
     }
 
     public function getType(string $data): int
     {
-        return $this->transform->asciiToInt($data, 1);
+        return $this->transform->asciiToUnsignedInt($data, 1);
     }
 
     public function getData(string $data): string

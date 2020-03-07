@@ -11,7 +11,6 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
-use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
@@ -323,7 +322,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function readDeviceId(Module $slave): int
     {
         $data = $this->read($slave, self::COMMAND_DEVICE_ID, self::COMMAND_DEVICE_ID_READ_LENGTH);
-        $deviceId = ($this->transformService->asciiToInt($data, 0) << 8) | $this->transformService->asciiToInt($data, 1);
+        $deviceId = ($this->transformService->asciiToUnsignedInt($data, 0) << 8) | $this->transformService->asciiToUnsignedInt($data, 1);
 
         $this->eventService->fire(HcService::READ_DEVICE_ID, ['slave' => $slave, 'deviceId' => $deviceId]);
 
@@ -356,7 +355,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function readTypeId(Module $slave): int
     {
         $data = $this->read($slave, self::COMMAND_TYPE, self::COMMAND_TYPE_READ_LENGTH);
-        $typeId = $this->transformService->asciiToInt($data, 0);
+        $typeId = $this->transformService->asciiToUnsignedInt($data, 0);
 
         $this->eventService->fire(HcService::READ_TYPE, ['slave' => $slave, 'typeId' => $typeId]);
 
@@ -440,7 +439,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function readHertz(Module $slave): int
     {
         $data = $this->read($slave, self::COMMAND_HERTZ, self::COMMAND_HERTZ_READ_LENGTH);
-        $hertz = $this->transformService->asciiToInt($data);
+        $hertz = $this->transformService->asciiToUnsignedInt($data);
 
         $this->eventService->fire(HcService::READ_HERTZ, ['slave' => $slave, 'hertz' => $hertz]);
 
@@ -455,7 +454,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function readPwmSpeed(Module $slave): int
     {
         $data = $this->read($slave, self::COMMAND_PWM_SPEED, self::COMMAND_PWM_SPEED_READ_LENGTH);
-        $speed = $this->transformService->asciiToInt($data);
+        $speed = $this->transformService->asciiToUnsignedInt($data);
 
         $this->eventService->fire(HcService::READ_PWM_SPEED, ['slave' => $slave, 'speed' => $speed]);
 
@@ -470,7 +469,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function readEepromSize(Module $slave): int
     {
         $data = $this->read($slave, self::COMMAND_EEPROM_SIZE, self::COMMAND_EEPROM_SIZE_READ_LENGTH);
-        $eepromSize = $this->transformService->asciiToInt($data);
+        $eepromSize = $this->transformService->asciiToUnsignedInt($data);
 
         $this->eventService->fire(HcService::READ_EEPROM_SIZE, ['slave' => $slave, 'eepromSize' => $eepromSize]);
 
@@ -485,7 +484,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function readEepromFree(Module $slave): int
     {
         $data = $this->read($slave, self::COMMAND_EEPROM_FREE, self::COMMAND_EEPROM_FREE_READ_LENGTH);
-        $eepromFree = $this->transformService->asciiToInt($data);
+        $eepromFree = $this->transformService->asciiToUnsignedInt($data);
 
         $this->eventService->fire(HcService::READ_EEPROM_FREE, ['slave' => $this, 'eepromFree' => $eepromFree]);
 
@@ -500,7 +499,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function readEepromPosition(Module $slave): int
     {
         $data = $this->read($slave, self::COMMAND_EEPROM_POSITION, self::COMMAND_EEPROM_POSITION_READ_LENGTH);
-        $eepromPosition = $this->transformService->asciiToInt($data);
+        $eepromPosition = $this->transformService->asciiToUnsignedInt($data);
 
         $this->eventService->fire(HcService::READ_EEPROM_POSITION, ['slave' => $slave, 'eepromPosition' => $eepromPosition]);
 
@@ -550,7 +549,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function readBufferSize(Module $slave): int
     {
         $data = $this->read($slave, self::COMMAND_BUFFER_SIZE, self::COMMAND_BUFFER_SIZE_READ_LENGTH);
-        $bufferSize = $this->transformService->asciiToInt($data);
+        $bufferSize = $this->transformService->asciiToUnsignedInt($data);
 
         $this->eventService->fire(HcService::READ_BUFFER_SIZE, ['slave' => $slave, 'bufferSize' => $bufferSize]);
 
@@ -564,7 +563,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readLedStatus(Module $slave): array
     {
-        $leds = $this->transformService->asciiToInt($this->read(
+        $leds = $this->transformService->asciiToUnsignedInt($this->read(
             $slave,
             self::COMMAND_LEDS,
             self::COMMAND_LEDS_READ_LENGTH
@@ -685,7 +684,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readPowerLed(Module $slave): bool
     {
-        $on = (bool) $this->transformService->asciiToInt(
+        $on = (bool) $this->transformService->asciiToUnsignedInt(
             $this->read(
                 $slave,
                 self::COMMAND_POWER_LED,
@@ -705,7 +704,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readErrorLed(Module $slave): bool
     {
-        $on = (bool) $this->transformService->asciiToInt(
+        $on = (bool) $this->transformService->asciiToUnsignedInt(
             $this->read(
                 $slave,
                 self::COMMAND_ERROR_LED,
@@ -725,7 +724,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readConnectLed(Module $slave): bool
     {
-        $on = (bool) $this->transformService->asciiToInt(
+        $on = (bool) $this->transformService->asciiToUnsignedInt(
             $this->read(
                 $slave,
                 self::COMMAND_CONNECT_LED,
@@ -745,7 +744,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readTransreceiveLed(Module $slave): bool
     {
-        $on = (bool) $this->transformService->asciiToInt(
+        $on = (bool) $this->transformService->asciiToUnsignedInt(
             $this->read(
                 $slave,
                 self::COMMAND_TRANSRECEIVE_LED,
@@ -765,7 +764,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readTransceiveLed(Module $slave): bool
     {
-        $on = (bool) $this->transformService->asciiToInt(
+        $on = (bool) $this->transformService->asciiToUnsignedInt(
             $this->read(
                 $slave,
                 self::COMMAND_TRANSCEIVE_LED,
@@ -785,7 +784,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readReceiveLed(Module $slave): bool
     {
-        $on = (bool) $this->transformService->asciiToInt(
+        $on = (bool) $this->transformService->asciiToUnsignedInt(
             $this->read(
                 $slave,
                 self::COMMAND_RECEIVE_LED,
@@ -805,7 +804,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readCustomLed(Module $slave): bool
     {
-        $on = (bool) $this->transformService->asciiToInt(
+        $on = (bool) $this->transformService->asciiToUnsignedInt(
             $this->read(
                 $slave,
                 self::COMMAND_CUSTOM_LED,
@@ -948,7 +947,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readAllLeds(Module $slave): array
     {
-        $leds = $this->transformService->asciiToInt(
+        $leds = $this->transformService->asciiToUnsignedInt(
             $this->read(
                 $slave,
                 self::COMMAND_ALL_LEDS,
