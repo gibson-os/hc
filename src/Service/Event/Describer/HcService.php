@@ -24,11 +24,11 @@ class HcService implements DescriberInterface
 
     public const AFTER_WRITE_DEVICE_ID = 'afterWriteDeviceId';
 
-    public const READ_TYPE = 'readType';
+    public const READ_TYPE_ID = 'readTypeId';
 
-    public const BEFORE_WRITE_TYPE = 'beforeWriteType';
+    public const BEFORE_WRITE_TYPE_ID = 'beforeWriteTypeId';
 
-    public const AFTER_WRITE_TYPE = 'afterWriteType';
+    public const AFTER_WRITE_TYPE_ID = 'afterWriteTypeId';
 
     public const BEFORE_WRITE_RESTART = 'beforeWriteRestart';
 
@@ -186,17 +186,17 @@ class HcService implements DescriberInterface
                     'slave' => $this->slaveParameter,
                     'newDeviceId' => new IntParameter('Neue Device ID'),
                 ]),
-            self::READ_TYPE => (new Trigger('Typ gelesen'))
+            self::READ_TYPE_ID => (new Trigger('Typ gelesen'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
                     'typeId' => new TypeParameter(),
                 ]),
-            self::BEFORE_WRITE_TYPE => (new Trigger('Vor setzen des Types'))
+            self::BEFORE_WRITE_TYPE_ID => (new Trigger('Vor setzen des Types'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
                     'typeId' => new TypeParameter(),
                 ]),
-            self::AFTER_WRITE_TYPE => (new Trigger('Nach setzen des Types'))
+            self::AFTER_WRITE_TYPE_ID => (new Trigger('Nach setzen des Types'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
                     'typeId' => new TypeParameter(),

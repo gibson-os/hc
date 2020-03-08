@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Service\Slave;
+namespace Gibson\Test\Unit\Service\Slave;
 
 use Codeception\Test\Unit;
 use GibsonOS\Module\Hc\Model\Log;
@@ -67,47 +67,36 @@ class AbstractSlaveTest extends Unit
 
     public function testWrite(): void
     {
-        $master = $this->prophesize(Master::class);
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(3)
-            ->willReturn($master->reveal())
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(2)
-            ->willReturn(7)
-        ;
-        $this->masterService->send($master->reveal(), 255, '*Handtuch')
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReceiveReturn($master->reveal())
-            ->shouldBeCalledOnce()
-        ;
-
-        $this->prophesizeAddLog($master, 255, 7, 42, 'Handtuch', 'output');
+        self::prophesizeWrite(
+            $this->prophesize(Master::class),
+            $this->slave,
+            $this->masterService,
+            $this->transformService,
+            $this->logRepository,
+            $this->prophesize(Log::class),
+            255,
+            7,
+            42,
+            'Handtuch'
+        );
 
         $this->abstractSlave->write($this->slave->reveal(), 42, 'Handtuch');
     }
 
     public function testRead(): void
     {
-        $master = $this->prophesize(Master::class);
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(3)
-            ->willReturn($master->reveal())
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(3)
-            ->willReturn(7)
-        ;
-        $this->masterService->send($master->reveal(), 255, chr((7 << 1) | 1) . chr(42) . chr(8))
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReadData($master->reveal(), 7, 255, 42)
-            ->shouldBeCalledOnce()
-            ->willReturn('Handtuch')
-        ;
-
-        $this->prophesizeAddLog($master, 255, 7, 42, 'Handtuch', 'input');
+        self::prophesizeRead(
+            $this->prophesize(Master::class),
+            $this->slave,
+            $this->masterService,
+            $this->transformService,
+            $this->logRepository,
+            $this->prophesize(Log::class),
+            255,
+            7,
+            42,
+            'Handtuch'
+        );
 
         $this->assertEquals(
             'Handtuch',
@@ -115,14 +104,106 @@ class AbstractSlaveTest extends Unit
         );
     }
 
-    public function prophesizeAddLog(ObjectProphecy $master, int $type, int $slaveAddress, int $command, string $data, string $direction): void
-    {
-        $log = $this->prophesize(Log::class);
+    public static function prophesizeWrite(
+        ObjectProphecy $master,
+        ObjectProphecy $slave,
+        ObjectProphecy $masterService,
+        ObjectProphecy $transformService,
+        ObjectProphecy $logRepository,
+        ObjectProphecy $log,
+        int $type,
+        int $slaveAddress,
+        int $command,
+        string $data
+    ): void {
+        $slave->getMaster()
+            ->shouldBeCalledTimes(3)
+            ->willReturn($master->reveal())
+        ;
+        $slave->getAddress()
+            ->shouldBeCalledTimes(2)
+            ->willReturn($slaveAddress)
+        ;
+        $masterService->send($master->reveal(), $type, chr($slaveAddress << 1) . chr($command) . $data)
+            ->shouldBeCalledOnce()
+        ;
+        $masterService->receiveReceiveReturn($master->reveal())
+            ->shouldBeCalledOnce()
+        ;
+
+        self::prophesizeAddLog(
+            $master,
+            $slave,
+            $transformService,
+            $logRepository,
+            $log,
+            $type,
+            $slaveAddress,
+            $command,
+            $data,
+            'output'
+        );
+    }
+
+    public static function prophesizeRead(
+        ObjectProphecy $master,
+        ObjectProphecy $slave,
+        ObjectProphecy $masterService,
+        ObjectProphecy $transformService,
+        ObjectProphecy $logRepository,
+        ObjectProphecy $log,
+        int $type,
+        int $slaveAddress,
+        int $command,
+        string $data
+    ): void {
+        $slave->getMaster()
+            ->shouldBeCalledTimes(3)
+            ->willReturn($master->reveal())
+        ;
+        $slave->getAddress()
+            ->shouldBeCalledTimes(3)
+            ->willReturn($slaveAddress)
+        ;
+        $masterService->send($master->reveal(), $type, chr(($slaveAddress << 1) | 1) . chr($command) . chr(strlen($data)))
+            ->shouldBeCalledOnce()
+        ;
+        $masterService->receiveReadData($master->reveal(), $slaveAddress, $type, $command)
+            ->shouldBeCalledOnce()
+            ->willReturn($data)
+        ;
+
+        self::prophesizeAddLog(
+            $master,
+            $slave,
+            $transformService,
+            $logRepository,
+            $log,
+            $type,
+            $slaveAddress,
+            $command,
+            $data,
+            'input'
+        );
+    }
+
+    public static function prophesizeAddLog(
+        ObjectProphecy $master,
+        ObjectProphecy $slave,
+        ObjectProphecy $transformService,
+        ObjectProphecy $logRepository,
+        ObjectProphecy $log,
+        int $type,
+        int $slaveAddress,
+        int $command,
+        string $data,
+        string $direction
+    ): void {
         $log->setMaster($master->reveal())
             ->shouldBeCalledOnce()
             ->willReturn($log->reveal())
         ;
-        $log->setModule($this->slave->reveal())
+        $log->setModule($slave->reveal())
             ->shouldBeCalledOnce()
             ->willReturn($log->reveal())
         ;
@@ -137,11 +218,11 @@ class AbstractSlaveTest extends Unit
         $log->save()
             ->shouldBeCalledOnce()
         ;
-        $this->transformService->asciiToHex($data)
+        $transformService->asciiToHex($data)
             ->shouldBeCalledOnce()
             ->willReturn('Unwarscheinlich')
         ;
-        $this->logRepository->create($type, 'Unwarscheinlich', $direction)
+        $logRepository->create($type, 'Unwarscheinlich', $direction)
             ->shouldBeCalledOnce()
             ->willReturn($log->reveal())
         ;

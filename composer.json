@@ -25,7 +25,8 @@
   ],
   "autoload": {
     "psr-4": {
-      "GibsonOS\\Module\\Hc\\": "src/"
+      "GibsonOS\\Module\\Hc\\": "src/",
+      "Gibson\\Test\\Unit\\": "tests/unit/"
     }
   },
   "scripts": {

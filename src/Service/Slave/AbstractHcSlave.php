@@ -288,7 +288,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function write(Module $slave, int $command, string $data = ''): void
     {
         // @todo Workaround. Server sendet bei einem Byte die Daten anders. Denk drüber nach!
-        if (strlen($data) == 1) {
+        if (strlen($data) === 1) {
             $data .= 'a';
         }
 
@@ -324,7 +324,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function readDeviceId(Module $slave): int
     {
         $data = $this->read($slave, self::COMMAND_DEVICE_ID, self::COMMAND_DEVICE_ID_READ_LENGTH);
-        $deviceId = ($this->transformService->asciiToUnsignedInt($data, 0) << 8) | $this->transformService->asciiToUnsignedInt($data, 1);
+        $deviceId = $this->transformService->asciiToUnsignedInt($data);
 
         $this->eventService->fire(HcService::READ_DEVICE_ID, ['slave' => $slave, 'deviceId' => $deviceId]);
 
@@ -347,6 +347,8 @@ abstract class AbstractHcSlave extends AbstractSlave
         );
 
         $this->eventService->fire(HcService::AFTER_WRITE_DEVICE_ID, ['slave' => $slave, 'newDeviceId' => $deviceId]);
+
+        $slave->setDeviceId($deviceId);
     }
 
     /**
@@ -357,9 +359,9 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function readTypeId(Module $slave): int
     {
         $data = $this->read($slave, self::COMMAND_TYPE, self::COMMAND_TYPE_READ_LENGTH);
-        $typeId = $this->transformService->asciiToUnsignedInt($data, 0);
+        $typeId = $this->transformService->asciiToUnsignedInt($data);
 
-        $this->eventService->fire(HcService::READ_TYPE, ['slave' => $slave, 'typeId' => $typeId]);
+        $this->eventService->fire(HcService::READ_TYPE_ID, ['slave' => $slave, 'typeId' => $typeId]);
 
         return $typeId;
     }
@@ -370,15 +372,16 @@ abstract class AbstractHcSlave extends AbstractSlave
      * @throws SelectError
      * @throws FileNotFound
      */
-    public function writeType(Module $slave, Type $type): AbstractSlave
+    public function writeTypeId(Module $slave, Type $type): AbstractSlave
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_TYPE, ['slave' => $slave, 'typeId' => $type->getId()]);
+        $this->eventService->fire(HcService::BEFORE_WRITE_TYPE_ID, ['slave' => $slave, 'typeId' => $type->getId()]);
 
         $this->write($slave, self::COMMAND_TYPE, chr((int) $type->getId()));
 
-        $this->eventService->fire(HcService::AFTER_WRITE_TYPE, ['slave' => $slave, 'typeId' => $type->getId()]);
+        $this->eventService->fire(HcService::AFTER_WRITE_TYPE_ID, ['slave' => $slave, 'typeId' => $type->getId()]);
 
-        $slaveService = $this->slaveFactory->get($slave->getType()->getHelper());
+        $slave->setType($type);
+        $slaveService = $this->slaveFactory->get($type->getHelper());
         $slaveService->handshake($slave);
 
         return $slaveService;
@@ -408,7 +411,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writePwmSpeed(Module $slave, int $speed): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_PWM_SPEED, ['slave' => $slave, 'speed' => $speed]);
+        $this->eventService->fire(HcService::BEFORE_WRITE_PWM_SPEED, ['slave' => $slave, 'pwmSpeed' => $speed]);
 
         $this->write(
             $slave,
@@ -416,7 +419,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             chr($speed >> 8) . chr($speed)
         );
 
-        $this->eventService->fire(HcService::AFTER_WRITE_PWM_SPEED, ['slave' => $slave, 'speed' => $speed]);
+        $this->eventService->fire(HcService::AFTER_WRITE_PWM_SPEED, ['slave' => $slave, 'pwmSpeed' => $speed]);
     }
 
     /**
@@ -458,7 +461,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $data = $this->read($slave, self::COMMAND_PWM_SPEED, self::COMMAND_PWM_SPEED_READ_LENGTH);
         $speed = $this->transformService->asciiToUnsignedInt($data);
 
-        $this->eventService->fire(HcService::READ_PWM_SPEED, ['slave' => $slave, 'speed' => $speed]);
+        $this->eventService->fire(HcService::READ_PWM_SPEED, ['slave' => $slave, 'pwmSpeed' => $speed]);
 
         return $speed;
     }
@@ -488,7 +491,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $data = $this->read($slave, self::COMMAND_EEPROM_FREE, self::COMMAND_EEPROM_FREE_READ_LENGTH);
         $eepromFree = $this->transformService->asciiToUnsignedInt($data);
 
-        $this->eventService->fire(HcService::READ_EEPROM_FREE, ['slave' => $this, 'eepromFree' => $eepromFree]);
+        $this->eventService->fire(HcService::READ_EEPROM_FREE, ['slave' => $slave, 'eepromFree' => $eepromFree]);
 
         return $eepromFree;
     }

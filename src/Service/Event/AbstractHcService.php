@@ -72,7 +72,7 @@ abstract class AbstractHcService extends AbstractEventService
     public function writeTypeId(AbstractHcSlave $slaveService, Module $slave, array $params): void
     {
         $type = $this->typeRepository->getById($params['typeId']);
-        $slaveService->writeType($slave, $type);
+        $slaveService->writeTypeId($slave, $type);
     }
 
     /**
