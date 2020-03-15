@@ -3,6 +3,7 @@
 namespace Gibson\Test\Unit\Service\Slave;
 
 use Codeception\Test\Unit;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
@@ -45,7 +46,7 @@ class AbstractHcSlaveTest extends Unit
     /**
      * @var ObjectProphecy|ModuleRepository
      */
-    private $moduleRepositroy;
+    private $moduleRepository;
 
     /**
      * @var ObjectProphecy|TypeRepository
@@ -77,19 +78,25 @@ class AbstractHcSlaveTest extends Unit
      */
     private $abstractSlaveTest;
 
+    /**
+     * @var ObjectProphecy|Master
+     */
+    private $master;
+
     protected function _before(): void
     {
         $this->masterService = $this->prophesize(MasterService::class);
         $this->transformService = $this->prophesize(TransformService::class);
         $this->eventService = $this->prophesize(EventService::class);
-        $this->moduleRepositroy = $this->prophesize(ModuleRepository::class);
+        $this->moduleRepository = $this->prophesize(ModuleRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
         $this->slaveFactory = $this->prophesize(SlaveFactory::class);
         $this->slave = $this->prophesize(Module::class);
+        $this->master = $this->prophesize(Master::class);
 
-        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService->reveal(), $this->eventService->reveal(), $this->moduleRepositroy->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->slaveFactory->reveal(), $this->slave->reveal()) extends AbstractHcSlave {
+        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService->reveal(), $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->slaveFactory->reveal(), $this->slave->reveal()) extends AbstractHcSlave {
             /**
              * @var Module
              */
@@ -122,13 +129,783 @@ class AbstractHcSlaveTest extends Unit
         };
     }
 
+    public function testHandshakeExistingDevice(): void
+    {
+        $this->prophesizeReadTypeId(7);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn(7)
+        ;
+
+        $this->prophesizeReadDeviceId($this->slave, 4242);
+        $this->slave->getDeviceId()
+            ->shouldBeCalledTimes(3)
+            ->willReturn(4242)
+        ;
+
+        $this->slave->getId()
+            ->shouldBeCalledTimes(1)
+            ->willReturn(7)
+        ;
+        $this->prophesizeHandshake($this->slave);
+
+        $this->masterService->send($this->master->reveal(), 4, chr(42))
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterService->receiveReceiveReturn($this->master->reveal())
+            ->shouldBeCalledOnce()
+        ;
+
+        $this->slave->getMaster()
+            ->shouldBeCalledTimes(20)
+        ;
+        $this->slave->getAddress()
+            ->shouldBeCalledTimes(19)
+        ;
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }
+
+    public function testHandshakeWrongType(): void
+    {
+        $this->prophesizeReadTypeId(42);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn(7)
+        ;
+
+        $type = $this->prophesize(Type::class);
+        $type->getHelper()
+            ->shouldBeCalledOnce()
+            ->willReturn('prefect')
+        ;
+        $this->slave->setType($type->reveal())
+            ->shouldBeCalledOnce()
+            ->willReturn($this->slave->reveal())
+        ;
+        $this->slave->getType()
+            ->shouldBeCalledOnce()
+            ->willReturn($type->reveal())
+        ;
+        $this->typeRepository->getById(42)
+            ->shouldBeCalledOnce()
+            ->willReturn($type->reveal())
+        ;
+        $slaveService = $this->prophesize(AbstractSlave::class);
+        $slaveService->handshake($this->slave->reveal())
+            ->shouldBeCalledOnce()
+            ->willReturn($this->slave->reveal())
+        ;
+        $this->slaveFactory->get('prefect')
+            ->shouldBeCalledOnce()
+            ->willReturn($slaveService->reveal())
+        ;
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }
+
+    public function testHandshakeWrongDeviceId(): void
+    {
+        $this->prophesizeReadTypeId(7);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn(7)
+        ;
+
+        $this->prophesizeReadDeviceId($this->slave, 4200);
+        $this->slave->getDeviceId()
+            ->shouldBeCalledOnce()
+            ->willReturn(4242)
+        ;
+
+        $newSlave = $this->prophesize(Module::class);
+        $this->prophesizeHandshake($newSlave);
+        $newSlave->getDeviceId()
+            ->shouldBeCalledTimes(2)
+            ->willReturn(4242)
+        ;
+        $newSlave->getMaster()
+            ->shouldBeCalledTimes(14)
+        ;
+        $newSlave->getAddress()
+            ->shouldBeCalledTimes(13)
+        ;
+
+        $this->moduleRepository->getByDeviceId(4200)
+            ->shouldBeCalledOnce()
+            ->willReturn($newSlave->reveal())
+        ;
+
+        $this->masterService->send($this->master->reveal(), 4, chr(42))
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterService->receiveReceiveReturn($this->master->reveal())
+            ->shouldBeCalledOnce()
+        ;
+
+        $this->slave->getMaster()
+            ->shouldBeCalledTimes(6)
+        ;
+        $this->slave->getAddress()
+            ->shouldBeCalledTimes(6)
+        ;
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }
+
+    public function testHandshakeEmptyId(): void
+    {
+        $this->prophesizeReadTypeId(7);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn(7)
+        ;
+
+        $this->prophesizeReadDeviceId($this->slave, 4242);
+        $this->slave->getId()
+            ->shouldBeCalledTimes(1)
+            ->willReturn(null)
+        ;
+
+        $newSlave = $this->prophesize(Module::class);
+        $this->prophesizeHandshake($newSlave);
+        $newSlave->getDeviceId()
+            ->shouldBeCalledTimes(2)
+            ->willReturn(4242)
+        ;
+        $newSlave->getMaster()
+            ->shouldBeCalledTimes(14)
+        ;
+        $newSlave->getAddress()
+            ->shouldBeCalledTimes(13)
+        ;
+
+        $this->moduleRepository->getByDeviceId(4242)
+            ->shouldBeCalledOnce()
+            ->willReturn($newSlave)
+        ;
+
+        $this->masterService->send($this->master->reveal(), 4, chr(42))
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterService->receiveReceiveReturn($this->master->reveal())
+            ->shouldBeCalledOnce()
+        ;
+
+        $this->slave->getMaster()
+            ->shouldBeCalledTimes(6)
+        ;
+        $this->slave->getAddress()
+            ->shouldBeCalledTimes(6)
+        ;
+        $this->slave->getDeviceId()
+            ->shouldBeCalledOnce()
+            ->willReturn(4242)
+        ;
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }
+
+    /**
+     * @dataProvider getHandshakeIllegalDeviceIdData
+     */
+    public function testHandshakeIllegalDeviceId(int $deviceId): void
+    {
+        $this->prophesizeReadTypeId(7);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn(7)
+        ;
+
+        $this->prophesizeReadDeviceId($this->slave, $deviceId);
+        $this->prophesizeHandshake($this->slave);
+        $this->prophesizeWriteDeviceId($this->slave, $deviceId, 4242);
+
+        $this->masterService->send($this->master->reveal(), 4, chr(42))
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterService->receiveReceiveReturn($this->master->reveal())
+            ->shouldBeCalledTimes(2)
+        ;
+
+        $this->moduleRepository->getFreeDeviceId()
+            ->shouldBeCalledOnce()
+            ->willReturn(4242);
+
+        $this->slave->getDeviceId()
+            ->shouldBeCalledTimes($deviceId === 0 ? 3 : 4)
+            ->willReturn($deviceId)
+        ;
+        $this->slave->getId()
+            ->shouldBeCalledOnce()
+            ->willReturn(42424242)
+        ;
+        $this->slave->getMaster()
+            ->shouldBeCalledTimes(23)
+        ;
+        $this->slave->getAddress()
+            ->shouldBeCalledTimes(21)
+        ;
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }
+
+    /**
+     * @dataProvider getHandshakeIllegalDeviceIdData
+     */
+    public function testHandshakeIllegalDeviceIdWrongDeviceIdModule(int $deviceId): void
+    {
+        $this->prophesizeReadTypeId(7);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn(7)
+        ;
+
+        $this->prophesizeReadDeviceId($this->slave, 42420);
+        $this->prophesizeHandshake($this->slave);
+        $this->prophesizeWriteDeviceId($this->slave, $deviceId, 4242);
+
+        $this->masterService->send($this->master->reveal(), 4, chr(42))
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterService->receiveReceiveReturn($this->master->reveal())
+            ->shouldBeCalledTimes(2)
+        ;
+
+        $this->moduleRepository->getFreeDeviceId()
+            ->shouldBeCalledOnce()
+            ->willReturn(4242)
+        ;
+        $this->moduleRepository->getByDeviceId(42420)
+            ->shouldBeCalledOnce()
+            ->willReturn($this->slave->reveal())
+        ;
+
+        $this->slave->getDeviceId()
+            ->shouldBeCalledTimes($deviceId === 0 ? 3 : 4)
+            ->willReturn($deviceId)
+        ;
+        $this->slave->getMaster()
+            ->shouldBeCalledTimes(23)
+        ;
+        $this->slave->getAddress()
+            ->shouldBeCalledTimes(21)
+        ;
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }
+
+    /**
+     * @dataProvider getHandshakeIllegalDeviceIdData
+     */
+    public function testHandshakeIllegalDeviceIdWrongDeviceIdDatabase(int $deviceId): void
+    {
+        $this->prophesizeReadTypeId(7);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn(7)
+        ;
+
+        $this->prophesizeReadDeviceId($this->slave, $deviceId);
+        $this->prophesizeHandshake($this->slave);
+        $this->prophesizeWriteDeviceId($this->slave, $deviceId, 4242);
+
+        $this->masterService->send($this->master->reveal(), 4, chr(42))
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterService->receiveReceiveReturn($this->master->reveal())
+            ->shouldBeCalledTimes(2)
+        ;
+
+        $this->moduleRepository->getFreeDeviceId()
+            ->shouldBeCalledOnce()
+            ->willReturn(4242)
+        ;
+        $this->moduleRepository->getByDeviceId($deviceId)
+            ->shouldBeCalledOnce()
+            ->willReturn($this->slave->reveal())
+        ;
+
+        $this->slave->getDeviceId()
+            ->shouldBeCalledTimes($deviceId === 0 ? 3 : 4)
+            ->willReturn(42420, $deviceId, $deviceId, $deviceId)
+        ;
+        $this->slave->setDeviceId(4242)
+            ->shouldBeCalledOnce()
+            ->willReturn($this->slave->reveal())
+        ;
+        $this->slave->getMaster()
+            ->shouldBeCalledTimes(23)
+        ;
+        $this->slave->getAddress()
+            ->shouldBeCalledTimes(21)
+        ;
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }
+
+    /**
+     * @dataProvider getHandshakeIllegalDeviceIdData
+     */
+    public function testHandshakeIllegalDeviceIdEmptyId(int $deviceId): void
+    {
+        $this->prophesizeReadTypeId(7);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn(7)
+        ;
+
+        $this->prophesizeReadDeviceId($this->slave, $deviceId);
+        $this->prophesizeHandshake($this->slave);
+        $this->prophesizeWriteDeviceId($this->slave, $deviceId, 4242);
+
+        $this->masterService->send($this->master->reveal(), 4, chr(42))
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterService->receiveReceiveReturn($this->master->reveal())
+            ->shouldBeCalledTimes(2)
+        ;
+
+        $this->moduleRepository->getFreeDeviceId()
+            ->shouldBeCalledOnce()
+            ->willReturn(4242)
+        ;
+        $this->moduleRepository->getByDeviceId($deviceId)
+            ->shouldBeCalledOnce()
+            ->willReturn($this->slave->reveal())
+        ;
+
+        $this->slave->getDeviceId()
+            ->shouldBeCalledTimes($deviceId === 0 ? 3 : 4)
+            ->willReturn($deviceId)
+        ;
+        $this->slave->getId()
+            ->shouldBeCalledOnce()
+            ->willReturn(null)
+        ;
+        $this->slave->getMaster()
+            ->shouldBeCalledTimes(23)
+        ;
+        $this->slave->getAddress()
+            ->shouldBeCalledTimes(21)
+        ;
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }
+
+    public function testHandshakeWrongDeviceIdNewSlave(): void
+    {
+        $this->prophesizeReadTypeId(7);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn(7)
+        ;
+
+        $this->prophesizeReadDeviceId($this->slave, 4200);
+        $this->prophesizeWriteAddress(4242, 42, 42);
+        $this->prophesizeHandshake($this->slave);
+
+        $this->masterService->send($this->master->reveal(), 4, chr(42))
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterService->receiveReceiveReturn($this->master->reveal())
+            ->shouldBeCalledTimes(2)
+        ;
+
+        $this->moduleRepository->getByDeviceId(4200)
+            ->shouldBeCalledOnce()
+            ->willThrow(SelectError::class)
+        ;
+        $this->masterRepository->getNextFreeAddress(42424242)
+            ->shouldBeCalledOnce()
+            ->willReturn(42)
+        ;
+
+        $this->master->getId()
+            ->shouldBeCalledOnce()
+            ->willReturn(42424242)
+        ;
+
+        $this->slave->getDeviceId()
+            ->shouldBeCalledTimes(4)
+            ->willReturn(4242)
+        ;
+        $this->slave->getMaster()
+            ->shouldBeCalledTimes(25)
+        ;
+        $this->slave->getAddress()
+            ->shouldBeCalledTimes(21)
+        ;
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }
+
+    public function testHandshakeEmptyIdNewSlave(): void
+    {
+        $this->prophesizeReadTypeId(7);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn(7)
+        ;
+
+        $this->prophesizeReadDeviceId($this->slave, 4242);
+        $this->prophesizeWriteAddress(4242, 42, 42);
+        $this->prophesizeHandshake($this->slave);
+
+        $this->masterService->send($this->master->reveal(), 4, chr(42))
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterService->receiveReceiveReturn($this->master->reveal())
+            ->shouldBeCalledTimes(2)
+        ;
+
+        $this->moduleRepository->getByDeviceId(4242)
+            ->shouldBeCalledOnce()
+            ->willThrow(SelectError::class)
+        ;
+        $this->masterRepository->getNextFreeAddress(42424242)
+            ->shouldBeCalledOnce()
+            ->willReturn(42)
+        ;
+
+        $this->master->getId()
+            ->shouldBeCalledOnce()
+            ->willReturn(42424242)
+        ;
+
+        $this->slave->getDeviceId()
+            ->shouldBeCalledTimes(4)
+            ->willReturn(4242)
+        ;
+        $this->slave->getId()
+            ->shouldBeCalledOnce()
+            ->willReturn(null)
+        ;
+        $this->slave->getMaster()
+            ->shouldBeCalledTimes(25)
+        ;
+        $this->slave->getAddress()
+            ->shouldBeCalledTimes(21)
+        ;
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }
+
+    /**
+     * @dataProvider getHandshakeIllegalDeviceIdData
+     */
+    public function testHandshakeWrongAndIllegalDeviceIdNewSlave(int $deviceId): void
+    {
+        $this->prophesizeReadTypeId(7);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn(7)
+        ;
+
+        $this->prophesizeReadDeviceId($this->slave, 4242);
+        $this->prophesizeHandshake($this->slave);
+        $this->prophesizeWriteDeviceId($this->slave, $deviceId, 4242);
+        $this->prophesizeWriteAddress(4242, 42, 42);
+
+        $this->masterService->send($this->master->reveal(), 4, chr(42))
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterService->receiveReceiveReturn($this->master->reveal())
+            ->shouldBeCalledTimes(3)
+        ;
+
+        $this->moduleRepository->getFreeDeviceId()
+            ->shouldBeCalledOnce()
+            ->willReturn(4242)
+        ;
+        $this->moduleRepository->getByDeviceId(4242)
+            ->shouldBeCalledOnce()
+            ->willThrow(SelectError::class)
+        ;
+        $this->masterRepository->getNextFreeAddress(42424242)
+            ->shouldBeCalledOnce()
+            ->willReturn(42)
+        ;
+
+        $this->master->getId()
+            ->shouldBeCalledOnce()
+            ->willReturn(42424242)
+        ;
+
+        $this->slave->getDeviceId()
+            ->shouldBeCalledTimes($deviceId === 0 ? 4 : 5)
+            ->willReturn($deviceId, $deviceId, $deviceId, $deviceId === 0 ? 4242 : $deviceId, 4242)
+        ;
+        $this->slave->setDeviceId(4242)
+            ->shouldBeCalledOnce()
+            ->willReturn($this->slave->reveal())
+        ;
+        $this->slave->getMaster()
+            ->shouldBeCalledTimes(28)
+        ;
+        $this->slave->getAddress()
+            ->shouldBeCalledTimes(23)
+        ;
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }
+
+    /**
+     * @dataProvider getHandshakeIllegalDeviceIdData
+     */
+    public function testHandshakeIllegalDeviceIdEmptyIdNewSlave(int $deviceId): void
+    {
+        $this->prophesizeReadTypeId(7);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn(7)
+        ;
+
+        $this->prophesizeReadDeviceId($this->slave, $deviceId);
+        $this->prophesizeHandshake($this->slave);
+        $this->prophesizeWriteDeviceId($this->slave, $deviceId, 4242);
+        $this->prophesizeWriteAddress(4242, 42, 42);
+
+        $this->masterService->send($this->master->reveal(), 4, chr(42))
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterService->receiveReceiveReturn($this->master->reveal())
+            ->shouldBeCalledTimes(3)
+        ;
+
+        $this->moduleRepository->getFreeDeviceId()
+            ->shouldBeCalledOnce()
+            ->willReturn(4242)
+        ;
+        $this->moduleRepository->getByDeviceId($deviceId)
+            ->shouldBeCalledOnce()
+            ->willThrow(SelectError::class)
+        ;
+        $this->masterRepository->getNextFreeAddress(42424242)
+            ->shouldBeCalledOnce()
+            ->willReturn(42)
+        ;
+
+        $this->master->getId()
+            ->shouldBeCalledOnce()
+            ->willReturn(42424242)
+        ;
+
+        $this->slave->getDeviceId()
+            ->shouldBeCalledTimes($deviceId === 0 ? 4 : 5)
+            ->willReturn($deviceId, $deviceId, $deviceId, $deviceId === 0 ? 4242 : $deviceId, 4242)
+        ;
+        $this->slave->setDeviceId(4242)
+            ->shouldBeCalledOnce()
+            ->willReturn($this->slave->reveal())
+        ;
+        $this->slave->getId()
+            ->shouldBeCalledOnce()
+            ->willReturn(null)
+        ;
+        $this->slave->getMaster()
+            ->shouldBeCalledTimes(28)
+        ;
+        $this->slave->getAddress()
+            ->shouldBeCalledTimes(23)
+        ;
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }
+
+    private function prophesizeHandshake(ObjectProphecy $slave): void
+    {
+        $this->prophesizeReadHertz($slave, 420000);
+        $slave->setHertz(420000)
+            ->shouldBeCalledOnce()
+            ->willReturn($slave->reveal())
+        ;
+        $this->prophesizeReadBufferSize($slave, 4);
+        $slave->setBufferSize(4)
+            ->shouldBeCalledOnce()
+            ->willReturn($slave->reveal())
+        ;
+        $this->prophesizeReadEepromSize($slave, 420042);
+        $slave->setEepromSize(420042)
+            ->shouldBeCalledOnce()
+            ->willReturn($slave->reveal())
+        ;
+        $this->prophesizeReadPwmSpeed($slave, 42042042);
+        $slave->setPwmSpeed(42042042)
+            ->shouldBeCalledOnce()
+            ->willReturn($slave->reveal())
+        ;
+    }
+
+    /**
+     * @dataProvider getHandshakeData
+     */
+    /*public function testHandshake(?int $id, bool $typeEqual, bool $deviceIdEqual, bool $exists, int $deviceId): void
+    {
+        $this->prophesizeReadTypeId(7);
+        $this->slave->getTypeId()
+            ->shouldBeCalledOnce()
+            ->willReturn($typeEqual ? 7 : 9)
+        ;
+
+        if ($typeEqual) {
+            $this->prophesizeReadDeviceId($deviceId);
+            $this->slave->getDeviceId()
+                ->shouldBeCalledTimes(3)
+                ->willReturn($deviceIdEqual ? $deviceId : $deviceId + 1)
+            ;
+            $this->prophesizeReadHertz(420000);
+            $this->slave->setHertz(420000)
+                ->shouldBeCalledOnce()
+                ->willReturn($this->slave->reveal())
+            ;
+            $this->prophesizeReadBufferSize(4);
+            $this->slave->setBufferSize(4)
+                ->shouldBeCalledOnce()
+                ->willReturn($this->slave->reveal())
+            ;
+            $this->prophesizeReadEepromSize(420042);
+            $this->slave->setEepromSize(420042)
+                ->shouldBeCalledOnce()
+                ->willReturn($this->slave->reveal())
+            ;
+            $this->prophesizeReadPwmSpeed(42042042);
+            $this->slave->setPwmSpeed(42042042)
+                ->shouldBeCalledOnce()
+                ->willReturn($this->slave->reveal())
+            ;
+            $this->slave->getAddress()
+                ->shouldBeCalledTimes(19)
+            ;
+            $this->slave->getMaster()
+                ->shouldBeCalledTimes(20)
+                ->willReturn($this->master->reveal())
+            ;
+
+            if ($deviceIdEqual) {
+                $this->slave->getId()
+                    ->shouldBeCalledOnce()
+                    ->willReturn($id)
+                ;
+            }
+
+            if (!$deviceIdEqual || $id === null) {
+                $getByDeviceIdCall = $this->moduleRepositroy->getByDeviceId($deviceId)
+                    ->shouldBeCalledOnce()
+                ;
+
+                if ($exists) {
+                    $this->masterService->send($this->master->reveal(), 4, chr(42))
+                        ->shouldBeCalledOnce()
+                    ;
+                    $this->masterService->receiveReceiveReturn($this->master->reveal())
+                        ->shouldBeCalledOnce()
+                    ;
+                    $getByDeviceIdCall->willReturn($this->slave->reveal());
+                } else {
+                    $getByDeviceIdCall->willThrow(SelectError::class);
+                    $this->slave->setDeviceId($deviceId)
+                        ->shouldBeCalledOnce()
+                        ->willReturn($this->slave->reveal())
+                    ;
+                    $this->prophesizeWriteAddress($deviceIdEqual ? $deviceId : $deviceId + 1, 42, 88);
+                    $this->master->getId()
+                        ->shouldBeCalledOnce()
+                        ->willReturn(79)
+                    ;
+                    $this->masterRepository->getNextFreeAddress(79)
+                        ->shouldBeCalledOnce()
+                        ->willReturn(88)
+                    ;
+                    $this->slave->getAddress()
+                        ->shouldBeCalledTimes(20)
+                    ;
+                    $this->slave->getMaster()
+                        ->shouldBeCalledTimes(23)
+                    ;
+                    $this->slave->getDeviceId()
+                        ->shouldBeCalledTimes(4)
+                    ;
+                }
+            } else {
+                $this->masterService->send($this->master->reveal(), 4, chr(42))
+                    ->shouldBeCalledOnce()
+                ;
+                $this->masterService->receiveReceiveReturn($this->master->reveal())
+                    ->shouldBeCalledOnce()
+                ;
+            }
+
+            $this->slave->getDeviceId()
+                ->willReturn($deviceIdEqual ? $deviceId : $deviceId + 1)
+            ;
+
+            if ($deviceId === 0 || $deviceId > 65534) {
+                var_dump('hier');
+                $this->moduleRepositroy->getFreeDeviceId()
+                    ->shouldBeCalledOnce()
+                    ->willReturn($deviceId)
+                ;
+                $this->slave->setDeviceId($deviceId)
+                    ->shouldBeCalledOnce()
+                    ->willReturn($this->slave->reveal())
+                ;
+                $this->prophesizeWriteDeviceId($deviceId, $deviceId);
+                $this->masterService->receiveReceiveReturn($this->master->reveal())
+                    ->shouldBeCalledTimes(2)
+                ;
+                $this->slave->getMaster()
+                    ->shouldBeCalledTimes(23)
+                ;
+                $this->slave->getAddress()
+                    ->shouldBeCalledTimes(21)
+                ;
+                $this->slave->getDeviceId()
+                    ->shouldBeCalledTimes(3)
+                ;
+                $this->slave->setDeviceId($deviceId)
+                    ->shouldBeCalledTimes(2)
+                ;
+            }
+        } else {
+            $type = $this->prophesize(Type::class);
+            $type->getHelper()
+                ->shouldBeCalledOnce()
+                ->willReturn('prefect')
+            ;
+            $this->slave->setType($type->reveal())
+                ->shouldBeCalledOnce()
+                ->willReturn($this->slave->reveal())
+            ;
+            $this->slave->getType()
+                ->shouldBeCalledOnce()
+                ->willReturn($type->reveal())
+            ;
+            $this->typeRepository->getById(7)
+                ->shouldBeCalledOnce()
+                ->willReturn($type->reveal())
+            ;
+            $slaveService = $this->prophesize(AbstractSlave::class);
+            $slaveService->handshake($this->slave->reveal())
+                ->shouldBeCalledOnce()
+                ->willReturn($this->slave->reveal())
+            ;
+            $this->slaveFactory->get('prefect')
+                ->shouldBeCalledOnce()
+                ->willReturn($slaveService->reveal())
+            ;
+        }
+
+        $this->abstractHcSlave->handshake($this->slave->reveal());
+    }*/
+
     /**
      * @dataProvider getReadAllLedsData
      */
     public function testReadAllLeds(int $return, array $excepted): void
     {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -137,9 +914,10 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             229,
-            'A'
+            'allLeds',
+            1
         );
-        $this->transformService->asciiToUnsignedInt('A')
+        $this->transformService->asciiToUnsignedInt('allLeds')
             ->shouldBeCalledOnce()
             ->willReturn($return)
         ;
@@ -156,7 +934,7 @@ class AbstractHcSlaveTest extends Unit
     public function testReadLedStatus(int $return, array $excepted): void
     {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -165,9 +943,10 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             220,
-            'A'
+            'ledStatus',
+            1
         );
-        $this->transformService->asciiToUnsignedInt('A')
+        $this->transformService->asciiToUnsignedInt('ledStatus')
             ->shouldBeCalledOnce()
             ->willReturn($return)
         ;
@@ -184,7 +963,7 @@ class AbstractHcSlaveTest extends Unit
     public function testReadRgbLed(string $return, array $excepted): void
     {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -193,11 +972,12 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             228,
-            'ABCD12345'
+            'rgbLed',
+            9
         );
-        $this->transformService->asciiToHex('ABCD12345')
+        $this->transformService->asciiToHex('rgbLed')
             ->shouldBeCalledTimes(2)
-            ->will(new ReturnPromise(['Unwarscheinlich', $return]))
+            ->will(new ReturnPromise(['rgbLed', $return]))
         ;
         $this->eventService->fire('readRgbLed', array_merge($excepted, ['slave' => $this->slave->reveal()]))
             ->shouldBeCalledOnce()
@@ -208,9 +988,16 @@ class AbstractHcSlaveTest extends Unit
 
     public function testReadBufferSize(): void
     {
+        $this->prophesizeReadBufferSize($this->slave, 4242);
+
+        $this->assertEquals(4242, $this->abstractHcSlave->readBufferSize($this->slave->reveal()));
+    }
+
+    private function prophesizeReadBufferSize(ObjectProphecy $slave, int $bufferSize): void
+    {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
-            $this->slave,
+            $this->master,
+            $slave,
             $this->masterService,
             $this->transformService,
             $this->logRepository,
@@ -218,24 +1005,30 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             216,
-            'AB'
+            'buffer',
+            2
         );
-        $this->transformService->asciiToUnsignedInt('AB')
+        $this->transformService->asciiToUnsignedInt('buffer')
             ->shouldBeCalledOnce()
-            ->willReturn(4242)
+            ->willReturn($bufferSize)
         ;
-        $this->eventService->fire('readBufferSize', ['bufferSize' => 4242, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('readBufferSize', ['bufferSize' => $bufferSize, 'slave' => $slave->reveal()])
             ->shouldBeCalledOnce()
         ;
-
-        $this->assertEquals(4242, $this->abstractHcSlave->readBufferSize($this->slave->reveal()));
     }
 
     public function testReadDeviceId(): void
     {
+        $this->prophesizeReadDeviceId($this->slave, 4242);
+
+        $this->assertEquals(4242, $this->abstractHcSlave->readDeviceId($this->slave->reveal()));
+    }
+
+    private function prophesizeReadDeviceId(ObjectProphecy $slave, int $deviceId): void
+    {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
-            $this->slave,
+            $this->master,
+            $slave,
             $this->masterService,
             $this->transformService,
             $this->logRepository,
@@ -243,23 +1036,22 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             200,
-            'AB'
+            'deviceId',
+            2
         );
-        $this->transformService->asciiToUnsignedInt('AB')
+        $this->transformService->asciiToUnsignedInt('deviceId')
             ->shouldBeCalledOnce()
-            ->willReturn(4242)
+            ->willReturn($deviceId)
         ;
-        $this->eventService->fire('readDeviceId', ['deviceId' => 4242, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('readDeviceId', ['deviceId' => $deviceId, 'slave' => $slave->reveal()])
             ->shouldBeCalledOnce()
         ;
-
-        $this->assertEquals(4242, $this->abstractHcSlave->readDeviceId($this->slave->reveal()));
     }
 
     public function testReadEepromFree(): void
     {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -268,9 +1060,10 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             213,
-            'DF'
+            'eepromFree',
+            2
         );
-        $this->transformService->asciiToUnsignedInt('DF')
+        $this->transformService->asciiToUnsignedInt('eepromFree')
             ->shouldBeCalledOnce()
             ->willReturn(4242)
         ;
@@ -284,7 +1077,7 @@ class AbstractHcSlaveTest extends Unit
     public function testReadEepromPosition(): void
     {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -293,9 +1086,10 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             214,
-            'DF'
+            'eepromPosition',
+            2
         );
-        $this->transformService->asciiToUnsignedInt('DF')
+        $this->transformService->asciiToUnsignedInt('eepromPosition')
             ->shouldBeCalledOnce()
             ->willReturn(4242)
         ;
@@ -308,9 +1102,16 @@ class AbstractHcSlaveTest extends Unit
 
     public function testReadEepromSize(): void
     {
+        $this->prophesizeReadEepromSize($this->slave, 4242);
+
+        $this->assertEquals(4242, $this->abstractHcSlave->readEepromSize($this->slave->reveal()));
+    }
+
+    private function prophesizeReadEepromSize(ObjectProphecy $slave, int $eepromSize): void
+    {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
-            $this->slave,
+            $this->master,
+            $slave,
             $this->masterService,
             $this->transformService,
             $this->logRepository,
@@ -318,24 +1119,30 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             212,
-            'DF'
+            'eepromSize',
+            2
         );
-        $this->transformService->asciiToUnsignedInt('DF')
+        $this->transformService->asciiToUnsignedInt('eepromSize')
             ->shouldBeCalledOnce()
-            ->willReturn(4242)
+            ->willReturn($eepromSize)
         ;
-        $this->eventService->fire('readEepromSize', ['eepromSize' => 4242, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('readEepromSize', ['eepromSize' => $eepromSize, 'slave' => $slave->reveal()])
             ->shouldBeCalledOnce()
         ;
-
-        $this->assertEquals(4242, $this->abstractHcSlave->readEepromSize($this->slave->reveal()));
     }
 
     public function testReadHertz(): void
     {
+        $this->prophesizeReadHertz($this->slave, 42424242);
+
+        $this->assertEquals(42424242, $this->abstractHcSlave->readHertz($this->slave->reveal()));
+    }
+
+    private function prophesizeReadHertz(ObjectProphecy $slave, int $hertz): void
+    {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
-            $this->slave,
+            $this->master,
+            $slave,
             $this->masterService,
             $this->transformService,
             $this->logRepository,
@@ -343,24 +1150,30 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             211,
-            'acdc'
+            'hertz',
+            4
         );
-        $this->transformService->asciiToUnsignedInt('acdc')
+        $this->transformService->asciiToUnsignedInt('hertz')
             ->shouldBeCalledOnce()
-            ->willReturn(42424242)
+            ->willReturn($hertz)
         ;
-        $this->eventService->fire('readHertz', ['hertz' => 42424242, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('readHertz', ['hertz' => $hertz, 'slave' => $slave->reveal()])
             ->shouldBeCalledOnce()
         ;
-
-        $this->assertEquals(42424242, $this->abstractHcSlave->readHertz($this->slave->reveal()));
     }
 
     public function testReadPwmSpeed(): void
     {
+        $this->prophesizeReadPwmSpeed($this->slave, 4242);
+
+        $this->assertEquals(4242, $this->abstractHcSlave->readPwmSpeed($this->slave->reveal()));
+    }
+
+    private function prophesizeReadPwmSpeed(ObjectProphecy $slave, int $pwmSpeed): void
+    {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
-            $this->slave,
+            $this->master,
+            $slave,
             $this->masterService,
             $this->transformService,
             $this->logRepository,
@@ -368,23 +1181,29 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             217,
-            'XY'
+            'pwmSpeed',
+            2
         );
-        $this->transformService->asciiToUnsignedInt('XY')
+        $this->transformService->asciiToUnsignedInt('pwmSpeed')
             ->shouldBeCalledOnce()
-            ->willReturn(4242)
+            ->willReturn($pwmSpeed)
         ;
-        $this->eventService->fire('readPwmSpeed', ['pwmSpeed' => 4242, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('readPwmSpeed', ['pwmSpeed' => $pwmSpeed, 'slave' => $slave->reveal()])
             ->shouldBeCalledOnce()
         ;
-
-        $this->assertEquals(4242, $this->abstractHcSlave->readPwmSpeed($this->slave->reveal()));
     }
 
     public function testReadTypeId(): void
     {
+        $this->prophesizeReadTypeId(42);
+
+        $this->assertEquals(42, $this->abstractHcSlave->readTypeId($this->slave->reveal()));
+    }
+
+    private function prophesizeReadTypeId(int $typeId): void
+    {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -393,17 +1212,16 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             201,
-            'Z'
+            'typeId',
+            1
         );
-        $this->transformService->asciiToUnsignedInt('Z')
+        $this->transformService->asciiToUnsignedInt('typeId')
             ->shouldBeCalledOnce()
-            ->willReturn(42)
+            ->willReturn($typeId)
         ;
-        $this->eventService->fire('readTypeId', ['typeId' => 42, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('readTypeId', ['typeId' => $typeId, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
-
-        $this->assertEquals(42, $this->abstractHcSlave->readTypeId($this->slave->reveal()));
     }
 
     /**
@@ -412,7 +1230,7 @@ class AbstractHcSlaveTest extends Unit
     public function testReadPowerLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -421,9 +1239,10 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             221,
-            'C'
+            'powerLed',
+            1
         );
-        $this->transformService->asciiToUnsignedInt('C')
+        $this->transformService->asciiToUnsignedInt('powerLed')
             ->shouldBeCalledOnce()
             ->willReturn($on ? 1 : 0)
         ;
@@ -440,7 +1259,7 @@ class AbstractHcSlaveTest extends Unit
     public function testReadErrorLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -449,9 +1268,10 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             222,
-            'C'
+            'errorLed',
+            1
         );
-        $this->transformService->asciiToUnsignedInt('C')
+        $this->transformService->asciiToUnsignedInt('errorLed')
             ->shouldBeCalledOnce()
             ->willReturn($on ? 1 : 0)
         ;
@@ -468,7 +1288,7 @@ class AbstractHcSlaveTest extends Unit
     public function testReadConnectLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -477,9 +1297,10 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             223,
-            'C'
+            'connectLed',
+            1
         );
-        $this->transformService->asciiToUnsignedInt('C')
+        $this->transformService->asciiToUnsignedInt('connectLed')
             ->shouldBeCalledOnce()
             ->willReturn($on ? 1 : 0)
         ;
@@ -496,7 +1317,7 @@ class AbstractHcSlaveTest extends Unit
     public function testReadTransreceiveLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -505,9 +1326,10 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             224,
-            'C'
+            'transreceiveLed',
+            1
         );
-        $this->transformService->asciiToUnsignedInt('C')
+        $this->transformService->asciiToUnsignedInt('transreceiveLed')
             ->shouldBeCalledOnce()
             ->willReturn($on ? 1 : 0)
         ;
@@ -524,7 +1346,7 @@ class AbstractHcSlaveTest extends Unit
     public function testReadTransceiveLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -533,9 +1355,10 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             225,
-            'C'
+            'transceiveLed',
+            1
         );
-        $this->transformService->asciiToUnsignedInt('C')
+        $this->transformService->asciiToUnsignedInt('transceiveLed')
             ->shouldBeCalledOnce()
             ->willReturn($on ? 1 : 0)
         ;
@@ -552,7 +1375,7 @@ class AbstractHcSlaveTest extends Unit
     public function testReadReceiveLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -561,9 +1384,10 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             226,
-            'C'
+            'receiveLed',
+            1
         );
-        $this->transformService->asciiToUnsignedInt('C')
+        $this->transformService->asciiToUnsignedInt('receiveLed')
             ->shouldBeCalledOnce()
             ->willReturn($on ? 1 : 0)
         ;
@@ -580,7 +1404,7 @@ class AbstractHcSlaveTest extends Unit
     public function testReadCustomLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeRead(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -589,9 +1413,10 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             227,
-            'C'
+            'customLed',
+            1
         );
-        $this->transformService->asciiToUnsignedInt('C')
+        $this->transformService->asciiToUnsignedInt('customLed')
             ->shouldBeCalledOnce()
             ->willReturn($on ? 1 : 0)
         ;
@@ -604,44 +1429,55 @@ class AbstractHcSlaveTest extends Unit
 
     public function testWriteAddress(): void
     {
-        $master = $this->prophesize(Master::class);
+        $this->prophesizeWriteAddress(4242, 42, 7);
+
+        $this->abstractHcSlave->writeAddress($this->slave->reveal(), 7);
+    }
+
+    private function prophesizeWriteAddress(int $deviceId, int $oldAddress, int $newAddress): void
+    {
         AbstractSlaveTest::prophesizeWrite(
-            $master,
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
             $this->logRepository,
             $this->prophesize(Log::class),
             255,
-            7,
+            $oldAddress,
             202,
-            chr(4242 >> 8) . chr(4242 & 255) . chr(42)
+            chr($deviceId >> 8) . chr($deviceId & 255) . chr($newAddress)
         );
         $this->slave->getDeviceId()
             ->shouldBeCalledOnce()
-            ->willReturn(4242)
+            ->willReturn($deviceId)
         ;
-        $this->slave->setAddress(42)
+        $this->slave->setAddress($newAddress)
             ->shouldBeCalledOnce()
             ->willReturn($this->slave->reveal())
         ;
-        $this->eventService->fire('beforeWriteAddress', ['newAddress' => 42, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('beforeWriteAddress', ['newAddress' => $newAddress, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteAddress', ['newAddress' => 42, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('afterWriteAddress', ['newAddress' => $newAddress, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
         $this->slave->getMaster()->shouldBeCalledTimes(4);
-        $this->masterService->scanBus($master->reveal());
-
-        $this->abstractHcSlave->writeAddress($this->slave->reveal(), 42);
+        $this->masterService->scanBus($this->master->reveal());
     }
 
     public function testWriteDeviceId(): void
     {
+        $this->prophesizeWriteDeviceId($this->slave, 4242, 7777);
+
+        $this->abstractHcSlave->writeDeviceId($this->slave->reveal(), 7777);
+    }
+
+    private function prophesizeWriteDeviceId(ObjectProphecy $slave, int $oldDeviceId, int $newDeviceId): void
+    {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
-            $this->slave,
+            $this->master,
+            $slave,
             $this->masterService,
             $this->transformService,
             $this->logRepository,
@@ -649,30 +1485,28 @@ class AbstractHcSlaveTest extends Unit
             255,
             42,
             200,
-            chr(4242 >> 8) . chr(4242 & 255) . chr(7777 >> 8) . chr(7777 & 255)
+            chr($oldDeviceId >> 8) . chr($oldDeviceId & 255) . chr($newDeviceId >> 8) . chr($newDeviceId & 255)
         );
-        $this->slave->getDeviceId()
+        $slave->getDeviceId()
             ->shouldBeCalledOnce()
-            ->willReturn(4242)
+            ->willReturn($oldDeviceId)
         ;
-        $this->slave->setDeviceId(7777)
+        $slave->setDeviceId($newDeviceId)
             ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
+            ->willReturn($slave->reveal())
         ;
-        $this->eventService->fire('beforeWriteDeviceId', ['newDeviceId' => 7777, 'slave' => $this->slave->reveal()])
-            ->shouldBeCalledOnce()
-        ;
-        $this->eventService->fire('afterWriteDeviceId', ['newDeviceId' => 7777, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('beforeWriteDeviceId', ['newDeviceId' => $newDeviceId, 'slave' => $slave->reveal()])
             ->shouldBeCalledOnce()
         ;
-
-        $this->abstractHcSlave->writeDeviceId($this->slave->reveal(), 7777);
+        $this->eventService->fire('afterWriteDeviceId', ['newDeviceId' => $newDeviceId, 'slave' => $slave->reveal()])
+            ->shouldBeCalledOnce()
+        ;
     }
 
     public function testWriteEepromErase(): void
     {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -700,7 +1534,7 @@ class AbstractHcSlaveTest extends Unit
     public function testWriteEepromPosition(): void
     {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -724,7 +1558,7 @@ class AbstractHcSlaveTest extends Unit
     public function testWritePwmSpeed(): void
     {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -748,7 +1582,7 @@ class AbstractHcSlaveTest extends Unit
     public function testWriteRestart(): void
     {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -776,7 +1610,7 @@ class AbstractHcSlaveTest extends Unit
     public function testWriteTypeId(): void
     {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -824,7 +1658,7 @@ class AbstractHcSlaveTest extends Unit
     public function testWritePowerLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -851,7 +1685,7 @@ class AbstractHcSlaveTest extends Unit
     public function testWriteErrorLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -878,7 +1712,7 @@ class AbstractHcSlaveTest extends Unit
     public function testWriteConnectLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -905,7 +1739,7 @@ class AbstractHcSlaveTest extends Unit
     public function testWriteTransreceiveLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -932,7 +1766,7 @@ class AbstractHcSlaveTest extends Unit
     public function testWriteTransceiveLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -959,7 +1793,7 @@ class AbstractHcSlaveTest extends Unit
     public function testWriteReceiveLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -986,7 +1820,7 @@ class AbstractHcSlaveTest extends Unit
     public function testWriteCustomLed(bool $on): void
     {
         AbstractSlaveTest::prophesizeWrite(
-            $this->prophesize(Master::class),
+            $this->master,
             $this->slave,
             $this->masterService,
             $this->transformService,
@@ -1007,6 +1841,111 @@ class AbstractHcSlaveTest extends Unit
         $this->abstractHcSlave->writeCustomLed($this->slave->reveal(), $on);
     }
 
+    /**
+     * @dataProvider getWriteRgbLedData
+     */
+    public function testWriteRgbLed(string $data, array $leds): void
+    {
+        AbstractSlaveTest::prophesizeWrite(
+            $this->master,
+            $this->slave,
+            $this->masterService,
+            $this->transformService,
+            $this->logRepository,
+            $this->prophesize(Log::class),
+            255,
+            42,
+            228,
+            $data
+        );
+        $eventData = [
+            'power' => '1',
+            'error' => '2',
+            'connect' => '3',
+            'transceive' => '4',
+            'receive' => '5',
+            'custom' => '6',
+            'slave' => $this->slave->reveal(),
+        ];
+        $this->eventService->fire('beforeWriteRgbLed', $eventData)
+            ->shouldBeCalledOnce()
+        ;
+        $this->eventService->fire('afterWriteRgbLed', $eventData)
+            ->shouldBeCalledOnce()
+        ;
+
+        $this->transformService->hexToInt('1')
+            ->shouldBeCalledOnce()
+            ->willReturn($leds['power'])
+        ;
+        $this->transformService->hexToInt('2')
+            ->shouldBeCalledOnce()
+            ->willReturn($leds['error'])
+        ;
+        $this->transformService->hexToInt('3')
+            ->shouldBeCalledOnce()
+            ->willReturn($leds['connect'])
+        ;
+        $this->transformService->hexToInt('4')
+            ->shouldBeCalledOnce()
+            ->willReturn($leds['transceive'])
+        ;
+        $this->transformService->hexToInt('5')
+            ->shouldBeCalledOnce()
+            ->willReturn($leds['receive'])
+        ;
+        $this->transformService->hexToInt('6')
+            ->shouldBeCalledOnce()
+            ->willReturn($leds['custom'])
+        ;
+
+        $this->abstractHcSlave->writeRgbLed(
+            $this->slave->reveal(),
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6'
+        );
+    }
+
+    /**
+     * @dataProvider getReadAllLedsData
+     */
+    public function testWriteAllLeds(int $data, array $leds): void
+    {
+        AbstractSlaveTest::prophesizeWrite(
+            $this->master,
+            $this->slave,
+            $this->masterService,
+            $this->transformService,
+            $this->logRepository,
+            $this->prophesize(Log::class),
+            255,
+            42,
+            229,
+            chr($data) . 'a'
+        );
+        $this->eventService->fire('beforeWriteAllLeds', array_merge($leds, ['slave' => $this->slave->reveal()]))
+            ->shouldBeCalledOnce()
+        ;
+        $this->eventService->fire('afterWriteAllLeds', array_merge($leds, ['slave' => $this->slave->reveal()]))
+            ->shouldBeCalledOnce()
+        ;
+
+        $this->abstractHcSlave->writeAllLeds(
+            $this->slave->reveal(),
+            $leds['power'],
+            $leds['error'],
+            $leds['connect'],
+            $leds['transreceive'],
+            $leds['transceive'],
+            $leds['receive'],
+            $leds['custom']
+        );
+    }
+
     public function getLedData(): array
     {
         return [
@@ -1019,261 +1958,133 @@ class AbstractHcSlaveTest extends Unit
     {
         return [
             [0, $this->getReadAllLedsExcepted([], false, true)],
-            [1, $this->getReadAllLedsExcepted([], false, true)],
             [2, $this->getReadAllLedsExcepted(['custom' => true], false, true)],
-            [3, $this->getReadAllLedsExcepted(['custom' => true], false, true)],
             [4, $this->getReadAllLedsExcepted(['receive' => true], false, true)],
-            [5, $this->getReadAllLedsExcepted(['receive' => true], false, true)],
             [6, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true], false, true)],
-            [7, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true], false, true)],
             [8, $this->getReadAllLedsExcepted(['transceive' => true], false, true)],
-            [9, $this->getReadAllLedsExcepted(['transceive' => true], false, true)],
             [10, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true], false, true)],
-            [11, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true], false, true)],
             [12, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true], false, true)],
-            [13, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true], false, true)],
             [14, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true], false, true)],
-            [15, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true], false, true)],
             [16, $this->getReadAllLedsExcepted(['transreceive' => true], false, true)],
-            [17, $this->getReadAllLedsExcepted(['transreceive' => true], false, true)],
             [18, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true], false, true)],
-            [19, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true], false, true)],
             [20, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true], false, true)],
-            [21, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true], false, true)],
             [22, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true], false, true)],
-            [23, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true], false, true)],
             [24, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true], false, true)],
-            [25, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true], false, true)],
             [26, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true], false, true)],
-            [27, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true], false, true)],
             [28, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true], false, true)],
-            [29, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true], false, true)],
             [30, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true], false, true)],
-            [31, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true], false, true)],
             [32, $this->getReadAllLedsExcepted(['connect' => true], false, true)],
-            [33, $this->getReadAllLedsExcepted(['connect' => true], false, true)],
             [34, $this->getReadAllLedsExcepted(['custom' => true, 'connect' => true], false, true)],
-            [35, $this->getReadAllLedsExcepted(['custom' => true, 'connect' => true], false, true)],
             [36, $this->getReadAllLedsExcepted(['receive' => true, 'connect' => true], false, true)],
-            [37, $this->getReadAllLedsExcepted(['receive' => true, 'connect' => true], false, true)],
             [38, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'connect' => true], false, true)],
-            [39, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'connect' => true], false, true)],
             [40, $this->getReadAllLedsExcepted(['transceive' => true, 'connect' => true], false, true)],
-            [41, $this->getReadAllLedsExcepted(['transceive' => true, 'connect' => true], false, true)],
             [42, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'connect' => true], false, true)],
-            [43, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'connect' => true], false, true)],
             [44, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'connect' => true], false, true)],
-            [45, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'connect' => true], false, true)],
             [46, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'connect' => true], false, true)],
-            [47, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'connect' => true], false, true)],
             [48, $this->getReadAllLedsExcepted(['transreceive' => true, 'connect' => true], false, true)],
-            [49, $this->getReadAllLedsExcepted(['transreceive' => true, 'connect' => true], false, true)],
             [50, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'connect' => true], false, true)],
-            [51, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'connect' => true], false, true)],
             [52, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'connect' => true], false, true)],
-            [53, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'connect' => true], false, true)],
             [54, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'connect' => true], false, true)],
-            [55, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'connect' => true], false, true)],
             [56, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'connect' => true], false, true)],
-            [57, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'connect' => true], false, true)],
             [58, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true], false, true)],
-            [59, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true], false, true)],
             [60, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true], false, true)],
-            [61, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true], false, true)],
             [62, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true], false, true)],
-            [63, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true], false, true)],
             [64, $this->getReadAllLedsExcepted(['error' => true], false, true)],
-            [65, $this->getReadAllLedsExcepted(['error' => true], false, true)],
             [66, $this->getReadAllLedsExcepted(['custom' => true, 'error' => true], false, true)],
-            [67, $this->getReadAllLedsExcepted(['custom' => true, 'error' => true], false, true)],
             [68, $this->getReadAllLedsExcepted(['receive' => true, 'error' => true], false, true)],
-            [69, $this->getReadAllLedsExcepted(['receive' => true, 'error' => true], false, true)],
             [70, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'error' => true], false, true)],
-            [71, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'error' => true], false, true)],
             [72, $this->getReadAllLedsExcepted(['transceive' => true, 'error' => true], false, true)],
-            [73, $this->getReadAllLedsExcepted(['transceive' => true, 'error' => true], false, true)],
             [74, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'error' => true], false, true)],
-            [75, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'error' => true], false, true)],
             [76, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'error' => true], false, true)],
-            [77, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'error' => true], false, true)],
             [78, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'error' => true], false, true)],
-            [79, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'error' => true], false, true)],
             [80, $this->getReadAllLedsExcepted(['transreceive' => true, 'error' => true], false, true)],
-            [81, $this->getReadAllLedsExcepted(['transreceive' => true, 'error' => true], false, true)],
             [82, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'error' => true], false, true)],
-            [83, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'error' => true], false, true)],
             [84, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'error' => true], false, true)],
-            [85, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'error' => true], false, true)],
             [86, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'error' => true], false, true)],
-            [87, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'error' => true], false, true)],
             [88, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'error' => true], false, true)],
-            [89, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'error' => true], false, true)],
             [90, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'error' => true], false, true)],
-            [91, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'error' => true], false, true)],
             [92, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'error' => true], false, true)],
-            [93, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'error' => true], false, true)],
             [94, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'error' => true], false, true)],
-            [95, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'error' => true], false, true)],
             [96, $this->getReadAllLedsExcepted(['connect' => true, 'error' => true], false, true)],
-            [97, $this->getReadAllLedsExcepted(['connect' => true, 'error' => true], false, true)],
             [98, $this->getReadAllLedsExcepted(['custom' => true, 'connect' => true, 'error' => true], false, true)],
-            [99, $this->getReadAllLedsExcepted(['custom' => true, 'connect' => true, 'error' => true], false, true)],
             [100, $this->getReadAllLedsExcepted(['receive' => true, 'connect' => true, 'error' => true], false, true)],
-            [101, $this->getReadAllLedsExcepted(['receive' => true, 'connect' => true, 'error' => true], false, true)],
             [102, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'connect' => true, 'error' => true], false, true)],
-            [103, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'connect' => true, 'error' => true], false, true)],
             [104, $this->getReadAllLedsExcepted(['transceive' => true, 'connect' => true, 'error' => true], false, true)],
-            [105, $this->getReadAllLedsExcepted(['transceive' => true, 'connect' => true, 'error' => true], false, true)],
             [106, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'connect' => true, 'error' => true], false, true)],
-            [107, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'connect' => true, 'error' => true], false, true)],
             [108, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'connect' => true, 'error' => true], false, true)],
-            [109, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'connect' => true, 'error' => true], false, true)],
             [110, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'connect' => true, 'error' => true], false, true)],
-            [111, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'connect' => true, 'error' => true], false, true)],
             [112, $this->getReadAllLedsExcepted(['transreceive' => true, 'connect' => true, 'error' => true], false, true)],
-            [113, $this->getReadAllLedsExcepted(['transreceive' => true, 'connect' => true, 'error' => true], false, true)],
             [114, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
-            [115, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
             [116, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
-            [117, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
             [118, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
-            [119, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
             [120, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
-            [121, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
             [122, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
-            [123, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
             [124, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
-            [125, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
             [126, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
-            [127, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true], false, true)],
             [128, $this->getReadAllLedsExcepted(['power' => true], false, true)],
-            [129, $this->getReadAllLedsExcepted(['power' => true], false, true)],
             [130, $this->getReadAllLedsExcepted(['custom' => true, 'power' => true], false, true)],
-            [131, $this->getReadAllLedsExcepted(['custom' => true, 'power' => true], false, true)],
             [132, $this->getReadAllLedsExcepted(['receive' => true, 'power' => true], false, true)],
-            [133, $this->getReadAllLedsExcepted(['receive' => true, 'power' => true], false, true)],
             [134, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'power' => true], false, true)],
-            [135, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'power' => true], false, true)],
             [136, $this->getReadAllLedsExcepted(['transceive' => true, 'power' => true], false, true)],
-            [137, $this->getReadAllLedsExcepted(['transceive' => true, 'power' => true], false, true)],
             [138, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'power' => true], false, true)],
-            [139, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'power' => true], false, true)],
             [140, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'power' => true], false, true)],
-            [141, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'power' => true], false, true)],
             [142, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'power' => true], false, true)],
-            [143, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'power' => true], false, true)],
             [144, $this->getReadAllLedsExcepted(['transreceive' => true, 'power' => true], false, true)],
-            [145, $this->getReadAllLedsExcepted(['transreceive' => true, 'power' => true], false, true)],
             [146, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'power' => true], false, true)],
-            [147, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'power' => true], false, true)],
             [148, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'power' => true], false, true)],
-            [149, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'power' => true], false, true)],
             [150, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'power' => true], false, true)],
-            [151, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'power' => true], false, true)],
             [152, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'power' => true], false, true)],
-            [153, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'power' => true], false, true)],
             [154, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'power' => true], false, true)],
-            [155, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'power' => true], false, true)],
             [156, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'power' => true], false, true)],
-            [157, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'power' => true], false, true)],
             [158, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'power' => true], false, true)],
-            [159, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'power' => true], false, true)],
             [160, $this->getReadAllLedsExcepted(['connect' => true, 'power' => true], false, true)],
-            [161, $this->getReadAllLedsExcepted(['connect' => true, 'power' => true], false, true)],
             [162, $this->getReadAllLedsExcepted(['custom' => true, 'connect' => true, 'power' => true], false, true)],
-            [163, $this->getReadAllLedsExcepted(['custom' => true, 'connect' => true, 'power' => true], false, true)],
             [164, $this->getReadAllLedsExcepted(['receive' => true, 'connect' => true, 'power' => true], false, true)],
-            [165, $this->getReadAllLedsExcepted(['receive' => true, 'connect' => true, 'power' => true], false, true)],
             [166, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'connect' => true, 'power' => true], false, true)],
-            [167, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'connect' => true, 'power' => true], false, true)],
             [168, $this->getReadAllLedsExcepted(['transceive' => true, 'connect' => true, 'power' => true], false, true)],
-            [169, $this->getReadAllLedsExcepted(['transceive' => true, 'connect' => true, 'power' => true], false, true)],
             [170, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'connect' => true, 'power' => true], false, true)],
-            [171, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'connect' => true, 'power' => true], false, true)],
             [172, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'connect' => true, 'power' => true], false, true)],
-            [173, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'connect' => true, 'power' => true], false, true)],
             [174, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'connect' => true, 'power' => true], false, true)],
-            [175, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'connect' => true, 'power' => true], false, true)],
             [176, $this->getReadAllLedsExcepted(['transreceive' => true, 'connect' => true, 'power' => true], false, true)],
-            [177, $this->getReadAllLedsExcepted(['transreceive' => true, 'connect' => true, 'power' => true], false, true)],
             [178, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
-            [179, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
             [180, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
-            [181, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
             [182, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
-            [183, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
             [184, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
-            [185, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
             [186, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
-            [187, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
             [188, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
-            [189, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
             [190, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
-            [191, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'power' => true], false, true)],
             [192, $this->getReadAllLedsExcepted(['error' => true, 'power' => true], false, true)],
-            [193, $this->getReadAllLedsExcepted(['error' => true, 'power' => true], false, true)],
             [194, $this->getReadAllLedsExcepted(['custom' => true, 'error' => true, 'power' => true], false, true)],
-            [195, $this->getReadAllLedsExcepted(['custom' => true, 'error' => true, 'power' => true], false, true)],
             [196, $this->getReadAllLedsExcepted(['receive' => true, 'error' => true, 'power' => true], false, true)],
-            [197, $this->getReadAllLedsExcepted(['receive' => true, 'error' => true, 'power' => true], false, true)],
             [198, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'error' => true, 'power' => true], false, true)],
-            [199, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'error' => true, 'power' => true], false, true)],
             [200, $this->getReadAllLedsExcepted(['transceive' => true, 'error' => true, 'power' => true], false, true)],
-            [201, $this->getReadAllLedsExcepted(['transceive' => true, 'error' => true, 'power' => true], false, true)],
             [202, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'error' => true, 'power' => true], false, true)],
-            [203, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'error' => true, 'power' => true], false, true)],
             [204, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'error' => true, 'power' => true], false, true)],
-            [205, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'error' => true, 'power' => true], false, true)],
             [206, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'error' => true, 'power' => true], false, true)],
-            [207, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'error' => true, 'power' => true], false, true)],
             [208, $this->getReadAllLedsExcepted(['transreceive' => true, 'error' => true, 'power' => true], false, true)],
-            [209, $this->getReadAllLedsExcepted(['transreceive' => true, 'error' => true, 'power' => true], false, true)],
             [210, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
-            [211, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
             [212, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
-            [213, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
             [214, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
-            [215, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
             [216, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
-            [217, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
             [218, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
-            [219, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
             [220, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
-            [221, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
             [222, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
-            [223, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'error' => true, 'power' => true], false, true)],
             [224, $this->getReadAllLedsExcepted(['connect' => true, 'error' => true, 'power' => true], false, true)],
-            [225, $this->getReadAllLedsExcepted(['connect' => true, 'error' => true, 'power' => true], false, true)],
             [226, $this->getReadAllLedsExcepted(['custom' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [227, $this->getReadAllLedsExcepted(['custom' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [228, $this->getReadAllLedsExcepted(['receive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [229, $this->getReadAllLedsExcepted(['receive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [230, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [231, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [232, $this->getReadAllLedsExcepted(['transceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [233, $this->getReadAllLedsExcepted(['transceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [234, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [235, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [236, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [237, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [238, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [239, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [240, $this->getReadAllLedsExcepted(['transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [241, $this->getReadAllLedsExcepted(['transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [242, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [243, $this->getReadAllLedsExcepted(['custom' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [244, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [245, $this->getReadAllLedsExcepted(['receive' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [246, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [247, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [248, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [249, $this->getReadAllLedsExcepted(['transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [250, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [251, $this->getReadAllLedsExcepted(['custom' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [252, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [253, $this->getReadAllLedsExcepted(['receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
             [254, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
-            [255, $this->getReadAllLedsExcepted(['custom' => true, 'receive' => true, 'transceive' => true, 'transreceive' => true, 'connect' => true, 'error' => true, 'power' => true], false, true)],
         ];
     }
 
@@ -1575,6 +2386,109 @@ class AbstractHcSlaveTest extends Unit
                     'custom' => 'FFF',
                 ],
             ],
+        ];
+    }
+
+    public function getWriteRgbLedData(): array
+    {
+        return [
+            [
+                chr(0) . chr(0) . chr(0) . chr(0) . chr(0) . chr(0) . chr(0) . chr(0) . chr(0),
+                [
+                    'power' => 0,
+                    'error' => 0,
+                    'connect' => 0,
+                    'transceive' => 0,
+                    'receive' => 0,
+                    'custom' => 0,
+                ],
+            ],
+            [
+                chr(1) . chr(35) . chr(69) . chr(103) . chr(137) . chr(171) . chr(205) . chr(239) . chr(1),
+                [
+                    'power' => 18,
+                    'error' => 837,
+                    'connect' => 1656,
+                    'transceive' => 2475,
+                    'receive' => 3294,
+                    'custom' => 3841,
+                ],
+            ],
+            [
+                chr(0) . chr(15) . chr(255) . chr(0) . chr(15) . chr(255) . chr(0) . chr(15) . chr(255),
+                [
+                    'power' => 0,
+                    'error' => 4095,
+                    'connect' => 0,
+                    'transceive' => 4095,
+                    'receive' => 0,
+                    'custom' => 4095,
+                ],
+            ],
+        ];
+    }
+
+    public function getHandshakeData(): array
+    {
+        // ?int $id, bool $typeEqual, bool $deviceIdEqual, bool $exists, int $deviceIds
+        return [
+            'With Id' => [7, true, true, true, 65534],
+            'Different Type Id' => [7, false, true, true, 42420],
+            'Different Device Id' => [7, true, false, true, 42420],
+            'Different Type and Device Id' => [7, false, false, true, 42420],
+            'Existing Slave without Id' => [null, true, true, true, 42420],
+            'Different Type Id without Id' => [null, false, true, true, 42420],
+            'Different Device Id without Id' => [null, true, false, true, 65500],
+            'Different Type and Device Id without Id' => [null, false, false, true, 1],
+            'With Id new Slave' => [7, true, true, false, 42420],
+            'Different Type Id new Slave' => [7, false, true, false, 12],
+            'Different Device Id new Slave' => [7, true, false, false, 42420],
+            'Different Type and Device Id new Slave' => [7, false, false, false, 9],
+            'New Slave without Id' => [null, true, true, false, 17],
+            'Different Type Id without Id new Slave' => [null, false, true, false, 42420],
+            'Different Device Id without Id new Slave' => [null, true, false, false, 42420],
+            'Different Type and Device Id without Id new Slave' => [null, false, false, false, 42420],
+            'With Id empty device Id' => [7, true, true, true, 0],
+            'Different Type Id empty device Id' => [7, false, true, true, 0],
+            'Different Device Id empty device Id' => [7, true, false, true, 0],
+            'Different Type and Device Id empty device Id' => [7, false, false, true, 0],
+            'Existing Slave without Id empty device Id' => [null, true, true, true, 0],
+            'Different Type Id without Id empty device Id' => [null, false, true, true, 0],
+            'Different Device Id without Id empty device Id' => [null, true, false, true, 0],
+            'Different Type and Device Id without Id empty device Id' => [null, false, false, true, 0],
+            'With Id new Slave empty device Id' => [7, true, true, false, 0],
+            'Different Type Id new Slave empty device Id' => [7, false, true, false, 0],
+            'Different Device Id new Slave empty device Id' => [7, true, false, false, 0],
+            'Different Type and Device Id new Slave empty device Id' => [7, false, false, false, 0],
+            'New Slave without Id empty device Id' => [null, true, true, false, 0],
+            'Different Type Id without Id new Slave empty device Id' => [null, false, true, false, 0],
+            'Different Device Id without Id new Slave empty device Id' => [null, true, false, false, 0],
+            'Different Type and Device Id without Id new Slave empty device Id' => [null, false, false, false, 0],
+            'With Id device id to big' => [7, true, true, true, 65535],
+            'Different Type Id device id to big' => [7, false, true, true, 65535],
+            'Different Device Id device id to big' => [7, true, false, true, 65535],
+            'Different Type and Device Id device id to big' => [7, false, false, true, 65535],
+            'Existing Slave without Id device id to big' => [null, true, true, true, 65535],
+            'Different Type Id without Id device id to big' => [null, false, true, true, 65535],
+            'Different Device Id without Id device id to big' => [null, true, false, true, 65535],
+            'Different Type and Device Id without Id device id to big' => [null, false, false, true, 65535],
+            'With Id new Slave device id to big' => [7, true, true, false, 65535],
+            'Different Type Id new Slave device id to big' => [7, false, true, false, 65535],
+            'Different Device Id new Slave device id to big' => [7, true, false, false, 65535],
+            'Different Type and Device Id new Slave device id to big' => [7, false, false, false, 65535],
+            'New Slave without Id device id to big' => [null, true, true, false, 65535],
+            'Different Type Id without Id new Slave device id to big' => [null, false, true, false, 65535],
+            'Different Device Id without Id new Slave device id to big' => [null, true, false, false, 65535],
+            'Different Type and Device Id without Id new Slave device id to big' => [null, false, false, false, 65535],
+        ];
+    }
+
+    public function getHandshakeIllegalDeviceIdData(): array
+    {
+        return [
+            'Device Id 0' => [0],
+            'Device Id 65535' => [65535],
+            'Device Id 100000' => [100000],
         ];
     }
 

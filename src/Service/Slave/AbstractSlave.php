@@ -78,7 +78,6 @@ abstract class AbstractSlave extends AbstractService
             MasterService::TYPE_DATA,
             chr($this->getAddressWithReadWriteBit($slave, self::READ_BIT)) . chr($command) . chr($length)
         );
-
         $data = $this->masterService->receiveReadData(
             $slave->getMaster(),
             (int) $slave->getAddress(),

@@ -219,18 +219,23 @@ abstract class AbstractHcSlave extends AbstractSlave
         ) {
             try {
                 $slave = $this->moduleRepository->getByDeviceId($deviceId);
+                $slave = $this->handshakeExistingSlave($slave);
             } catch (SelectError $e) {
-                $slave->setDeviceId($deviceId);
                 $slave = $this->handshakeNewSlave($slave);
             }
         } else {
             $slave = $this->handshakeExistingSlave($slave);
         }
 
-        $slave->setHertz($this->readHertz($slave));
-        $slave->setBufferSize($this->readBufferSize($slave));
-        $slave->setEepromSize($this->readEepromSize($slave));
-        $slave->setPwmSpeed($this->readPwmSpeed($slave));
+        $this->masterService->send($slave->getMaster(), MasterService::TYPE_SLAVE_IS_HC, chr((int) $slave->getAddress()));
+        $this->masterService->receiveReceiveReturn($slave->getMaster());
+
+        $slave
+            ->setHertz($this->readHertz($slave))
+            ->setBufferSize($this->readBufferSize($slave))
+            ->setEepromSize($this->readEepromSize($slave))
+            ->setPwmSpeed($this->readPwmSpeed($slave))
+        ;
 
         return $slave;
     }
@@ -238,20 +243,30 @@ abstract class AbstractHcSlave extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws GetError
-     * @throws ReceiveError
+     */
+    private function checkDeviceId(Module $slave): void
+    {
+        if (
+            $slave->getDeviceId() !== 0 &&
+            $slave->getDeviceId() <= self::MAX_DEVICE_ID
+        ) {
+            return;
+        }
+
+        $deviceId = $this->moduleRepository->getFreeDeviceId();
+        $this->writeDeviceId($slave, $deviceId);
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws DateTimeError
+     * @throws GetError
+     * @throws SaveError
      * @throws SelectError
      */
     private function handshakeNewSlave(Module $slave): Module
     {
-        if (
-            $slave->getDeviceId() === 0 ||
-            $slave->getDeviceId() > self::MAX_DEVICE_ID
-        ) {
-            $deviceId = $this->moduleRepository->getFreeDeviceId();
-            $this->writeDeviceId($slave, $deviceId);
-            $slave->setDeviceId($deviceId);
-        }
-
+        $this->checkDeviceId($slave);
         $this->writeAddress($slave, $this->masterRepository->getNextFreeAddress((int) $slave->getMaster()->getId()));
 
         return $slave;
@@ -267,8 +282,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     private function handshakeExistingSlave(Module $slave): Module
     {
-        $this->masterService->send($slave->getMaster(), MasterService::TYPE_SLAVE_IS_HC, chr((int) $slave->getAddress()));
-        $this->masterService->receiveReceiveReturn($slave->getMaster());
+        $this->checkDeviceId($slave);
 
         /*(new Log())
             ->setMasterId($slave->getMaster()->getId())
@@ -927,7 +941,6 @@ abstract class AbstractHcSlave extends AbstractSlave
         $eventData = $leds;
         $eventData['slave'] = $slave;
         $this->eventService->fire(HcService::BEFORE_WRITE_ALL_LEDS, $eventData);
-
         $this->write(
             $slave,
             self::COMMAND_ALL_LEDS,

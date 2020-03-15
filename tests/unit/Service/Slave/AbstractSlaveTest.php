@@ -95,7 +95,8 @@ class AbstractSlaveTest extends Unit
             255,
             7,
             42,
-            'Handtuch'
+            'Handtuch',
+            8
         );
 
         $this->assertEquals(
@@ -155,7 +156,8 @@ class AbstractSlaveTest extends Unit
         int $type,
         int $slaveAddress,
         int $command,
-        string $data
+        string $data,
+        int $dataLength
     ): void {
         $slave->getMaster()
             ->shouldBeCalledTimes(3)
@@ -165,7 +167,7 @@ class AbstractSlaveTest extends Unit
             ->shouldBeCalledTimes(3)
             ->willReturn($slaveAddress)
         ;
-        $masterService->send($master->reveal(), $type, chr(($slaveAddress << 1) | 1) . chr($command) . chr(strlen($data)))
+        $masterService->send($master->reveal(), $type, chr(($slaveAddress << 1) | 1) . chr($command) . chr($dataLength))
             ->shouldBeCalledOnce()
         ;
         $masterService->receiveReadData($master->reveal(), $slaveAddress, $type, $command)
@@ -220,9 +222,9 @@ class AbstractSlaveTest extends Unit
         ;
         $transformService->asciiToHex($data)
             ->shouldBeCalledOnce()
-            ->willReturn('Unwarscheinlich')
+            ->willReturn($data)
         ;
-        $logRepository->create($type, 'Unwarscheinlich', $direction)
+        $logRepository->create($type, $data, $direction)
             ->shouldBeCalledOnce()
             ->willReturn($log->reveal())
         ;
