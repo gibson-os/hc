@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Repository;
 use DateTime;
 use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -14,7 +15,7 @@ use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
 use GibsonOS\Module\Hc\Model\Module as ModuleModel;
 
-class Attribute extends AbstractRepository
+class AttributeRepository extends AbstractRepository
 {
     /**
      * @throws SelectError
@@ -22,7 +23,7 @@ class Attribute extends AbstractRepository
      *
      * @return AttributeModel[]
      */
-    public static function getByModule(
+    public function getByModule(
         ModuleModel $module,
         int $subId = null,
         string $key = null,
@@ -70,10 +71,13 @@ class Attribute extends AbstractRepository
     }
 
     /**
-     * @throws SaveError
+     * @param string[] $values
+     *
      * @throws DateTimeError
+     * @throws SaveError
+     * @throws GetError
      */
-    public static function addByModule(
+    public function addByModule(
         ModuleModel $module,
         array $values,
         int $subId = null,
@@ -98,7 +102,7 @@ class Attribute extends AbstractRepository
         }
     }
 
-    public static function countByModule(ModuleModel $module, string $type = null, int $subId = null): int
+    public function countByModule(ModuleModel $module, string $type = null, int $subId = null): int
     {
         $table = self::getTable(AttributeModel::getTableName());
 
@@ -128,7 +132,7 @@ class Attribute extends AbstractRepository
      *
      * @throws DeleteError
      */
-    public static function deleteWithBiggerSubIds(
+    public function deleteWithBiggerSubIds(
         ModuleModel $module,
         int $subId = null,
         string $key = null,

@@ -12,18 +12,36 @@ use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
-use GibsonOS\Module\Hc\Repository\Sequence as SequenceRepository;
+use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
+use GibsonOS\Module\Hc\Repository\SequenceRepository;
 
 class ImageService extends AbstractService
 {
     public const SEQUENCE_TYPE = 0;
 
     /**
+     * @var SequenceRepository
+     */
+    private $sequenceRepository;
+
+    /**
+     * @var ElementRepository
+     */
+    private $elementRepository;
+
+    public function __construct(SequenceRepository $sequenceRepository, ElementRepository $elementRepository)
+    {
+        $this->sequenceRepository = $sequenceRepository;
+        $this->elementRepository = $elementRepository;
+    }
+
+    /**
+     * @throws DateTimeError
      * @throws SelectError
      */
     public function getByName(Module $slave, string $name): Sequence
     {
-        return SequenceRepository::getByName($slave, $name, self::SEQUENCE_TYPE);
+        return $this->sequenceRepository->getByName($slave, $name, self::SEQUENCE_TYPE);
     }
 
     /**
@@ -31,10 +49,11 @@ class ImageService extends AbstractService
      * @throws DeleteError
      * @throws GetError
      * @throws SaveError
+     * @throws SelectError
      */
     public function save(Module $slave, string $name, array $leds, int $id = null): Sequence
     {
-        SequenceRepository::startTransaction();
+        $this->sequenceRepository->startTransaction();
 
         $sequence = (new Sequence())
             ->setName($name)
@@ -47,9 +66,9 @@ class ImageService extends AbstractService
             $sequence->setId($id);
 
             try {
-                SequenceRepository\Element::deleteBySequence($sequence);
+                $this->elementRepository->deleteBySequence($sequence);
             } catch (DeleteError $e) {
-                SequenceRepository::rollback();
+                $this->sequenceRepository->rollback();
 
                 throw $e;
             }
@@ -58,7 +77,7 @@ class ImageService extends AbstractService
         try {
             $sequence->save();
         } catch (SaveError $e) {
-            SequenceRepository::rollback();
+            $this->sequenceRepository->rollback();
 
             throw $e;
         }
@@ -71,12 +90,12 @@ class ImageService extends AbstractService
         try {
             $sequenceElement->save();
         } catch (SaveError $e) {
-            SequenceRepository::rollback();
+            $this->sequenceRepository->rollback();
 
             throw $e;
         }
 
-        SequenceRepository::commit();
+        $this->sequenceRepository->commit();
 
         $sequence->addElement($sequenceElement);
 

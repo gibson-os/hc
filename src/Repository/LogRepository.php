@@ -25,14 +25,14 @@ class LogRepository extends AbstractRepository
      * @throws SelectError
      * @throws GetError
      */
-    public static function getLastEntryByModuleId(
+    public function getLastEntryByModuleId(
         int $moduleId,
         int $command = null,
         int $type = null,
         string $direction = null
     ): Log {
-        $table = self::getTable(Log::getTableName());
-        $table->setWhere('`module_id`=' . $moduleId . self::completeWhere($command, $type, $direction));
+        $table = $this->getTable(Log::getTableName());
+        $table->setWhere('`module_id`=' . $moduleId . $this->completeWhere($command, $type, $direction));
         $table->setLimit(1);
         $table->setOrderBy('`id` DESC');
 
@@ -50,19 +50,18 @@ class LogRepository extends AbstractRepository
     }
 
     /**
-     *@throws SelectError
      * @throws DateTimeError
-     *
-     * @return Log
+     * @throws GetError
+     * @throws SelectError
      */
-    public static function getLastEntryByMasterId(
+    public function getLastEntryByMasterId(
         int $masterId,
         int $command = null,
         int $type = null,
         string $direction = null
-    ) {
-        $table = self::getTable(Log::getTableName());
-        $table->setWhere('`master_id`=' . $masterId . self::completeWhere($command, $type, $direction));
+    ): Log {
+        $table = $this->getTable(Log::getTableName());
+        $table->setWhere('`master_id`=' . $masterId . $this->completeWhere($command, $type, $direction));
         $table->setLimit(1);
         $table->setOrderBy('`id` DESC');
 
@@ -82,7 +81,7 @@ class LogRepository extends AbstractRepository
     /**
      * @return string
      */
-    private static function completeWhere(int $command = null, int $type = null, string $direction = null)
+    private function completeWhere(int $command = null, int $type = null, string $direction = null)
     {
         $where = '';
 
@@ -95,30 +94,29 @@ class LogRepository extends AbstractRepository
         }
 
         if ($direction !== null) {
-            $where .= ' AND `direction`=' . self::escape($direction);
+            $where .= ' AND `direction`=' . $this->escape($direction);
         }
 
         return $where;
     }
 
     /**
-     *@throws DateTimeError
+     * @throws DateTimeError
+     * @throws GetError
      * @throws SelectError
-     *
-     * @return Log
      */
-    public static function getPreviewEntryByModuleId(
+    public function getPreviewEntryByModuleId(
         int $id,
         int $moduleId,
         int $command = null,
         int $type = null,
         string $direction = null
-    ) {
-        $table = self::getTable(Log::getTableName());
+    ): Log {
+        $table = $this->getTable(Log::getTableName());
         $table->setWhere(
-            '`id`<' . self::escape((string) $id) . ' AND ' .
-            '`module_id`=' . self::escape((string) $moduleId) .
-            self::completeWhere($command, $type, $direction)
+            '`id`<' . $this->escape((string) $id) . ' AND ' .
+            '`module_id`=' . $this->escape((string) $moduleId) .
+            $this->completeWhere($command, $type, $direction)
         );
         $table->setLimit(1);
         $table->setOrderBy('`id` DESC');

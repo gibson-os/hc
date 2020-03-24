@@ -7,6 +7,11 @@ use GibsonOS\Module\Hc\Model\Module;
 
 class BlankService extends AbstractHcSlave
 {
+    public function slaveHandshake(Module $slave): Module
+    {
+        return $slave;
+    }
+
     public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module
     {
         return $slave;

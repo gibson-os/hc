@@ -5,11 +5,13 @@ namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Log;
-use GibsonOS\Module\Hc\Repository\Attribute\Value;
-use GibsonOS\Module\Hc\Repository\LogRepository as LogRepository;
-use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
+use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
+use GibsonOS\Module\Hc\Repository\LogRepository;
+use GibsonOS\Module\Hc\Service\Slave\IoService;
+use GibsonOS\Module\Hc\Service\TransformService;
 
 class IoFormatter extends AbstractHcFormatter
 {
@@ -17,6 +19,26 @@ class IoFormatter extends AbstractHcFormatter
      * @var int
      */
     private $directConnectReadInputPort;
+
+    /**
+     * @var ValueRepository
+     */
+    private $valueRepository;
+
+    /**
+     * @var LogRepository
+     */
+    private $logRepository;
+
+    public function __construct(
+        TransformService $transform,
+        ValueRepository $valueRepository,
+        LogRepository $logRepository
+    ) {
+        parent::__construct($transform);
+        $this->valueRepository = $valueRepository;
+        $this->logRepository = $logRepository;
+    }
 
     /**
      * @throws Exception
@@ -43,7 +65,7 @@ class IoFormatter extends AbstractHcFormatter
         }
 
         if ($log->getCommand() < (int) $log->getModule()->getConfig()) {
-            $name = Value::getByTypeId(
+            $name = $this->valueRepository->getByTypeId(
                 $log->getModule()->getTypeId(),
                 $log->getCommand(),
                 [(int) $log->getModule()->getId()],
@@ -124,14 +146,14 @@ class IoFormatter extends AbstractHcFormatter
                         '</tr>';
 
                 foreach ($changedPorts as $number => $port) {
-                    $name = Value::getByTypeId(
+                    $name = $this->valueRepository->getByTypeId(
                         $log->getModule()->getTypeId(),
                         (int) $number,
                         [(int) $log->getModule()->getId()],
                         IoService::ATTRIBUTE_TYPE_PORT,
                         IoService::ATTRIBUTE_PORT_KEY_NAME
                     );
-                    $valueNames = Value::getByTypeId(
+                    $valueNames = $this->valueRepository->getByTypeId(
                         $log->getModule()->getTypeId(),
                         (int) $number,
                         [(int) $log->getModule()->getId()],
@@ -158,7 +180,7 @@ class IoFormatter extends AbstractHcFormatter
                 return $return . '</table>';
             case IoService::COMMAND_ADD_DIRECT_CONNECT:
                 $inputPort = $this->transform->hexToInt($log->getData(), 0);
-                $inputName = Value::getByTypeId(
+                $inputName = $this->valueRepository->getByTypeId(
                     $log->getModule()->getTypeId(),
                     $inputPort,
                     [(int) $log->getModule()->getId()],
@@ -176,7 +198,7 @@ class IoFormatter extends AbstractHcFormatter
                     '</table>';
             case IoService::COMMAND_SET_DIRECT_CONNECT:
                 $inputPort = $this->transform->hexToInt($log->getData(), 0);
-                $inputName = Value::getByTypeId(
+                $inputName = $this->valueRepository->getByTypeId(
                     $log->getModule()->getTypeId(),
                     $inputPort,
                     [(int) $log->getModule()->getId()],
@@ -198,7 +220,7 @@ class IoFormatter extends AbstractHcFormatter
                     '</table>';
             case IoService::COMMAND_DELETE_DIRECT_CONNECT:
                 $inputPort = $this->transform->hexToInt($log->getData(), 0);
-                $inputName = Value::getByTypeId(
+                $inputName = $this->valueRepository->getByTypeId(
                     $log->getModule()->getTypeId(),
                     $inputPort,
                     [(int) $log->getModule()->getId()],
@@ -219,7 +241,7 @@ class IoFormatter extends AbstractHcFormatter
                     '</table>';
             case IoService::COMMAND_RESET_DIRECT_CONNECT:
                 $inputPort = $this->transform->hexToInt($log->getData(), 0);
-                $inputName = Value::getByTypeId(
+                $inputName = $this->valueRepository->getByTypeId(
                     $log->getModule()->getTypeId(),
                     $inputPort,
                     [(int) $log->getModule()->getId()],
@@ -237,7 +259,7 @@ class IoFormatter extends AbstractHcFormatter
             case IoService::COMMAND_READ_DIRECT_CONNECT:
                 if ($log->getDirection() === Log::DIRECTION_OUTPUT) {
                     $this->directConnectReadInputPort = $this->transform->hexToInt($log->getData(), 0);
-                    $inputName = Value::getByTypeId(
+                    $inputName = $this->valueRepository->getByTypeId(
                         $log->getModule()->getTypeId(),
                         $this->directConnectReadInputPort,
                         [(int) $log->getModule()->getId()],
@@ -286,7 +308,7 @@ class IoFormatter extends AbstractHcFormatter
 
         if ($log->getCommand() < (int) $log->getModule()->getConfig()) {
             $port = self::getPortAsArray($this->transform->hexToAscii($log->getData()));
-            $valueNames = Value::getByTypeId(
+            $valueNames = $this->valueRepository->getByTypeId(
                 $log->getModule()->getTypeId(),
                 $log->getCommand(),
                 [(int) $log->getModule()->getId()],
@@ -318,6 +340,7 @@ class IoFormatter extends AbstractHcFormatter
     /**
      * @throws DateTimeError
      * @throws SelectError
+     * @throws GetError
      */
     private function getChangedPorts(Log $log): array
     {
@@ -328,7 +351,7 @@ class IoFormatter extends AbstractHcFormatter
         }
 
         try {
-            $lastData = LogRepository::getPreviewEntryByModuleId(
+            $lastData = $this->logRepository->getPreviewEntryByModuleId(
                 (int) $log->getId(),
                 (int) $log->getModule()->getId(),
                 $log->getCommand(),
@@ -401,21 +424,21 @@ class IoFormatter extends AbstractHcFormatter
         $directConnect = self::getDirectConnectAsArray($data);
         $moduleIds = [(int) $log->getModule()->getId()];
 
-        $inputValueNames = Value::getByTypeId(
+        $inputValueNames = $this->valueRepository->getByTypeId(
             $log->getModule()->getTypeId(),
             $inputPort,
             $moduleIds,
             IoService::ATTRIBUTE_TYPE_PORT,
             IoService::ATTRIBUTE_PORT_KEY_VALUE_NAMES
         );
-        $outputName = Value::getByTypeId(
+        $outputName = $this->valueRepository->getByTypeId(
             $log->getModule()->getTypeId(),
             $directConnect[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT],
             $moduleIds,
             IoService::ATTRIBUTE_TYPE_PORT,
             IoService::ATTRIBUTE_PORT_KEY_NAME
         );
-        $outputValueNames = Value::getByTypeId(
+        $outputValueNames = $this->valueRepository->getByTypeId(
             $log->getModule()->getTypeId(),
             $directConnect[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT],
             $moduleIds,
@@ -496,7 +519,7 @@ class IoFormatter extends AbstractHcFormatter
         $ports = [];
 
         for ($i = 0; $i < $portCount; ++$i) {
-            $ports[$i] = self::getPortAsArray(substr($data, $byteCount, 2));
+            $ports[$i] = $this->getPortAsArray(substr($data, $byteCount, 2));
             $byteCount += 2;
         }
 

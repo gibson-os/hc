@@ -8,15 +8,15 @@ use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Model\Sequence\Element as ElementModel;
 
-class Element extends AbstractRepository
+class ElementRepository extends AbstractRepository
 {
     /**
      * @throws DeleteError
      */
-    public static function deleteBySequence(Sequence $sequence)
+    public function deleteBySequence(Sequence $sequence)
     {
-        $table = self::getTable(ElementModel::getTableName());
-        $table->setWhere('`sequence_id`=' . self::escape((string) $sequence->getId()));
+        $table = $this->getTable(ElementModel::getTableName());
+        $table->setWhere('`sequence_id`=' . $this->escape((string) $sequence->getId()));
 
         if (!$table->delete()) {
             throw new DeleteError();

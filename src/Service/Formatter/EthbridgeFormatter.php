@@ -11,7 +11,7 @@ use GibsonOS\Core\Service\ModuleSettingService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Constant\Ethbridge as EthbridgeConstant;
 use GibsonOS\Module\Hc\Model\Log;
-use GibsonOS\Module\Hc\Repository\Attribute\Value;
+use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 
@@ -22,11 +22,20 @@ class EthbridgeFormatter extends AbstractFormatter
      */
     private $moduleSetting;
 
-    public function __construct(TransformService $transform, ModuleSettingService $moduleSetting)
-    {
+    /**
+     * @var ValueRepository
+     */
+    private $valueRepository;
+
+    public function __construct(
+        TransformService $transform,
+        ModuleSettingService $moduleSetting,
+        ValueRepository $valueRepository
+    ) {
         parent::__construct($transform);
         $this->transform = $transform;
         $this->moduleSetting = $moduleSetting;
+        $this->valueRepository = $valueRepository;
     }
 
     /**
@@ -108,7 +117,7 @@ class EthbridgeFormatter extends AbstractFormatter
     {
         $subId = (int) ($protocol . $address . $command);
 
-        $valueModels = Value::getByTypeId(
+        $valueModels = $this->valueRepository->getByTypeId(
             $log->getModule()->getTypeId(),
             $subId,
             [],

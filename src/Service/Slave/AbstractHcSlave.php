@@ -169,6 +169,8 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     private $slaveFactory;
 
+    abstract public function slaveHandshake(Module $slave): Module;
+
     abstract public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module;
 
     abstract public function receive(Module $slave, int $type, int $command, string $data): void;
@@ -237,7 +239,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             ->setPwmSpeed($this->readPwmSpeed($slave))
         ;
 
-        return $slave;
+        return $this->slaveHandshake($slave);
     }
 
     /**

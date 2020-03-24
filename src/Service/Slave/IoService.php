@@ -14,8 +14,8 @@ use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Repository\Attribute as AttributeRepository;
-use GibsonOS\Module\Hc\Repository\Attribute\Value as ValueRepository;
+use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository as ValueRepository;
+use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository as ModuleRepository;
@@ -25,6 +25,7 @@ use GibsonOS\Module\Hc\Service\EventService;
 use GibsonOS\Module\Hc\Service\Formatter\IoFormatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Throwable;
 
 class IoService extends AbstractHcSlave
 {
@@ -107,6 +108,16 @@ class IoService extends AbstractHcSlave
      */
     private $ioFormatter;
 
+    /**
+     * @var AttributeRepository
+     */
+    private $attributeRepository;
+
+    /**
+     * @var ValueRepository
+     */
+    private $valueRepository;
+
     public function __construct(
         MasterService $masterService,
         TransformService $transformService,
@@ -116,7 +127,9 @@ class IoService extends AbstractHcSlave
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
         LogRepository $logRepository,
-        SlaveFactory $slaveFactory
+        SlaveFactory $slaveFactory,
+        AttributeRepository $attributeRepository,
+        ValueRepository $valueRepository
     ) {
         parent::__construct(
             $masterService,
@@ -129,21 +142,20 @@ class IoService extends AbstractHcSlave
             $slaveFactory
         );
         $this->ioFormatter = $ioFormatter;
+        $this->attributeRepository = $attributeRepository;
+        $this->valueRepository = $valueRepository;
     }
 
     /**
+     * @throws AbstractException
+     * @throws DateTimeError
      * @throws ReceiveError
      * @throws SaveError
-     * @throws SelectError
-     * @throws GetError
-     * @throws Exception
-     * @throws AbstractException
+     * @throws Throwable
      */
-    public function handshake(Module $slave): Module
+    public function slaveHandshake(Module $slave): Module
     {
-        parent::handshake($slave);
-
-        if ($slave->getConfig() === null) {
+        if (empty($slave->getConfig())) {
             $slave->setConfig(
                 (string) $this->transformService->asciiToUnsignedInt(
                     $this->readConfig($slave, self::COMMAND_CONFIGURATION_READ_LENGTH)
@@ -154,30 +166,30 @@ class IoService extends AbstractHcSlave
         }
 
         $ports = $this->readPorts($slave);
-        AttributeRepository::startTransaction();
+        $this->attributeRepository->startTransaction();
 
         try {
-            if (AttributeRepository::countByModule($slave, self::ATTRIBUTE_TYPE_PORT)) {
+            if ($this->attributeRepository->countByModule($slave, self::ATTRIBUTE_TYPE_PORT)) {
                 foreach ($ports as $number => $port) {
                     $this->updatePortAttributes($slave, $number, $port);
                 }
             } else {
                 foreach ($ports as $number => $port) {
-                    AttributeRepository::addByModule(
+                    $this->attributeRepository->addByModule(
                         $slave,
                         ['IO ' . ($number + 1)],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_NAME,
                         self::ATTRIBUTE_TYPE_PORT
                     );
-                    AttributeRepository::addByModule(
+                    $this->attributeRepository->addByModule(
                         $slave,
-                        [$port[self::ATTRIBUTE_PORT_KEY_VALUE]],
+                        [(string) $port[self::ATTRIBUTE_PORT_KEY_VALUE]],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_VALUE,
                         self::ATTRIBUTE_TYPE_PORT
                     );
-                    AttributeRepository::addByModule(
+                    $this->attributeRepository->addByModule(
                         $slave,
                         [
                             0 => 'Geöffnet',
@@ -187,57 +199,57 @@ class IoService extends AbstractHcSlave
                         self::ATTRIBUTE_PORT_KEY_VALUE_NAMES,
                         self::ATTRIBUTE_TYPE_PORT
                     );
-                    AttributeRepository::addByModule(
+                    $this->attributeRepository->addByModule(
                         $slave,
-                        [$port[self::ATTRIBUTE_PORT_KEY_DIRECTION]],
+                        [(string) $port[self::ATTRIBUTE_PORT_KEY_DIRECTION]],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_DIRECTION,
                         self::ATTRIBUTE_TYPE_PORT
                     );
-                    AttributeRepository::addByModule(
+                    $this->attributeRepository->addByModule(
                         $slave,
-                        [isset($port[self::ATTRIBUTE_PORT_KEY_PULL_UP]) ? $port[self::ATTRIBUTE_PORT_KEY_PULL_UP] : 0],
+                        [(string) ($port[self::ATTRIBUTE_PORT_KEY_PULL_UP] ?? 0)],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_PULL_UP,
                         self::ATTRIBUTE_TYPE_PORT
                     );
-                    AttributeRepository::addByModule(
+                    $this->attributeRepository->addByModule(
                         $slave,
-                        [isset($port[self::ATTRIBUTE_PORT_KEY_DELAY]) ? $port[self::ATTRIBUTE_PORT_KEY_DELAY] : 0],
+                        [(string) ($port[self::ATTRIBUTE_PORT_KEY_DELAY] ?? 0)],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_DELAY,
                         self::ATTRIBUTE_TYPE_PORT
                     );
-                    AttributeRepository::addByModule(
+                    $this->attributeRepository->addByModule(
                         $slave,
-                        [isset($port[self::ATTRIBUTE_PORT_KEY_PWM]) ? $port[self::ATTRIBUTE_PORT_KEY_PWM] : 0],
+                        [(string) ($port[self::ATTRIBUTE_PORT_KEY_PWM] ?? 0)],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_PWM,
                         self::ATTRIBUTE_TYPE_PORT
                     );
-                    AttributeRepository::addByModule(
+                    $this->attributeRepository->addByModule(
                         $slave,
-                        [isset($port[self::ATTRIBUTE_PORT_KEY_BLINK]) ? $port[self::ATTRIBUTE_PORT_KEY_BLINK] : 0],
+                        [(string) ($port[self::ATTRIBUTE_PORT_KEY_BLINK] ?? 0)],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_BLINK,
                         self::ATTRIBUTE_TYPE_PORT
                     );
-                    AttributeRepository::addByModule(
+                    $this->attributeRepository->addByModule(
                         $slave,
-                        [isset($port[self::ATTRIBUTE_PORT_KEY_FADE_IN]) ? $port[self::ATTRIBUTE_PORT_KEY_FADE_IN] : 0],
+                        [(string) ($port[self::ATTRIBUTE_PORT_KEY_FADE_IN] ?? 0)],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_FADE_IN,
                         self::ATTRIBUTE_TYPE_PORT
                     );
                 }
             }
-        } catch (AbstractException $exception) {
-            AttributeRepository::rollback();
+        } catch (Throwable $exception) {
+            $this->attributeRepository->rollback();
 
             throw $exception;
         }
 
-        AttributeRepository::commit();
+        $this->attributeRepository->commit();
 
         return $slave;
     }
@@ -305,7 +317,11 @@ class IoService extends AbstractHcSlave
     {
         $this->eventService->fire(IoDescriber::BEFORE_READ_PORTS_FROM_EEPROM, ['slave' => $slave]);
 
-        if (!$this->transformService->asciiToUnsignedInt($this->read($slave, self::COMMAND_STATUS_IN_EEPROM, self::COMMAND_STATUS_IN_EEPROM_LENGTH))) {
+        if (empty($this->transformService->asciiToUnsignedInt($this->read(
+            $slave,
+            self::COMMAND_STATUS_IN_EEPROM,
+            self::COMMAND_STATUS_IN_EEPROM_LENGTH
+        )))) {
             throw new ReceiveError('Kein Status im EEPROM vorhanden!');
         }
 
@@ -318,9 +334,9 @@ class IoService extends AbstractHcSlave
      */
     public function writePortsToEeprom(Module $slave): void
     {
-        $this->eventService->fire(IoDescriber::BEFORE_WRITE_PORTS_FROM_EEPROM, ['slave' => $slave]);
+        $this->eventService->fire(IoDescriber::BEFORE_WRITE_PORTS_TO_EEPROM, ['slave' => $slave]);
         $this->write($slave, self::COMMAND_STATUS_IN_EEPROM, 'a');
-        $this->eventService->fire(IoDescriber::AFTER_WRITE_PORTS_FROM_EEPROM, ['slave' => $slave]);
+        $this->eventService->fire(IoDescriber::AFTER_WRITE_PORTS_TO_EEPROM, ['slave' => $slave]);
     }
 
     /**
@@ -328,7 +344,7 @@ class IoService extends AbstractHcSlave
      */
     private function completePortAttributes(Module $slave, int $number, array $data): array
     {
-        $valueModels = ValueRepository::getByTypeId(
+        $valueModels = $this->valueRepository->getByTypeId(
             $slave->getTypeId(),
             $number,
             [(int) $slave->getId()],
@@ -356,7 +372,7 @@ class IoService extends AbstractHcSlave
      */
     private function updatePortAttributes(Module $slave, int $number, array $data): bool
     {
-        $valueModels = ValueRepository::getByTypeId(
+        $valueModels = $this->valueRepository->getByTypeId(
             $slave->getTypeId(),
             $number,
             [(int) $slave->getId()],
@@ -372,13 +388,13 @@ class IoService extends AbstractHcSlave
                 continue;
             }
 
-            $value = $data[$key];
+            $value = (string) $data[$key];
 
-            if ($key == self::ATTRIBUTE_PORT_KEY_VALUE_NAMES) {
+            if ($key === self::ATTRIBUTE_PORT_KEY_VALUE_NAMES) {
                 $value = $value[$valueModel->getOrder()];
             }
 
-            if ($value == $valueModel->getValue()) {
+            if ($value === $valueModel->getValue()) {
                 continue;
             }
 
@@ -386,8 +402,8 @@ class IoService extends AbstractHcSlave
             $valueModel->save();
 
             if (
-                $key == self::ATTRIBUTE_PORT_KEY_VALUE_NAMES ||
-                $key == self::ATTRIBUTE_PORT_KEY_NAME
+                $key === self::ATTRIBUTE_PORT_KEY_VALUE_NAMES ||
+                $key === self::ATTRIBUTE_PORT_KEY_NAME
             ) {
                 continue;
             }
@@ -404,7 +420,7 @@ class IoService extends AbstractHcSlave
      */
     public function toggleValue(Module $slave, int $number): void
     {
-        $valueModels = ValueRepository::getByTypeId(
+        $valueModels = $this->valueRepository->getByTypeId(
             $slave->getTypeId(),
             $number,
             [(int) $slave->getId()],
@@ -412,26 +428,28 @@ class IoService extends AbstractHcSlave
         );
         $data = [];
 
-        ValueRepository::startTransaction();
+        $this->valueRepository->startTransaction();
 
         try {
             foreach ($valueModels as $valueModel) {
-                if ($valueModel->getAttribute()->getKey() == self::ATTRIBUTE_PORT_KEY_VALUE) {
-                    $valueModel->setValue($valueModel->getValue() ? '0' : '1');
+                $key = $valueModel->getAttribute()->getKey();
+
+                if ($key === self::ATTRIBUTE_PORT_KEY_VALUE) {
+                    $valueModel->setValue($valueModel->getValue() === '1' ? '0' : '1');
                     $valueModel->save();
                 }
 
-                $data[$valueModel->getAttribute()->getKey()] = $valueModel->getValue();
+                $data[$key] = $valueModel->getValue();
             }
 
             $this->writePort($slave, $number, $data);
         } catch (AbstractException $exception) {
-            ValueRepository::rollback();
+            $this->valueRepository->rollback();
 
             throw $exception;
         }
 
-        ValueRepository::commit();
+        $this->valueRepository->commit();
     }
 
     /**
@@ -467,19 +485,19 @@ class IoService extends AbstractHcSlave
             $data[self::ATTRIBUTE_PORT_KEY_VALUE] = 1;
         }
 
-        ValueRepository::startTransaction();
+        $this->valueRepository->startTransaction();
 
         try {
             if ($this->updatePortAttributes($slave, $number, $data)) {
                 $this->writePort($slave, $number, $this->completePortAttributes($slave, $number, $data));
             }
         } catch (AbstractException $exception) {
-            ValueRepository::rollback();
+            $this->valueRepository->rollback();
 
             throw $exception;
         }
 
-        ValueRepository::commit();
+        $this->valueRepository->commit();
     }
 
     /**
@@ -491,9 +509,10 @@ class IoService extends AbstractHcSlave
     {
         $this->eventService->fire(IoDescriber::BEFORE_READ_PORTS, ['slave' => $slave]);
 
-        $length = ((int) $slave->getConfig()) * self::PORT_BYTE_LENGTH;
+        $config = (int) $slave->getConfig();
+        $length = ($config) * self::PORT_BYTE_LENGTH;
         $data = $this->read($slave, self::COMMAND_STATUS, $length);
-        $ports = $this->ioFormatter->getPortsAsArray($data, (int) $slave->getConfig());
+        $ports = $this->ioFormatter->getPortsAsArray($data, $config);
 
         $this->eventService->fire(IoDescriber::AFTER_READ_PORTS, ['slave' => $slave]);
 
@@ -541,7 +560,7 @@ class IoService extends AbstractHcSlave
             self::ATTRIBUTE_DIRECT_CONNECT_KEY_FADE_IN => $fadeIn,
             self::ATTRIBUTE_DIRECT_CONNECT_KEY_ADD_OR_SUB => $addOrSub,
         ];
-        $valueModels = ValueRepository::getByTypeId(
+        $valueModels = $this->valueRepository->getByTypeId(
             $slave->getTypeId(),
             $inputPort,
             [(int) $slave->getId()],
@@ -552,7 +571,7 @@ class IoService extends AbstractHcSlave
         $changed = false;
         $new = false;
 
-        ValueRepository::startTransaction();
+        $this->valueRepository->startTransaction();
 
         try {
             if (!count($valueModels)) {
@@ -601,7 +620,7 @@ class IoService extends AbstractHcSlave
                 );
             }
         } catch (AbstractException $exception) {
-            ValueRepository::rollback();
+            $this->valueRepository->rollback();
 
             throw $exception;
         }
@@ -612,7 +631,7 @@ class IoService extends AbstractHcSlave
             $eventData
         );
 
-        ValueRepository::commit();
+        $this->valueRepository->commit();
     }
 
     /**
@@ -647,18 +666,18 @@ class IoService extends AbstractHcSlave
                 throw new ReceiveError('Es existiert kein DirectConnect Befehl!', self::DIRECT_CONNECT_READ_NOT_EXIST);
             }
 
-            AttributeRepository::startTransaction();
+            $this->attributeRepository->startTransaction();
 
             try {
                 $directConnect = $this->ioFormatter->getDirectConnectAsArray($data);
                 $this->createDirectConnectAttributes($slave, $port, $directConnect, $order);
             } catch (AbstractException $exception) {
-                AttributeRepository::rollback();
+                $this->attributeRepository->rollback();
 
                 throw $exception;
             }
 
-            AttributeRepository::commit();
+            $this->attributeRepository->commit();
 
             break;
         }
@@ -675,14 +694,15 @@ class IoService extends AbstractHcSlave
     }
 
     /**
+     * @throws DateTimeError
      * @throws SaveError
      * @throws SelectError
-     * @throws DateTimeError
+     * @throws GetError
      */
     private function createDirectConnectAttributes(Module $slave, int $port, array $data, int $order = 0): void
     {
         foreach ($data as $key => $value) {
-            $attributes = AttributeRepository::getByModule($slave, $port, $key, self::ATTRIBUTE_TYPE_DIRECT_CONNECT);
+            $attributes = $this->attributeRepository->getByModule($slave, $port, $key, self::ATTRIBUTE_TYPE_DIRECT_CONNECT);
 
             if (count($attributes)) {
                 $attribute = $attributes[0];
@@ -714,10 +734,10 @@ class IoService extends AbstractHcSlave
             'order' => $order,
         ]);
 
-        ValueRepository::startTransaction();
+        $this->valueRepository->startTransaction();
 
         try {
-            ValueRepository::deleteBySubId(
+            $this->valueRepository->deleteBySubId(
                 $port,
                 $slave->getTypeId(),
                 [(int) $slave->getId()],
@@ -725,7 +745,7 @@ class IoService extends AbstractHcSlave
                 null,
                 (string) $order
             );
-            ValueRepository::updateOrder(
+            $this->valueRepository->updateOrder(
                 $slave->getTypeId(),
                 $order,
                 -1,
@@ -736,7 +756,7 @@ class IoService extends AbstractHcSlave
 
             $this->write($slave, self::COMMAND_DELETE_DIRECT_CONNECT, chr($port) . chr($order));
         } catch (AbstractException $exception) {
-            ValueRepository::rollback();
+            $this->valueRepository->rollback();
 
             throw $exception;
         }
@@ -747,7 +767,7 @@ class IoService extends AbstractHcSlave
             'order' => $order,
         ]);
 
-        ValueRepository::commit();
+        $this->valueRepository->commit();
     }
 
     /**
@@ -761,10 +781,10 @@ class IoService extends AbstractHcSlave
             'databaseOnly' => $databaseOnly,
         ]);
 
-        ValueRepository::startTransaction();
+        $this->valueRepository->startTransaction();
 
         try {
-            ValueRepository::deleteBySubId(
+            $this->valueRepository->deleteBySubId(
                 $port,
                 $slave->getTypeId(),
                 [(int) $slave->getId()],
@@ -775,7 +795,7 @@ class IoService extends AbstractHcSlave
                 $this->write($slave, self::COMMAND_RESET_DIRECT_CONNECT, chr($port));
             }
         } catch (AbstractException $exception) {
-            ValueRepository::rollback();
+            $this->valueRepository->rollback();
 
             throw $exception;
         }
@@ -786,7 +806,7 @@ class IoService extends AbstractHcSlave
             'databaseOnly' => $databaseOnly,
         ]);
 
-        ValueRepository::commit();
+        $this->valueRepository->commit();
     }
 
     /**

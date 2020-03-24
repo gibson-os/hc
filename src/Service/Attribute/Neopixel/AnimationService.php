@@ -9,8 +9,8 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Repository\Attribute as AttributeRepository;
-use GibsonOS\Module\Hc\Repository\Attribute\Value as ValueRepository;
+use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository as ValueRepository;
+use GibsonOS\Module\Hc\Repository\AttributeRepository as AttributeRepository;
 
 class AnimationService
 {

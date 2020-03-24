@@ -104,10 +104,8 @@ class NeopixelService extends AbstractHcSlave
      * @throws DeleteError
      * @throws Exception
      */
-    public function handshake(Module $slave): Module
+    public function slaveHandshake(Module $slave): Module
     {
-        parent::handshake($slave);
-
         if ($slave->getConfig() === null) {
             $config = $this->getConfig($slave);
             $slave->setConfig(JsonUtility::encode($config));

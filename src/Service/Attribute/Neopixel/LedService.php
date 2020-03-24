@@ -12,8 +12,8 @@ use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Repository\Attribute as AttributeRepository;
-use GibsonOS\Module\Hc\Repository\Attribute\Value as ValueRepository;
+use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository as ValueRepository;
+use GibsonOS\Module\Hc\Repository\AttributeRepository as AttributeRepository;
 use OutOfRangeException;
 
 class LedService

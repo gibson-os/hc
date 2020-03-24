@@ -11,44 +11,44 @@ use GibsonOS\Module\Hc\Model\Event\Trigger as TriggerModel;
 use mysqlTable;
 use stdClass;
 
-class Event extends AbstractRepository
+class EventRepository extends AbstractRepository
 {
     /**
      * @return EventModel[]
      */
-    public static function getByMasterId(int $masterId): array
+    public function getByMasterId(int $masterId): array
     {
-        $table = self::initializeTable();
+        $table = $this->initializeTable();
         $table->setWhere('`hc_event_trigger`.`master_id`=' . $masterId);
 
         if (!$table->select(false)) {
             return [];
         }
 
-        return self::matchModels($table->connection->fetchObjectList());
+        return $this->matchModels($table->connection->fetchObjectList());
     }
 
     /**
      * @return EventModel[]
      */
-    public static function getByModuleId(int $masterId): array
+    public function getByModuleId(int $masterId): array
     {
-        $table = self::initializeTable();
+        $table = $this->initializeTable();
         $table->setWhere('`hc_event_trigger`.`module_id`=' . $masterId);
 
         if (!$table->select(false)) {
             return [];
         }
 
-        return self::matchModels($table->connection->fetchObjectList());
+        return $this->matchModels($table->connection->fetchObjectList());
     }
 
     /**
      * @return mysqlTable
      */
-    private static function initializeTable()
+    private function initializeTable()
     {
-        $table = self::getTable(ElementModel::getTableName());
+        $table = $this->getTable(ElementModel::getTableName());
         $table->appendJoin('`hc_event`', '`hc_event_element`.`event_id`=`hc_event`.`id`');
         $table->appendJoin('`hc_trigger`', '`hc_event_element`.`event_id`=`hc_event`.`id`');
         $table->setOrderBy('`hc_event_trigger`.`priority`, `hc_event_element`.`left`');
@@ -91,7 +91,7 @@ class Event extends AbstractRepository
      *
      * @return EventModel[]
      */
-    private static function matchModels($events)
+    private function matchModels($events)
     {
         /**
          * @var EventModel[]

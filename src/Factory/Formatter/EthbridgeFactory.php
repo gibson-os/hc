@@ -6,13 +6,18 @@ namespace GibsonOS\Module\Hc\Factory\Formatter;
 use GibsonOS\Core\Factory\AbstractSingletonFactory;
 use GibsonOS\Core\Factory\ModuleSettingFactory;
 use GibsonOS\Module\Hc\Factory\TransformFactory;
+use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Service\Formatter\EthbridgeFormatter;
 
 class EthbridgeFactory extends AbstractSingletonFactory
 {
     protected static function createInstance(): EthbridgeFormatter
     {
-        return new EthbridgeFormatter(TransformFactory::create(), ModuleSettingFactory::create());
+        return new EthbridgeFormatter(
+            TransformFactory::create(),
+            ModuleSettingFactory::create(),
+            new ValueRepository()
+        );
     }
 
     public static function create(): EthbridgeFormatter

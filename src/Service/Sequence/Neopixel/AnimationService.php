@@ -9,22 +9,39 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\AbstractService;
-use GibsonOS\Core\Utility\Json;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
-use GibsonOS\Module\Hc\Repository\Sequence as SequenceRepository;
+use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
+use GibsonOS\Module\Hc\Repository\SequenceRepository;
 
 class AnimationService extends AbstractService
 {
     public const SEQUENCE_TYPE = 1;
 
     /**
+     * @var SequenceRepository
+     */
+    private $sequenceRepository;
+
+    /**
+     * @var ElementRepository
+     */
+    private $elementRepository;
+
+    public function __construct(SequenceRepository $sequenceRepository, ElementRepository $elementRepository)
+    {
+        $this->sequenceRepository = $sequenceRepository;
+        $this->elementRepository = $elementRepository;
+    }
+
+    /**
+     * @throws DateTimeError
      * @throws SelectError
      */
     public function getByName(Module $slave, string $name): Sequence
     {
-        return SequenceRepository::getByName($slave, $name, self::SEQUENCE_TYPE);
+        return $this->sequenceRepository->getByName($slave, $name, self::SEQUENCE_TYPE);
     }
 
     /**
@@ -33,7 +50,7 @@ class AnimationService extends AbstractService
      */
     public function getById(int $id): array
     {
-        $sequence = SequenceRepository::getById($id);
+        $sequence = $this->sequenceRepository->getById($id);
         $sequence->loadElements();
         $steps = [];
 
@@ -50,10 +67,11 @@ class AnimationService extends AbstractService
      * @throws DeleteError
      * @throws GetError
      * @throws SaveError
+     * @throws SelectError
      */
     public function save(Module $slave, string $name, array $steps, int $id = null): Sequence
     {
-        SequenceRepository::startTransaction();
+        $this->sequenceRepository->startTransaction();
 
         $sequence = (new Sequence())
             ->setName($name)
@@ -66,9 +84,9 @@ class AnimationService extends AbstractService
             $sequence->setId($id);
 
             try {
-                SequenceRepository\Element::deleteBySequence($sequence);
+                $this->elementRepository->deleteBySequence($sequence);
             } catch (DeleteError $e) {
-                SequenceRepository::rollback();
+                $this->sequenceRepository->rollback();
 
                 throw $e;
             }
@@ -77,7 +95,7 @@ class AnimationService extends AbstractService
         try {
             $sequence->save();
         } catch (SaveError $e) {
-            SequenceRepository::rollback();
+            $this->sequenceRepository->rollback();
 
             throw $e;
         }
@@ -92,7 +110,7 @@ class AnimationService extends AbstractService
             try {
                 $sequenceElement->save();
             } catch (SaveError $e) {
-                SequenceRepository::rollback();
+                $this->sequenceRepository->rollback();
 
                 throw $e;
             }
@@ -100,7 +118,7 @@ class AnimationService extends AbstractService
             $sequence->addElement($sequenceElement);
         }
 
-        SequenceRepository::commit();
+        $this->sequenceRepository->commit();
 
         return $sequence;
     }

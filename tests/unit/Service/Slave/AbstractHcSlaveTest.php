@@ -74,11 +74,6 @@ class AbstractHcSlaveTest extends Unit
     private $logRepository;
 
     /**
-     * @var AbstractSlaveTest
-     */
-    private $abstractSlaveTest;
-
-    /**
      * @var ObjectProphecy|Master
      */
     private $master;
@@ -118,9 +113,14 @@ class AbstractHcSlaveTest extends Unit
                 $this->slave = $slave;
             }
 
+            public function slaveHandshake(Module $slave): Module
+            {
+                return $slave;
+            }
+
             public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module
             {
-                return $this->slave;
+                return $slave;
             }
 
             public function receive(Module $slave, int $type, int $command, string $data): void

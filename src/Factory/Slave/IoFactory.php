@@ -9,6 +9,8 @@ use GibsonOS\Module\Hc\Factory\Formatter\IoFactory as IoFormatterFactory;
 use GibsonOS\Module\Hc\Factory\MasterFactory;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Factory\TransformFactory;
+use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
+use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
@@ -28,7 +30,9 @@ class IoFactory extends AbstractSingletonFactory
             new TypeRepository(),
             new MasterRepository(),
             new LogRepository(),
-            SlaveFactory::create()
+            SlaveFactory::create(),
+            new AttributeRepository(),
+            new ValueRepository()
         );
     }
 

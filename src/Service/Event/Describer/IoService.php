@@ -31,9 +31,9 @@ class IoService implements DescriberInterface
 
     public const AFTER_READ_PORTS_FROM_EEPROM = 'afterReadPortsFromEeprom';
 
-    public const BEFORE_WRITE_PORTS_FROM_EEPROM = 'beforeWritePortsFromEeprom';
+    public const BEFORE_WRITE_PORTS_TO_EEPROM = 'beforeWritePortsToEeprom';
 
-    public const AFTER_WRITE_PORTS_FROM_EEPROM = 'afterWritePortsFromEeprom';
+    public const AFTER_WRITE_PORTS_TO_EEPROM = 'afterWritePortsToEeprom';
 
     public const BEFORE_READ_PORTS = 'beforeReadPorts';
 
@@ -174,9 +174,9 @@ class IoService implements DescriberInterface
                 ->setParameters(['slave' => $this->slaveParameter]),
             self::AFTER_READ_PORTS_FROM_EEPROM => (new Trigger('Nach lesen der Ports aus EEPROM'))
                 ->setParameters(['slave' => $this->slaveParameter]),
-            self::BEFORE_WRITE_PORTS_FROM_EEPROM => (new Trigger('Vor schreiben der Ports in EEPROM'))
+            self::BEFORE_WRITE_PORTS_TO_EEPROM => (new Trigger('Vor schreiben der Ports in EEPROM'))
                 ->setParameters(['slave' => $this->slaveParameter]),
-            self::AFTER_WRITE_PORTS_FROM_EEPROM => (new Trigger('Nach schreiben der Ports in EEPROM'))
+            self::AFTER_WRITE_PORTS_TO_EEPROM => (new Trigger('Nach schreiben der Ports in EEPROM'))
                 ->setParameters(['slave' => $this->slaveParameter]),
             self::BEFORE_READ_PORTS => (new Trigger('Vor lesen der Ports'))
                 ->setParameters(['slave' => $this->slaveParameter]),

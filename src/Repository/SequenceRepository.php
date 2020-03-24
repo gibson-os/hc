@@ -12,15 +12,15 @@ use GibsonOS\Module\Hc\Model\Type;
 use mysqlTable;
 use stdClass;
 
-class Sequence extends AbstractRepository
+class SequenceRepository extends AbstractRepository
 {
     /**
      * @throws SelectError
      */
-    public static function getById(int $id): SequenceModel
+    public function getById(int $id): SequenceModel
     {
-        $table = self::getTable(SequenceModel::getTableName());
-        $where = '`id`=' . self::escape((string) $id);
+        $table = $this->getTable(SequenceModel::getTableName());
+        $where = '`id`=' . $this->escape((string) $id);
 
         $table->setWhere($where);
 
@@ -34,24 +34,24 @@ class Sequence extends AbstractRepository
             throw new SelectError();
         }
 
-        return self::getModel($record);
+        return $this->getModel($record);
     }
 
     /**
      * @throws SelectError
      * @throws DateTimeError
      */
-    public static function getByName(Module $module, string $name, int $type = null): SequenceModel
+    public function getByName(Module $module, string $name, int $type = null): SequenceModel
     {
-        $table = self::getTable(SequenceModel::getTableName());
+        $table = $this->getTable(SequenceModel::getTableName());
         $where =
-            '`name`=' . self::escape($name) . ' AND ' .
-            '`type_id`=' . self::escape((string) $module->getType()->getId()) . ' AND ' .
-            '(`module_id`=' . self::escape((string) $module->getId()) . ' OR `module_id` IS NULL)'
+            '`name`=' . $this->escape($name) . ' AND ' .
+            '`type_id`=' . $this->escape((string) $module->getType()->getId()) . ' AND ' .
+            '(`module_id`=' . $this->escape((string) $module->getId()) . ' OR `module_id` IS NULL)'
         ;
 
         if ($type !== null) {
-            $where .= ' AND `type`=' . self::escape((string) $type);
+            $where .= ' AND `type`=' . $this->escape((string) $type);
         }
 
         $table->setWhere($where);
@@ -66,7 +66,7 @@ class Sequence extends AbstractRepository
             throw new SelectError();
         }
 
-        return self::getModel($sequence);
+        return $this->getModel($sequence);
     }
 
     /**
@@ -75,16 +75,16 @@ class Sequence extends AbstractRepository
      *
      * @return SequenceModel[]
      */
-    public static function getByModule(Module $module, int $type = null): array
+    public function getByModule(Module $module, int $type = null): array
     {
-        $table = self::getTable(SequenceModel::getTableName());
+        $table = $this->getTable(SequenceModel::getTableName());
         $where =
-            '`module_id`=' . self::escape((string) $module->getId()) . ' AND ' .
-            '`type_id`=' . self::escape((string) $module->getType()->getId())
+            '`module_id`=' . $this->escape((string) $module->getId()) . ' AND ' .
+            '`type_id`=' . $this->escape((string) $module->getType()->getId())
         ;
 
         if ($type !== null) {
-            $where .= ' AND `type`=' . self::escape((string) $type);
+            $where .= ' AND `type`=' . $this->escape((string) $type);
         }
 
         $table->setWhere($where);
@@ -93,19 +93,19 @@ class Sequence extends AbstractRepository
             throw new SelectError();
         }
 
-        return self::getModels($table);
+        return $this->getModels($table);
     }
 
     /**
      * @throws SelectError
      */
-    public static function getByType(Type $typeModel, int $type = null): array
+    public function getByType(Type $typeModel, int $type = null): array
     {
-        $table = self::getTable(SequenceModel::getTableName());
-        $where = '`type_id`=' . self::escape((string) $typeModel->getId());
+        $table = $this->getTable(SequenceModel::getTableName());
+        $where = '`type_id`=' . $this->escape((string) $typeModel->getId());
 
         if ($type !== null) {
-            $where .= ' AND `type`=' . self::escape((string) $type);
+            $where .= ' AND `type`=' . $this->escape((string) $type);
         }
 
         $table->setWhere($where);
@@ -114,24 +114,24 @@ class Sequence extends AbstractRepository
             throw new SelectError();
         }
 
-        return self::getModels($table);
+        return $this->getModels($table);
     }
 
     /**
      * @return SequenceModel[]
      */
-    private static function getModels(mysqlTable $table): array
+    private function getModels(mysqlTable $table): array
     {
         $models = [];
 
         foreach ($table->connection->fetchObjectList() as $sequence) {
-            $models[] = self::getModel($sequence);
+            $models[] = $this->getModel($sequence);
         }
 
         return $models;
     }
 
-    private static function getModel(stdClass $sequence): SequenceModel
+    private function getModel(stdClass $sequence): SequenceModel
     {
         return (new SequenceModel())
             ->setId($sequence->id)
