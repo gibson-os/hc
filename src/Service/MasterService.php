@@ -103,10 +103,9 @@ class MasterService extends AbstractService
      */
     public function receive(Master $master, int $type, string $data): void
     {
-        // @todo Log Service erstellen. Zum besseren testen
         $log = $this->logRepository->create(
             $type,
-            $this->transformService->asciiToHex(substr($data, 2)),
+            strlen($data) < 2 ? '' : $this->transformService->asciiToHex(substr($data, 2)),
             Log::DIRECTION_INPUT
         )
             ->setMaster($master)
