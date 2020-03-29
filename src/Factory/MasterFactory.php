@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Factory;
 
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Factory\AbstractSingletonFactory;
+use GibsonOS\Module\Hc\Factory\Formatter\MasterFactory as MasterFormatterFactory;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
@@ -22,6 +23,7 @@ class MasterFactory extends AbstractSingletonFactory
             EventFactory::create(),
             TransformFactory::create(),
             SlaveFactory::create(),
+            MasterFormatterFactory::create(),
             new LogRepository(),
             new ModuleRepository(),
             new TypeRepository()

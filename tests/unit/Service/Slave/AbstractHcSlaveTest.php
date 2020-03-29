@@ -526,6 +526,10 @@ class AbstractHcSlaveTest extends Unit
             ->willReturn(42424242)
         ;
 
+        $this->slave->setDeviceId(4200)
+            ->shouldBeCalledOnce()
+            ->willReturn($this->slave->reveal())
+        ;
         $this->slave->getDeviceId()
             ->shouldBeCalledTimes(4)
             ->willReturn(4242)
@@ -573,6 +577,10 @@ class AbstractHcSlaveTest extends Unit
             ->willReturn(42424242)
         ;
 
+        $this->slave->setDeviceId(4242)
+            ->shouldBeCalledOnce()
+            ->willReturn($this->slave->reveal())
+        ;
         $this->slave->getDeviceId()
             ->shouldBeCalledTimes(4)
             ->willReturn(4242)
@@ -637,7 +645,7 @@ class AbstractHcSlaveTest extends Unit
             ->willReturn($deviceId, $deviceId, $deviceId, $deviceId === 0 ? 4242 : $deviceId, 4242)
         ;
         $this->slave->setDeviceId(4242)
-            ->shouldBeCalledOnce()
+            ->shouldBeCalledTimes(2)
             ->willReturn($this->slave->reveal())
         ;
         $this->slave->getMaster()
@@ -691,6 +699,10 @@ class AbstractHcSlaveTest extends Unit
             ->willReturn(42424242)
         ;
 
+        $this->slave->setDeviceId($deviceId)
+            ->shouldBeCalledOnce()
+            ->willReturn($this->slave->reveal())
+        ;
         $this->slave->getDeviceId()
             ->shouldBeCalledTimes($deviceId === 0 ? 4 : 5)
             ->willReturn($deviceId, $deviceId, $deviceId, $deviceId === 0 ? 4242 : $deviceId, 4242)
@@ -1215,7 +1227,7 @@ class AbstractHcSlaveTest extends Unit
             'typeId',
             1
         );
-        $this->transformService->asciiToUnsignedInt('typeId')
+        $this->transformService->asciiToUnsignedInt('typeId', 0)
             ->shouldBeCalledOnce()
             ->willReturn($typeId)
         ;

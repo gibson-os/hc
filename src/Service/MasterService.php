@@ -19,6 +19,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
+use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
 class MasterService extends AbstractService
@@ -73,6 +74,11 @@ class MasterService extends AbstractService
     private $logRepository;
 
     /**
+     * @var MasterFormatter
+     */
+    private $masterFormatter;
+
+    /**
      * Master constructor.
      */
     public function __construct(
@@ -80,6 +86,7 @@ class MasterService extends AbstractService
         EventService $eventService,
         TransformService $transformService,
         SlaveFactory $slaveFactory,
+        MasterFormatter $masterFormatter,
         LogRepository $logRepository,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository
@@ -91,6 +98,7 @@ class MasterService extends AbstractService
         $this->logRepository = $logRepository;
         $this->moduleRepository = $moduleRepository;
         $this->typeRepository = $typeRepository;
+        $this->masterFormatter = $masterFormatter;
     }
 
     /**
@@ -186,7 +194,7 @@ class MasterService extends AbstractService
      */
     public function receiveReadData(Master $master, int $address, int $type, int $command): string
     {
-        $data = $this->senderService->receiveReadData($master, $type);
+        $data = $this->masterFormatter->getData($this->senderService->receiveReadData($master, $type));
 
         if ($address !== $this->transformService->asciiToUnsignedInt($data, 0)) {
             throw new ReceiveError('Slave Adresse stimmt nicht überein!');
@@ -227,7 +235,6 @@ class MasterService extends AbstractService
                     ->setAddress($address)
                     ->setMaster($master)
                 ;
-                $slave->save();
             } catch (SelectError $exception) {
                 // @todo Sklave mit unbekannter Adresse gefunden
                 throw $exception;

@@ -16,6 +16,7 @@ use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\EventService;
+use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\SenderService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
@@ -66,12 +67,18 @@ class MasterServiceTest extends Unit
      */
     private $masterService;
 
+    /**
+     * @var ObjectProphecy|MasterFormatter
+     */
+    private $masterFormatter;
+
     protected function _before(): void
     {
         $this->senderService = $this->prophesize(SenderService::class);
         $this->eventService = $this->prophesize(EventService::class);
         $this->transformService = $this->prophesize(TransformService::class);
         $this->slaveFactory = $this->prophesize(SlaveFactory::class);
+        $this->masterFormatter = $this->prophesize(MasterFormatter::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
@@ -80,6 +87,7 @@ class MasterServiceTest extends Unit
             $this->eventService->reveal(),
             $this->transformService->reveal(),
             $this->slaveFactory->reveal(),
+            $this->masterFormatter->reveal(),
             $this->logRepository->reveal(),
             $this->moduleRepository->reveal(),
             $this->typeRepository->reveal()
@@ -263,6 +271,10 @@ class MasterServiceTest extends Unit
     {
         $master = $this->prophesize(Master::class);
         $this->senderService->receiveReadData($master->reveal(), 255)
+            ->shouldBeCalledOnce()
+            ->willReturn('Answer')
+        ;
+        $this->masterFormatter->getData('Answer')
             ->shouldBeCalledOnce()
             ->willReturn('**Handtuch')
         ;

@@ -206,11 +206,10 @@ abstract class AbstractHcSlave extends AbstractSlave
 
         if ($typeId !== $slave->getTypeId()) {
             $slave->setType($this->typeRepository->getById($typeId));
-            $this->slaveFactory->get($slave->getType()->getHelper())
+
+            return $this->slaveFactory->get($slave->getType()->getHelper())
                 ->handshake($slave)
             ;
-
-            return $slave;
         }
 
         $deviceId = $this->readDeviceId($slave);
@@ -223,6 +222,7 @@ abstract class AbstractHcSlave extends AbstractSlave
                 $slave = $this->moduleRepository->getByDeviceId($deviceId);
                 $slave = $this->handshakeExistingSlave($slave);
             } catch (SelectError $e) {
+                $slave->setDeviceId($deviceId);
                 $slave = $this->handshakeNewSlave($slave);
             }
         } else {
@@ -375,7 +375,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function readTypeId(Module $slave): int
     {
         $data = $this->read($slave, self::COMMAND_TYPE, self::COMMAND_TYPE_READ_LENGTH);
-        $typeId = $this->transformService->asciiToUnsignedInt($data);
+        $typeId = $this->transformService->asciiToUnsignedInt($data, 0);
 
         $this->eventService->fire(HcService::READ_TYPE_ID, ['slave' => $slave, 'typeId' => $typeId]);
 
