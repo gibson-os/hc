@@ -46,7 +46,7 @@ class LedStore extends AbstractDatabaseStore
         foreach ($this->table->connection->fetchObjectList() as $attribute) {
             if (!isset($list[$attribute->sub_id])) {
                 $list[$attribute->sub_id] = [
-                    'id' => (int) $attribute->sub_id,
+                    'number' => (int) $attribute->sub_id,
                 ];
             }
 
