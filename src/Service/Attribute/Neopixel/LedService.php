@@ -278,15 +278,16 @@ class LedService
     /**
      * @throws OutOfRangeException
      */
-    public function getChannelCounts(array $leds): array
+    public function getChannelCounts(Module $slave, array $leds): array
     {
         $counts = [];
+        $config = JsonUtility::decode($slave->getConfig() ?? '[]');
+
+        for ($i = 0; $i < $config['channels']; ++$i) {
+            $counts[$i] = 0;
+        }
 
         foreach ($leds as $led) {
-            if (!isset($counts[$led[self::ATTRIBUTE_KEY_CHANNEL]])) {
-                $counts[$led[self::ATTRIBUTE_KEY_CHANNEL]] = 0;
-            }
-
             ++$counts[$led[self::ATTRIBUTE_KEY_CHANNEL]];
         }
 
