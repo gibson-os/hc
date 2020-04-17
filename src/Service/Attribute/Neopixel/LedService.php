@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Attribute\Neopixel;
 
-use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -14,6 +14,7 @@ use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository as ValueRepository;
 use GibsonOS\Module\Hc\Repository\AttributeRepository as AttributeRepository;
+use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use OutOfRangeException;
 
 class LedService
@@ -128,45 +129,30 @@ class LedService
     }
 
     /**
-     * @throws Exception
+     * @throws GetError
      */
-    public function getChangedLeds(Module $slave, array $leds): array
+    public function getActualState(Module $slave): array
     {
-        $changedLeds = [];
+        $actualLeds = [];
+        $id = 0;
+        $config = JsonUtility::decode($slave->getConfig() ?? '[]');
 
-        foreach ($leds as $id => $led) {
-            $valueModels = $this->valueRepository->getByTypeId(
-                $slave->getTypeId(),
-                $id,
-                [(int) $slave->getId()],
-                self::ATTRIBUTE_TYPE
-            );
-
-            $changedLed = [];
-
-            foreach ($valueModels as $valueModel) {
-                $key = $valueModel->getAttribute()->getKey();
-
-                if (!isset($led[$key])) {
-                    continue;
-                }
-
-                if ($valueModel->getValue() == $led[$key]) {
-                    continue;
-                }
-
-                $changedLed[$key] = $led[$key];
-            }
-
-            if (!empty($changedLed)) {
-                $changedLeds[$id] = $changedLed;
+        foreach ($config[NeopixelService::CONFIG_COUNTS] as $channel => $count) {
+            for ($i = 0; $i < $count; ++$i) {
+                $actualLeds[$id] = $this->getById($slave, $id);
+                ++$id;
             }
         }
 
-        return $changedLeds;
+        return $actualLeds;
     }
 
-    public function getChangedSlaveLeds(array $changedLeds): array
+    public function getChanges(array $oldLeds, array $newLeds): array
+    {
+        return array_merge($oldLeds, $newLeds);
+    }
+
+    public function getChangedLedsWithoutIgnoredAttributes(array $changedLeds): array
     {
         $slaveLedsChanges = [];
 
@@ -295,7 +281,7 @@ class LedService
     }
 
     /**
-     * @throws Exception
+     * @throws GetError
      *
      * @return ValueModel[]
      */

@@ -156,4 +156,33 @@ class AnimationService extends AbstractService
 
         return $times;
     }
+
+    public function getRuntimes(array $timeSteps): array
+    {
+        $lastTime = null;
+        $timeStep = null;
+        $runtimes = [];
+
+        foreach ($timeSteps as $time => $timeStep) {
+            if ($lastTime !== null) {
+                $runtimes[$lastTime] = ((int) $time) - $lastTime;
+            }
+
+            $lastTime = (int) $time;
+        }
+
+        if ($lastTime !== null) {
+            $maxLength = 0;
+
+            foreach ($timeStep as $led) {
+                if ($led['length'] > $maxLength) {
+                    $maxLength = $led['length'];
+                }
+            }
+
+            $runtimes[$lastTime] = $maxLength;
+        }
+
+        return $runtimes;
+    }
 }

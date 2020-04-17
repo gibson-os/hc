@@ -40,11 +40,13 @@ class NeopixelService extends AbstractHcSlave
 
     private const COMMAND_SEQUENCE_PAUSE = 11;
 
-    private const COMMAND_SEQUENCE_EEPROM_ADDRESS = 12;
+    private const COMMAND_SEQUENCE_STOP = 12;
 
-    private const COMMAND_SEQUENCE_NEW = 13;
+    private const COMMAND_SEQUENCE_EEPROM_ADDRESS = 13;
 
-    private const COMMAND_SEQUENCE_ADD_STEP = 14;
+    private const COMMAND_SEQUENCE_NEW = 14;
+
+    private const COMMAND_SEQUENCE_ADD_STEP = 15;
 
     private const COMMAND_CONFIGURATION_READ_LENGTH = 3;
 
@@ -56,7 +58,7 @@ class NeopixelService extends AbstractHcSlave
 
     private const CONFIG_MAX_LEDS = 'maxLeds';
 
-    private const CONFIG_COUNTS = 'counts';
+    public const CONFIG_COUNTS = 'counts';
 
     /**
      * @var LedService
@@ -291,6 +293,17 @@ class NeopixelService extends AbstractHcSlave
      * @throws AbstractException
      * @throws SaveError
      */
+    public function writeSequenceStop(Module $slave): NeopixelService
+    {
+        $this->write($slave, self::COMMAND_SEQUENCE_STOP);
+
+        return $this;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     */
     public function writeSequencePause(Module $slave): NeopixelService
     {
         $this->write($slave, self::COMMAND_SEQUENCE_PAUSE);
@@ -345,9 +358,16 @@ class NeopixelService extends AbstractHcSlave
     public function writeSequenceAddStep(Module $slave, int $runtime, array $leds): NeopixelService
     {
         $dataStrings = $this->neopixelFormatter->getLedsAsStrings($leds, (int) $slave->getDataBufferSize());
+        $writeStrings = $this->getWriteStrings($slave, $dataStrings);
 
-        foreach ($this->getWriteStrings($slave, $dataStrings) as $writeString) {
-            $this->write($slave, self::COMMAND_SEQUENCE_ADD_STEP, $writeString);
+        foreach ($writeStrings as $index => $writeString) {
+            $actualRuntime = count($writeStrings) - 1 === $index ? $runtime : 0;
+
+            $this->write(
+                $slave,
+                self::COMMAND_SEQUENCE_ADD_STEP,
+                chr(($actualRuntime >> 8) & 255) . chr($actualRuntime & 255) . $writeString
+            );
         }
 
         return $this;
@@ -392,11 +412,6 @@ class NeopixelService extends AbstractHcSlave
         $this->write($slave, self::COMMAND_LED_COUNTS, $data);
 
         return $this;
-    }
-
-    public function getLedService(): LedService
-    {
-        return $this->ledService;
     }
 
     /**
