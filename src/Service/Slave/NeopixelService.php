@@ -34,8 +34,6 @@ class NeopixelService extends AbstractHcSlave
 
     private const COMMAND_CHANNEL_WRITE = 2;
 
-    private const COMMAND_CHANNEL_STATUS = 3;
-
     private const COMMAND_SEQUENCE_START = 10;
 
     private const COMMAND_SEQUENCE_PAUSE = 11;
@@ -49,10 +47,6 @@ class NeopixelService extends AbstractHcSlave
     private const COMMAND_SEQUENCE_ADD_STEP = 15;
 
     private const COMMAND_CONFIGURATION_READ_LENGTH = 3;
-
-    private const CHANNEL_READ_STATUS_NOT_SET = 254;
-
-    private const CHANNEL_READ_STATUS_NO_LEDS = 255;
 
     private const CONFIG_CHANNELS = 'channels';
 
@@ -235,45 +229,6 @@ class NeopixelService extends AbstractHcSlave
         );
 
         return $this;
-    }
-
-    /**
-     * @throws AbstractException
-     * @throws SaveError
-     */
-    public function writeChannelStatus(Module $slave, int $channel, int $startAddress, int $length): NeopixelService
-    {
-        $this->write(
-            $slave,
-            self::COMMAND_CHANNEL_STATUS,
-            chr($channel) .
-            chr($startAddress >> 8) .
-            chr($startAddress & 255) .
-            chr($length)
-        );
-
-        return $this;
-    }
-
-    /**
-     * @throws AbstractException
-     * @throws ReceiveError
-     * @throws SaveError
-     */
-    public function readChannelStatus(Module $slave, int $length): array
-    {
-        $data = $this->read($slave, self::COMMAND_CHANNEL_STATUS, $length);
-        $firstByte = $this->transformService->asciiToUnsignedInt($data, 0);
-
-        if ($firstByte === self::CHANNEL_READ_STATUS_NOT_SET) {
-            throw new ReceiveError('Es ist kein Channel gesetzt!', self::CHANNEL_READ_STATUS_NOT_SET);
-        }
-
-        if ($firstByte === self::CHANNEL_READ_STATUS_NO_LEDS) {
-            throw new ReceiveError('Es existiert keine LED!', self::CHANNEL_READ_STATUS_NO_LEDS);
-        }
-
-        return $this->neopixelFormatter->getLedsAsArray($data);
     }
 
     /**
