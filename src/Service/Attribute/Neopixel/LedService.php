@@ -149,7 +149,9 @@ class LedService
 
     public function getChanges(array $oldLeds, array $newLeds): array
     {
-        return array_merge($oldLeds, $newLeds);
+        return array_udiff_assoc($newLeds, $oldLeds, function ($newLed, $oldLed) {
+            return count(array_diff_assoc($newLed, $oldLed));
+        });
     }
 
     public function getChangedLedsWithoutIgnoredAttributes(array $changedLeds): array

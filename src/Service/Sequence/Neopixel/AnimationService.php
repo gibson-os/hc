@@ -154,6 +154,8 @@ class AnimationService extends AbstractService
             $times[$item['time']][] = $item;
         }
 
+        ksort($times, SORT_NUMERIC);
+
         return $times;
     }
 
@@ -162,6 +164,7 @@ class AnimationService extends AbstractService
         $lastTime = null;
         $timeStep = null;
         $runtimes = [];
+        ksort($timeSteps, SORT_NUMERIC);
 
         foreach ($timeSteps as $time => $timeStep) {
             if ($lastTime !== null) {
