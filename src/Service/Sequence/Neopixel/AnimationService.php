@@ -123,7 +123,7 @@ class AnimationService extends AbstractService
         return $sequence;
     }
 
-    public function play(Module $slave, array $steps, int $iterations): void
+    public function play(Module $slave, int $iterations): void
     {
         system(
             '/usr/bin/php /home/gibson_os/offline/tools/hc/hcNeopixelAnimation.php ' .
