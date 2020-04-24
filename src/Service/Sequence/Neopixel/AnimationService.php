@@ -125,19 +125,10 @@ class AnimationService extends AbstractService
 
     public function play(Module $slave, array $steps, int $iterations): void
     {
-        $dataFilename = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'hcNeopixelAnimationData' . mt_rand() . '.json';
-        file_put_contents($dataFilename, JsonUtility::encode($steps));
-        /*errlog(
-            'sudo -u www-data /usr/bin/php /home/gibson_os/offline/tools/hc/hcNeopixelAnimation.php ' .
-            $this->slave->getId() . ' ' .
-            $iterations . ' ' .
-            $dataFilename
-        );*/
         system(
             '/usr/bin/php /home/gibson_os/offline/tools/hc/hcNeopixelAnimation.php ' .
             $slave->getId() . ' ' .
             $iterations . ' ' .
-            $dataFilename . ' ' .
             '>/dev/null 2>/dev/null &'
         );
     }

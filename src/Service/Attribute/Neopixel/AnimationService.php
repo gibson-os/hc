@@ -7,6 +7,7 @@ use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository as ValueRepository;
@@ -19,6 +20,10 @@ class AnimationService
     private const ATTRIBUTE_KEY_PID = 'pid';
 
     private const ATTRIBUTE_KEY_STARTED = 'started';
+
+    private const ATTRIBUTE_KEY_STEPS = 'steps';
+
+    private const ATTRIBUTE_KEY_TRANSMITTED = 'transmitted';
 
     /**
      * @var ValueRepository
@@ -66,37 +71,58 @@ class AnimationService
         }
     }
 
+    public function getSteps(Module $slave): array
+    {
+        try {
+            $steps = [];
+            $values = $this->getValueModels($slave, self::ATTRIBUTE_KEY_STARTED);
+
+            foreach ($values as $value) {
+                $steps[$value->getOrder()] = JsonUtility::decode($value->getValue());
+            }
+
+            return $steps;
+        } catch (SelectError $e) {
+            return [];
+        }
+    }
+
+    /**
+     * @throws DateTimeError
+     * @throws SaveError
+     * @throws SelectError
+     */
+    public function setSteps(Module $slave, array $steps, bool $transmitted): void
+    {
+        $this->attributeRepository->startTransaction();
+
+        $stepsAttribute = $this->getAttribute($slave, self::ATTRIBUTE_KEY_STEPS);
+        $transmittedAttribute = $this->getAttribute($slave, self::ATTRIBUTE_KEY_TRANSMITTED);
+
+        $this->saveAttributes($stepsAttribute, array_map(function ($step) {
+            return JsonUtility::encode($step);
+        }, $steps));
+        $this->saveAttributes($transmittedAttribute, [$transmitted ? 'true' : 'false']);
+
+        $this->attributeRepository->commit();
+    }
+
     /**
      * @throws DateTimeError
      * @throws SaveError
      */
-    public function set(Module $slave, int $pid = null): void
+    public function setPid(Module $slave, int $pid = null): void
     {
-        $pidAttribute = $this->newAttribute($slave, self::ATTRIBUTE_KEY_PID);
-        $startedAttribute = $this->newAttribute($slave, self::ATTRIBUTE_KEY_STARTED);
-
         $this->attributeRepository->startTransaction();
 
-        try {
-            $attributes = $this->attributeRepository->getByModule($slave, null, null, self::ATTRIBUTE_TYPE);
+        $pidAttribute = $this->getAttribute($slave, self::ATTRIBUTE_KEY_PID);
+        $startedAttribute = $this->getAttribute($slave, self::ATTRIBUTE_KEY_STARTED);
 
-            foreach ($attributes as $attribute) {
-                switch ($attribute->getKey()) {
-                    case self::ATTRIBUTE_KEY_PID:
-                        $pidAttribute = $attribute;
-
-                        break;
-                    case self::ATTRIBUTE_KEY_STARTED:
-                        $startedAttribute = $attribute;
-
-                        break;
-                }
-            }
-        } catch (Exception $e) {
-        }
-
-        $this->saveAttribute($pidAttribute, (string) ($pid ?? ''));
-        $this->saveAttribute($startedAttribute, empty($pid) ? '' : (string) ((int) (microtime(true) * 1000000)));
+        $this->saveAttributes($pidAttribute, [(string) ($pid ?? '')]);
+        $this->saveAttributes(
+            $startedAttribute,
+            [empty($pid) ? '' : (string) ((int) (microtime(true) * 1000000))]
+        );
 
         $this->attributeRepository->commit();
     }
@@ -107,6 +133,22 @@ class AnimationService
      */
     private function getValueModel(Module $slave, string $key): Attribute\Value
     {
+        $valueModels = $this->getValueModels($slave, $key);
+
+        if (empty($valueModels)) {
+            throw new SelectError(sprintf('Atrribut Wert für "%s" nicht gefunden.', $key));
+        }
+
+        return reset($valueModels);
+    }
+
+    /**
+     * @throws Exception
+     *
+     * @return Attribute\Value[]
+     */
+    private function getValueModels(Module $slave, string $key): array
+    {
         $valueModels = $this->valueRepository->getByTypeId(
             $slave->getTypeId(),
             null,
@@ -115,11 +157,7 @@ class AnimationService
             $key
         );
 
-        if (empty($valueModels)) {
-            throw new SelectError(sprintf('Atrribut Wert für "%s" nicht gefunden.', $key));
-        }
-
-        return reset($valueModels);
+        return $valueModels;
     }
 
     private function newAttribute(Module $slave, string $key): Attribute
@@ -133,18 +171,41 @@ class AnimationService
     }
 
     /**
+     * @throws SelectError
+     */
+    private function getAttribute(Module $slave, string $key): Attribute
+    {
+        $attributes = $this->attributeRepository->getByModule(
+            $slave,
+            null,
+            $key,
+            self::ATTRIBUTE_TYPE
+        );
+
+        if (count($attributes)) {
+            return reset($attributes);
+        }
+
+        return $this->newAttribute($slave, $key);
+    }
+
+    /**
+     * @param string[] $values
+     *
      * @throws DateTimeError
      * @throws SaveError
      */
-    private function saveAttribute(Attribute $attribute, string $value): void
+    private function saveAttributes(Attribute $attribute, array $values): void
     {
         $attribute->save();
 
-        $attributeValue = (new Attribute\Value())
-            ->setAttribute($attribute)
-            ->setOrder(0)
-            ->setValue($value)
-        ;
-        $attributeValue->save();
+        foreach ($values as $index => $value) {
+            $attributeValue = (new Attribute\Value())
+                ->setAttribute($attribute)
+                ->setOrder($index)
+                ->setValue($value)
+            ;
+            $attributeValue->save();
+        }
     }
 }
