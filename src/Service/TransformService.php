@@ -101,10 +101,10 @@ class TransformService extends AbstractService
 
         if ($byte === null) {
             for ($i = 0; $i < count($dataBytes); ++$i) {
-                $return .= chr(bindec($dataBytes[$i]));
+                $return .= chr((int) bindec($dataBytes[$i]));
             }
         } else {
-            $return = chr(bindec($dataBytes[$byte]));
+            $return = chr((int) bindec($dataBytes[$byte]));
         }
 
         return $return;

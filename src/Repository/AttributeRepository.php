@@ -122,7 +122,7 @@ class AttributeRepository extends AbstractRepository
         $table->setWhere($where);
         $count = $table->selectAggregate('COUNT(`id`)');
 
-        return (int) $count[0];
+        return empty($count) ? 0 : (int) $count[0];
     }
 
     /**

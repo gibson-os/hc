@@ -57,7 +57,7 @@ class CodeGeneratorService extends AbstractService
     {
         $command = '$this->runFunction(\'' . serialize($element) . '\')';
 
-        if ($element->getCommand() !== null) {
+        if (!empty($element->getCommand())) {
             $this->parentId = (int) $element->getId();
             $this->parents[$this->parentId] = $element;
         }

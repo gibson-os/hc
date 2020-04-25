@@ -25,7 +25,7 @@
         "action": "composer php-cs-dry"
       },
       {
-        "action": "composer php-stan"
+        "action": "composer php-psalm"
       },
       {
         "action": "echo 'composer php-md'"

@@ -106,7 +106,7 @@ class NeopixelService extends AbstractHcSlave
             $config = $this->getConfig($slave);
             $slave->setConfig(JsonUtility::encode($config));
         } else {
-            $config = JsonUtility::decode($slave->getConfig());
+            $config = JsonUtility::decode($slave->getConfig() ?? '[]');
         }
 
         $config[self::CONFIG_COUNTS] = $this->readLedCounts($slave);
@@ -188,7 +188,7 @@ class NeopixelService extends AbstractHcSlave
         $this->writeLedCounts($slave, $config[self::CONFIG_COUNTS]);
 
         $ledStore = new LedStore();
-        $ledStore->setModule($existingSlave->getId());
+        $ledStore->setModule($existingSlave->getId() ?? 0);
         $list = $ledStore->getList();
         $this->writeSetLeds($slave, $list);
 

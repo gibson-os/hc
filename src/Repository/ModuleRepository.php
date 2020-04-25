@@ -179,7 +179,7 @@ class ModuleRepository extends AbstractRepository
 
         $count = $table->selectAggregate('COUNT(`device_id`)');
 
-        if ($count[0]) {
+        if (!empty($count) && (int) $count[0] > 0) {
             if ($tryCount === self::MAX_GENERATE_DEVICE_ID_RETRY) {
                 throw new GetError('Es konnte keine freie Device ID ermittelt werden!');
             }

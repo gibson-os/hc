@@ -65,11 +65,15 @@ class EthbridgeFormatter extends AbstractFormatter
                         $irProtocols = JsonUtility::decode((string) $irProtocols->getValue());
                         $irData = $this->getIrData($log);
 
+                        if (empty($irData)) {
+                            return '';
+                        }
+
                         $irKey = $this->getIrKey(
                             $log,
-                            (int) $irData['protocol'],
-                            (int) $irData['address'],
-                            (int) $irData['command']
+                            $irData['protocol'],
+                            $irData['address'],
+                            $irData['command']
                         );
                         $return = '';
 
@@ -99,7 +103,7 @@ class EthbridgeFormatter extends AbstractFormatter
     {
         $data = $log->getData();
 
-        if ($this->transform->hexToInt($data, 0) != EthbridgeConstant::DATA_TYPE_IR) {
+        if ($this->transform->hexToInt($data, 0) !== EthbridgeConstant::DATA_TYPE_IR) {
             return null;
         }
 

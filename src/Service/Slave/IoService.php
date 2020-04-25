@@ -175,6 +175,7 @@ class IoService extends AbstractHcSlave
                 }
             } else {
                 foreach ($ports as $number => $port) {
+                    $number = (int) $number;
                     $this->attributeRepository->addByModule(
                         $slave,
                         ['IO ' . ($number + 1)],
@@ -648,6 +649,7 @@ class IoService extends AbstractHcSlave
         ]);
 
         $lastByte = 0;
+        $directConnect = [];
 
         for ($i = 0;; ++$i) {
             $this->write($slave, self::COMMAND_READ_DIRECT_CONNECT, chr($port) . chr($order));
@@ -655,14 +657,16 @@ class IoService extends AbstractHcSlave
 
             $lastByte = $this->transformService->asciiToUnsignedInt($data, 2);
 
-            if ($lastByte == self::DIRECT_CONNECT_READ_NOT_SET) {
-                if ($i == self::DIRECT_CONNECT_READ_RETRY) {
+            if ($lastByte === self::DIRECT_CONNECT_READ_NOT_SET) {
+                /** @psalm-suppress TypeDoesNotContainType */
+                if ($i === self::DIRECT_CONNECT_READ_RETRY) {
                     throw new ReceiveError('Es ist kein Port gesetzt!', self::DIRECT_CONNECT_READ_NOT_SET);
                 }
 
                 continue;
             }
-            if ($lastByte == self::DIRECT_CONNECT_READ_NOT_EXIST) {
+
+            if ($lastByte === self::DIRECT_CONNECT_READ_NOT_EXIST) {
                 throw new ReceiveError('Es existiert kein DirectConnect Befehl!', self::DIRECT_CONNECT_READ_NOT_EXIST);
             }
 

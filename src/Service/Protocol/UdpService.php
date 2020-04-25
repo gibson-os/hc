@@ -44,7 +44,7 @@ class UdpService extends AbstractService implements ProtocolInterface
     {
         $this->serverIp = (string) getenv(self::ENV_SERVER_IP);
 
-        if (empty($this->serverIp) || !is_string($this->serverIp)) {
+        if (empty($this->serverIp)) {
             throw new GetError(
                 sprintf(
                     'Server IP ist leer oder kein String. Umgebungsvariable %s muss gesetzt sein.',

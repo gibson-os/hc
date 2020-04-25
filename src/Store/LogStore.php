@@ -147,7 +147,7 @@ class LogStore extends AbstractDatabaseStore
                     ->setIp((int) $log['ip'])
                     ->setOffline((bool) $log['offline'])
                     ->setAdded(empty($log['module_added']) ? null : new DateTime($log['module_added']))
-                    ->setModified(new DateTime(empty($log['module_modified']) ? null : $log['module_modified']))
+                    ->setModified(new DateTime(empty($log['module_modified']) ? 'now' : $log['module_modified']))
                     ->setType(
                         (new Type())
                             ->setId((int) $log['type_id'])
@@ -200,7 +200,7 @@ class LogStore extends AbstractDatabaseStore
         return '`' . $this->getTableName() . '`.`id`';
     }
 
-    public function getTraffic()
+    public function getTraffic(): int
     {
         $this->table->clearJoin();
         $this->table->setOrderBy(null);
@@ -211,7 +211,11 @@ class LogStore extends AbstractDatabaseStore
             '(COUNT(`hc_log`.`id`)*3), 0)'
         );
 
-        return $traffic[0];
+        if (empty($traffic)) {
+            return 0;
+        }
+
+        return (int) $traffic[0];
     }
 
     /**
