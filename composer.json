@@ -32,7 +32,6 @@
   "scripts": {
     "php-cs": "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose",
     "php-cs-dry": "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose --dry-run",
-    "php-stan": "php ./vendor/phpstan/phpstan/bin/phpstan analyse -l 7 src",
     "php-psalm": "php ./vendor/vimeo/psalm/psalm",
     "php-md": "php ./vendor/phpmd/phpmd/src/bin/phpmd src text ruleset.xml",
     "php-unit": "php ./vendor/codeception/codeception/codecept run unit --ext DotReporter",
