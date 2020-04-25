@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "0bd7dcd983566084693bad81efd0e83f51f3bc53"
+                "reference": "7778d06a6fbdf8774ef4f9ad4234589a7ff25ca1"
             },
             "require": {
                 "ext-fileinfo": "*",
@@ -31,7 +31,6 @@
                 "friendsofphp/php-cs-fixer": "^2.15",
                 "php-mock/php-mock-phpunit": "^2.5",
                 "phpmd/phpmd": "^2.7",
-                "phpstan/phpstan": "^0.11.19",
                 "vimeo/psalm": "^3.9"
             },
             "type": "library",
@@ -48,8 +47,8 @@
                 "php-cs-dry": [
                     "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose --dry-run"
                 ],
-                "php-stan": [
-                    "php ./vendor/phpstan/phpstan/bin/phpstan analyse -l 7 src"
+                "php-psalm": [
+                    "php ./vendor/vimeo/psalm/psalm"
                 ],
                 "php-md": [
                     "php ./vendor/phpmd/phpmd/src/bin/phpmd src text ruleset.xml"
@@ -64,7 +63,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2020-03-25T23:09:53+00:00"
+            "time": "2020-04-25T08:43:22+00:00"
         },
         {
             "name": "mdo/mdo",
