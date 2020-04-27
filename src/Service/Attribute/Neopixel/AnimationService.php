@@ -75,7 +75,7 @@ class AnimationService
     {
         try {
             $steps = [];
-            $values = $this->getValueModels($slave, self::ATTRIBUTE_KEY_STARTED);
+            $values = $this->getValueModels($slave, self::ATTRIBUTE_KEY_STEPS);
 
             foreach ($values as $value) {
                 $steps[$value->getOrder()] = JsonUtility::decode($value->getValue());
