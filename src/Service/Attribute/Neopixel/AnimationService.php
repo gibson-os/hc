@@ -60,6 +60,20 @@ class AnimationService
     /**
      * @throws Exception
      */
+    public function isTransmitted(Module $slave): bool
+    {
+        try {
+            $value = $this->getValueModel($slave, self::ATTRIBUTE_KEY_TRANSMITTED)->getValue();
+
+            return $value === 'true' ? true : false;
+        } catch (SelectError $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
     public function getStarted(Module $slave): ?int
     {
         try {
@@ -82,7 +96,7 @@ class AnimationService
             }
 
             return $steps;
-        } catch (SelectError $e) {
+        } catch (Exception $e) {
             return [];
         }
     }
