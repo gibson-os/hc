@@ -33,9 +33,10 @@ class AttributeRepository extends AbstractRepository
 
         $where =
             '`type_id`=' . $module->getTypeId() . ' AND ' .
-            '`module_id`=' . $module->getId();
+            '`module_id`=' . $module->getId()
+        ;
 
-        if (null !== $subId) {
+        if ($subId !== null) {
             $where .= ' AND `sub_id`=' . $subId;
         }
 

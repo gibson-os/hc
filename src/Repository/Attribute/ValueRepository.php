@@ -11,6 +11,7 @@ use GibsonOS\Core\Exception\Repository\UpdateError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
+use GibsonOS\Module\Hc\Model\Module as ModuleModel;
 
 class ValueRepository extends AbstractRepository
 {
@@ -140,6 +141,55 @@ class ValueRepository extends AbstractRepository
         if (!empty($order)) {
             $where .= ' AND `order`=' . $this->escape($order);
         }
+
+        $valueTable->setWhere($where);
+
+        if (!$valueTable->delete()) {
+            $exception = new DeleteError('Werte konnten nicht gelöscht werden!');
+            $exception->setTable($table);
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * @param string[] $keys
+     *
+     * @throws DeleteError
+     * @throws SelectError
+     */
+    public function deleteByModule(
+        ModuleModel $module,
+        int $subId = null,
+        array $keys = null,
+        string $type = null
+    ): void {
+        $where =
+            '`type_id`=' . $module->getTypeId() . ' AND ' .
+            '`module_id`=' . $module->getId()
+        ;
+        $where .= $this->getTypeWhere($type);
+        $where .= $this->getSubIdWhere($subId);
+        $where .= $this->getKeysWhere($keys);
+
+        $table = $this->getTable(AttributeModel::getTableName());
+        $table->setWhere($where);
+
+        if (!$table->select(false, '`id`')) {
+            $exception = new SelectError();
+            $exception->setTable($table);
+
+            throw $exception;
+        }
+
+        $ids = $table->connection->fetchResultList();
+
+        if (!count($ids)) {
+            return;
+        }
+
+        $valueTable = $this->getTable(ValueModel::getTableName());
+        $where = '`attribute_id` IN (' . $this->implode($ids) . ')';
 
         $valueTable->setWhere($where);
 
@@ -308,7 +358,7 @@ class ValueRepository extends AbstractRepository
 
     private function getKeysWhere(?array $keys, string $table = 'hc_attribute'): string
     {
-        if ($keys === null) {
+        if (empty($keys)) {
             return '';
         }
 
