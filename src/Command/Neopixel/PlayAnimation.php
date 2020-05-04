@@ -105,7 +105,7 @@ class PlayAnimation extends AbstractCommand
 
                 $time += $runtimes[$time] * 1000;
                 $this->sleepToTime($time - 5000000);
-                $this->mysqlDatabase->openDB($this->envService->getString('DATABASE'));
+                $this->mysqlDatabase->openDB($this->envService->getString('MYSQL_DATABASE'));
                 $changedLeds = $this->getChanges($slave, $newLeds);
                 $this->sleepToTime($time);
                 $this->writeLeds($slave, $this->neopixelService, $newLeds, $changedLeds);

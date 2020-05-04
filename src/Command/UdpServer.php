@@ -54,7 +54,7 @@ class UdpServer extends AbstractCommand
 
         while (1) {
             $this->mysqlDatabase->closeDB();
-            $this->mysqlDatabase->openDB($this->envService->getString('DATABASE'));
+            $this->mysqlDatabase->openDB($this->envService->getString('MYSQL_DATABASE'));
 
             try {
                 $this->receiverService->receive($this->protocol);
