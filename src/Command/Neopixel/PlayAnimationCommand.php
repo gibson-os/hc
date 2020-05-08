@@ -18,7 +18,7 @@ use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService as AnimationSe
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use mysqlDatabase;
 
-class PlayAnimation extends AbstractCommand
+class PlayAnimationCommand extends AbstractCommand
 {
     /**
      * @var NeopixelService

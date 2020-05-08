@@ -11,7 +11,7 @@ use GibsonOS\Module\Hc\Service\Protocol\UdpService;
 use GibsonOS\Module\Hc\Service\ReceiverService;
 use mysqlDatabase;
 
-class UdpServer extends AbstractCommand
+class UdpServerCommand extends AbstractCommand
 {
     /**
      * @var UdpService
