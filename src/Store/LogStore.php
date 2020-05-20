@@ -17,12 +17,12 @@ class LogStore extends AbstractDatabaseStore
 {
     protected function getTableName(): string
     {
-        return 'hc_log';
+        return Log::getTableName();
     }
 
     public function setMasterId(int $masterId): LogStore
     {
-        if ($masterId === 0) {
+        if (empty($masterId)) {
             unset($this->where['masterId']);
         } else {
             $this->where['masterId'] = '`' . $this->getTableName() . '`.`master_id`=' . $masterId;
@@ -33,7 +33,7 @@ class LogStore extends AbstractDatabaseStore
 
     public function setModuleId(int $moduleId): LogStore
     {
-        if ($moduleId === 0) {
+        if (empty($moduleId)) {
             unset($this->where['moduleId']);
         } else {
             $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $moduleId;
@@ -69,8 +69,6 @@ class LogStore extends AbstractDatabaseStore
     /**
      * @throws FileNotFound
      * @throws Exception
-     *
-     * @return array[]
      */
     public function getList(): array
     {

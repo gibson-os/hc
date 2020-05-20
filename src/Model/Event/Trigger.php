@@ -29,47 +29,52 @@ class Trigger extends AbstractModel
     private $trigger;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $masterId;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $moduleId;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $weekday;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $day;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $month;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $year;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $hour;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $minute;
 
     /**
-     * @var int
+     * @var int|null
+     */
+    private $second;
+
+    /**
+     * @var int|null
      */
     private $priority;
 
@@ -79,12 +84,12 @@ class Trigger extends AbstractModel
     private $event;
 
     /**
-     * @var Master
+     * @var Master|null
      */
     private $master;
 
     /**
-     * @var Module
+     * @var Module|null
      */
     private $module;
 
@@ -105,7 +110,7 @@ class Trigger extends AbstractModel
         return $this->id;
     }
 
-    public function setId(int $id): Trigger
+    public function setId(?int $id): Trigger
     {
         $this->id = $id;
 
@@ -136,108 +141,120 @@ class Trigger extends AbstractModel
         return $this;
     }
 
-    public function getMasterId(): int
+    public function getMasterId(): ?int
     {
         return $this->masterId;
     }
 
-    public function setMasterId(int $masterId): Trigger
+    public function setMasterId(?int $masterId): Trigger
     {
         $this->masterId = $masterId;
 
         return $this;
     }
 
-    public function getModuleId(): int
+    public function getModuleId(): ?int
     {
         return $this->moduleId;
     }
 
-    public function setModuleId(int $moduleId): Trigger
+    public function setModuleId(?int $moduleId): Trigger
     {
         $this->moduleId = $moduleId;
 
         return $this;
     }
 
-    public function getWeekday(): int
+    public function getWeekday(): ?int
     {
         return $this->weekday;
     }
 
-    public function setWeekday(int $weekday): Trigger
+    public function setWeekday(?int $weekday): Trigger
     {
         $this->weekday = $weekday;
 
         return $this;
     }
 
-    public function getDay(): int
+    public function getDay(): ?int
     {
         return $this->day;
     }
 
-    public function setDay(int $day): Trigger
+    public function setDay(?int $day): Trigger
     {
         $this->day = $day;
 
         return $this;
     }
 
-    public function getMonth(): int
+    public function getMonth(): ?int
     {
         return $this->month;
     }
 
-    public function setMonth(int $month): Trigger
+    public function setMonth(?int $month): Trigger
     {
         $this->month = $month;
 
         return $this;
     }
 
-    public function getYear(): int
+    public function getYear(): ?int
     {
         return $this->year;
     }
 
-    public function setYear(int $year): Trigger
+    public function setYear(?int $year): Trigger
     {
         $this->year = $year;
 
         return $this;
     }
 
-    public function getHour(): int
+    public function getHour(): ?int
     {
         return $this->hour;
     }
 
-    public function setHour(int $hour): Trigger
+    public function setHour(?int $hour): Trigger
     {
         $this->hour = $hour;
 
         return $this;
     }
 
-    public function getMinute(): int
+    public function getMinute(): ?int
     {
         return $this->minute;
     }
 
-    public function setMinute(int $minute): Trigger
+    public function setMinute(?int $minute): Trigger
     {
         $this->minute = $minute;
 
         return $this;
     }
 
-    public function getPriority(): int
+    public function getSecond(): ?int
+    {
+        return $this->second;
+    }
+
+    public function setSecond(?int $second): Trigger
+    {
+        $this->second = $second;
+
+        return $this;
+    }
+
+    public function getPriority(): ?int
     {
         return $this->priority;
     }
 
-    public function setPriority(int $priority): Trigger
+    public function setPriority(?int $priority): Trigger
     {
         $this->priority = $priority;
 
@@ -267,17 +284,19 @@ class Trigger extends AbstractModel
      * @throws SelectError
      * @throws DateTimeError
      */
-    public function getMaster(): Master
+    public function getMaster(): ?Master
     {
-        $this->loadForeignRecord($this->master, $this->getMasterId());
+        if ($this->master !== null) {
+            $this->loadForeignRecord($this->master, $this->getMasterId());
+        }
 
         return $this->master;
     }
 
-    public function setMaster(Master $master): Trigger
+    public function setMaster(?Master $master): Trigger
     {
         $this->master = $master;
-        $this->setMasterId((int) $master->getId());
+        $this->setMasterId($master instanceof Master ? (int) $master->getId() : null);
 
         return $this;
     }
@@ -286,17 +305,19 @@ class Trigger extends AbstractModel
      * @throws DateTimeError
      * @throws SelectError
      */
-    public function getModule(): Module
+    public function getModule(): ?Module
     {
-        $this->loadForeignRecord($this->module, $this->getModuleId());
+        if ($this->module !== null) {
+            $this->loadForeignRecord($this->module, $this->getModuleId());
+        }
 
         return $this->module;
     }
 
-    public function setModule(Module $module): Trigger
+    public function setModule(?Module $module): Trigger
     {
         $this->module = $module;
-        $this->setModuleId((int) $module->getId());
+        $this->setModuleId($module instanceof Module ? (int) $module->getId() : null);
 
         return $this;
     }

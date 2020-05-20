@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store\Neopixel;
 
 use GibsonOS\Core\Store\AbstractDatabaseStore;
+use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService as LedAttribute;
 
 /**
@@ -15,7 +16,7 @@ class LedStore extends AbstractDatabaseStore
 {
     protected function getTableName(): string
     {
-        return 'hc_attribute';
+        return Attribute::getTableName();
     }
 
     /**

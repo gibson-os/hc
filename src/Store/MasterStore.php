@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store;
 
 use GibsonOS\Core\Store\AbstractDatabaseStore;
+use GibsonOS\Module\Hc\Model\Master;
 
 class MasterStore extends AbstractDatabaseStore
 {
     protected function getTableName(): string
     {
-        return 'hc_master';
+        return Master::getTableName();
     }
 
     protected function getCountField(): string

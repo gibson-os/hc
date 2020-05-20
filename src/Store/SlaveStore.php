@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store;
 
 use GibsonOS\Core\Store\AbstractDatabaseStore;
+use GibsonOS\Module\Hc\Model\Module;
 
 class SlaveStore extends AbstractDatabaseStore
 {
     protected function getTableName(): string
     {
-        return 'hc_module';
+        return Module::getTableName();
     }
 
     protected function getCountField(): string
@@ -32,9 +33,6 @@ class SlaveStore extends AbstractDatabaseStore
         ];
     }
 
-    /**
-     * @return array[]
-     */
     public function getList(): array
     {
         $this->table->appendJoinLeft(

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store\Io;
 
 use GibsonOS\Core\Store\AbstractDatabaseStore;
+use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
 
 /**
@@ -17,7 +18,7 @@ class DirectConnectStore extends AbstractDatabaseStore
 
     protected function getTableName(): string
     {
-        return 'hc_attribute';
+        return Attribute::getTableName();
     }
 
     /**

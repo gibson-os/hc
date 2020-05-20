@@ -122,7 +122,7 @@ class PlayAnimationCommand extends AbstractCommand
             }
         }
 
-        return 255;
+        return 0;
     }
 
     private function sleepToTime(int $time): void

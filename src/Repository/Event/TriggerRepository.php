@@ -4,22 +4,23 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Repository\Event;
 
 use DateTime;
+use DateTimeInterface;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Event as EventModel;
-use GibsonOS\Module\Hc\Model\Event\Element as ElementModel;
-use GibsonOS\Module\Hc\Model\Event\Trigger as TriggerModel;
+use GibsonOS\Module\Hc\Model\Event\Element;
+use GibsonOS\Module\Hc\Model\Event\Trigger;
 use mysqlTable;
 use stdClass;
 
 class TriggerRepository extends AbstractRepository
 {
     /**
-     * @return TriggerModel[]
+     * @return Trigger[]
      */
     public function getByMasterId(int $masterId): array
     {
         $table = $this->initializeTable();
-        $table->setWhere('`hc_event_trigger`.`master_id`=' . $masterId);
+        $table->setWhere('`' . Trigger::getTableName() . '`.`master_id`=' . $masterId);
 
         if (!$table->select(false)) {
             return [];
@@ -29,12 +30,32 @@ class TriggerRepository extends AbstractRepository
     }
 
     /**
-     * @return TriggerModel[]
+     * @return Trigger[]
      */
     public function getByModuleId(int $moduleId): array
     {
         $table = $this->initializeTable();
-        $table->setWhere('`hc_event_trigger`.`module_id`=' . $moduleId);
+        $table->setWhere('`' . Trigger::getTableName() . '`.`module_id`=' . $moduleId);
+
+        if (!$table->select(false)) {
+            return [];
+        }
+
+        return $this->matchModels($table->connection->fetchObjectList());
+    }
+
+    public function getByDateTime(DateTimeInterface $dateTime): array
+    {
+        $tableName = Trigger::getTableName();
+        $table = $this->initializeTable();
+        $table->setWhere(
+            '(`' . $tableName . '`.`year` IS NULL OR `' . $tableName . '`.`year`=' . ((int) $dateTime->format('Y')) . ') AND ' .
+            '(`' . $tableName . '`.`month` IS NULL OR `' . $tableName . '`.`month`=' . ((int) $dateTime->format('m')) . ') AND ' .
+            '(`' . $tableName . '`.`weekday` IS NULL OR `' . $tableName . '`.`weekday`=' . ((int) $dateTime->format('w')) . ') AND ' .
+            '(`' . $tableName . '`.`day` IS NULL OR `' . $tableName . '`.`day`=' . ((int) $dateTime->format('d')) . ') AND ' .
+            '(`' . $tableName . '`.`hour` IS NULL OR `' . $tableName . '`.`hour`=' . ((int) $dateTime->format('H')) . ') AND ' .
+            '(`' . $tableName . '`.`minute` IS NULL OR `' . $tableName . '`.`minute`=' . ((int) $dateTime->format('i')) . ')'
+        );
 
         if (!$table->select(false)) {
             return [];
@@ -48,7 +69,7 @@ class TriggerRepository extends AbstractRepository
      */
     private function initializeTable()
     {
-        $table = $this->getTable(ElementModel::getTableName());
+        $table = $this->getTable(Element::getTableName());
         $table->appendJoin('`hc_event`', '`hc_event_element`.`event_id`=`hc_event`.`id`');
         $table->appendJoin('`hc_trigger`', '`hc_event_element`.`event_id`=`hc_event`.`id`');
         $table->setOrderBy('`hc_event_trigger`.`priority`, `hc_event_element`.`left`');
@@ -89,12 +110,12 @@ class TriggerRepository extends AbstractRepository
     /**
      * @param stdClass[] $events
      *
-     * @return TriggerModel[]
+     * @return Trigger[]
      */
     private function matchModels($events)
     {
         /**
-         * @var TriggerModel[]
+         * @var Trigger[]
          */
         $models = [];
         /**
@@ -114,7 +135,7 @@ class TriggerRepository extends AbstractRepository
             }
 
             if (!isset($models[$event->triggerId])) {
-                $models[$event->triggerId] = (new TriggerModel())
+                $models[$event->triggerId] = (new Trigger())
                     ->setId($event->triggerId)
                     ->setEvent($eventModels[$event->id])
                     ->setMasterId($event->triggerMasterId)
@@ -129,7 +150,7 @@ class TriggerRepository extends AbstractRepository
                 $eventModels[$event->id]->addTrigger($models[$event->triggerId]);
             }
 
-            $elementModel = (new ElementModel())
+            $elementModel = (new Element())
                 ->setId($event->elementId)
                 ->setEvent($eventModels[$event->id])
                 ->setLeft($event->elementLeft)
