@@ -14,8 +14,8 @@ class EventController extends AbstractController
         EventStore $eventStore,
         ?int $masterId,
         ?int $slaveId,
-        $start = 0,
-        $limit = 0,
+        int $start = 0,
+        int $limit = 0,
         array $sort = []
     ): ResponseInterface {
         $this->checkPermission(PermissionService::READ);
@@ -24,7 +24,7 @@ class EventController extends AbstractController
             ->setMasterId($masterId)
             ->setSlaveId($slaveId)
         ;
-        $eventStore->setLimit($$limit, $start);
+        $eventStore->setLimit($limit, $start);
         $eventStore->setSortByExt($sort);
 
         return $this->returnSuccess($eventStore->getList(), $eventStore->getCount());
