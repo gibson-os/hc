@@ -134,11 +134,11 @@ class SequenceRepository extends AbstractRepository
     private function getModel(stdClass $sequence): SequenceModel
     {
         return (new SequenceModel())
-            ->setId($sequence->id)
+            ->setId((int) $sequence->id)
             ->setName($sequence->name)
-            ->setTypeId($sequence->type_id)
-            ->setModuleId($sequence->module_id)
-            ->setType($sequence->type)
+            ->setTypeId((int) $sequence->type_id ?: null)
+            ->setModuleId((int) $sequence->module_id ?: null)
+            ->setType((int) $sequence->type ?: null)
         ;
     }
 }
