@@ -127,7 +127,7 @@ class NeopixelService extends AbstractHcSlave
                     LedService::ATTRIBUTE_KEY_BLUE => 0,
                     LedService::ATTRIBUTE_KEY_FADE_IN => 0,
                     LedService::ATTRIBUTE_KEY_BLINK => 0,
-                    LedService::ATTRIBUTE_KEY_TOP => count($top) === 1 ? (int) $top[0]->getValue() : ($channel * 3),
+                    LedService::ATTRIBUTE_KEY_TOP => count($top) === 1 ? (int) $top[0]->getValue() : ((int) $channel * 3),
                     LedService::ATTRIBUTE_KEY_LEFT => count($left) === 1 ? (int) $left[0]->getValue() : ($i * 3),
                 ];
                 ++$id;
