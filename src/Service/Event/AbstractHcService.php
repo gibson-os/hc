@@ -8,9 +8,10 @@ use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Service\Event\AbstractEventService;
+use GibsonOS\Core\Service\Event\Describer\DescriberInterface;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Service\Event\Describer\DescriberInterface;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
 abstract class AbstractHcService extends AbstractEventService

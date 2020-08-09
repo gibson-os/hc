@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Dto\Event\Describer\Parameter;
 
+use GibsonOS\Core\Dto\Event\Describer\Parameter\AbstractParameter;
+
 class TypeParameter extends AbstractParameter
 {
     /**

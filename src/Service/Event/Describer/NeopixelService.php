@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Event\Describer;
 
-use GibsonOS\Module\Hc\Dto\Event\Describer\Method;
-use GibsonOS\Module\Hc\Dto\Event\Describer\Trigger;
+use GibsonOS\Core\Dto\Event\Describer\Method;
+use GibsonOS\Core\Dto\Event\Describer\Trigger;
+use GibsonOS\Core\Service\Event\Describer\DescriberInterface;
 
 class NeopixelService implements DescriberInterface
 {

@@ -3,13 +3,14 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Event\Describer;
 
-use GibsonOS\Module\Hc\Dto\Event\Describer\Method;
-use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\BoolParameter;
-use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\IntParameter;
+use GibsonOS\Core\Dto\Event\Describer\Method;
+use GibsonOS\Core\Dto\Event\Describer\Parameter\BoolParameter;
+use GibsonOS\Core\Dto\Event\Describer\Parameter\IntParameter;
+use GibsonOS\Core\Dto\Event\Describer\Parameter\StringParameter;
+use GibsonOS\Core\Dto\Event\Describer\Trigger;
+use GibsonOS\Core\Service\Event\Describer\DescriberInterface;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\SlaveParameter;
-use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\StringParameter;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\TypeParameter;
-use GibsonOS\Module\Hc\Dto\Event\Describer\Trigger;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
 class HcService implements DescriberInterface
