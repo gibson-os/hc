@@ -23,17 +23,19 @@ abstract class AbstractEventService
 
     public function run(Element $element)
     {
-        $function = $element->getFunction();
+        $method = $element->getMethod();
 
-        if (!isset($this->describer->getMethods()[$function])) {
+        if (!isset($this->describer->getMethods()[$method])) {
             // @todo throw exception
         }
 
-        return $this->{$function}();
+        return $this->{$method}(...$this->getParams($element));
     }
 
-    protected function getParams(Element $element)
+    protected function getParams(Element $element): array
     {
-        return unserialize($element->getParams());
+        $params = $element->getParams();
+
+        return $params === null ? [] : unserialize($params);
     }
 }

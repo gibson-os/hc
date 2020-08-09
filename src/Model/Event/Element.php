@@ -10,8 +10,9 @@ use GibsonOS\Module\Hc\Model\Event;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use mysqlDatabase;
+use Serializable;
 
-class Element extends AbstractModel
+class Element extends AbstractModel implements Serializable
 {
     /**
      * @var int|null
@@ -34,17 +35,17 @@ class Element extends AbstractModel
     private $right;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $parentId;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $masterId;
 
     /**
-     * @var int
+     * @var int|null
      */
     private $moduleId;
 
@@ -56,25 +57,25 @@ class Element extends AbstractModel
     /**
      * @var string
      */
-    private $function;
+    private $method;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $params;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $command;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $operator;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $value;
 
@@ -89,12 +90,12 @@ class Element extends AbstractModel
     private $parent;
 
     /**
-     * @var Master
+     * @var Master|null
      */
     private $master;
 
     /**
-     * @var Module
+     * @var Module|null
      */
     private $module;
 
@@ -117,7 +118,7 @@ class Element extends AbstractModel
         return $this->id;
     }
 
-    public function setId(int $id): Element
+    public function setId(?int $id): Element
     {
         $this->id = $id;
 
@@ -160,36 +161,36 @@ class Element extends AbstractModel
         return $this;
     }
 
-    public function getParentId(): int
+    public function getParentId(): ?int
     {
         return $this->parentId;
     }
 
-    public function setParentId(int $parentId): Element
+    public function setParentId(?int $parentId): Element
     {
         $this->parentId = $parentId;
 
         return $this;
     }
 
-    public function getMasterId(): int
+    public function getMasterId(): ?int
     {
         return $this->masterId;
     }
 
-    public function setMasterId(int $masterId): Element
+    public function setMasterId(?int $masterId): Element
     {
         $this->masterId = $masterId;
 
         return $this;
     }
 
-    public function getModuleId(): int
+    public function getModuleId(): ?int
     {
         return $this->moduleId;
     }
 
-    public function setModuleId(int $moduleId): Element
+    public function setModuleId(?int $moduleId): Element
     {
         $this->moduleId = $moduleId;
 
@@ -208,63 +209,60 @@ class Element extends AbstractModel
         return $this;
     }
 
-    public function getFunction(): string
+    public function getMethod(): string
     {
-        return $this->function;
+        return $this->method;
     }
 
-    public function setFunction(string $function): Element
+    public function setMethod(string $method): Element
     {
-        $this->function = $function;
+        $this->method = $method;
 
         return $this;
     }
 
-    public function getParams(): string
+    public function getParams(): ?string
     {
         return $this->params;
     }
 
-    public function setParams(string $params): Element
+    public function setParams(?string $params): Element
     {
         $this->params = $params;
 
         return $this;
     }
 
-    public function getCommand(): string
+    public function getCommand(): ?string
     {
         return $this->command;
     }
 
-    public function setCommand(string $command): Element
+    public function setCommand(?string $command): Element
     {
         $this->command = $command;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getOperator()
+    public function getOperator(): ?string
     {
         return $this->operator;
     }
 
-    public function setOperator(string $operator): Element
+    public function setOperator(?string $operator): Element
     {
         $this->operator = $operator;
 
         return $this;
     }
 
-    public function getValue(): string
+    public function getValue(): ?string
     {
         return $this->value;
     }
 
-    public function setValue(string $value): Element
+    public function setValue(?string $value): Element
     {
         $this->value = $value;
 
@@ -303,10 +301,10 @@ class Element extends AbstractModel
         return $this->parent;
     }
 
-    public function setParent(Element $parent): Element
+    public function setParent(?Element $parent): Element
     {
         $this->parent = $parent;
-        $this->setParentId((int) $parent->getId());
+        $this->setParentId($parent instanceof Element ? (int) $parent->getId() : null);
 
         return $this;
     }
@@ -315,17 +313,19 @@ class Element extends AbstractModel
      * @throws SelectError
      * @throws DateTimeError
      */
-    public function getMaster(): Master
+    public function getMaster(): ?Master
     {
-        $this->loadForeignRecord($this->master, $this->getMasterId());
+        if ($this->master instanceof Master) {
+            $this->loadForeignRecord($this->master, $this->getMasterId());
+        }
 
         return $this->master;
     }
 
-    public function setMaster(Master $master): Element
+    public function setMaster(?Master $master): Element
     {
         $this->master = $master;
-        $this->setMasterId((int) $master->getId());
+        $this->setMasterId($master instanceof Master ? (int) $master->getId() : null);
 
         return $this;
     }
@@ -334,18 +334,60 @@ class Element extends AbstractModel
      * @throws DateTimeError
      * @throws SelectError
      */
-    public function getModule(): Module
+    public function getModule(): ?Module
     {
-        $this->loadForeignRecord($this->module, $this->getModuleId());
+        if ($this->module instanceof Module) {
+            $this->loadForeignRecord($this->module, $this->getModuleId());
+        }
 
         return $this->module;
     }
 
-    public function setModule(Module $module): Element
+    public function setModule(?Module $module): Element
     {
         $this->module = $module;
-        $this->setModuleId((int) $module->getId());
+        $this->setModuleId($module instanceof Module ? (int) $module->getId() : null);
 
         return $this;
+    }
+
+    public function serialize(): string
+    {
+        return serialize([
+            'id' => $this->getId(),
+            'eventId' => $this->getEventId(),
+            'masterId' => $this->getMasterId(),
+            'moduleId' => $this->getModuleId(),
+            'parentId' => $this->getParentId(),
+            'left' => $this->getLeft(),
+            'right' => $this->getRight(),
+            'command' => $this->getCommand(),
+            'class' => $this->getClass(),
+            'method' => $this->getMethod(),
+            'operator' => $this->getOperator(),
+            'params' => $this->getParams(),
+            'value' => $this->getValue(),
+        ]);
+    }
+
+    public function unserialize($serialized)
+    {
+        $unserialized = unserialize($serialized);
+
+        $this
+            ->setId($unserialized['id'])
+            ->setEventId($unserialized['eventId'])
+            ->setMasterId($unserialized['masterId'])
+            ->setModuleId($unserialized['moduleId'])
+            ->setParentId($unserialized['parentId'])
+            ->setLeft($unserialized['left'])
+            ->setRight($unserialized['right'])
+            ->setCommand($unserialized['command'])
+            ->setClass($unserialized['class'])
+            ->setMethod($unserialized['method'])
+            ->setOperator($unserialized['operator'])
+            ->setParams($unserialized['params'])
+            ->setValue($unserialized['value'])
+        ;
     }
 }

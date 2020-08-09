@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Event;
 
 use GibsonOS\Core\Service\AbstractService;
-use GibsonOS\Module\Hc\Model\Event\Element as ElementModel;
+use GibsonOS\Module\Hc\Model\Event\Element;
 
 class CodeGeneratorService extends AbstractService
 {
@@ -27,35 +27,35 @@ class CodeGeneratorService extends AbstractService
     private const COMMAND_DO_WHILE_NOT = 'do_while_not';
 
     /**
-     * @var int
+     * @var int|null
      */
-    private $parentId = 0;
+    private $parentId;
 
     /**
-     * @var ElementModel[]
+     * @var Element[]
      */
     private $parents = [];
 
     /**
-     * @param ElementModel[] $elements
+     * @param Element[] $elements
      */
     public function generateByElements(array $elements): string
     {
-        $this->parentId = 0;
+        $this->parentId = null;
         $this->parents = [];
         $code = '';
 
         foreach ($elements as $element) {
-            $code .= self::generateCommandEnd($element);
-            $code .= self::generateCommandStart($element);
+            $code .= $this->generateCommandEnd($element);
+            $code .= $this->generateCommandStart($element);
         }
 
         return $code;
     }
 
-    private function generateCommandStart(ElementModel $element): string
+    private function generateCommandStart(Element $element): string
     {
-        $command = '$this->runFunction(\'' . serialize($element) . '\')';
+        $command = '$this->runFunction(unserialize(\'' . str_replace("'", "\\'", serialize($element)) . '\'))';
 
         if (!empty($element->getCommand())) {
             $this->parentId = (int) $element->getId();
@@ -64,19 +64,19 @@ class CodeGeneratorService extends AbstractService
 
         switch ($element->getCommand()) {
             case self::COMMAND_IF:
-                return 'if (' . $command . ' == ' . $element->getValue() . ') {';
+                return 'if (' . $command . ' === ' . $element->getValue() . ') {';
             case self::COMMAND_IF_NOT:
-                return 'if (' . $command . ' != ' . $element->getValue() . ') {';
+                return 'if (' . $command . ' !== ' . $element->getValue() . ') {';
             case self::COMMAND_ELSE:
                 return '} else {';
             case self::COMMAND_ELSE_IF:
-                return '} else if (' . $command . ' == ' . $element->getValue() . ') {';
+                return '} else if (' . $command . ' === ' . $element->getValue() . ') {';
             case self::COMMAND_ELSE_IF_NOT:
-                return '} else if (' . $command . ' != ' . $element->getValue() . ') {';
+                return '} else if (' . $command . ' !== ' . $element->getValue() . ') {';
             case self::COMMAND_WHILE:
-                return 'while (' . $command . ' == ' . $element->getValue() . ') {';
+                return 'while (' . $command . ' === ' . $element->getValue() . ') {';
             case self::COMMAND_WHILE_NOT:
-                return 'while (' . $command . ' != ' . $element->getValue() . ') {';
+                return 'while (' . $command . ' !== ' . $element->getValue() . ') {';
             case self::COMMAND_DO_WHILE:
             case self::COMMAND_DO_WHILE_NOT:
                 return '{';
@@ -85,28 +85,30 @@ class CodeGeneratorService extends AbstractService
         return $command . ';';
     }
 
-    private function generateCommandEnd(ElementModel $element): string
+    private function generateCommandEnd(Element $element): string
     {
         if ($this->parentId === $element->getParentId()) {
             return '';
         }
 
-        $parent = $this->parents[$this->parentId];
-        $command = '$this->runFunction(\'' . serialize($parent) . '\')';
+        if ($this->parentId !== null) {
+            $parent = $this->parents[$this->parentId];
+            $command = '$this->runFunction(\'' . serialize($parent) . '\')';
 
-        switch ($parent->getCommand()) {
-            case self::COMMAND_IF:
-            case self::COMMAND_IF_NOT:
-            case self::COMMAND_ELSE:
-            case self::COMMAND_ELSE_IF:
-            case self::COMMAND_ELSE_IF_NOT:
-            case self::COMMAND_WHILE:
-            case self::COMMAND_WHILE_NOT:
-                return '}';
-            case self::COMMAND_DO_WHILE:
-                return '} while (' . $command . ' == ' . $element->getValue() . ');';
-            case self::COMMAND_DO_WHILE_NOT:
-                return '} while (' . $command . ' != ' . $element->getValue() . ');';
+            switch ($parent->getCommand()) {
+                case self::COMMAND_IF:
+                case self::COMMAND_IF_NOT:
+                case self::COMMAND_ELSE:
+                case self::COMMAND_ELSE_IF:
+                case self::COMMAND_ELSE_IF_NOT:
+                case self::COMMAND_WHILE:
+                case self::COMMAND_WHILE_NOT:
+                    return '}';
+                case self::COMMAND_DO_WHILE:
+                    return '} while (' . $command . ' == ' . $element->getValue() . ');';
+                case self::COMMAND_DO_WHILE_NOT:
+                    return '} while (' . $command . ' != ' . $element->getValue() . ');';
+            }
         }
 
         $this->parentId = $element->getParentId();

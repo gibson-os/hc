@@ -13,6 +13,8 @@ use mysqlDatabase;
 
 class Trigger extends AbstractModel
 {
+    public const TRIGGER_CRON = 'cronjob';
+
     /**
      * @var int|null
      */
