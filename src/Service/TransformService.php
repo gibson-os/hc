@@ -50,7 +50,7 @@ class TransformService extends AbstractService
 
     public function asciiToSignedInt(string $asciiString, int $byte = null): int
     {
-        return self::getSignedInt($this->asciiToUnsignedInt($asciiString, $byte));
+        return $this->getSignedInt($this->asciiToUnsignedInt($asciiString, $byte));
     }
 
     public function hexToAscii(string $hexString): string
