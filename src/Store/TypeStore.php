@@ -10,7 +10,7 @@ class TypeStore extends AbstractDatabaseStore
 {
     protected function getTableName(): string
     {
-        return Type::class;
+        return Type::getTableName();
     }
 
     protected function getCountField(): string
@@ -21,17 +21,18 @@ class TypeStore extends AbstractDatabaseStore
     protected function getOrderMapping(): array
     {
         return [
-            'name' => 'name',
-            'helper' => 'helper',
-            'network' => 'network',
-            'hertz' => 'hertz',
-            'isHcSlave' => 'isHcSlave',
+            'id' => '`id`',
+            'name' => '`name`',
+            'helper' => '`helper`',
+            'network' => '`network`',
+            'hertz' => '`hertz`',
+            'isHcSlave' => '`isHcSlave`',
         ];
     }
 
     public function getList(): array
     {
-        $this->table->setLimit($this->getRows(), $this->getFrom());
+        $this->table->setOrderBy($this->getOrderBy());
         $this->table->select(false);
 
         return $this->table->connection->fetchAssocList();

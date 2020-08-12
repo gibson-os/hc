@@ -21,10 +21,11 @@ class TypeController extends AbstractController
      * @throws LoginRequired
      * @throws PermissionDenied
      */
-    public function index(TypeStore $typeStore, int $start = 0, int $limit = 100): AjaxResponse
+    public function index(TypeStore $typeStore, int $start = 0, int $limit = 100, array $sort = []): AjaxResponse
     {
         $this->checkPermission(PermissionService::READ);
 
+        $typeStore->setSortByExt($sort);
         $typeStore->setLimit($limit, $start);
 
         return $this->returnSuccess($typeStore->getList(), $typeStore->getCount());
