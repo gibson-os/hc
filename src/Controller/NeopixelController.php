@@ -213,11 +213,13 @@ class NeopixelController extends AbstractController
         }
 
         $image = $imageService->save($slave, $name, $leds, $id);
+        $imageStore->setSlave($moduleId);
 
-        $return = $this->images($imageStore, $moduleId);
-        $return['id'] = $image->getId();
-
-        return $this->returnSuccess($return);
+        return new AjaxResponse([
+            'data' => $imageStore->getList(),
+            'total' => $imageStore->getCount(),
+            'id' => $image->getId(),
+        ]);
     }
 
     /**

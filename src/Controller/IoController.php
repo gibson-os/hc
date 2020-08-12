@@ -329,7 +329,7 @@ class IoController extends AbstractController
         ModuleRepository $moduleRepository,
         ValueRepository $valueRepository,
         int $moduleId,
-        int $id,
+        int $id = null,
         string $name = null
     ): AjaxResponse {
         $this->checkPermission(PermissionService::READ);

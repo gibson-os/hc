@@ -134,11 +134,13 @@ class NeopixelAnimationController extends AbstractController
             $animationService->transformToTimeSteps($items),
             $id
         );
+        $animationStore->setSlave($moduleId);
 
-        $return = $this->list($animationStore, $animation->getId());
-        $return['id'] = $animation->getId();
-
-        return $this->returnSuccess($return);
+        return new AjaxResponse([
+            'data' => $animationStore->getList(),
+            'total' => $animationStore->getCount(),
+            'id' => $animation->getId(),
+        ]);
     }
 
     /**
@@ -234,7 +236,7 @@ class NeopixelAnimationController extends AbstractController
      * @throws SelectError
      */
     public function start(
-        AnimationAttributeService $animationService,
+        //AnimationAttributeService $animationService,
         NeopixelService $neopixelService,
         ModuleRepository $moduleRepository,
         int $moduleId
@@ -243,7 +245,8 @@ class NeopixelAnimationController extends AbstractController
 
         $slave = $moduleRepository->getById($moduleId);
         $neopixelService->writeSequenceStart($slave);
-        $animationService->setStarted($slave, true);
+        // @todo refactor. Sollte mit dem locker arbeiten um laufende prozesse zu setzen
+        //$animationService->setStarted($slave, true);
 
         return $this->returnSuccess();
     }
@@ -258,7 +261,7 @@ class NeopixelAnimationController extends AbstractController
      * @throws SelectError
      */
     public function pause(
-        AnimationAttributeService $animationService,
+        //AnimationAttributeService $animationService,
         NeopixelService $neopixelService,
         ModuleRepository $moduleRepository,
         int $moduleId
@@ -267,13 +270,22 @@ class NeopixelAnimationController extends AbstractController
 
         $slave = $moduleRepository->getById($moduleId);
         $neopixelService->writeSequencePause($slave);
-        $animationService->setStarted($slave, false);
+        //$animationService->setStarted($slave, false);
 
         return $this->returnSuccess();
     }
 
+    /**
+     * @throws AbstractException
+     * @throws DateTimeError
+     * @throws GetError
+     * @throws LoginRequired
+     * @throws PermissionDenied
+     * @throws SaveError
+     * @throws SelectError
+     */
     public function stop(
-        AnimationAttributeService $animationService,
+        //AnimationAttributeService $animationService,
         NeopixelService $neopixelService,
         ModuleRepository $moduleRepository,
         int $moduleId
@@ -282,7 +294,7 @@ class NeopixelAnimationController extends AbstractController
 
         $slave = $moduleRepository->getById($moduleId);
         $neopixelService->writeSequenceStop($slave);
-        $animationService->setStarted($slave, false);
+        //$animationService->setStarted($slave, false);
 
         return $this->returnSuccess();
     }

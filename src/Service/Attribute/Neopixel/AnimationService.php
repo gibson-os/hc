@@ -74,14 +74,14 @@ class AnimationService
     /**
      * @throws Exception
      */
-    public function getStarted(Module $slave): ?int
+    public function getStarted(Module $slave): bool
     {
         try {
             $value = $this->getValueModel($slave, self::ATTRIBUTE_KEY_STARTED)->getValue();
 
-            return $value === '' ? null : (int) $value;
+            return $value === '' ? false : (bool) $value;
         } catch (SelectError $e) {
-            return null;
+            return false;
         }
     }
 
