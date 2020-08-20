@@ -4,22 +4,19 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Factory;
 
 use GibsonOS\Core\Exception\FileNotFound;
-use GibsonOS\Core\Factory\AbstractSingletonFactory;
+use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 
-class SlaveFactory extends AbstractSingletonFactory
+class SlaveFactory
 {
-    protected static function createInstance(): SlaveFactory
-    {
-        return new SlaveFactory();
-    }
+    /**
+     * @var ServiceManagerService
+     */
+    private $serviceManagerService;
 
-    public static function create(): SlaveFactory
+    public function __construct(ServiceManagerService $serviceManagerService)
     {
-        /** @var SlaveFactory $service */
-        $service = parent::create();
-
-        return $service;
+        $this->serviceManagerService = $serviceManagerService;
     }
 
     /**
@@ -27,15 +24,8 @@ class SlaveFactory extends AbstractSingletonFactory
      */
     public function get(string $serviceName): AbstractSlave
     {
-        $className = 'GibsonOS\\Module\\Hc\\Factory\\Slave\\' . ucfirst($serviceName) . 'Factory';
-
-        if (!class_exists($className)) {
-            throw new FileNotFound(sprintf('Factory "%s" nicht gefunden!', $className));
-        }
-
-        /** @var AbstractSingletonFactory $className */
         /** @var AbstractSlave $slave */
-        $slave = $className::create();
+        $slave = $this->serviceManagerService->get('GibsonOS\\Module\\Hc\\Service\\Slave\\' . ucfirst($serviceName) . 'Service');
 
         return $slave;
     }
