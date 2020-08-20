@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Service\Event\Describer;
+namespace GibsonOS\Module\Hc\Event\Describer;
 
 use GibsonOS\Core\Dto\Event\Describer\Method;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
-use GibsonOS\Core\Service\Event\Describer\DescriberInterface;
+use GibsonOS\Core\Event\Describer\DescriberInterface;
 
 class NeopixelService implements DescriberInterface
 {

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Service\Event;
+namespace GibsonOS\Module\Hc\Event;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
@@ -148,6 +148,6 @@ class IoService extends AbstractHcService
      */
     public function activateDirectConnect(Module $slave, array $params): void
     {
-        $this->slave->activateDirectConnect($params['active']);
+        $this->slave->activateDirectConnect($slave, $params['active']);
     }
 }

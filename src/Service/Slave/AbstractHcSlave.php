@@ -11,6 +11,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Module\Hc\Event\Describer\HcService;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
@@ -18,7 +19,6 @@ use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Service\Event\Describer\HcService;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 

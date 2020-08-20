@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Service\Event;
+namespace GibsonOS\Module\Hc\Event;
 
+use GibsonOS\Core\Event\AbstractEventService;
+use GibsonOS\Core\Event\Describer\DescriberInterface;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Service\Event\AbstractEventService;
-use GibsonOS\Core\Service\Event\Describer\DescriberInterface;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
