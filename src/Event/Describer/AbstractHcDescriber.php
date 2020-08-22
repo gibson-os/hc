@@ -13,7 +13,7 @@ use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\TypeParameter;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
-class HcService implements DescriberInterface
+abstract class AbstractHcDescriber implements DescriberInterface
 {
     public const BEFORE_WRITE_ADDRESS = 'beforeWriteAddress';
 

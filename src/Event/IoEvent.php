@@ -9,7 +9,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoSlave;
 
-class IoService extends AbstractHcService
+class IoEvent extends AbstractHcEvent
 {
     /**
      * @var IoSlave

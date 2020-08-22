@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Event;
 
-use GibsonOS\Core\Event\AbstractEventService;
+use GibsonOS\Core\Event\AbstractEvent;
 use GibsonOS\Core\Event\Describer\DescriberInterface;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FileNotFound;
@@ -14,7 +14,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
-abstract class AbstractHcService extends AbstractEventService
+abstract class AbstractHcEvent extends AbstractEvent
 {
     /**
      * @var TypeRepository

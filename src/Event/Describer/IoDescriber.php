@@ -10,15 +10,15 @@ use GibsonOS\Core\Dto\Event\Describer\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Event\Describer\Parameter\OptionParameter;
 use GibsonOS\Core\Dto\Event\Describer\Parameter\StringParameter;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
-use GibsonOS\Core\Event\Describer\DescriberInterface;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\SlaveParameter;
+use GibsonOS\Module\Hc\Event\IoEvent;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoSlave;
 
-class IoService implements DescriberInterface
+class IoDescriber extends AbstractHcDescriber
 {
     public const BEFORE_READ_PORT = 'beforeReadPort';
 
@@ -105,10 +105,9 @@ class IoService implements DescriberInterface
      */
     public function __construct(TypeRepository $typeRepository)
     {
+        parent::__construct();
         $this->typeRepository = $typeRepository;
-        $this->slaveParameter = (new SlaveParameter())
-            ->setSlaveType($this->typeRepository->getByHelperName('io'))
-        ;
+        $this->slaveParameter->setSlaveType($this->typeRepository->getByHelperName('io'));
         $this->directionParameter = new OptionParameter('Richtung', [
             IoSlave::DIRECTION_INPUT => 'Eingang',
             IoSlave::DIRECTION_OUTPUT => 'Ausgang',
@@ -351,5 +350,10 @@ class IoService implements DescriberInterface
                     'active' => new BoolParameter('Aktiv'),
                 ]),
         ];
+    }
+
+    public function getEventClassName(): string
+    {
+        return IoEvent::class;
     }
 }

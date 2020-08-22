@@ -67,7 +67,6 @@ class TypeRepository extends AbstractRepository
 
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws SelectError
      */
     public function getByHelperName(string $helperName): TypeModel

@@ -11,7 +11,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
-use GibsonOS\Module\Hc\Event\Describer\HcService;
+use GibsonOS\Module\Hc\Event\Describer\AbstractHcDescriber;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
@@ -317,7 +317,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeAddress(Module $slave, int $address): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_ADDRESS, ['slave' => $slave, 'newAddress' => $address]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_ADDRESS, ['slave' => $slave, 'newAddress' => $address]);
 
         $deviceId = $slave->getDeviceId();
         $this->write(
@@ -327,7 +327,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         );
         $this->masterService->scanBus($slave->getMaster());
 
-        $this->eventService->fire(HcService::AFTER_WRITE_ADDRESS, ['slave' => $slave, 'newAddress' => $address]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_ADDRESS, ['slave' => $slave, 'newAddress' => $address]);
 
         $slave->setAddress($address);
     }
@@ -342,7 +342,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $data = $this->read($slave, self::COMMAND_DEVICE_ID, self::COMMAND_DEVICE_ID_READ_LENGTH);
         $deviceId = $this->transformService->asciiToUnsignedInt($data);
 
-        $this->eventService->fire(HcService::READ_DEVICE_ID, ['slave' => $slave, 'deviceId' => $deviceId]);
+        $this->eventService->fire(AbstractHcDescriber::READ_DEVICE_ID, ['slave' => $slave, 'deviceId' => $deviceId]);
 
         return $deviceId;
     }
@@ -352,7 +352,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeDeviceId(Module $slave, int $deviceId): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_DEVICE_ID, ['slave' => $slave, 'newDeviceId' => $deviceId]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_DEVICE_ID, ['slave' => $slave, 'newDeviceId' => $deviceId]);
 
         $currentDeviceId = $slave->getDeviceId();
         $this->write(
@@ -362,7 +362,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             chr($deviceId >> 8) . chr($deviceId & 255)
         );
 
-        $this->eventService->fire(HcService::AFTER_WRITE_DEVICE_ID, ['slave' => $slave, 'newDeviceId' => $deviceId]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_DEVICE_ID, ['slave' => $slave, 'newDeviceId' => $deviceId]);
 
         $slave->setDeviceId($deviceId);
     }
@@ -377,7 +377,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $data = $this->read($slave, self::COMMAND_TYPE, self::COMMAND_TYPE_READ_LENGTH);
         $typeId = $this->transformService->asciiToUnsignedInt($data, 0);
 
-        $this->eventService->fire(HcService::READ_TYPE_ID, ['slave' => $slave, 'typeId' => $typeId]);
+        $this->eventService->fire(AbstractHcDescriber::READ_TYPE_ID, ['slave' => $slave, 'typeId' => $typeId]);
 
         return $typeId;
     }
@@ -390,11 +390,11 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeTypeId(Module $slave, Type $type): AbstractSlave
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_TYPE_ID, ['slave' => $slave, 'typeId' => $type->getId()]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_TYPE_ID, ['slave' => $slave, 'typeId' => $type->getId()]);
 
         $this->write($slave, self::COMMAND_TYPE, chr((int) $type->getId()));
 
-        $this->eventService->fire(HcService::AFTER_WRITE_TYPE_ID, ['slave' => $slave, 'typeId' => $type->getId()]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_TYPE_ID, ['slave' => $slave, 'typeId' => $type->getId()]);
 
         $slave->setType($type);
         $slaveService = $this->slaveFactory->get($type->getHelper());
@@ -409,7 +409,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeRestart(Module $slave): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_RESTART, ['slave' => $slave]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_RESTART, ['slave' => $slave]);
 
         $deviceId = $slave->getDeviceId();
         $this->write(
@@ -418,7 +418,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             chr($deviceId >> 8) . chr($deviceId & 255)
         );
 
-        $this->eventService->fire(HcService::AFTER_WRITE_RESTART, ['slave' => $slave]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_RESTART, ['slave' => $slave]);
     }
 
     /**
@@ -427,7 +427,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writePwmSpeed(Module $slave, int $speed): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_PWM_SPEED, ['slave' => $slave, 'pwmSpeed' => $speed]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_PWM_SPEED, ['slave' => $slave, 'pwmSpeed' => $speed]);
 
         $this->write(
             $slave,
@@ -435,7 +435,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             chr($speed >> 8) . chr($speed)
         );
 
-        $this->eventService->fire(HcService::AFTER_WRITE_PWM_SPEED, ['slave' => $slave, 'pwmSpeed' => $speed]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_PWM_SPEED, ['slave' => $slave, 'pwmSpeed' => $speed]);
     }
 
     /**
@@ -447,7 +447,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     {
         $config = $this->read($slave, self::COMMAND_CONFIGURATION, $length);
 
-        $this->eventService->fire(HcService::READ_CONFIG, ['slave' => $slave, 'config' => $config]);
+        $this->eventService->fire(AbstractHcDescriber::READ_CONFIG, ['slave' => $slave, 'config' => $config]);
 
         return $config;
     }
@@ -462,7 +462,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $data = $this->read($slave, self::COMMAND_HERTZ, self::COMMAND_HERTZ_READ_LENGTH);
         $hertz = $this->transformService->asciiToUnsignedInt($data);
 
-        $this->eventService->fire(HcService::READ_HERTZ, ['slave' => $slave, 'hertz' => $hertz]);
+        $this->eventService->fire(AbstractHcDescriber::READ_HERTZ, ['slave' => $slave, 'hertz' => $hertz]);
 
         return $hertz;
     }
@@ -477,7 +477,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $data = $this->read($slave, self::COMMAND_PWM_SPEED, self::COMMAND_PWM_SPEED_READ_LENGTH);
         $speed = $this->transformService->asciiToUnsignedInt($data);
 
-        $this->eventService->fire(HcService::READ_PWM_SPEED, ['slave' => $slave, 'pwmSpeed' => $speed]);
+        $this->eventService->fire(AbstractHcDescriber::READ_PWM_SPEED, ['slave' => $slave, 'pwmSpeed' => $speed]);
 
         return $speed;
     }
@@ -492,7 +492,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $data = $this->read($slave, self::COMMAND_EEPROM_SIZE, self::COMMAND_EEPROM_SIZE_READ_LENGTH);
         $eepromSize = $this->transformService->asciiToUnsignedInt($data);
 
-        $this->eventService->fire(HcService::READ_EEPROM_SIZE, ['slave' => $slave, 'eepromSize' => $eepromSize]);
+        $this->eventService->fire(AbstractHcDescriber::READ_EEPROM_SIZE, ['slave' => $slave, 'eepromSize' => $eepromSize]);
 
         return $eepromSize;
     }
@@ -507,7 +507,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $data = $this->read($slave, self::COMMAND_EEPROM_FREE, self::COMMAND_EEPROM_FREE_READ_LENGTH);
         $eepromFree = $this->transformService->asciiToUnsignedInt($data);
 
-        $this->eventService->fire(HcService::READ_EEPROM_FREE, ['slave' => $slave, 'eepromFree' => $eepromFree]);
+        $this->eventService->fire(AbstractHcDescriber::READ_EEPROM_FREE, ['slave' => $slave, 'eepromFree' => $eepromFree]);
 
         return $eepromFree;
     }
@@ -522,7 +522,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $data = $this->read($slave, self::COMMAND_EEPROM_POSITION, self::COMMAND_EEPROM_POSITION_READ_LENGTH);
         $eepromPosition = $this->transformService->asciiToUnsignedInt($data);
 
-        $this->eventService->fire(HcService::READ_EEPROM_POSITION, ['slave' => $slave, 'eepromPosition' => $eepromPosition]);
+        $this->eventService->fire(AbstractHcDescriber::READ_EEPROM_POSITION, ['slave' => $slave, 'eepromPosition' => $eepromPosition]);
 
         return $eepromPosition;
     }
@@ -533,7 +533,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeEepromPosition(Module $slave, int $position): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_EEPROM_POSITION, ['slave' => $slave, 'eepromPosition' => $position]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_EEPROM_POSITION, ['slave' => $slave, 'eepromPosition' => $position]);
 
         $this->write(
             $slave,
@@ -541,7 +541,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             chr($position >> 8) . chr($position & 255)
         );
 
-        $this->eventService->fire(HcService::AFTER_WRITE_EEPROM_POSITION, ['slave' => $slave, 'eepromPosition' => $position]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_EEPROM_POSITION, ['slave' => $slave, 'eepromPosition' => $position]);
     }
 
     /**
@@ -550,7 +550,7 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeEepromErase(Module $slave): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_EEPROM_ERASE, ['slave' => $slave]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_EEPROM_ERASE, ['slave' => $slave]);
 
         $deviceId = $slave->getDeviceId();
         $this->write(
@@ -559,7 +559,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             chr($deviceId >> 8) . chr($deviceId & 255)
         );
 
-        $this->eventService->fire(HcService::AFTER_WRITE_EEPROM_ERASE, ['slave' => $slave]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_EEPROM_ERASE, ['slave' => $slave]);
     }
 
     /**
@@ -572,7 +572,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $data = $this->read($slave, self::COMMAND_BUFFER_SIZE, self::COMMAND_BUFFER_SIZE_READ_LENGTH);
         $bufferSize = $this->transformService->asciiToUnsignedInt($data);
 
-        $this->eventService->fire(HcService::READ_BUFFER_SIZE, ['slave' => $slave, 'bufferSize' => $bufferSize]);
+        $this->eventService->fire(AbstractHcDescriber::READ_BUFFER_SIZE, ['slave' => $slave, 'bufferSize' => $bufferSize]);
 
         return $bufferSize;
     }
@@ -602,7 +602,7 @@ abstract class AbstractHcSlave extends AbstractSlave
 
         $eventData = $ledStatus;
         $eventData['slave'] = $slave;
-        $this->eventService->fire(HcService::READ_LED_STATUS, $eventData);
+        $this->eventService->fire(AbstractHcDescriber::READ_LED_STATUS, $eventData);
 
         return $ledStatus;
     }
@@ -613,11 +613,11 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writePowerLed(Module $slave, bool $on): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_POWER_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_POWER_LED, ['slave' => $slave, 'on' => $on]);
 
         $this->write($slave, self::COMMAND_POWER_LED, chr((int) $on));
 
-        $this->eventService->fire(HcService::AFTER_WRITE_POWER_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_POWER_LED, ['slave' => $slave, 'on' => $on]);
     }
 
     /**
@@ -626,11 +626,11 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeErrorLed(Module $slave, bool $on): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_ERROR_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_ERROR_LED, ['slave' => $slave, 'on' => $on]);
 
         $this->write($slave, self::COMMAND_ERROR_LED, chr((int) $on));
 
-        $this->eventService->fire(HcService::AFTER_WRITE_ERROR_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_ERROR_LED, ['slave' => $slave, 'on' => $on]);
     }
 
     /**
@@ -639,11 +639,11 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeConnectLed(Module $slave, bool $on): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_CONNECT_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_CONNECT_LED, ['slave' => $slave, 'on' => $on]);
 
         $this->write($slave, self::COMMAND_CONNECT_LED, chr((int) $on));
 
-        $this->eventService->fire(HcService::AFTER_WRITE_CONNECT_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_CONNECT_LED, ['slave' => $slave, 'on' => $on]);
     }
 
     /**
@@ -652,11 +652,11 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeTransreceiveLed(Module $slave, bool $on): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_TRANSRECEIVE_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_TRANSRECEIVE_LED, ['slave' => $slave, 'on' => $on]);
 
         $this->write($slave, self::COMMAND_TRANSRECEIVE_LED, chr((int) $on));
 
-        $this->eventService->fire(HcService::AFTER_WRITE_TRANSRECEIVE_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_TRANSRECEIVE_LED, ['slave' => $slave, 'on' => $on]);
     }
 
     /**
@@ -665,11 +665,11 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeTransceiveLed(Module $slave, bool $on): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_TRANSCEIVE_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_TRANSCEIVE_LED, ['slave' => $slave, 'on' => $on]);
 
         $this->write($slave, self::COMMAND_TRANSCEIVE_LED, chr((int) $on));
 
-        $this->eventService->fire(HcService::AFTER_WRITE_TRANSCEIVE_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_TRANSCEIVE_LED, ['slave' => $slave, 'on' => $on]);
     }
 
     /**
@@ -678,11 +678,11 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeReceiveLed(Module $slave, bool $on): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_RECEIVE_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_RECEIVE_LED, ['slave' => $slave, 'on' => $on]);
 
         $this->write($slave, self::COMMAND_RECEIVE_LED, chr((int) $on));
 
-        $this->eventService->fire(HcService::AFTER_WRITE_RECEIVE_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_RECEIVE_LED, ['slave' => $slave, 'on' => $on]);
     }
 
     /**
@@ -691,11 +691,11 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeCustomLed(Module $slave, bool $on): void
     {
-        $this->eventService->fire(HcService::BEFORE_WRITE_CUSTOM_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_CUSTOM_LED, ['slave' => $slave, 'on' => $on]);
 
         $this->write($slave, self::COMMAND_CUSTOM_LED, chr((int) $on));
 
-        $this->eventService->fire(HcService::AFTER_WRITE_CUSTOM_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_CUSTOM_LED, ['slave' => $slave, 'on' => $on]);
     }
 
     /**
@@ -713,7 +713,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             )
         );
 
-        $this->eventService->fire(HcService::READ_POWER_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::READ_POWER_LED, ['slave' => $slave, 'on' => $on]);
 
         return $on;
     }
@@ -733,7 +733,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             )
         );
 
-        $this->eventService->fire(HcService::READ_ERROR_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::READ_ERROR_LED, ['slave' => $slave, 'on' => $on]);
 
         return $on;
     }
@@ -753,7 +753,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             )
         );
 
-        $this->eventService->fire(HcService::READ_CONNECT_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::READ_CONNECT_LED, ['slave' => $slave, 'on' => $on]);
 
         return $on;
     }
@@ -773,7 +773,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             )
         );
 
-        $this->eventService->fire(HcService::READ_TRANSRECEIVE_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::READ_TRANSRECEIVE_LED, ['slave' => $slave, 'on' => $on]);
 
         return $on;
     }
@@ -793,7 +793,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             )
         );
 
-        $this->eventService->fire(HcService::READ_TRANSCEIVE_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::READ_TRANSCEIVE_LED, ['slave' => $slave, 'on' => $on]);
 
         return $on;
     }
@@ -813,7 +813,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             )
         );
 
-        $this->eventService->fire(HcService::READ_RECEIVE_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::READ_RECEIVE_LED, ['slave' => $slave, 'on' => $on]);
 
         return $on;
     }
@@ -833,7 +833,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             )
         );
 
-        $this->eventService->fire(HcService::READ_CUSTOM_LED, ['slave' => $slave, 'on' => $on]);
+        $this->eventService->fire(AbstractHcDescriber::READ_CUSTOM_LED, ['slave' => $slave, 'on' => $on]);
 
         return $on;
     }
@@ -862,7 +862,7 @@ abstract class AbstractHcSlave extends AbstractSlave
 
         $eventData = $colors;
         $eventData['slave'] = $slave;
-        $this->eventService->fire(HcService::BEFORE_WRITE_RGB_LED, $eventData);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_RGB_LED, $eventData);
 
         $power = $this->transformService->hexToInt($power);
         $error = $this->transformService->hexToInt($error);
@@ -885,7 +885,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             chr($custom & 255)
         );
 
-        $this->eventService->fire(HcService::AFTER_WRITE_RGB_LED, $eventData);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_RGB_LED, $eventData);
     }
 
     /**
@@ -911,7 +911,7 @@ abstract class AbstractHcSlave extends AbstractSlave
 
         $eventData = $colors;
         $eventData['slave'] = $slave;
-        $this->eventService->fire(HcService::READ_RGB_LED, $eventData);
+        $this->eventService->fire(AbstractHcDescriber::READ_RGB_LED, $eventData);
 
         return $colors;
     }
@@ -942,7 +942,7 @@ abstract class AbstractHcSlave extends AbstractSlave
 
         $eventData = $leds;
         $eventData['slave'] = $slave;
-        $this->eventService->fire(HcService::BEFORE_WRITE_ALL_LEDS, $eventData);
+        $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_ALL_LEDS, $eventData);
         $this->write(
             $slave,
             self::COMMAND_ALL_LEDS,
@@ -957,7 +957,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             )
         );
 
-        $this->eventService->fire(HcService::AFTER_WRITE_ALL_LEDS, $eventData);
+        $this->eventService->fire(AbstractHcDescriber::AFTER_WRITE_ALL_LEDS, $eventData);
     }
 
     /**
@@ -987,7 +987,7 @@ abstract class AbstractHcSlave extends AbstractSlave
 
         $eventData = $leds;
         $eventData['slave'] = $slave;
-        $this->eventService->fire(HcService::READ_ALL_LEDS, $eventData);
+        $this->eventService->fire(AbstractHcDescriber::READ_ALL_LEDS, $eventData);
 
         return $leds;
     }

@@ -5,9 +5,9 @@ namespace GibsonOS\Module\Hc\Event\Describer;
 
 use GibsonOS\Core\Dto\Event\Describer\Method;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
-use GibsonOS\Core\Event\Describer\DescriberInterface;
+use GibsonOS\Module\Hc\Event\NeopixelEvent;
 
-class NeopixelService implements DescriberInterface
+class NeopixelDescriber extends AbstractHcDescriber
 {
     public function getTitle(): string
     {
@@ -32,5 +32,10 @@ class NeopixelService implements DescriberInterface
     public function getMethods(): array
     {
         return [];
+    }
+
+    public function getEventClassName(): string
+    {
+        return NeopixelEvent::class;
     }
 }

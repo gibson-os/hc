@@ -11,7 +11,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
-use GibsonOS\Module\Hc\Event\Describer\IoService as IoDescriber;
+use GibsonOS\Module\Hc\Event\Describer\IoDescriber as IoDescriber;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
