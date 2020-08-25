@@ -120,7 +120,7 @@ abstract class AbstractHcDescriber implements DescriberInterface
     /**
      * @var SlaveParameter
      */
-    private $slaveParameter;
+    protected $slaveParameter;
 
     public function __construct()
     {

@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "a3af515b3dca22aa9c8c9a54d7cab647266d39da"
+                "reference": "7982b3411add9430fa3c07b3a0fe4ebfddececb2"
             },
             "require": {
                 "ext-fileinfo": "*",
@@ -65,7 +65,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2020-08-22T21:02:08+00:00"
+            "time": "2020-08-25T21:38:11+00:00"
         },
         {
             "name": "mdo/mdo",
@@ -808,16 +808,16 @@
         },
         {
             "name": "composer/package-versions-deprecated",
-            "version": "1.10.99.1",
+            "version": "1.11.99",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/package-versions-deprecated.git",
-                "reference": "68c9b502036e820c33445ff4d174327f6bb87486"
+                "reference": "c8c9aa8a14cc3d3bec86d0a8c3fa52ea79936855"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/package-versions-deprecated/zipball/68c9b502036e820c33445ff4d174327f6bb87486",
-                "reference": "68c9b502036e820c33445ff4d174327f6bb87486",
+                "url": "https://api.github.com/repos/composer/package-versions-deprecated/zipball/c8c9aa8a14cc3d3bec86d0a8c3fa52ea79936855",
+                "reference": "c8c9aa8a14cc3d3bec86d0a8c3fa52ea79936855",
                 "shasum": ""
             },
             "require": {
@@ -825,7 +825,7 @@
                 "php": "^7 || ^8"
             },
             "replace": {
-                "ocramius/package-versions": "1.10.99"
+                "ocramius/package-versions": "1.11.99"
             },
             "require-dev": {
                 "composer/composer": "^1.9.3 || ^2.0@dev",
@@ -859,7 +859,7 @@
                 }
             ],
             "description": "Composer plugin that provides efficient querying for installed package versions (no runtime IO)",
-            "time": "2020-08-13T12:55:41+00:00"
+            "time": "2020-08-25T05:50:16+00:00"
         },
         {
             "name": "composer/semver",

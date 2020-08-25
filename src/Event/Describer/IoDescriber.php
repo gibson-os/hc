@@ -13,7 +13,6 @@ use GibsonOS\Core\Dto\Event\Describer\Trigger;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Event\IoEvent;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoSlave;
@@ -75,11 +74,6 @@ class IoDescriber extends AbstractHcDescriber
     public const BEFORE_IS_DIRECT_CONNECT_ACTIVE = 'beforeIsDirectConnectActive';
 
     public const AFTER_IS_DIRECT_CONNECT_ACTIVE = 'afterIsDirectConnectActive';
-
-    /**
-     * @var SlaveParameter
-     */
-    private $slaveParameter;
 
     /**
      * @var OptionParameter
