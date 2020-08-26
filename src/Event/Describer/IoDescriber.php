@@ -260,7 +260,7 @@ class IoDescriber extends AbstractHcDescriber
                     'slave' => $this->slaveParameter,
                     'number' => $this->portParameter,
                 ])
-                ->setReturnTypes([
+                ->setReturns([
                     IoSlave::ATTRIBUTE_PORT_KEY_DIRECTION => $this->directionParameter,
                     IoSlave::ATTRIBUTE_PORT_KEY_VALUE => new IntParameter('Wert'),
                     IoSlave::ATTRIBUTE_PORT_KEY_DELAY => new IntParameter('Verzögerung'),
@@ -273,7 +273,7 @@ class IoDescriber extends AbstractHcDescriber
                 ->setParameters(['slave' => $this->slaveParameter]),
             'getPorts' => (new Method('Ports auslesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([[
+                ->setReturns([
                     IoSlave::ATTRIBUTE_PORT_KEY_DIRECTION => $this->directionParameter,
                     IoSlave::ATTRIBUTE_PORT_KEY_VALUE => new IntParameter('Wert'),
                     IoSlave::ATTRIBUTE_PORT_KEY_DELAY => new IntParameter('Verzögerung'),
@@ -281,10 +281,10 @@ class IoDescriber extends AbstractHcDescriber
                     IoSlave::ATTRIBUTE_PORT_KEY_PWM => new IntParameter('PWM'),
                     IoSlave::ATTRIBUTE_PORT_KEY_FADE_IN => new IntParameter('Fade In'),
                     IoSlave::ATTRIBUTE_PORT_KEY_BLINK => new IntParameter('Blinken'),
-                ]]),
+                ]),
             'readDirectConnect' => (new Method('DirectConnect lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([
+                ->setReturns([
                     IoSlave::ATTRIBUTE_DIRECT_CONNECT_KEY_INPUT_PORT_VALUE => new BoolParameter('Eingangsport Geschloßen'),
                     IoSlave::ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT => new IntParameter('Ausgangsport'),
                     IoSlave::ATTRIBUTE_DIRECT_CONNECT_KEY_VALUE => new BoolParameter('Ausgangsport An'),
@@ -296,7 +296,7 @@ class IoDescriber extends AbstractHcDescriber
                 ]),
             'isDirectConnectActive' => (new Method('Ist DirectConnect aktiv'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new BoolParameter('Aktiv')]),
+                ->setReturns([new BoolParameter('Aktiv')]),
             'setPort' => (new Method('Port setzen'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,

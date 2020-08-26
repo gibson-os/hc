@@ -341,7 +341,7 @@ abstract class AbstractHcDescriber implements DescriberInterface
                 ]),
             'readDeviceId' => (new Method('Adresse lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new IntParameter('Adresse')]),
+                ->setReturns([new IntParameter('Adresse')]),
             'writeDeviceId' => (new Method('Device ID schreiben'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
@@ -349,7 +349,7 @@ abstract class AbstractHcDescriber implements DescriberInterface
                 ]),
             'readTypeId' => (new Method('Typ lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new IntParameter('Typ')]),
+                ->setReturns([new IntParameter('Typ')]),
             'writeTypeId' => (new Method('Typ schreiben'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
@@ -359,16 +359,16 @@ abstract class AbstractHcDescriber implements DescriberInterface
                 ->setParameters(['slave' => $this->slaveParameter]),
             'readHertz' => (new Method('Hertz lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new IntParameter('Hertz')]),
+                ->setReturns([new IntParameter('Hertz')]),
             'readEepromSize' => (new Method('EEPROM Größe lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new IntParameter('Größe')]),
+                ->setReturns([new IntParameter('Größe')]),
             'readEepromFree' => (new Method('Freier Platz im EEPROM lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new IntParameter('Freier Platz')]),
+                ->setReturns([new IntParameter('Freier Platz')]),
             'readEepromPosition' => (new Method('EEPROM Zeigerposition lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new IntParameter('Zeigerposition')]),
+                ->setReturns([new IntParameter('Zeigerposition')]),
             'writeEepromPosition' => (new Method('EEPROM Zeigerposition schreiben'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
@@ -378,10 +378,10 @@ abstract class AbstractHcDescriber implements DescriberInterface
                 ->setParameters(['slave' => $this->slaveParameter]),
             'readBufferSize' => (new Method('Buffer Größe lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new IntParameter('Größe')]),
+                ->setReturns([new IntParameter('Größe')]),
             'readLedStatus' => (new Method('LED Status lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([
+                ->setReturns([
                     AbstractHcSlave::POWER_LED_KEY => new BoolParameter('Power LED'),
                     AbstractHcSlave::ERROR_LED_KEY => new BoolParameter('Error LED'),
                     AbstractHcSlave::CONNECT_LED_KEY => new BoolParameter('Connect LED'),
@@ -407,25 +407,25 @@ abstract class AbstractHcDescriber implements DescriberInterface
                 ->setParameters($ledParameters),
             'readPowerLed' => (new Method('Power LED lesen'))
                 ->setParameters($ledParameters)
-                ->setReturnTypes([new BoolParameter('An')]),
+                ->setReturns([new BoolParameter('An')]),
             'readErrorLed' => (new Method('Error LED lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new BoolParameter('An')]),
+                ->setReturns([new BoolParameter('An')]),
             'readConnectLed' => (new Method('Connect LED lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new BoolParameter('An')]),
+                ->setReturns([new BoolParameter('An')]),
             'readTransrecieveLed' => (new Method('Transreceive LED lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new BoolParameter('An')]),
+                ->setReturns([new BoolParameter('An')]),
             'readTransceiveLed' => (new Method('Transceive LED lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new BoolParameter('An')]),
+                ->setReturns([new BoolParameter('An')]),
             'readReceiveLed' => (new Method('Receive LED lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new BoolParameter('An')]),
+                ->setReturns([new BoolParameter('An')]),
             'readCustomLed' => (new Method('Custom LED lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([new BoolParameter('An')]),
+                ->setReturns([new BoolParameter('An')]),
             'writeRgbLed' => (new Method('RGB LED schreiben'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
@@ -439,7 +439,7 @@ abstract class AbstractHcDescriber implements DescriberInterface
                 ]),
             'readRgbLed' => (new Method('RGB LED lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([
+                ->setReturns([
                     AbstractHcSlave::POWER_LED_KEY => new StringParameter('Power LED'),
                     AbstractHcSlave::ERROR_LED_KEY => new StringParameter('Error LED'),
                     AbstractHcSlave::CONNECT_LED_KEY => new StringParameter('Connect LED'),
@@ -460,7 +460,7 @@ abstract class AbstractHcDescriber implements DescriberInterface
                 ]),
             'readAllLed' => (new Method('Alle LEDs lesen'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturnTypes([
+                ->setReturns([
                     AbstractHcSlave::POWER_LED_KEY => new BoolParameter('Power LED'),
                     AbstractHcSlave::ERROR_LED_KEY => new BoolParameter('Error LED'),
                     AbstractHcSlave::CONNECT_LED_KEY => new BoolParameter('Connect LED'),
