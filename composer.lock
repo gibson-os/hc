@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "4504d05cd568528662eea789c4fd4f66740bb529"
+                "reference": "6fdd2123175d7ae6e194c2bd1f25998d3deb9dcc"
             },
             "require": {
                 "ext-fileinfo": "*",
@@ -39,7 +39,8 @@
             "autoload": {
                 "psr-4": {
                     "GibsonOS\\Core\\": "src/",
-                    "GibsonOS\\Mock\\": "tests/mock/"
+                    "GibsonOS\\Mock\\": "tests/mock/",
+                    "GibsonOS\\UnitTest\\": "tests/unit/"
                 }
             },
             "scripts": {
@@ -65,7 +66,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2020-09-23T08:59:44+00:00"
+            "time": "2020-09-23T09:39:16+00:00"
         },
         {
             "name": "mdo/mdo",

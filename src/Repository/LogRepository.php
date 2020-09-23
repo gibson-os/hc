@@ -23,7 +23,6 @@ class LogRepository extends AbstractRepository
     /**
      * @throws DateTimeError
      * @throws SelectError
-     * @throws GetError
      */
     public function getLastEntryByModuleId(
         int $moduleId,
@@ -51,7 +50,6 @@ class LogRepository extends AbstractRepository
 
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws SelectError
      */
     public function getLastEntryByMasterId(

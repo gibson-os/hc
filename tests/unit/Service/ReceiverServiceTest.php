@@ -15,7 +15,7 @@ use Prophecy\Prophecy\ObjectProphecy;
 class ReceiverServiceTest extends \Codeception\Test\Unit
 {
     /**
-     * @var ObjectProphecy|TransformService
+     * @var TransformService
      */
     private $transformService;
 
@@ -41,12 +41,12 @@ class ReceiverServiceTest extends \Codeception\Test\Unit
 
     protected function _before(): void
     {
-        $this->transformService = $this->prophesize(TransformService::class);
+        $this->transformService = new TransformService();
         $this->masterService = $this->prophesize(MasterService::class);
         $this->masterFormatter = $this->prophesize(MasterFormatter::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->receiverService = new ReceiverService(
-            $this->transformService->reveal(),
+            $this->transformService,
             $this->masterService->reveal(),
             $this->masterFormatter->reveal(),
             $this->masterRepository->reveal()

@@ -38,7 +38,7 @@ class IoServiceTest extends Unit
     private $masterService;
 
     /**
-     * @var ObjectProphecy|TransformService
+     * @var TransformService
      */
     private $transformService;
 
@@ -100,7 +100,7 @@ class IoServiceTest extends Unit
     protected function _before(): void
     {
         $this->masterService = $this->prophesize(MasterService::class);
-        $this->transformService = $this->prophesize(TransformService::class);
+        $this->transformService = new TransformService();
         $this->eventService = $this->prophesize(EventService::class);
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
@@ -115,7 +115,7 @@ class IoServiceTest extends Unit
 
         $this->ioService = new IoService(
             $this->masterService->reveal(),
-            $this->transformService->reveal(),
+            $this->transformService,
             $this->eventService->reveal(),
             $this->ioFormatter->reveal(),
             $this->moduleRepository->reveal(),
@@ -157,10 +157,6 @@ class IoServiceTest extends Unit
             4
         );
 
-        $this->transformService->asciiToUnsignedInt('config')
-            ->shouldBeCalledOnce()
-            ->willReturn(2)
-        ;
         $ports = [
             [
                 'direction' => 0,
@@ -548,10 +544,6 @@ class IoServiceTest extends Unit
             'Handtuch',
             1
         );
-        $this->transformService->asciiToUnsignedInt('Handtuch')
-            ->shouldBeCalledOnce()
-            ->willReturn(1)
-        ;
 
         $this->ioService->readPortsFromEeprom($this->slave->reveal());
     }
@@ -575,10 +567,6 @@ class IoServiceTest extends Unit
             'Handtuch',
             1
         );
-        $this->transformService->asciiToUnsignedInt('Handtuch')
-            ->shouldBeCalledOnce()
-            ->willReturn(0)
-        ;
 
         $this->expectException(ReceiveError::class);
         $this->ioService->readPortsFromEeprom($this->slave->reveal());

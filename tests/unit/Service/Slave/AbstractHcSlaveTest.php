@@ -18,7 +18,6 @@ use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 use GibsonOS\Module\Hc\Service\TransformService;
-use Prophecy\Promise\ReturnPromise;
 use Prophecy\Prophecy\ObjectProphecy;
 
 class AbstractHcSlaveTest extends Unit
@@ -34,7 +33,7 @@ class AbstractHcSlaveTest extends Unit
     private $masterService;
 
     /**
-     * @var ObjectProphecy|TransformService
+     * @var TransformService
      */
     private $transformService;
 
@@ -81,7 +80,7 @@ class AbstractHcSlaveTest extends Unit
     protected function _before(): void
     {
         $this->masterService = $this->prophesize(MasterService::class);
-        $this->transformService = $this->prophesize(TransformService::class);
+        $this->transformService = new TransformService();
         $this->eventService = $this->prophesize(EventService::class);
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
@@ -91,7 +90,7 @@ class AbstractHcSlaveTest extends Unit
         $this->slave = $this->prophesize(Module::class);
         $this->master = $this->prophesize(Master::class);
 
-        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService->reveal(), $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->slaveFactory->reveal(), $this->slave->reveal()) extends AbstractHcSlave {
+        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService, $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->slaveFactory->reveal(), $this->slave->reveal()) extends AbstractHcSlave {
             /**
              * @var Module
              */
@@ -929,10 +928,6 @@ class AbstractHcSlaveTest extends Unit
             'allLeds',
             1
         );
-        $this->transformService->asciiToUnsignedInt('allLeds')
-            ->shouldBeCalledOnce()
-            ->willReturn($return)
-        ;
         $this->eventService->fire('readAllLeds', array_merge($excepted, ['slave' => $this->slave->reveal()]))
             ->shouldBeCalledOnce()
         ;
@@ -958,10 +953,6 @@ class AbstractHcSlaveTest extends Unit
             'ledStatus',
             1
         );
-        $this->transformService->asciiToUnsignedInt('ledStatus')
-            ->shouldBeCalledOnce()
-            ->willReturn($return)
-        ;
         $this->eventService->fire('readLedStatus', array_merge($excepted, ['slave' => $this->slave->reveal()]))
             ->shouldBeCalledOnce()
         ;
@@ -987,10 +978,6 @@ class AbstractHcSlaveTest extends Unit
             'rgbLed',
             9
         );
-        $this->transformService->asciiToHex('rgbLed')
-            ->shouldBeCalledTimes(2)
-            ->will(new ReturnPromise(['rgbLed', $return]))
-        ;
         $this->eventService->fire('readRgbLed', array_merge($excepted, ['slave' => $this->slave->reveal()]))
             ->shouldBeCalledOnce()
         ;
@@ -1020,10 +1007,6 @@ class AbstractHcSlaveTest extends Unit
             'buffer',
             2
         );
-        $this->transformService->asciiToUnsignedInt('buffer')
-            ->shouldBeCalledOnce()
-            ->willReturn($bufferSize)
-        ;
         $this->eventService->fire('readBufferSize', ['bufferSize' => $bufferSize, 'slave' => $slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1051,10 +1034,6 @@ class AbstractHcSlaveTest extends Unit
             'deviceId',
             2
         );
-        $this->transformService->asciiToUnsignedInt('deviceId')
-            ->shouldBeCalledOnce()
-            ->willReturn($deviceId)
-        ;
         $this->eventService->fire('readDeviceId', ['deviceId' => $deviceId, 'slave' => $slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1075,10 +1054,6 @@ class AbstractHcSlaveTest extends Unit
             'eepromFree',
             2
         );
-        $this->transformService->asciiToUnsignedInt('eepromFree')
-            ->shouldBeCalledOnce()
-            ->willReturn(4242)
-        ;
         $this->eventService->fire('readEepromFree', ['eepromFree' => 4242, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1101,10 +1076,6 @@ class AbstractHcSlaveTest extends Unit
             'eepromPosition',
             2
         );
-        $this->transformService->asciiToUnsignedInt('eepromPosition')
-            ->shouldBeCalledOnce()
-            ->willReturn(4242)
-        ;
         $this->eventService->fire('readEepromPosition', ['eepromPosition' => 4242, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1134,10 +1105,6 @@ class AbstractHcSlaveTest extends Unit
             'eepromSize',
             2
         );
-        $this->transformService->asciiToUnsignedInt('eepromSize')
-            ->shouldBeCalledOnce()
-            ->willReturn($eepromSize)
-        ;
         $this->eventService->fire('readEepromSize', ['eepromSize' => $eepromSize, 'slave' => $slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1165,10 +1132,6 @@ class AbstractHcSlaveTest extends Unit
             'hertz',
             4
         );
-        $this->transformService->asciiToUnsignedInt('hertz')
-            ->shouldBeCalledOnce()
-            ->willReturn($hertz)
-        ;
         $this->eventService->fire('readHertz', ['hertz' => $hertz, 'slave' => $slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1196,10 +1159,6 @@ class AbstractHcSlaveTest extends Unit
             'pwmSpeed',
             2
         );
-        $this->transformService->asciiToUnsignedInt('pwmSpeed')
-            ->shouldBeCalledOnce()
-            ->willReturn($pwmSpeed)
-        ;
         $this->eventService->fire('readPwmSpeed', ['pwmSpeed' => $pwmSpeed, 'slave' => $slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1227,10 +1186,6 @@ class AbstractHcSlaveTest extends Unit
             'typeId',
             1
         );
-        $this->transformService->asciiToUnsignedInt('typeId', 0)
-            ->shouldBeCalledOnce()
-            ->willReturn($typeId)
-        ;
         $this->eventService->fire('readTypeId', ['typeId' => $typeId, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1254,10 +1209,6 @@ class AbstractHcSlaveTest extends Unit
             'powerLed',
             1
         );
-        $this->transformService->asciiToUnsignedInt('powerLed')
-            ->shouldBeCalledOnce()
-            ->willReturn($on ? 1 : 0)
-        ;
         $this->eventService->fire('readPowerLed', ['on' => $on, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1283,10 +1234,6 @@ class AbstractHcSlaveTest extends Unit
             'errorLed',
             1
         );
-        $this->transformService->asciiToUnsignedInt('errorLed')
-            ->shouldBeCalledOnce()
-            ->willReturn($on ? 1 : 0)
-        ;
         $this->eventService->fire('readErrorLed', ['on' => $on, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1312,10 +1259,6 @@ class AbstractHcSlaveTest extends Unit
             'connectLed',
             1
         );
-        $this->transformService->asciiToUnsignedInt('connectLed')
-            ->shouldBeCalledOnce()
-            ->willReturn($on ? 1 : 0)
-        ;
         $this->eventService->fire('readConnectLed', ['on' => $on, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1341,10 +1284,6 @@ class AbstractHcSlaveTest extends Unit
             'transreceiveLed',
             1
         );
-        $this->transformService->asciiToUnsignedInt('transreceiveLed')
-            ->shouldBeCalledOnce()
-            ->willReturn($on ? 1 : 0)
-        ;
         $this->eventService->fire('readTransreceiveLed', ['on' => $on, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1370,10 +1309,6 @@ class AbstractHcSlaveTest extends Unit
             'transceiveLed',
             1
         );
-        $this->transformService->asciiToUnsignedInt('transceiveLed')
-            ->shouldBeCalledOnce()
-            ->willReturn($on ? 1 : 0)
-        ;
         $this->eventService->fire('readTransceiveLed', ['on' => $on, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1399,10 +1334,6 @@ class AbstractHcSlaveTest extends Unit
             'receiveLed',
             1
         );
-        $this->transformService->asciiToUnsignedInt('receiveLed')
-            ->shouldBeCalledOnce()
-            ->willReturn($on ? 1 : 0)
-        ;
         $this->eventService->fire('readReceiveLed', ['on' => $on, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1428,10 +1359,6 @@ class AbstractHcSlaveTest extends Unit
             'customLed',
             1
         );
-        $this->transformService->asciiToUnsignedInt('customLed')
-            ->shouldBeCalledOnce()
-            ->willReturn($on ? 1 : 0)
-        ;
         $this->eventService->fire('readCustomLed', ['on' => $on, 'slave' => $this->slave->reveal()])
             ->shouldBeCalledOnce()
         ;
@@ -1884,31 +1811,6 @@ class AbstractHcSlaveTest extends Unit
         ;
         $this->eventService->fire('afterWriteRgbLed', $eventData)
             ->shouldBeCalledOnce()
-        ;
-
-        $this->transformService->hexToInt('1')
-            ->shouldBeCalledOnce()
-            ->willReturn($leds['power'])
-        ;
-        $this->transformService->hexToInt('2')
-            ->shouldBeCalledOnce()
-            ->willReturn($leds['error'])
-        ;
-        $this->transformService->hexToInt('3')
-            ->shouldBeCalledOnce()
-            ->willReturn($leds['connect'])
-        ;
-        $this->transformService->hexToInt('4')
-            ->shouldBeCalledOnce()
-            ->willReturn($leds['transceive'])
-        ;
-        $this->transformService->hexToInt('5')
-            ->shouldBeCalledOnce()
-            ->willReturn($leds['receive'])
-        ;
-        $this->transformService->hexToInt('6')
-            ->shouldBeCalledOnce()
-            ->willReturn($leds['custom'])
         ;
 
         $this->abstractHcSlave->writeRgbLed(

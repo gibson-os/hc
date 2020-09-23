@@ -44,12 +44,12 @@ class Bme280ServiceTest extends Unit
     protected function _before()
     {
         $this->masterService = $this->prophesize(MasterService::class);
-        $this->transformService = $this->prophesize(TransformService::class);
+        $this->transformService = new TransformService();
         $this->logRepository = $this->prophesize(LogRepository::class);
         $this->bme280Formatter = $this->prophesize(Bme280Formatter::class);
         $this->bme280Service = new Bme280Service(
             $this->masterService->reveal(),
-            $this->transformService->reveal(),
+            $this->transformService,
             $this->logRepository->reveal(),
             $this->bme280Formatter->reveal()
         );

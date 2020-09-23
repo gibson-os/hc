@@ -48,12 +48,12 @@ class SenderServiceTest extends Unit
     protected function _before(): void
     {
         $this->masterFormatter = $this->prophesize(MasterFormatter::class);
-        $this->transformService = $this->prophesize(TransformService::class);
+        $this->transformService = new TransformService();
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->protocolFactory = $this->prophesize(ProtocolFactory::class);
         $this->senderService = new SenderService(
             $this->masterFormatter->reveal(),
-            $this->transformService->reveal(),
+            $this->transformService,
             $this->masterRepository->reveal(),
             $this->protocolFactory->reveal()
         );

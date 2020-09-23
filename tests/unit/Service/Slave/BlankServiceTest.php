@@ -29,7 +29,7 @@ class BlankServiceTest extends Unit
     private $masterService;
 
     /**
-     * @var ObjectProphecy|TransformService
+     * @var TransformService
      */
     private $transformService;
 
@@ -66,7 +66,7 @@ class BlankServiceTest extends Unit
     protected function _before()
     {
         $this->masterService = $this->prophesize(MasterService::class);
-        $this->transformService = $this->prophesize(TransformService::class);
+        $this->transformService = new TransformService();
         $this->eventService = $this->prophesize(EventService::class);
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
@@ -75,7 +75,7 @@ class BlankServiceTest extends Unit
         $this->slaveFactory = $this->prophesize(SlaveFactory::class);
         $this->blankService = new BlankService(
             $this->masterService->reveal(),
-            $this->transformService->reveal(),
+            $this->transformService,
             $this->eventService->reveal(),
             $this->moduleRepository->reveal(),
             $this->typeRepository->reveal(),

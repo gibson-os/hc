@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Service;
 
-use Codeception\Test\Unit;
 use DateTime;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -22,10 +21,11 @@ use GibsonOS\Module\Hc\Service\SenderService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 use GibsonOS\Module\Hc\Service\TransformService;
+use GibsonOS\UnitTest\AbstractTest;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 
-class MasterServiceTest extends Unit
+class MasterServiceTest extends AbstractTest
 {
     /**
      * @var ObjectProphecy|SenderService
@@ -38,7 +38,7 @@ class MasterServiceTest extends Unit
     private $eventService;
 
     /**
-     * @var ObjectProphecy|TransformService
+     * @var TransformService
      */
     private $transformService;
 
@@ -58,7 +58,7 @@ class MasterServiceTest extends Unit
     private $slaveFactory;
 
     /**
-     * @var ObjectProphecy|LogRepository
+     * @var LogRepository
      */
     private $logRepository;
 
@@ -76,19 +76,19 @@ class MasterServiceTest extends Unit
     {
         $this->senderService = $this->prophesize(SenderService::class);
         $this->eventService = $this->prophesize(EventService::class);
-        $this->transformService = $this->prophesize(TransformService::class);
+        $this->transformService = new TransformService();
         $this->slaveFactory = $this->prophesize(SlaveFactory::class);
         $this->masterFormatter = $this->prophesize(MasterFormatter::class);
-        $this->logRepository = $this->prophesize(LogRepository::class);
+        $this->logRepository = new LogRepository();
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
         $this->masterService = new MasterService(
             $this->senderService->reveal(),
             $this->eventService->reveal(),
-            $this->transformService->reveal(),
+            $this->transformService,
             $this->slaveFactory->reveal(),
             $this->masterFormatter->reveal(),
-            $this->logRepository->reveal(),
+            $this->logRepository,
             $this->moduleRepository->reveal(),
             $this->typeRepository->reveal()
         );
@@ -106,26 +106,6 @@ class MasterServiceTest extends Unit
         ?Module $actualSlave,
         Module $expectedSlave
     ): void {
-        $this->transformService->asciiToHex($cleanData)
-            ->shouldBeCalledOnce()
-            ->willReturn('Handtuch')
-        ;
-
-        /** @var Log|ObjectProphecy $log */
-        $log = $this->prophesize(Log::class);
-        $log->setMaster($expectedSlave->getMaster())->willReturn($log->reveal());
-        $log->setModule($expectedSlave)->willReturn($log->reveal());
-        $log->save()->shouldBeCalledOnce();
-
-        $this->logRepository->create($type, 'Handtuch', 'input')
-            ->shouldBeCalledOnce()
-            ->willReturn($log->reveal())
-        ;
-        $this->transformService->asciiToUnsignedInt($data, 0)
-            ->shouldBeCalledOnce()
-            ->willReturn($address)
-        ;
-
         $getByAddressCall = $this->moduleRepository->getByAddress($address, (int) $expectedSlave->getMaster()->getId())
             ->shouldBeCalledOnce()
         ;
@@ -154,7 +134,6 @@ class MasterServiceTest extends Unit
                 if ($expectedSlave->getTypeId() === 0) {
                     $getByDefaultAddressCall->willThrow(SelectError::class);
                     $this->expectException(SelectError::class);
-                    $log->save()->shouldNotBeCalled();
                 } else {
                     $getByDefaultAddressCall->willReturn($expectedSlave->getType());
                     $this->moduleRepository->create('Neues Modul', $expectedSlave->getType())
@@ -173,28 +152,17 @@ class MasterServiceTest extends Unit
         } else {
             if ($actualSlave === null) {
                 $this->expectException(SelectError::class);
-                $log->save()->shouldNotBeCalled();
                 $getSlaveFactoryCall->shouldNotBeCalled();
             } else {
                 if ($expectedSlave->getTypeId() === 0) {
                     $getSlaveFactoryCall->willReturn($this->prophesize(AbstractSlave::class));
                     $this->expectException(ReceiveError::class);
-                    $log->save()->shouldNotBeCalled();
                 } else {
                     $slaveService->receive($expectedSlave, $type, $command, $cleanData)
                         ->shouldBeCalledOnce()
                     ;
-                    $log->setCommand($command)
-                        ->shouldBeCalledOnce()
-                        ->willReturn($log->reveal())
-                    ;
                 }
             }
-
-            $this->transformService->asciiToUnsignedInt($data, 1)
-                ->shouldBeCalledOnce()
-                ->willReturn($command)
-            ;
         }
 
         $this->masterService->receive($expectedSlave->getMaster(), $type, $data);
@@ -231,10 +199,6 @@ class MasterServiceTest extends Unit
             ->shouldBeCalledOnce()
         ;
 
-        $this->transformService->asciiToHex('Marvin*')
-            ->shouldBeCalledOnce()
-            ->willReturn('End in tears')
-        ;
         $log = $this->prophesize(Log::class);
         $log->setMaster($master)
             ->shouldBeCalledOnce()
@@ -242,10 +206,6 @@ class MasterServiceTest extends Unit
         ;
         $log->save()
             ->shouldBeCalledOnce()
-        ;
-        $this->logRepository->create(1, 'End in tears', 'output')
-            ->shouldBeCalledOnce()
-            ->willReturn($log->reveal())
         ;
 
         $this->masterService->setAddress($master->reveal(), 42);
@@ -278,19 +238,10 @@ class MasterServiceTest extends Unit
             ->shouldBeCalledOnce()
             ->willReturn('**Handtuch')
         ;
-        $this->transformService->asciiToUnsignedInt('**Handtuch', 0)
-            ->shouldBeCalledOnce()
-            ->willReturn($address)
-        ;
 
         if ($address !== 42) {
             $this->expectException(ReceiveError::class);
         } else {
-            $this->transformService->asciiToUnsignedInt('**Handtuch', 1)
-                ->shouldBeCalledOnce()
-                ->willReturn($command)
-            ;
-
             if ($command !== 7) {
                 $this->expectException(ReceiveError::class);
             }

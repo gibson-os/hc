@@ -21,7 +21,7 @@ class AbstractSlaveTest extends Unit
     private $masterService;
 
     /**
-     * @var ObjectProphecy|TransformService
+     * @var TransformService
      */
     private $transformService;
 
@@ -43,11 +43,11 @@ class AbstractSlaveTest extends Unit
     protected function _before(): void
     {
         $this->masterService = $this->prophesize(MasterService::class);
-        $this->transformService = $this->prophesize(TransformService::class);
+        $this->transformService = new TransformService();
         $this->logRepository = $this->prophesize(LogRepository::class);
         $this->slave = $this->prophesize(Module::class);
 
-        $this->abstractSlave = new class($this->masterService->reveal(), $this->transformService->reveal(), $this->logRepository->reveal(), $this->slave->reveal()) extends AbstractSlave {
+        $this->abstractSlave = new class($this->masterService->reveal(), $this->transformService, $this->logRepository->reveal(), $this->slave->reveal()) extends AbstractSlave {
             /**
              * @var Module
              */
@@ -110,7 +110,7 @@ class AbstractSlaveTest extends Unit
         ObjectProphecy $master,
         ObjectProphecy $slave,
         ObjectProphecy $masterService,
-        ObjectProphecy $transformService,
+        TransformService $transformService,
         ObjectProphecy $logRepository,
         ObjectProphecy $log,
         int $type,
@@ -151,7 +151,7 @@ class AbstractSlaveTest extends Unit
         ObjectProphecy $master,
         ObjectProphecy $slave,
         ObjectProphecy $masterService,
-        ObjectProphecy $transformService,
+        TransformService $transformService,
         ObjectProphecy $logRepository,
         ObjectProphecy $log,
         int $type,
@@ -193,7 +193,7 @@ class AbstractSlaveTest extends Unit
     public static function prophesizeAddLog(
         ObjectProphecy $master,
         ObjectProphecy $slave,
-        ObjectProphecy $transformService,
+        TransformService $transformService,
         ObjectProphecy $logRepository,
         ObjectProphecy $log,
         int $type,
