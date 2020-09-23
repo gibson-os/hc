@@ -1,0 +1,44 @@
+Ext.define('GibsonOS.module.hc.blank.write.Form', {
+    extend: 'GibsonOS.form.Panel',
+    alias: ['widget.gosModuleHcBlankWriteForm'],
+    initComponent: function() {
+        var me = this;
+
+        me.items = [{
+            xtype: 'gosModuleHcBlankElementCommand'
+        },{
+            xtype: 'gosModuleHcBlankElementDataFormat'
+        },{
+            xtype: 'gosFormTextfield',
+            name: 'data',
+            allowBlank: false,
+            fieldLabel: 'Daten'
+        }];
+
+        me.buttons = [{
+            xtype: 'gosButton',
+            text: 'Schreiben',
+            handler: function() {
+                me.getForm().submit({
+                    xtype: 'gosFormActionAction',
+                    url: baseDir + 'hc/blank/write',
+                    params: {
+                        moduleId: me.gos.data.module.id
+                    },
+                    success: function (form, action) {
+                        GibsonOS.MessageBox.show({
+                            title: 'Daten gesendet',
+                            msg: 'Daten gesendet!',
+                            type: GibsonOS.MessageBox.type.INFO,
+                            buttons: [{
+                                text: 'OK'
+                            }]
+                        });
+                    }
+                });
+            }
+        }];
+
+        me.callParent();
+    }
+});
