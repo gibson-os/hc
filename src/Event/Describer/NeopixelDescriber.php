@@ -21,7 +21,8 @@ class NeopixelDescriber extends AbstractHcDescriber
      */
     public function getTriggers(): array
     {
-        return [];
+        return array_merge(parent::getTriggers(), [
+        ]);
     }
 
     /**

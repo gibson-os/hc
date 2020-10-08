@@ -152,7 +152,7 @@ class IoDescriber extends AbstractHcDescriber
             'hasMore' => new BoolParameter('Es gibt weitere DirectConnects'),
         ];
 
-        return [
+        return array_merge(parent::getTriggers(), [
             self::BEFORE_READ_PORT => (new Trigger('Vor auslesen eines Ports'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
@@ -244,7 +244,7 @@ class IoDescriber extends AbstractHcDescriber
                     'slave' => $this->slaveParameter,
                     'active' => new BoolParameter('Aktiv'),
                 ]),
-            ];
+            ]);
     }
 
     /**
