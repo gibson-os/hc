@@ -3,7 +3,8 @@
   "require": {
     "mdo/mdo": "dev-master",
     "gibson-os/core": "dev-master",
-    "ext-mbstring": "*"
+    "ext-mbstring": "*",
+    "ext-json": "*"
   },
   "require-dev": {
     "codeception/codeception": "^3.1",

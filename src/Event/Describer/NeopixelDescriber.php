@@ -5,10 +5,25 @@ namespace GibsonOS\Module\Hc\Event\Describer;
 
 use GibsonOS\Core\Dto\Event\Describer\Method;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Event\NeopixelEvent;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
 
 class NeopixelDescriber extends AbstractHcDescriber
 {
+    /**
+     * NeopixelDescriber constructor.
+     *
+     * @throws DateTimeError
+     * @throws SelectError
+     */
+    public function __construct(TypeRepository $typeRepository)
+    {
+        parent::__construct($typeRepository);
+        $this->slaveParameter->setSlaveType($this->typeRepository->getByHelperName('neopixel'));
+    }
+
     public function getTitle(): string
     {
         return 'Neopixel';

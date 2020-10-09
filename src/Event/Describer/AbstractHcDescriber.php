@@ -11,6 +11,7 @@ use GibsonOS\Core\Dto\Event\Describer\Trigger;
 use GibsonOS\Core\Event\Describer\DescriberInterface;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\TypeParameter;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
 abstract class AbstractHcDescriber implements DescriberInterface
@@ -122,9 +123,15 @@ abstract class AbstractHcDescriber implements DescriberInterface
      */
     protected $slaveParameter;
 
-    public function __construct()
+    /**
+     * @var TypeRepository
+     */
+    protected $typeRepository;
+
+    public function __construct(TypeRepository $typeRepository)
     {
         $this->slaveParameter = new SlaveParameter();
+        $this->typeRepository = $typeRepository;
     }
 
     public function getTitle(): string

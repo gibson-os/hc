@@ -12,9 +12,18 @@
       <schema-mapping />
     </data-source>
     <data-source name="MySQL - @localhost" uuid="6644c731-baf5-4148-b10c-2b50c51dab33">
-      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="MYSQL" exact-version="0" />
-      <secret-storage>forget</secret-storage>
-      <schema-mapping />
+      <database-info product="MariaDB" version="10.5.4-MariaDB-1:10.5.4+maria~focal" jdbc-version="4.2" driver-name="MariaDB Connector/J" driver-version="2.6.0" dbms="MARIADB" exact-version="10.5.4" exact-driver-version="2.6">
+        <extra-name-characters>#@</extra-name-characters>
+        <identifier-quote-string>`</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="exact" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>root</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="schema" qname="gibson_os" />
+        </introspection-scope>
+      </schema-mapping>
     </data-source>
   </component>
 </project>

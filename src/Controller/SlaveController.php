@@ -40,15 +40,6 @@ class SlaveController extends AbstractController
             }
         }
 
-        $data = [];
-
-        foreach ($slaves as $slave) {
-            $data[] = [
-                'id' => $slave->getId(),
-                'name' => $slave->getName(),
-            ];
-        }
-
-        return $this->returnSuccess($data);
+        return $this->returnSuccess($slaves);
     }
 }

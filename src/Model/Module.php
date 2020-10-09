@@ -7,9 +7,10 @@ use DateTime;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
+use JsonSerializable;
 use mysqlDatabase;
 
-class Module extends AbstractModel
+class Module extends AbstractModel implements JsonSerializable
 {
     const MAX_ADDRESS = 119;
 
@@ -332,5 +333,20 @@ class Module extends AbstractModel
         $this->setMasterId($master->getId());
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'typeId' => $this->getTypeId(),
+            'type' => $this->getType()->getName(),
+            'hertz' => $this->getHertz(),
+            'helper' => $this->getType()->getHelper(),
+            'address' => $this->getAddress(),
+            'offline' => $this->isOffline(),
+            'settings' => $this->getType()->getUiSettings(),
+        ];
     }
 }

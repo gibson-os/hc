@@ -13,7 +13,7 @@ class SlaveParameter extends AutoCompleteParameter
      */
     public function __construct(string $title = 'Sklave')
     {
-        parent::__construct($title, 'hc/slave/autoComplete', 'GibsonOS.module.hc.event.model.Slave');
+        parent::__construct($title, 'hc/slave/autoComplete', 'GibsonOS.module.hc.index.model.Module');
     }
 
     public function setSlaveType(Type $slaveType): SlaveParameter

@@ -11,7 +11,6 @@ use GibsonOS\Core\Dto\Event\Describer\Parameter\OptionParameter;
 use GibsonOS\Core\Dto\Event\Describer\Parameter\StringParameter;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Event\IoEvent;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
@@ -86,21 +85,14 @@ class IoDescriber extends AbstractHcDescriber
     private $portParameter;
 
     /**
-     * @var TypeRepository
-     */
-    private $typeRepository;
-
-    /**
      * Io constructor.
      *
-     * @throws SelectError
      * @throws DateTimeError
-     * @throws GetError
+     * @throws SelectError
      */
     public function __construct(TypeRepository $typeRepository)
     {
-        parent::__construct();
-        $this->typeRepository = $typeRepository;
+        parent::__construct($typeRepository);
         $this->slaveParameter->setSlaveType($this->typeRepository->getByHelperName('io'));
         $this->directionParameter = new OptionParameter('Richtung', [
             IoSlave::DIRECTION_INPUT => 'Eingang',
