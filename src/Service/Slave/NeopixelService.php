@@ -232,12 +232,10 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @param int $repeat
-     *
      * @throws AbstractException
      * @throws SaveError
      */
-    public function writeSequenceStart(Module $slave, $repeat = 255): NeopixelService
+    public function writeSequenceStart(Module $slave, int $repeat = 0): NeopixelService
     {
         $this->write($slave, self::COMMAND_SEQUENCE_START, chr($repeat));
 

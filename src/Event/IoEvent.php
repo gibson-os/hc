@@ -6,28 +6,35 @@ namespace GibsonOS\Module\Hc\Event;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Module\Hc\Event\Describer\IoDescriber;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
+use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoSlave;
 
 class IoEvent extends AbstractHcEvent
 {
     /**
-     * @var IoSlave
+     * @var IoService
      */
-    protected $slave;
+    private $ioService;
+
+    public function __construct(IoDescriber $describer, TypeRepository $typeRepository, IoService $ioService)
+    {
+        parent::__construct($describer, $typeRepository);
+        $this->ioService = $ioService;
+    }
 
     /**
-     * @param array $params
-     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
      *
      * @return array
      */
-    public function readPort(Module $slave, $params)
+    public function readPort(Module $slave, array $params)
     {
-        return $this->slave->readPort($slave, $params['number']);
+        return $this->ioService->readPort($slave, $params['number']);
     }
 
     /**
@@ -37,7 +44,7 @@ class IoEvent extends AbstractHcEvent
      */
     public function readPortsFromEeprom(Module $slave): void
     {
-        $this->slave->readPortsFromEeprom($slave);
+        $this->ioService->readPortsFromEeprom($slave);
     }
 
     /**
@@ -47,7 +54,7 @@ class IoEvent extends AbstractHcEvent
      */
     public function getPorts(Module $slave): array
     {
-        return $this->slave->getPorts($slave);
+        return $this->ioService->getPorts($slave);
     }
 
     /**
@@ -57,7 +64,7 @@ class IoEvent extends AbstractHcEvent
      */
     public function readDirectConnect(Module $slave, array $params): array
     {
-        return $this->slave->readDirectConnect($slave, $params['port'], $params['order']);
+        return $this->ioService->readDirectConnect($slave, $params['port'], $params['order']);
     }
 
     /**
@@ -67,7 +74,7 @@ class IoEvent extends AbstractHcEvent
      */
     public function isDirectConnectActive(Module $slave): bool
     {
-        return $this->slave->isDirectConnectActive($slave);
+        return $this->ioService->isDirectConnectActive($slave);
     }
 
     /**
@@ -75,7 +82,7 @@ class IoEvent extends AbstractHcEvent
      */
     public function setPort(Module $slave, array $params): void
     {
-        $this->slave->setPort(
+        $this->ioService->setPort(
             $slave,
             $params['number'],
             $params[IoSlave::ATTRIBUTE_PORT_KEY_NAME],
@@ -95,7 +102,7 @@ class IoEvent extends AbstractHcEvent
      */
     public function writePortsToEeprom(Module $slave): void
     {
-        $this->slave->writePortsToEeprom($slave);
+        $this->ioService->writePortsToEeprom($slave);
     }
 
     /**
@@ -103,7 +110,7 @@ class IoEvent extends AbstractHcEvent
      */
     public function saveDirectConnect(Module $slave, array $params): void
     {
-        $this->slave->saveDirectConnect(
+        $this->ioService->saveDirectConnect(
             $slave,
             $params['inputPort'],
             $params[IoSlave::ATTRIBUTE_DIRECT_CONNECT_KEY_INPUT_PORT_VALUE],
@@ -122,7 +129,7 @@ class IoEvent extends AbstractHcEvent
      */
     public function deleteDirectConnect(Module $slave, array $params): void
     {
-        $this->slave->deleteDirectConnect($slave, $params['port'], $params['order']);
+        $this->ioService->deleteDirectConnect($slave, $params['port'], $params['order']);
     }
 
     /**
@@ -130,7 +137,7 @@ class IoEvent extends AbstractHcEvent
      */
     public function resetDirectConnect(Module $slave, array $params): void
     {
-        $this->slave->resetDirectConnect($slave, $params['port'], $params['databaseOnly']);
+        $this->ioService->resetDirectConnect($slave, $params['port'], $params['databaseOnly']);
     }
 
     /**
@@ -139,7 +146,7 @@ class IoEvent extends AbstractHcEvent
      */
     public function defragmentDirectConnect(Module $slave): void
     {
-        $this->slave->defragmentDirectConnect($slave);
+        $this->ioService->defragmentDirectConnect($slave);
     }
 
     /**
@@ -148,6 +155,6 @@ class IoEvent extends AbstractHcEvent
      */
     public function activateDirectConnect(Module $slave, array $params): void
     {
-        $this->slave->activateDirectConnect($slave, $params['active']);
+        $this->ioService->activateDirectConnect($slave, $params['active']);
     }
 }

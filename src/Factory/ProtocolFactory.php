@@ -23,11 +23,9 @@ class ProtocolFactory extends AbstractSingletonFactory
     }
 
     /**
-     * @param string $protocolName
-     *
      * @throws FileNotFound
      */
-    public function get($protocolName): ProtocolInterface
+    public function get(string $protocolName): ProtocolInterface
     {
         $className = 'GibsonOS\\Module\\Hc\\Factory\\Protocol\\' . ucfirst($protocolName) . 'Factory';
 

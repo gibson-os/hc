@@ -6,31 +6,45 @@ namespace GibsonOS\Module\Hc\Factory;
 use Exception;
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Factory\AbstractSingletonFactory;
-use GibsonOS\Module\Hc\Factory\Formatter\MasterFactory;
+use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\Formatter\AbstractFormatter;
 use GibsonOS\Module\Hc\Service\Formatter\FormatterInterface;
+use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 
 class FormatterFactory
 {
     /**
-     * @throws FileNotFound
-     * @throws Exception
+     * @var ServiceManagerService
      */
-    public static function create(Log $log): FormatterInterface
-    {
-        if (empty($log->getModuleId())) {
-            return MasterFactory::create();
-        }
+    private $serviceManagerService;
 
-        return self::getModuleFormatter($log);
+    public function __construct(ServiceManagerService $serviceManagerService)
+    {
+        $this->serviceManagerService = $serviceManagerService;
     }
 
     /**
      * @throws FileNotFound
      * @throws Exception
      */
-    private static function getModuleFormatter(Log $log): AbstractFormatter
+    public function get(Log $log): FormatterInterface
+    {
+        if (empty($log->getModuleId())) {
+            /** @var MasterFormatter $masterFormatter */
+            $masterFormatter = $this->serviceManagerService->get(MasterFormatter::class);
+
+            return $masterFormatter;
+        }
+
+        return $this->getModuleFormatter($log);
+    }
+
+    /**
+     * @throws FileNotFound
+     * @throws Exception
+     */
+    private function getModuleFormatter(Log $log): AbstractFormatter
     {
         $className =
             'GibsonOS\\Module\\Hc\\Factory\\Formatter\\' .

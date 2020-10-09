@@ -254,7 +254,7 @@ class IoDescriber extends AbstractHcDescriber
      */
     public function getMethods(): array
     {
-        return [
+        return array_merge(parent::getMethods(), [
             'readPort' => (new Method('Port lesen'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
@@ -343,7 +343,7 @@ class IoDescriber extends AbstractHcDescriber
                     'slave' => $this->slaveParameter,
                     'active' => new BoolParameter('Aktiv'),
                 ]),
-        ];
+        ]);
     }
 
     public function getEventClassName(): string

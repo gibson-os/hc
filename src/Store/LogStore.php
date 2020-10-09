@@ -5,16 +5,29 @@ namespace GibsonOS\Module\Hc\Store;
 
 use DateTime;
 use Exception;
-use GibsonOS\Core\Exception\FileNotFound;
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Factory\FormatterFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
+use mysqlDatabase;
 
 class LogStore extends AbstractDatabaseStore
 {
+    /**
+     * @var FormatterFactory
+     */
+    private $formatterFactory;
+
+    public function __construct(FormatterFactory $formatterFactory, mysqlDatabase $database = null)
+    {
+        parent::__construct($database);
+        $this->formatterFactory = $formatterFactory;
+    }
+
     protected function getTableName(): string
     {
         return Log::getTableName();
@@ -67,7 +80,8 @@ class LogStore extends AbstractDatabaseStore
     }
 
     /**
-     * @throws FileNotFound
+     * @throws DateTimeError
+     * @throws SelectError
      * @throws Exception
      */
     public function getList(): array
@@ -173,7 +187,7 @@ class LogStore extends AbstractDatabaseStore
                 }
             }
 
-            $formatter = FormatterFactory::create($logModel);
+            $formatter = $this->formatterFactory->get($logModel);
 
             $data[] = [
                 'id' => $log['id'],
