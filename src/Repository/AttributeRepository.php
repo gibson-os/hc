@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
-use DateTime;
 use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\GetError;
@@ -29,44 +28,40 @@ class AttributeRepository extends AbstractRepository
         string $key = null,
         string $type = null
     ): array {
-        $table = self::getTable(AttributeModel::getTableName());
-
-        $where =
-            '`type_id`=' . $module->getTypeId() . ' AND ' .
-            '`module_id`=' . $module->getId()
+        $table = self::getTable(AttributeModel::getTableName())
+            ->setWhereParameters([$module->getTypeId(), $module->getId()])
         ;
 
+        $where = '`type_id`=? AND `module_id`=?';
+
         if ($subId !== null) {
-            $where .= ' AND `sub_id`=' . $subId;
+            $where .= ' AND `sub_id`=?';
+            $table->addWhereParameter($subId);
         }
 
         if ($key !== null) {
-            $where .= ' AND `key`=' . self::escape($key);
+            $where .= ' AND `key`=?';
+            $table->addWhereParameter($key);
         }
 
         if ($type !== null) {
-            $where .= ' AND `type`=' . self::escape($type);
+            $where .= ' AND `type`=?';
+            $table->addWhereParameter($type);
         }
 
         $table->setWhere($where);
 
-        if (!$table->select(false)) {
+        if (!$table->selectPrepared(false)) {
             throw new SelectError();
         }
 
         $models = [];
 
-        foreach ($table->connection->fetchObjectList() as $attribute) {
-            $models[] = (new AttributeModel())
-                ->setId((int) $attribute->id)
-                ->setTypeId(empty($attribute->type_id) ? null : (int) $attribute->type_id)
-                ->setModuleId(empty($attribute->module_id) ? null : (int) $attribute->module_id)
-                ->setSubId(empty($attribute->sub_id) ? null : (int) $attribute->sub_id)
-                ->setKey($attribute->key)
-                ->setType($attribute->type)
-                ->setAdded(new DateTime($attribute->added))
-            ;
-        }
+        do {
+            $model = new AttributeModel();
+            $model->loadFromMysqlTable($table);
+            $models[] = $model;
+        } while ($table->next());
 
         return $models;
     }

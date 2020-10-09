@@ -8,6 +8,7 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Log;
+use mysqlTable;
 
 class LogRepository extends AbstractRepository
 {
@@ -31,11 +32,14 @@ class LogRepository extends AbstractRepository
         string $direction = null
     ): Log {
         $table = $this->getTable(Log::getTableName());
-        $table->setWhere('`module_id`=' . $moduleId . $this->completeWhere($command, $type, $direction));
-        $table->setLimit(1);
-        $table->setOrderBy('`id` DESC');
+        $table
+            ->addWhereParameter($moduleId)
+            ->setWhere('`module_id`=?' . $this->completeWhere($table, $command, $type, $direction))
+            ->setLimit(1)
+            ->setOrderBy('`id` DESC')
+        ;
 
-        if (!$table->select()) {
+        if (!$table->selectPrepared()) {
             $exception = new SelectError('Kein Log Eintrag für das Modul gefunden!');
             $exception->setTable($table);
 
@@ -59,11 +63,14 @@ class LogRepository extends AbstractRepository
         string $direction = null
     ): Log {
         $table = $this->getTable(Log::getTableName());
-        $table->setWhere('`master_id`=' . $masterId . $this->completeWhere($command, $type, $direction));
-        $table->setLimit(1);
-        $table->setOrderBy('`id` DESC');
+        $table
+            ->addWhereParameter($masterId)
+            ->setWhere('`master_id`=?' . $this->completeWhere($table, $command, $type, $direction))
+            ->setLimit(1)
+            ->setOrderBy('`id` DESC')
+        ;
 
-        if (!$table->select()) {
+        if (!$table->selectPrepared()) {
             $exception = new SelectError('Kein Log Eintrag für den Master gefunden!');
             $exception->setTable($table);
 
@@ -79,20 +86,23 @@ class LogRepository extends AbstractRepository
     /**
      * @return string
      */
-    private function completeWhere(int $command = null, int $type = null, string $direction = null)
+    private function completeWhere(mysqlTable $table, int $command = null, int $type = null, string $direction = null)
     {
         $where = '';
 
         if ($command !== null) {
-            $where .= ' AND `command`=' . $command;
+            $where .= ' AND `command`=?';
+            $table->addWhereParameter($command);
         }
 
         if ($type !== null) {
-            $where .= ' AND `type`=' . $type;
+            $where .= ' AND `type`=?';
+            $table->addWhereParameter($type);
         }
 
         if ($direction !== null) {
-            $where .= ' AND `direction`=' . $this->escape($direction);
+            $where .= ' AND `direction`=?';
+            $table->addWhereParameter($direction);
         }
 
         return $where;
@@ -111,15 +121,14 @@ class LogRepository extends AbstractRepository
         string $direction = null
     ): Log {
         $table = $this->getTable(Log::getTableName());
-        $table->setWhere(
-            '`id`<' . $this->escape((string) $id) . ' AND ' .
-            '`module_id`=' . $this->escape((string) $moduleId) .
-            $this->completeWhere($command, $type, $direction)
-        );
-        $table->setLimit(1);
-        $table->setOrderBy('`id` DESC');
+        $table
+            ->setWhereParameters([$id, $moduleId])
+            ->setWhere('`id`<? AND `module_id`=?' . $this->completeWhere($table, $command, $type, $direction))
+            ->setLimit(1)
+            ->setOrderBy('`id` DESC')
+        ;
 
-        if (!$table->select()) {
+        if (!$table->selectPrepared()) {
             $exception = new SelectError('Kein Log Eintrag für das Modul gefunden!');
             $exception->setTable($table);
 

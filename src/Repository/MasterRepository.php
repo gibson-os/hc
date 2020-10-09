@@ -26,12 +26,14 @@ class MasterRepository extends AbstractRepository
      */
     public function getByProtocol(string $protocol): array
     {
-        $table = self::getTable(MasterModel::getTableName());
-        $table->setWhere('`protocol`=' . self::escape($protocol));
+        $table = self::getTable(MasterModel::getTableName())
+            ->setWhere('`protocol`=?')
+            ->addWhereParameter($protocol)
+        ;
 
         $models = [];
 
-        if (!$table->select()) {
+        if (!$table->selectPrepared()) {
             return $models;
         }
 
@@ -51,11 +53,13 @@ class MasterRepository extends AbstractRepository
      */
     public function getById(int $id): MasterModel
     {
-        $table = self::getTable(MasterModel::getTableName());
-        $table->setWhere('`id`=' . $id);
-        $table->setLimit(1);
+        $table = self::getTable(MasterModel::getTableName())
+            ->setWhere('`id`=?')
+            ->addWhereParameter($id)
+            ->setLimit(1)
+        ;
 
-        if (!$table->select()) {
+        if (!$table->selectPrepared()) {
             $exception = new SelectError('Master unter der ID ' . $id . ' existiert nicht!');
             $exception->setTable($table);
 
@@ -75,14 +79,13 @@ class MasterRepository extends AbstractRepository
      */
     public function getByAddress(int $address, string $protocol): MasterModel
     {
-        $table = self::getTable(MasterModel::getTableName());
-        $table->setWhere(
-            '`protocol`=' . self::escape($protocol) . ' AND ' .
-            '`address`=' . $address
-        );
-        $table->setLimit(1);
+        $table = self::getTable(MasterModel::getTableName())
+            ->setWhere('`protocol`=? AND `address`=?')
+            ->setWhereParameters([$protocol, $address])
+            ->setLimit(1)
+        ;
 
-        if (!$table->select()) {
+        if (!$table->selectPrepared()) {
             $exception = new SelectError('Master unter der Adresse ' . $address . ' existiert nicht!');
             $exception->setTable($table);
 
@@ -102,14 +105,13 @@ class MasterRepository extends AbstractRepository
      */
     public function getByName(string $name, string $protocol): MasterModel
     {
-        $table = self::getTable(MasterModel::getTableName());
-        $table->setWhere(
-            '`protocol`=' . self::escape($protocol) . ' AND ' .
-            '`name`=' . self::escape($name)
-        );
-        $table->setLimit(1);
+        $table = self::getTable(MasterModel::getTableName())
+            ->setWhere('`protocol`=? AND `name`=?')
+            ->setWhereParameters([$protocol, $name])
+            ->setLimit(1)
+        ;
 
-        if (!$table->select()) {
+        if (!$table->selectPrepared()) {
             $exception = new SelectError('Master unter dem Name ' . $name . ' existiert nicht!');
             $exception->setTable($table);
 
