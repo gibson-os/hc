@@ -4,9 +4,13 @@ namespace GibsonOS\Module\Hc\Event;
 
 use GibsonOS\Core\Event\Describer\DescriberInterface;
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 
@@ -17,10 +21,20 @@ class NeopixelEvent extends AbstractHcEvent
      */
     private $neopixelService;
 
-    public function __construct(DescriberInterface $describer, TypeRepository $typeRepository, NeopixelService $neopixelService)
-    {
+    /**
+     * @var ElementRepository
+     */
+    private $elementRepository;
+
+    public function __construct(
+        DescriberInterface $describer,
+        TypeRepository $typeRepository,
+        NeopixelService $neopixelService,
+        ElementRepository $elementRepository
+    ) {
         parent::__construct($describer, $typeRepository);
         $this->neopixelService = $neopixelService;
+        $this->elementRepository = $elementRepository;
     }
 
     /**
@@ -123,8 +137,17 @@ class NeopixelEvent extends AbstractHcEvent
         $this->neopixelService->writeLedCounts($slave, $counts);
     }
 
+    /**
+     * @throws AbstractException
+     * @throws DateTimeError
+     * @throws SaveError
+     * @throws SelectError
+     */
     public function sendImage(Module $slave, int $imageId): void
     {
+        $elements = $this->elementRepository->getBySequence($imageId);
+        $element = reset($elements);
+        $this->writeSetLeds($slave, JsonUtility::decode($element->getData()));
     }
 
     public function sendAnimation(Module $slave, int $animationId): void

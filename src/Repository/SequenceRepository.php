@@ -7,7 +7,7 @@ use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Model\Sequence as SequenceModel;
+use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Model\Type;
 use mysqlTable;
 use stdClass;
@@ -17,9 +17,9 @@ class SequenceRepository extends AbstractRepository
     /**
      * @throws SelectError
      */
-    public function getById(int $id): SequenceModel
+    public function getById(int $id): Sequence
     {
-        $table = $this->getTable(SequenceModel::getTableName());
+        $table = $this->getTable(Sequence::getTableName());
         $where = '`id`=' . $this->escape((string) $id);
 
         $table->setWhere($where);
@@ -41,9 +41,9 @@ class SequenceRepository extends AbstractRepository
      * @throws SelectError
      * @throws DateTimeError
      */
-    public function getByName(Module $module, string $name, int $type = null): SequenceModel
+    public function getByName(Module $module, string $name, int $type = null): Sequence
     {
-        $table = $this->getTable(SequenceModel::getTableName());
+        $table = $this->getTable(Sequence::getTableName());
         $where =
             '`name`=' . $this->escape($name) . ' AND ' .
             '`type_id`=' . $this->escape((string) $module->getType()->getId()) . ' AND ' .
@@ -70,14 +70,14 @@ class SequenceRepository extends AbstractRepository
     }
 
     /**
+     *@throws SelectError
      * @throws DateTimeError
-     * @throws SelectError
      *
-     * @return SequenceModel[]
+     * @return Sequence[]
      */
     public function getByModule(Module $module, int $type = null): array
     {
-        $table = $this->getTable(SequenceModel::getTableName());
+        $table = $this->getTable(Sequence::getTableName());
         $where =
             '`module_id`=' . $this->escape((string) $module->getId()) . ' AND ' .
             '`type_id`=' . $this->escape((string) $module->getType()->getId())
@@ -101,7 +101,7 @@ class SequenceRepository extends AbstractRepository
      */
     public function getByType(Type $typeModel, int $type = null): array
     {
-        $table = $this->getTable(SequenceModel::getTableName());
+        $table = $this->getTable(Sequence::getTableName());
         $where = '`type_id`=' . $this->escape((string) $typeModel->getId());
 
         if ($type !== null) {
@@ -118,7 +118,7 @@ class SequenceRepository extends AbstractRepository
     }
 
     /**
-     * @return SequenceModel[]
+     * @return Sequence[]
      */
     private function getModels(mysqlTable $table): array
     {
@@ -131,9 +131,9 @@ class SequenceRepository extends AbstractRepository
         return $models;
     }
 
-    private function getModel(stdClass $sequence): SequenceModel
+    private function getModel(stdClass $sequence): Sequence
     {
-        return (new SequenceModel())
+        return (new Sequence())
             ->setId((int) $sequence->id)
             ->setName($sequence->name)
             ->setTypeId((int) $sequence->type_id ?: null)
