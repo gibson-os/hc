@@ -14,10 +14,13 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Slave\BlankService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
 class BlankServiceTest extends Unit
 {
+    use ProphecyTrait;
+
     /**
      * @var BlankService
      */

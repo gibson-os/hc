@@ -23,10 +23,13 @@ use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\UnitTest\AbstractTest;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
 class MasterServiceTest extends AbstractTest
 {
+    use ProphecyTrait;
+
     /**
      * @var ObjectProphecy|SenderService
      */

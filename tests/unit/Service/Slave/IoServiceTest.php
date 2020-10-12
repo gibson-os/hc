@@ -23,10 +23,13 @@ use GibsonOS\Module\Hc\Service\Formatter\IoFormatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
 class IoServiceTest extends Unit
 {
+    use ProphecyTrait;
+
     /**
      * @var IoService
      */

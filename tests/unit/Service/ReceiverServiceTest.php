@@ -2,6 +2,7 @@
 
 namespace Service;
 
+use Codeception\Test\Unit;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
@@ -10,10 +11,13 @@ use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\ReceiverService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
-class ReceiverServiceTest extends \Codeception\Test\Unit
+class ReceiverServiceTest extends Unit
 {
+    use ProphecyTrait;
+
     /**
      * @var TransformService
      */

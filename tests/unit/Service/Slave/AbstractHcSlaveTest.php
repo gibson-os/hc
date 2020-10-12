@@ -18,10 +18,13 @@ use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
 class AbstractHcSlaveTest extends Unit
 {
+    use ProphecyTrait;
+
     /**
      * @var AbstractHcSlave
      */

@@ -11,10 +11,13 @@ use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\SenderService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
 class SenderServiceTest extends Unit
 {
+    use ProphecyTrait;
+
     /**
      * @var SenderService
      */

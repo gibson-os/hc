@@ -12,10 +12,13 @@ use GibsonOS\Module\Hc\Service\Formatter\Bme280Formatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Slave\Bme280Service;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
 class Bme280ServiceTest extends Unit
 {
+    use ProphecyTrait;
+
     /**
      * @var Bme280Service
      */
