@@ -16,7 +16,6 @@ use GibsonOS\Core\Service\PermissionService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
-use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService;
@@ -79,7 +78,7 @@ class NeopixelController extends AbstractController
             $slave->save();
         }
 
-        $this->writeLeds($neopixelService, $ledService, $slave, $leds);
+        $neopixelService->writeLeds($slave, $leds);
 
         return $this->returnSuccess();
     }
@@ -96,7 +95,6 @@ class NeopixelController extends AbstractController
      */
     public function setLeds(
         NeopixelService $neopixelService,
-        LedService $ledService,
         ModuleRepository $moduleRepository,
         int $moduleId,
         array $leds = []
@@ -113,7 +111,7 @@ class NeopixelController extends AbstractController
             $leds[$id] = $led;
         }
 
-        $this->writeLeds($neopixelService, $ledService, $moduleRepository->getById($moduleId), $leds);
+        $neopixelService->writeLeds($moduleRepository->getById($moduleId), $leds);
 
         return $this->returnSuccess();
     }
@@ -220,48 +218,5 @@ class NeopixelController extends AbstractController
             'total' => $imageStore->getCount(),
             'id' => $image->getId(),
         ]);
-    }
-
-    /**
-     * @throws AbstractException
-     * @throws DateTimeError
-     * @throws GetError
-     * @throws SaveError
-     * @throws SelectError
-     * @throws DeleteError
-     */
-    private function writeLeds(NeopixelService $neopixelService, LedService $ledService, Module $slave, array $leds): void
-    {
-        $changedLeds = $ledService->getChanges($ledService->getActualState($slave), $leds);
-        $changedSlaveLeds = $ledService->getChangedLedsWithoutIgnoredAttributes($changedLeds);
-        $neopixelService->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
-        $ledService->saveLeds($slave, $leds);
-        $ledService->deleteUnusedLeds($slave, $leds);
-        $lastChangedIds = $ledService->getLastIds($slave, $changedSlaveLeds);
-
-        if (empty($lastChangedIds)) {
-            $startCount = 0;
-            $lastChangedIds = array_map(function ($count) use (&$startCount) {
-                if ($count === 0) {
-                    return -1;
-                }
-
-                $startCount += $count;
-
-                return $startCount - 1;
-            }, JsonUtility::decode($slave->getConfig() ?: JsonUtility::encode(['counts' => 0]))['counts']);
-        }
-
-        foreach ($lastChangedIds as $channel => $lastChangedId) {
-            if ($lastChangedId < 1) {
-                continue;
-            }
-
-            $neopixelService->writeChannel(
-                $slave,
-                $channel,
-                $ledService->getNumberById($slave, $lastChangedId) + 1
-            );
-        }
     }
 }

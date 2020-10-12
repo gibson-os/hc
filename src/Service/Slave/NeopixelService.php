@@ -368,6 +368,49 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
+     * @throws AbstractException
+     * @throws DateTimeError
+     * @throws DeleteError
+     * @throws GetError
+     * @throws SaveError
+     * @throws SelectError
+     */
+    public function writeLeds(Module $slave, array $leds): void
+    {
+        $changedLeds = $this->ledService->getChanges($this->ledService->getActualState($slave), $leds);
+        $changedSlaveLeds = $this->ledService->getChangedLedsWithoutIgnoredAttributes($changedLeds);
+        $this->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
+        $this->ledService->saveLeds($slave, $leds);
+        $this->ledService->deleteUnusedLeds($slave, $leds);
+        $lastChangedIds = $this->ledService->getLastIds($slave, $changedSlaveLeds);
+
+        if (empty($lastChangedIds)) {
+            $startCount = 0;
+            $lastChangedIds = array_map(static function (int $count) use (&$startCount) {
+                if ($count === 0) {
+                    return -1;
+                }
+
+                $startCount += $count;
+
+                return $startCount - 1;
+            }, JsonUtility::decode($slave->getConfig() ?: JsonUtility::encode(['counts' => 0]))['counts']);
+        }
+
+        foreach ($lastChangedIds as $channel => $lastChangedId) {
+            if ($lastChangedId < 1) {
+                continue;
+            }
+
+            $this->writeChannel(
+                $slave,
+                $channel,
+                $this->ledService->getNumberById($slave, $lastChangedId) + 1
+            );
+        }
+    }
+
+    /**
      * @param string[] $data
      *
      * @return string[]
