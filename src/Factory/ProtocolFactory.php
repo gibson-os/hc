@@ -3,36 +3,32 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Factory;
 
-use GibsonOS\Core\Exception\FileNotFound;
-use GibsonOS\Core\Factory\AbstractSingletonFactory;
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 
-class ProtocolFactory extends AbstractSingletonFactory
+class ProtocolFactory
 {
-    protected static function createInstance(): ProtocolFactory
-    {
-        return new ProtocolFactory();
-    }
+    /**
+     * @var ServiceManagerService
+     */
+    private $serviceManagerService;
 
-    public static function create(): ProtocolFactory
+    public function __construct(ServiceManagerService $serviceManagerService)
     {
-        /** @var ProtocolFactory $service */
-        $service = parent::create();
-
-        return $service;
+        $this->serviceManagerService = $serviceManagerService;
     }
 
     /**
-     * @throws FileNotFound
+     * @throws FactoryError
      */
     public function get(string $protocolName): ProtocolInterface
     {
-        $className = 'GibsonOS\\Module\\Hc\\Factory\\Protocol\\' . ucfirst($protocolName) . 'Factory';
+        /** @var ProtocolInterface $protocol */
+        $protocol = $this->serviceManagerService->get(
+            'GibsonOS\\Module\\Hc\\Service\\Protocol\\' . ucfirst($protocolName) . 'Service'
+        );
 
-        if (!class_exists($className)) {
-            throw new FileNotFound('Protokol ' . $protocolName . ' nicht gefunden!');
-        }
-
-        return $className::create();
+        return $protocol;
     }
 }
