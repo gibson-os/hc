@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Event\Describer;
 
 use GibsonOS\Core\Dto\Event\Describer\Method;
+use GibsonOS\Core\Dto\Event\Describer\Parameter\AutoCompleteParameter;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -47,6 +48,16 @@ class NeopixelDescriber extends AbstractHcDescriber
      */
     public function getMethods(): array
     {
+        $imageParameter = (new AutoCompleteParameter(
+            'Bild',
+            'hc/neopixel/images',
+            'GibsonOS.module.hc.neopixel.model.Image'
+        ));
+        $imageParameter->setListener('slave', ['params' => [
+            'paramKey' => 'moduleId',
+            'recordKey' => 'id',
+        ]]);
+
         return array_merge(parent::getMethods(), [
             'writeSetLeds' => (new Method('Leds setzen'))
                 ->setParameters([
@@ -95,8 +106,9 @@ class NeopixelDescriber extends AbstractHcDescriber
             'sendImage' => (new Method('Bild senden'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
+                    'imageId' => $imageParameter,
                 ]),
-            'sendAnimation' => (new Method('Bild senden'))
+            'sendAnimation' => (new Method('Animation senden'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
                 ]),

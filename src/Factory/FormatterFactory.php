@@ -5,7 +5,6 @@ namespace GibsonOS\Module\Hc\Factory;
 
 use Exception;
 use GibsonOS\Core\Exception\FileNotFound;
-use GibsonOS\Core\Factory\AbstractSingletonFactory;
 use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\Formatter\AbstractFormatter;
@@ -47,17 +46,12 @@ class FormatterFactory
     private function getModuleFormatter(Log $log): AbstractFormatter
     {
         $className =
-            'GibsonOS\\Module\\Hc\\Factory\\Formatter\\' .
-            ucfirst($log->getModule()->getType()->getHelper()) . 'Factory'
+            'GibsonOS\\Module\\Hc\\Service\\Formatter\\' .
+            ucfirst($log->getModule()->getType()->getHelper()) . 'Formatter'
         ;
 
-        if (!class_exists($className)) {
-            throw new FileNotFound(sprintf('Formatter %s nicht gefunden!', $className));
-        }
-
-        /** @var AbstractSingletonFactory $className */
         /** @var AbstractFormatter $formatter */
-        $formatter = $className::create();
+        $formatter = (new ServiceManagerService())->get($className);
 
         return $formatter;
     }
