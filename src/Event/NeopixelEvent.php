@@ -2,13 +2,13 @@
 
 namespace GibsonOS\Module\Hc\Event;
 
-use GibsonOS\Core\Event\Describer\DescriberInterface;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Event\Describer\NeopixelDescriber;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
@@ -27,7 +27,7 @@ class NeopixelEvent extends AbstractHcEvent
     private $elementRepository;
 
     public function __construct(
-        DescriberInterface $describer,
+        NeopixelDescriber $describer,
         TypeRepository $typeRepository,
         NeopixelService $neopixelService,
         ElementRepository $elementRepository
