@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "dea47f68a71adc98c48b26a0b9449449ed6db315"
+                "reference": "db6ae6aa1d6a67da2c3f24162968bb811dd83a95"
             },
             "require": {
                 "ext-fileinfo": "*",
@@ -68,7 +68,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2020-10-19T21:25:52+00:00"
+            "time": "2020-10-20T21:19:41+00:00"
         },
         {
             "name": "mdo/mdo",
@@ -5444,16 +5444,16 @@
         },
         {
             "name": "vimeo/psalm",
-            "version": "3.18.0",
+            "version": "3.18.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
-                "reference": "a463c894c4323e84121b5978867923efc6f8554a"
+                "reference": "19aa905f7c3c7350569999a93c40ae91ae4e1626"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/a463c894c4323e84121b5978867923efc6f8554a",
-                "reference": "a463c894c4323e84121b5978867923efc6f8554a",
+                "url": "https://api.github.com/repos/vimeo/psalm/zipball/19aa905f7c3c7350569999a93c40ae91ae4e1626",
+                "reference": "19aa905f7c3c7350569999a93c40ae91ae4e1626",
                 "shasum": ""
             },
             "require": {
@@ -5540,7 +5540,7 @@
                 "inspection",
                 "php"
             ],
-            "time": "2020-10-19T19:02:41+00:00"
+            "time": "2020-10-20T13:48:22+00:00"
         },
         {
             "name": "webmozart/assert",

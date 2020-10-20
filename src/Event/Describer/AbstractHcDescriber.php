@@ -11,6 +11,7 @@ use GibsonOS\Core\Dto\Event\Describer\Trigger;
 use GibsonOS\Core\Event\Describer\DescriberInterface;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\TypeParameter;
+use GibsonOS\Module\Hc\Event\AutoComplete\SlaveAutoComplete;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
@@ -128,9 +129,9 @@ abstract class AbstractHcDescriber implements DescriberInterface
      */
     protected $typeRepository;
 
-    public function __construct(TypeRepository $typeRepository)
+    public function __construct(TypeRepository $typeRepository, SlaveAutoComplete $slaveAutoComplete)
     {
-        $this->slaveParameter = new SlaveParameter();
+        $this->slaveParameter = new SlaveParameter($slaveAutoComplete);
         $this->typeRepository = $typeRepository;
     }
 

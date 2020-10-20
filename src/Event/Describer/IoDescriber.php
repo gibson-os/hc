@@ -12,6 +12,8 @@ use GibsonOS\Core\Dto\Event\Describer\Parameter\StringParameter;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Module\Hc\Event\AutoComplete\Io\PortAutoComplete;
+use GibsonOS\Module\Hc\Event\AutoComplete\SlaveAutoComplete;
 use GibsonOS\Module\Hc\Event\IoEvent;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoSlave;
@@ -90,19 +92,18 @@ class IoDescriber extends AbstractHcDescriber
      * @throws DateTimeError
      * @throws SelectError
      */
-    public function __construct(TypeRepository $typeRepository)
-    {
-        parent::__construct($typeRepository);
+    public function __construct(
+        TypeRepository $typeRepository,
+        SlaveAutoComplete $slaveAutoComplete,
+        PortAutoComplete $portAutoComplete
+    ) {
+        parent::__construct($typeRepository, $slaveAutoComplete);
         $this->slaveParameter->setSlaveType($this->typeRepository->getByHelperName('io'));
         $this->directionParameter = new OptionParameter('Richtung', [
             IoSlave::DIRECTION_INPUT => 'Eingang',
             IoSlave::DIRECTION_OUTPUT => 'Ausgang',
         ]);
-        $this->portParameter = new AutoCompleteParameter(
-            'Port',
-            'hc/io/autoCompletePort',
-            'GibsonOS.module.hc.io.model.Port'
-        );
+        $this->portParameter = new AutoCompleteParameter('Port', $portAutoComplete);
         $this->portParameter->setListener('slave', ['params' => [
             'paramKey' => 'moduleId',
             'recordKey' => 'id',

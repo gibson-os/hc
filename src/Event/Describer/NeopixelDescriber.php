@@ -8,21 +8,32 @@ use GibsonOS\Core\Dto\Event\Describer\Parameter\AutoCompleteParameter;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Module\Hc\Event\AutoComplete\Neopixel\ImageAutoComplete;
+use GibsonOS\Module\Hc\Event\AutoComplete\SlaveAutoComplete;
 use GibsonOS\Module\Hc\Event\NeopixelEvent;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 
 class NeopixelDescriber extends AbstractHcDescriber
 {
     /**
+     * @var ImageAutoComplete
+     */
+    private $imageAutoComplete;
+
+    /**
      * NeopixelDescriber constructor.
      *
      * @throws DateTimeError
      * @throws SelectError
      */
-    public function __construct(TypeRepository $typeRepository)
-    {
-        parent::__construct($typeRepository);
+    public function __construct(
+        TypeRepository $typeRepository,
+        SlaveAutoComplete $slaveAutoComplete,
+        ImageAutoComplete $imageAutoComplete
+    ) {
+        parent::__construct($typeRepository, $slaveAutoComplete);
         $this->slaveParameter->setSlaveType($this->typeRepository->getByHelperName('neopixel'));
+        $this->imageAutoComplete = $imageAutoComplete;
     }
 
     public function getTitle(): string
@@ -48,11 +59,7 @@ class NeopixelDescriber extends AbstractHcDescriber
      */
     public function getMethods(): array
     {
-        $imageParameter = (new AutoCompleteParameter(
-            'Bild',
-            'hc/neopixel/images',
-            'GibsonOS.module.hc.neopixel.model.Image'
-        ));
+        $imageParameter = new AutoCompleteParameter('Bild', $this->imageAutoComplete);
         $imageParameter->setListener('slave', ['params' => [
             'paramKey' => 'moduleId',
             'recordKey' => 'id',

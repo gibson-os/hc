@@ -238,7 +238,6 @@ class ValueRepository extends AbstractRepository
 
     /**
      * @throws SelectError
-     * @throws GetError
      */
     public function findAttributesByValue(
         string $value,

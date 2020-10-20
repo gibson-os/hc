@@ -19,12 +19,13 @@ class SequenceRepository extends AbstractRepository
      */
     public function getById(int $id): Sequence
     {
-        $table = $this->getTable(Sequence::getTableName());
-        $where = '`id`=' . $this->escape((string) $id);
+        $table = $this
+            ->getTable(Sequence::getTableName())
+            ->setWhere('`id`=?')
+            ->addWhereParameter($id)
+        ;
 
-        $table->setWhere($where);
-
-        if (!$table->select(false)) {
+        if (!$table->selectPrepared(false)) {
             throw new SelectError();
         }
 
@@ -43,20 +44,20 @@ class SequenceRepository extends AbstractRepository
      */
     public function getByName(Module $module, string $name, int $type = null): Sequence
     {
-        $table = $this->getTable(Sequence::getTableName());
-        $where =
-            '`name`=' . $this->escape($name) . ' AND ' .
-            '`type_id`=' . $this->escape((string) $module->getType()->getId()) . ' AND ' .
-            '(`module_id`=' . $this->escape((string) $module->getId()) . ' OR `module_id` IS NULL)'
+        $table = $this
+            ->getTable(Sequence::getTableName())
+            ->setWhereParameters([$name, $module->getType()->getId(), $module->getId()])
         ;
+        $where = '`name`=? AND `type_id`=? AND (`module_id`=? OR `module_id` IS NULL)';
 
         if ($type !== null) {
-            $where .= ' AND `type`=' . $this->escape((string) $type);
+            $where .= ' AND `type`=?';
+            $table->addWhereParameter($type);
         }
 
         $table->setWhere($where);
 
-        if (!$table->select(false)) {
+        if (!$table->selectPrepared(false)) {
             throw new SelectError();
         }
 
@@ -67,6 +68,34 @@ class SequenceRepository extends AbstractRepository
         }
 
         return $this->getModel($sequence);
+    }
+
+    /**
+     * @throws SelectError
+     * @throws DateTimeError
+     *
+     * @return Sequence[]
+     */
+    public function findByName(Module $module, string $name, int $type = null): array
+    {
+        $table = $this
+            ->getTable(Sequence::getTableName())
+            ->setWhereParameters([$this->getRegexString($name), $module->getType()->getId(), $module->getId()])
+        ;
+        $where = '`name` REGEXP ? AND `type_id`=? AND (`module_id`=? OR `module_id` IS NULL)';
+
+        if ($type !== null) {
+            $where .= ' AND `type`=?';
+            $table->addWhereParameter($type);
+        }
+
+        $table->setWhere($where);
+
+        if (!$table->selectPrepared(false)) {
+            throw new SelectError();
+        }
+
+        return $this->getModels($table);
     }
 
     /**

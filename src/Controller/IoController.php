@@ -14,7 +14,6 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\PermissionService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
-use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Store\Io\DirectConnectStore;
@@ -316,62 +315,5 @@ class IoController extends AbstractController
         $ioService->activateDirectConnect($moduleRepository->getById($moduleId), $activate);
 
         return $this->returnSuccess();
-    }
-
-    /**
-     * @throws DateTimeError
-     * @throws GetError
-     * @throws LoginRequired
-     * @throws PermissionDenied
-     * @throws SelectError
-     */
-    public function autoCompletePort(
-        ModuleRepository $moduleRepository,
-        ValueRepository $valueRepository,
-        int $moduleId,
-        int $id = null,
-        string $name = null
-    ): AjaxResponse {
-        $this->checkPermission(PermissionService::READ);
-
-        $slave = $moduleRepository->getById($moduleId);
-
-        if ($id !== null) {
-            $ports = [$valueRepository->getByTypeId(
-                $slave->getTypeId(),
-                $id,
-                [(int) $slave->getId()],
-                IoService::ATTRIBUTE_TYPE_PORT
-            )];
-        } else {
-            try {
-                $valueRepository = new ValueRepository();
-                $ports = $valueRepository->findAttributesByValue(
-                    $name . '*',
-                    $slave->getTypeId(),
-                    [IoService::ATTRIBUTE_PORT_KEY_NAME],
-                    [$slave->getId()],
-                    null,
-                    IoService::ATTRIBUTE_TYPE_PORT
-                );
-            } catch (SelectError $e) {
-                $ports = [];
-            }
-        }
-
-        $data = [];
-
-        foreach ($ports as $port) {
-            if ($port->getAttribute()->getKey() !== IoService::ATTRIBUTE_PORT_KEY_NAME) {
-                continue;
-            }
-
-            $data[] = [
-                'id' => $port->getAttribute()->getSubId(),
-                'name' => $port->getValue(),
-            ];
-        }
-
-        return $this->returnSuccess($data);
     }
 }
