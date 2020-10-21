@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "ad1b0d497b4057e613b102cfe6f321144cdfd05e"
+                "reference": "c07378b72bef9daad9e9e9c9fcfd6bb2bed853c4"
             },
             "require": {
                 "ext-fileinfo": "*",
@@ -68,7 +68,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2020-10-21T20:02:32+00:00"
+            "time": "2020-10-21T22:06:38+00:00"
         },
         {
             "name": "mdo/mdo",
@@ -530,16 +530,16 @@
         },
         {
             "name": "captainhook/captainhook",
-            "version": "5.4.1",
+            "version": "5.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CaptainHookPhp/captainhook.git",
-                "reference": "5e3762fe39b2144ad0941dbd2281e5c828dc49d2"
+                "reference": "eadbac000f056aae72be9729a8149f4691ad4c69"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CaptainHookPhp/captainhook/zipball/5e3762fe39b2144ad0941dbd2281e5c828dc49d2",
-                "reference": "5e3762fe39b2144ad0941dbd2281e5c828dc49d2",
+                "url": "https://api.github.com/repos/CaptainHookPhp/captainhook/zipball/eadbac000f056aae72be9729a8149f4691ad4c69",
+                "reference": "eadbac000f056aae72be9729a8149f4691ad4c69",
                 "shasum": ""
             },
             "require": {
@@ -604,7 +604,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-15T14:41:17+00:00"
+            "time": "2020-10-21T20:44:00+00:00"
         },
         {
             "name": "captainhook/plugin-composer",

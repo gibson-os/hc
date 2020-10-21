@@ -11,6 +11,7 @@ use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Event\Describer\NeopixelDescriber;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
@@ -145,9 +146,11 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws SaveError
      * @throws SelectError
      */
-    public function sendImage(Module $slave, int $imageId): void
+    public function sendImage(Module $slave, Sequence $sequence): void
     {
-        $elements = $this->elementRepository->getBySequence($imageId);
+        // @todo load gedöns umbauen
+        $sequence->loadElements();
+        $elements = $sequence->getElements();
         $element = reset($elements);
         $this->writeSetLeds($slave, JsonUtility::decode($element->getData()));
     }
