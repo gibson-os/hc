@@ -8,8 +8,8 @@ use GibsonOS\Core\Dto\Event\Describer\Parameter\AutoCompleteParameter;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Module\Hc\Event\AutoComplete\Neopixel\ImageAutoComplete;
-use GibsonOS\Module\Hc\Event\AutoComplete\SlaveAutoComplete;
+use GibsonOS\Module\Hc\AutoComplete\Neopixel\ImageAutoComplete;
+use GibsonOS\Module\Hc\AutoComplete\SlaveAutoComplete;
 use GibsonOS\Module\Hc\Event\NeopixelEvent;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 

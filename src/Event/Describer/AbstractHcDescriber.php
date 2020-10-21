@@ -9,9 +9,9 @@ use GibsonOS\Core\Dto\Event\Describer\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Event\Describer\Parameter\StringParameter;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
 use GibsonOS\Core\Event\Describer\DescriberInterface;
+use GibsonOS\Module\Hc\AutoComplete\SlaveAutoComplete;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Dto\Event\Describer\Parameter\TypeParameter;
-use GibsonOS\Module\Hc\Event\AutoComplete\SlaveAutoComplete;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 

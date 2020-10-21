@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Dto\Event\Describer\Parameter;
 
 use GibsonOS\Core\Dto\Event\Describer\Parameter\AutoCompleteParameter;
-use GibsonOS\Module\Hc\Event\AutoComplete\SlaveAutoComplete;
+use GibsonOS\Module\Hc\AutoComplete\SlaveAutoComplete;
 use GibsonOS\Module\Hc\Model\Type;
 
 class SlaveParameter extends AutoCompleteParameter

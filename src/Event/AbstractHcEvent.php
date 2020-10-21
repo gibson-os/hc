@@ -10,6 +10,7 @@ use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
@@ -21,9 +22,12 @@ abstract class AbstractHcEvent extends AbstractEvent
      */
     private $typeRepository;
 
-    public function __construct(DescriberInterface $describer, TypeRepository $typeRepository)
-    {
-        parent::__construct($describer);
+    public function __construct(
+        DescriberInterface $describer,
+        ServiceManagerService $serviceManagerService,
+        TypeRepository $typeRepository
+    ) {
+        parent::__construct($describer, $serviceManagerService);
         $this->typeRepository = $typeRepository;
     }
 

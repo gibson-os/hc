@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Event;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Module\Hc\Event\Describer\IoDescriber;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
@@ -19,9 +20,13 @@ class IoEvent extends AbstractHcEvent
      */
     private $ioService;
 
-    public function __construct(IoDescriber $describer, TypeRepository $typeRepository, IoService $ioService)
-    {
-        parent::__construct($describer, $typeRepository);
+    public function __construct(
+        IoDescriber $describer,
+        ServiceManagerService $serviceManagerService,
+        TypeRepository $typeRepository,
+        IoService $ioService
+    ) {
+        parent::__construct($describer, $serviceManagerService, $typeRepository);
         $this->ioService = $ioService;
     }
 

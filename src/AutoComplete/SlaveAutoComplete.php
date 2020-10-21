@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Event\AutoComplete;
+namespace GibsonOS\Module\Hc\AutoComplete;
 
-use GibsonOS\Core\Event\AutoComplete\AutoCompleteInterface;
+use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;

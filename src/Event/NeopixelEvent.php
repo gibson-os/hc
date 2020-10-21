@@ -7,6 +7,7 @@ use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Event\Describer\NeopixelDescriber;
 use GibsonOS\Module\Hc\Model\Module;
@@ -28,11 +29,12 @@ class NeopixelEvent extends AbstractHcEvent
 
     public function __construct(
         NeopixelDescriber $describer,
+        ServiceManagerService $serviceManagerService,
         TypeRepository $typeRepository,
         NeopixelService $neopixelService,
         ElementRepository $elementRepository
     ) {
-        parent::__construct($describer, $typeRepository);
+        parent::__construct($describer, $serviceManagerService, $typeRepository);
         $this->neopixelService = $neopixelService;
         $this->elementRepository = $elementRepository;
     }
