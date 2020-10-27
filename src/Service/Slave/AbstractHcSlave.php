@@ -213,6 +213,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         }
 
         $deviceId = $this->readDeviceId($slave);
+        $master = $slave->getMaster();
 
         if (
             $deviceId !== $slave->getDeviceId() ||
@@ -229,6 +230,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             $slave = $this->handshakeExistingSlave($slave);
         }
 
+        $slave->setMaster($master);
         $this->masterService->send($slave->getMaster(), MasterService::TYPE_SLAVE_IS_HC, chr((int) $slave->getAddress()));
         $this->masterService->receiveReceiveReturn($slave->getMaster());
 
