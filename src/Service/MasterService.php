@@ -217,9 +217,11 @@ class MasterService extends AbstractService
     }
 
     /**
+     * @throws AbstractException
      * @throws DateTimeError
      * @throws FileNotFound
      * @throws GetError
+     * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
      */
@@ -228,17 +230,18 @@ class MasterService extends AbstractService
         try {
             $slave = $this->moduleRepository->getByAddress($address, (int) $master->getId());
         } catch (SelectError $exception) {
+            $slave = (new Module())
+                ->setName('Neues Modul')
+                ->setAddress($address)
+                ->setMaster($master)
+            ;
+
             try {
-                $slave = $this->moduleRepository->create(
-                    'Neues Modul',
-                    $this->typeRepository->getByDefaultAddress($address)
-                )
-                    ->setAddress($address)
-                    ->setMaster($master)
-                ;
-            } catch (SelectError $exception) {
-                // @todo Sklave mit unbekannter Adresse gefunden
-                throw $exception;
+                $slave->setType($this->typeRepository->getByDefaultAddress($address));
+            } catch (SelectError $e) {
+                /** @var AbstractHcSlave $slaveService */
+                $slaveService = $this->slaveFactory->get('blank');
+                $slave->setTypeId($slaveService->readTypeId($slave));
             }
         }
 
