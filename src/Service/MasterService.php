@@ -103,6 +103,7 @@ class MasterService extends AbstractService
     }
 
     /**
+     * @throws AbstractException
      * @throws DateTimeError
      * @throws FileNotFound
      * @throws GetError
@@ -234,6 +235,7 @@ class MasterService extends AbstractService
                 ->setName('Neues Modul')
                 ->setAddress($address)
                 ->setMaster($master)
+                ->setAdded(new DateTime())
             ;
 
             try {

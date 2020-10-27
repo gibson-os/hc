@@ -386,9 +386,9 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
-     * @throws SaveError
-     * @throws SelectError
+     * @throws DateTimeError
      * @throws FileNotFound
+     * @throws SaveError
      */
     public function writeTypeId(Module $slave, Type $type): AbstractSlave
     {
