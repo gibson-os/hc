@@ -251,7 +251,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     private function checkDeviceId(Module $slave): void
     {
         if (
-            $slave->getDeviceId() !== 0 &&
+            $slave->getDeviceId() > 0 &&
             $slave->getDeviceId() <= self::MAX_DEVICE_ID
         ) {
             return;

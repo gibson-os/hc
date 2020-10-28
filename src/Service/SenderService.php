@@ -55,7 +55,7 @@ class SenderService extends AbstractService
     public function send(Master $master, int $type, string $data)
     {
         $this->protocolFactory->get($master->getProtocol())->send($type, $data, $master->getAddress());
-        usleep(1);
+        usleep(500);
     }
 
     /**
