@@ -246,9 +246,8 @@ class MasterService extends AbstractService
         }
 
         $slaveService = $this->slaveFactory->get($slave->getType()->getHelper());
-        $slaveService->handshake($slave);
 
-        return $slave;
+        return $slaveService->handshake($slave);
     }
 
     /**
