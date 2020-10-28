@@ -241,9 +241,7 @@ class MasterService extends AbstractService
             try {
                 $slave->setType($this->typeRepository->getByDefaultAddress($address));
             } catch (SelectError $e) {
-                /** @var AbstractHcSlave $slaveService */
-                $slaveService = $this->slaveFactory->get('blank');
-                $slave->setTypeId($slaveService->readTypeId($slave));
+                $slave->setType($this->typeRepository->getByHelperName('blank'));
             }
         }
 
