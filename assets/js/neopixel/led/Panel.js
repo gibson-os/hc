@@ -35,6 +35,14 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                     action: 'set',
                     permission: GibsonOS.Permission.WRITE
                 }*/
+            },{
+                xtype: 'gosButton',
+                itemId: 'hcNeopixelLedColorGradientButton',
+                iconCls: 'icon_system system_gradient',
+                /*requiredPermission: {
+                    action: 'set',
+                    permission: GibsonOS.Permission.WRITE
+                }*/
             },('-'),{
                 xtype: 'gosButton',
                 iconCls: 'icon_system system_back',
@@ -480,6 +488,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 led.set('fadeIn', fadeIn);
                 led.set('blink', blink);
             })
+        });
+        colorPanel.down('#hcNeopixelLedColorGradientButton').on('click', function() {
         });
         colorPanel.down('#hcNeopixelLedColorShiftBackButton').on('click', function() {
             let firstLed = ledView.getStore().first().getData();
