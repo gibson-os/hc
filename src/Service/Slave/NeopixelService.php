@@ -369,11 +369,8 @@ class NeopixelService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws DeleteError
      * @throws GetError
      * @throws SaveError
-     * @throws SelectError
      */
     public function writeLeds(Module $slave, array $leds): void
     {
@@ -407,6 +404,8 @@ class NeopixelService extends AbstractHcSlave
                 $this->ledService->getNumberById($slave, $lastChangedId) + 1
             );
         }
+
+        $this->ledService->saveLeds($slave, $leds);
     }
 
     /**
