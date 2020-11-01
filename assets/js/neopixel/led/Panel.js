@@ -72,7 +72,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             itemId: 'hcNeopixelLedViewSendButton',
             text: 'Senden',
             handler: function() {
-                setLeds(ledView.getStore().getRange());
+                showLeds(ledView.getStore().getRange());
             }
         },{
             xtype: 'gosButton',
@@ -291,7 +291,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             });
 
             GibsonOS.Ajax.request({
-                url: baseDir + 'hc/neopixel/showLeds',
+                url: baseDir + 'hc/neopixel/setLeds',
                 params: {
                     moduleId: me.gos.data.module.id,
                     leds: Ext.encode(leds)
@@ -305,7 +305,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             });
         };
 
-        let setLeds = function(leds) {
+        let showLeds = function(leds) {
             me.setLoading(true);
             let paramLeds = {};
 
@@ -315,7 +315,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             });
 
             GibsonOS.Ajax.request({
-                url: baseDir + 'hc/neopixel/setLeds',
+                url: baseDir + 'hc/neopixel/showLeds',
                 params: {
                     moduleId: me.gos.data.module.id,
                     leds: Ext.encode(paramLeds)
@@ -338,7 +338,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 led.set('blink', blink);
 
                 if (me.down('#hcNeopixelLedViewLiveButton').pressed) {
-                    setLeds([led]);
+                    showLeds([led]);
                     led.commit();
                 }
             });
@@ -363,7 +363,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 led.set('blink', blinkField.getValue());
 
                 if (me.down('#hcNeopixelLedViewLiveButton').pressed) {
-                    setLeds([led]);
+                    showLeds([led]);
                     led.commit();
                 }
             } else {
@@ -505,7 +505,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             lastLed.set('blink', firstLed.blink);
 
             if (me.down('#hcNeopixelLedViewLiveButton').pressed) {
-                setLeds(ledView.getStore().getRange());
+                showLeds(ledView.getStore().getRange());
             }
         });
         colorPanel.down('#hcNeopixelLedColorShiftNextButton').on('click', function() {
