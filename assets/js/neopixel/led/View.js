@@ -83,7 +83,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.View', {
                     });
 
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/neopixel/saveLeds',
+                        url: baseDir + 'hc/neopixel/showLeds',
                         params: {
                             moduleId: me.gos.data.module.id,
                             leds: Ext.encode(leds)
@@ -125,7 +125,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.View', {
                     }
 
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/neopixel/saveLeds',
+                        url: baseDir + 'hc/neopixel/showLeds',
                         params: {
                             moduleId: me.gos.data.module.id,
                             leds: Ext.encode(leds)
