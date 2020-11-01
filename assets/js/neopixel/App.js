@@ -14,12 +14,21 @@ Ext.define('GibsonOS.module.hc.neopixel.App', {
 
         me.items = [{
             xtype: 'gosModuleHcNeopixelLedPanel',
-            title: 'LEDs',
-            gos: {
-                data: me.gos.data
-            }
+            title: 'LEDs'
         }];
 
         me.callParent();
+
+        let viewStore = me.down('hcNeopixelViewStore');
+        viewStore.getProxy().setExtraParam('moduleId', me.gos.data.module.id);
+        viewStore.load();
+
+        let animationsStore = me.down('hcNeopixelAnimationsStore');
+        animationsStore.getProxy().setExtraParam('moduleId', me.gos.data.module.id);
+        animationsStore.load();
+
+        let animationStore = me.down('hcNeopixelAnimationStore');
+        animationStore.getProxy().setExtraParam('moduleId', me.gos.data.module.id);
+        animationStore.load();
     }
 });

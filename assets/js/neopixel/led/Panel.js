@@ -1,60 +1,36 @@
 Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
-    extend: 'GibsonOS.Panel',
+    extend: 'GibsonOS.core.component.Panel',
     alias: ['widget.gosModuleHcNeopixelLedPanel'],
     layout: 'border',
     initComponent: function () {
         let me = this;
 
-        me.gos.data.dirty = false;
-
         me.items = [{
             xtype: 'gosModuleHcNeopixelLedView',
             region: 'center',
-            gos: {
-                data: me.gos.data
+            addButton: {
+                itemId: 'hcNeopixelLedViewAddButton',
+                menu: []
+            },
+            addFunction: () => {},
+            deleteFunction: (records) => {
+                let number = this.getStore().getCount();
+
+                Ext.iterate(records, function(selectedLed) {
+                    if (selectedLed.get('number') < number) {
+                        number = selectedLed.get('number');
+                    }
+                });
+
+                this.getStore().remove(records);
+                me.repairNumbers(number-1);
+                me.saveLeds();
             }
         },{
             xtype: 'gosModuleHcNeopixelLedColor',
             region: 'east',
             width: 170,
-            flex: 0,
-            tbar: [{
-                xtype: 'gosButton',
-                itemId: 'hcNeopixelLedColorFillButton',
-                iconCls: 'icon_system system_brush',
-                enableToggle: true,
-                /*requiredPermission: {
-                    action: 'set',
-                    permission: GibsonOS.Permission.WRITE
-                }*/
-            },{
-                xtype: 'gosButton',
-                itemId: 'hcNeopixelLedColorPaintcanButton',
-                iconCls: 'icon_system system_paintcan',
-                /*requiredPermission: {
-                    action: 'set',
-                    permission: GibsonOS.Permission.WRITE
-                }*/
-            },('-'),{
-                xtype: 'gosButton',
-                iconCls: 'icon_system system_back',
-                itemId: 'hcNeopixelLedColorShiftBackButton',
-                /*requiredPermission: {
-                    action: 'set',
-                    permission: GibsonOS.Permission.WRITE
-                }*/
-            },{
-                xtype: 'gosButton',
-                iconCls: 'icon_system system_next',
-                itemId: 'hcNeopixelLedColorShiftNextButton',
-                /*requiredPermission: {
-                    action: 'set',
-                    permission: GibsonOS.Permission.WRITE
-                }*/
-            }],
-            gos: {
-                data: me.gos.data
-            }
+            flex: 0
         },{
             xtype: 'gosModuleHcNeopixelAnimationPanel',
             region: 'south',
@@ -62,24 +38,53 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             title: 'Animation',
             height: 200,
             collapsible: true,
-            hideCollapseTool: true,
-            gos: {
-                data: me.gos.data
-            }
+            hideCollapseTool: true
         }];
-        me.tbar = [{
-            xtype: 'gosButton',
+
+        me.callParent();
+
+        let ledView = me.down('gosModuleHcNeopixelLedView');
+        let colorPanel = me.down('gosModuleHcNeopixelLedColor');
+        let animationView = me.down('gosModuleHcNeopixelAnimationView');
+
+        colorPanel.on('changeColor', function(red, green, blue, fadeIn, blink) {
+            Ext.iterate(ledView.getSelectionModel().getSelection(), function(led) {
+                led.set('red', red);
+                led.set('green', green);
+                led.set('blue', blue);
+                led.set('fadeIn', fadeIn);
+                led.set('blink', blink);
+
+                me.setLiveLeds([led]);
+            });
+        });
+    },
+    addViewActions: function() {
+        let me = this;
+        let view = me.down('gosModuleHcNeopixelLedView');
+
+        view.addAction({
+            xtype: 'tbseparator'
+        });
+        view.addAction({
             itemId: 'hcNeopixelLedViewSendButton',
             text: 'Senden',
+            tbarText: 'Senden',
             handler: function() {
-                setLeds(ledView.getStore().getRange());
+                // LED Farben senden
+                //setLeds(ledView.getStore().getRange());
             }
-        },{
-            xtype: 'gosButton',
+        });
+        view.addAction({
             itemId: 'hcNeopixelLedViewLiveButton',
             text: 'Live',
+            tbarText: 'Live',
             enableToggle: true
-        },('-'),{
+        });
+        view.addAction({
+            xtype: 'tbseparator'
+        });
+        view.addAction({
             xtype: 'gosFormComboBox',
             hideLabel: true,
             width: 150,
@@ -112,7 +117,11 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                     });
                 }
             }
-        },('-'),{
+        });
+        view.addAction({
+            xtype: 'tbseparator'
+        });
+        view.addAction({
             xtype: 'gosFormTextfield',
             hideLabel: true,
             width: 75,
@@ -134,8 +143,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                     }
                 }
             }
-        },{
-            xtype: 'gosButton',
+        });
+        view.addAction({
             iconCls: 'icon_system system_save',
             disabled: true,
             itemId: 'hcNeopixelLedPanelSaveImageButton',
@@ -194,156 +203,204 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 let name = me.down('#hcNeopixelLedPanelImageName').getValue();
                 this.save(name);
             }
-        },('->'),{
-            xtype: 'gosButton',
-            itemId: 'hcNeopixelLedViewAddButton',
-            iconCls: 'icon_system system_add',
-            hidden: true,
-            menu: []
-        },{
-            xtype: 'gosButton',
-            itemId: 'hcNeopixelLedViewDeleteButton',
-            iconCls: 'icon_system system_delete',
-            disabled: true,
-            hidden: true,
-            handler: function() {
-                let selectedLeds = ledView.getSelectionModel().getSelection();
-                let number = ledView.getStore().getCount();
-
-                Ext.iterate(selectedLeds, function(selectedLed) {
-                    if (selectedLed.get('number') < number) {
-                        number = selectedLed.get('number');
-                    }
-                });
-
-                ledView.getStore().remove(selectedLeds);
-                repairNumbers(number-1);
-                saveLeds();
-            }
-        },{
-            xtype: 'gosButton',
-            itemId: 'hcNeopixelLedViewSettingsButton',
-            text: 'Einstellen',
-            enableToggle: true,
-            listeners: {
-                toggle: function(button, pressed) {
-                    if (pressed) {
-                        me.down('#hcNeopixelLedViewAddButton').show();
-                        me.down('#hcNeopixelLedViewDeleteButton').show();
-                    } else {
-                        me.down('#hcNeopixelLedViewAddButton').hide();
-                        me.down('#hcNeopixelLedViewDeleteButton').hide();
-                    }
-                }
-            }
-        }];
-
-        me.callParent();
-
-        let colorPanel = me.down('gosModuleHcNeopixelLedColor');
-        let ledView = me.down('gosModuleHcNeopixelLedView');
-        let animationView = me.down('gosModuleHcNeopixelAnimationView');
-
-        let findLastChannelLed = function(channel, index = 0) {
-            let record = ledView.getStore().getAt(index);
-
-            if (!record) {
-                return {
-                    left: -3,
-                    top: channel * 3,
-                    number: -1
-                };
-            }
-
-            index = ledView.getStore().find('channel', channel, ledView.getStore().indexOf(record)+1, false, false, true);
-
-            if (index === -1) {
-                if (
-                    channel > 0 &&
-                    record.get('channel') !== channel
-                ) {
-                    let data = findLastChannelLed(channel-1);
-                    data.left = -3;
-                    data.top += 3;
-
-                    return data;
-                }
-
-                return record.getData();
-            }
-
-            return findLastChannelLed(channel, index);
-        };
-
-        let repairNumbers = function(start = 0) {
-            Ext.iterate(ledView.getStore().getRange(ledView.getStore().find('number', start)), function(led) {
-                led.set('number', start++);
-            });
-        };
-
-        let saveLeds = function() {
-            me.setLoading(true);
-            let leds = {};
-
-            ledView.getStore().each(function(led) {
-                leds[led.get('number')] = led.getData();
-                led.commit();
-            });
-
-            GibsonOS.Ajax.request({
-                url: baseDir + 'hc/neopixel/saveLeds',
-                params: {
-                    moduleId: me.gos.data.module.id,
-                    leds: Ext.encode(leds)
-                },
-                success: function() {
-                    me.setLoading(false);
-                },
-                failure: function() {
-                    me.setLoading(false);
-                }
-            });
-        };
-
-        let setLeds = function(leds) {
-            me.setLoading(true);
-            let paramLeds = {};
-
-            Ext.iterate(leds, function(led) {
-                paramLeds[led.get('number')] = led.getData();
-                led.commit();
-            });
-
-            GibsonOS.Ajax.request({
-                url: baseDir + 'hc/neopixel/setLeds',
-                params: {
-                    moduleId: me.gos.data.module.id,
-                    leds: Ext.encode(paramLeds)
-                },
-                success: function() {
-                    me.setLoading(false);
-                },
-                failure: function() {
-                    me.setLoading(false);
-                }
-            });
-        };
-
-        colorPanel.on('changeColor', function(red, green, blue, fadeIn, blink) {
-            Ext.iterate(ledView.getSelectionModel().getSelection(), function(led) {
-                led.set('red', red);
-                led.set('green', green);
-                led.set('blue', blue);
-                led.set('fadeIn', fadeIn);
-                led.set('blink', blink);
-
-                if (me.down('#hcNeopixelLedViewLiveButton').pressed) {
-                    setLeds([led]);
-                    led.commit();
-                }
-            });
         });
-        ledView.on('selectionchange', function(view, leds) {
+    },
+    addColorActions: function() {
+        let me = this;
+        let panel = me.down('gosModuleHcNeopixelLedColor');
+        let view = me.down('gosModuleHcNeopixelLedView');
+
+        panel.addAction({
+            itemId: 'hcNeopixelLedColorFillButton',
+            iconCls: 'icon_system system_brush',
+            enableToggle: true
+        });
+        panel.addAction({
+            itemId: 'hcNeopixelLedColorPaintcanButton',
+            iconCls: 'icon_system system_paintcan',
+            listeners: {
+                click: () => {
+                    let red = panel.down('#hcNeopixelLedColorRed').getValue();
+                    let green = panel.down('#hcNeopixelLedColorGreen').getValue();
+                    let blue = panel.down('#hcNeopixelLedColorBlue').getValue();
+                    let fadeIn = panel.down('#hcNeopixelLedColorFadeIn').getValue();
+                    let blink = panel.down('#hcNeopixelLedColorBlink').getValue();
+
+                    view.getStore().each(function(led) {
+                        led.set('red', red);
+                        led.set('green', green);
+                        led.set('blue', blue);
+                        led.set('fadeIn', fadeIn);
+                        led.set('blink', blink);
+                    });
+                }
+            }
+        });
+        panel.addAction({
+            xtype: 'tbseparator'
+        });
+        panel.addAction({
+            iconCls: 'icon_system system_back',
+            itemId: 'hcNeopixelLedColorShiftBackButton',
+            listeners: {
+                click: () => {
+                    let firstLed = view.getStore().first().getData();
+                    let previousLed = null;
+
+                    view.getStore().each(function(led) {
+                        if (previousLed !== null) {
+                            previousLed.set('red', led.get('red'));
+                            previousLed.set('green', led.get('green'));
+                            previousLed.set('blue', led.get('blue'));
+                            previousLed.set('fadeIn', led.get('fadeIn'));
+                            previousLed.set('blink', led.get('blink'));
+                        }
+
+                        previousLed = led;
+                    });
+
+                    let lastLed = view.getStore().last();
+                    lastLed.set('red', firstLed.red);
+                    lastLed.set('green', firstLed.green);
+                    lastLed.set('blue', firstLed.blue);
+                    lastLed.set('fadeIn', firstLed.fadeIn);
+                    lastLed.set('blink', firstLed.blink);
+
+                    me.setLiveLeds(view.getStore().getRange());
+                }
+            }
+        });
+        panel.addAction({
+            iconCls: 'icon_system system_next',
+            itemId: 'hcNeopixelLedColorShiftNextButton',
+            listeners: {
+                click: () => {
+                    let lastLed = view.getStore().last().getData();
+                    let previousLed = null;
+
+                    view.getStore().each(function(led) {
+                        if (previousLed === null) {
+                            previousLed = led.getData();
+                            return false;
+                        }
+
+                        let tmpLed = led.getData();
+                        led.set('red', previousLed.red);
+                        led.set('green', previousLed.green);
+                        led.set('blue', previousLed.blue);
+                        led.set('fadeIn', previousLed.fadeIn());
+                        led.set('blink', previousLed.blink);
+                        previousLed = tmpLed;
+                    });
+
+                    let firstLed = view.getStore().first();
+                    firstLed.set('red', lastLed.red);
+                    firstLed.set('green', lastLed.green);
+                    firstLed.set('blue', lastLed.blue);
+                    firstLed.set('fadeIn', lastLed.fadeIn);
+                    firstLed.set('blink', lastLed.blink);
+                }
+            }
+        });
+    },
+    saveLeds: function() {
+        let me = this;
+        me.setLoading(true);
+        let leds = {};
+
+        ledView.getStore().each(function(led) {
+            leds[led.get('number')] = led.getData();
+            led.commit();
+        });
+
+        GibsonOS.Ajax.request({
+            url: baseDir + 'hc/neopixel/saveLeds',
+            params: {
+                moduleId: me.gos.data.module.id,
+                leds: Ext.encode(leds)
+            },
+            success: function() {
+                me.setLoading(false);
+            },
+            failure: function() {
+                me.setLoading(false);
+            }
+        });
+    },
+    showLeds: function(leds) {
+        let me = this;
+        me.setLoading(true);
+        let paramLeds = {};
+
+        Ext.iterate(leds, function(led) {
+            paramLeds[led.get('number')] = led.getData();
+            led.commit();
+        });
+
+        GibsonOS.Ajax.request({
+            url: baseDir + 'hc/neopixel/showLeds',
+            params: {
+                moduleId: me.gos.data.module.id,
+                leds: Ext.encode(paramLeds)
+            },
+            callback: function() {
+                me.setLoading(false);
+            }
+        });
+    },
+    repairNumbers: function(start = 0) {
+        Ext.iterate(ledView.getStore().getRange(ledView.getStore().find('number', start)), function(led) {
+            led.set('number', start++);
+        });
+    },
+    findLastChannelLed: function(channel, index = 0) {
+        let me = this;
+        let view = me.down('gosModuleHcNeopixelLedView');
+        let record = view.getStore().getAt(index);
+
+        if (!record) {
+            return {
+                left: -3,
+                top: channel * 3,
+                number: -1
+            };
+        }
+
+        index = view.getStore().find('channel', channel, view.getStore().indexOf(record)+1, false, false, true);
+
+        if (index === -1) {
+            if (
+                channel > 0 &&
+                record.get('channel') !== channel
+            ) {
+                let data = findLastChannelLed(channel-1);
+                data.left = -3;
+                data.top += 3;
+
+                return data;
+            }
+
+            return record.getData();
+        }
+
+        return findLastChannelLed(channel, index);
+    },
+    setLiveLeds: function(leds) {
+        if (!me.down('#hcNeopixelLedViewLiveButton').pressed) {
+            return;
+        }
+
+        me.showLeds(leds);
+
+        Ext.iterate(leds, (led) => {
+            led.commit();
+        });
+    },
+    addViewListeners: function() {
+        let me = this;
+        let view = me.down('gosModuleHcNeopixelLedView');
+
+        view.on('selectionchange', function(view, leds) {
             if (!leds.length) {
                 return;
             }
@@ -362,10 +419,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 led.set('fadeIn', fadeInField.getValue());
                 led.set('blink', blinkField.getValue());
 
-                if (me.down('#hcNeopixelLedViewLiveButton').pressed) {
-                    setLeds([led]);
-                    led.commit();
-                }
+                me.setLiveLeds([led]);
             } else {
                 colorPanel.suspendEvents();
                 me.down('#hcNeopixelLedColorColor').setValue(
@@ -381,7 +435,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 colorPanel.resumeEvents();
             }
         });
-        ledView.on('selectionchange', function(view, records) {
+        view.on('selectionchange', function(view, records) {
             if (records.length === 0) {
                 me.down('#hcNeopixelLedViewDeleteButton').disable();
                 return;
@@ -389,7 +443,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
 
             me.down('#hcNeopixelLedViewDeleteButton').enable();
         });
-        ledView.getStore().on('load', function(store) {
+        view.getStore().on('load', function(store) {
             let ledAddMenu = me.down('#hcNeopixelLedViewAddButton').menu;
             let jsonData = store.getProxy().getReader().jsonData;
             let pwmSteps = 256;
@@ -457,7 +511,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                                 }
                             }
 
-                            repairNumbers(lastChannelLed['number']);
+                            me.repairNumbers(lastChannelLed['number']);
                             saveLeds();
                         }, window, false, 1);
                     }
@@ -465,74 +519,6 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             }
 
             animationView.gos.function.updateTemplate(jsonData.data.length);
-        });
-        colorPanel.down('#hcNeopixelLedColorPaintcanButton').on('click', function() {
-            let red = colorPanel.down('#hcNeopixelLedColorRed').getValue();
-            let green = colorPanel.down('#hcNeopixelLedColorGreen').getValue();
-            let blue = colorPanel.down('#hcNeopixelLedColorBlue').getValue();
-            let fadeIn = colorPanel.down('#hcNeopixelLedColorFadeIn').getValue();
-            let blink = colorPanel.down('#hcNeopixelLedColorBlink').getValue();
-
-            ledView.getStore().each(function(led) {
-                led.set('red', red);
-                led.set('green', green);
-                led.set('blue', blue);
-                led.set('fadeIn', fadeIn);
-                led.set('blink', blink);
-            })
-        });
-        colorPanel.down('#hcNeopixelLedColorShiftBackButton').on('click', function() {
-            let firstLed = ledView.getStore().first().getData();
-            let previousLed = null;
-
-            ledView.getStore().each(function(led) {
-                if (previousLed !== null) {
-                    previousLed.set('red', led.get('red'));
-                    previousLed.set('green', led.get('green'));
-                    previousLed.set('blue', led.get('blue'));
-                    previousLed.set('fadeIn', led.get('fadeIn'));
-                    previousLed.set('blink', led.get('blink'));
-                }
-
-                previousLed = led;
-            });
-
-            let lastLed = ledView.getStore().last();
-            lastLed.set('red', firstLed.red);
-            lastLed.set('green', firstLed.green);
-            lastLed.set('blue', firstLed.blue);
-            lastLed.set('fadeIn', firstLed.fadeIn);
-            lastLed.set('blink', firstLed.blink);
-
-            if (me.down('#hcNeopixelLedViewLiveButton').pressed) {
-                setLeds(ledView.getStore().getRange());
-            }
-        });
-        colorPanel.down('#hcNeopixelLedColorShiftNextButton').on('click', function() {
-            let lastLed = ledView.getStore().last().getData();
-            let previousLed = null;
-
-            ledView.getStore().each(function(led) {
-                if (previousLed === null) {
-                    previousLed = led.getData();
-                    return false;
-                }
-
-                let tmpLed = led.getData();
-                led.set('red', previousLed.red);
-                led.set('green', previousLed.green);
-                led.set('blue', previousLed.blue);
-                led.set('fadeIn', previousLed.fadeIn());
-                led.set('blink', previousLed.blink);
-                previousLed = tmpLed;
-            });
-
-            let firstLed = ledView.getStore().first();
-            firstLed.set('red', lastLed.red);
-            firstLed.set('green', lastLed.green);
-            firstLed.set('blue', lastLed.blue);
-            firstLed.set('fadeIn', lastLed.fadeIn);
-            firstLed.set('blink', lastLed.blink);
         });
     }
 });
