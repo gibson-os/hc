@@ -2,108 +2,90 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
     extend: 'GibsonOS.core.component.Panel',
     alias: ['widget.gosModuleHcNeopixelLedPanel'],
     layout: 'border',
+    enableContextMenu: true,
     initComponent: function () {
         let me = this;
+        let ledView = new GibsonOS.module.hc.neopixel.led.View({
+            region: 'center'
+        });
 
-        me.items = [{
-            xtype: 'gosModuleHcNeopixelLedView',
-            region: 'center',
-            addButton: {
-                itemId: 'hcNeopixelLedViewAddButton',
-                menu: []
-            },
-            addFunction: () => {},
-            deleteFunction: (records) => {
-                let number = this.getStore().getCount();
-
-                Ext.iterate(records, function(selectedLed) {
-                    if (selectedLed.get('number') < number) {
-                        number = selectedLed.get('number');
-                    }
-                });
-
-                this.getStore().remove(records);
-                me.repairNumbers(number-1);
-                me.saveLeds();
-            }
-        },{
+        me.items = [ledView, {
             xtype: 'gosModuleHcNeopixelLedColor',
             region: 'east',
             width: 170,
             flex: 0
-        },{
+        /*},{
             xtype: 'gosModuleHcNeopixelAnimationPanel',
             region: 'south',
             split: true,
             title: 'Animation',
             height: 200,
             collapsible: true,
-            hideCollapseTool: true
+            hideCollapseTool: true*/
         }];
+
+        me.viewItem = ledView;
+        me.addButton = {
+            itemId: 'hcNeopixelLedViewAddButton',
+            menu: []
+        };
+        me.addFunction = () => {};
+        me.deleteFunction = (records) => {
+            let number = me.getStore().getCount();
+
+            Ext.iterate(records, function(selectedLed) {
+                if (selectedLed.get('number') < number) {
+                    number = selectedLed.get('number');
+                }
+            });
+
+            me.getStore().remove(records);
+            me.repairNumbers(number-1);
+            me.saveLeds();
+        };
 
         me.callParent();
 
-        let ledView = me.down('gosModuleHcNeopixelLedView');
-        let colorPanel = me.down('gosModuleHcNeopixelLedColor');
-        let animationView = me.down('gosModuleHcNeopixelAnimationView');
-
-        colorPanel.on('changeColor', function(red, green, blue, fadeIn, blink) {
-            Ext.iterate(ledView.getSelectionModel().getSelection(), function(led) {
-                led.set('red', red);
-                led.set('green', green);
-                led.set('blue', blue);
-                led.set('fadeIn', fadeIn);
-                led.set('blink', blink);
-
-                me.setLiveLeds([led]);
-            });
-        });
-    },
-    addViewActions: function() {
-        let me = this;
-        let view = me.down('gosModuleHcNeopixelLedView');
-
-        view.addAction({
+        me.addAction({
             xtype: 'tbseparator'
         });
-        view.addAction({
+        me.addAction({
             itemId: 'hcNeopixelLedViewSendButton',
             text: 'Senden',
             tbarText: 'Senden',
             handler: function() {
-                showLeds(ledView.getStore().getRange());
+                me.showLeds(view.getStore().getRange());
             }
         });
-        view.addAction({
+        me.addAction({
             itemId: 'hcNeopixelLedViewLiveButton',
             text: 'Live',
             tbarText: 'Live',
             enableToggle: true
         });
-        view.addAction({
+        me.addAction({
             xtype: 'tbseparator'
         });
-        view.addAction({
+        me.addAction({
             xtype: 'gosFormComboBox',
             hideLabel: true,
             width: 150,
             emptyText: 'Bild laden',
             itemId: 'hcNeopixelLedPanelImageLoad',
+            addToItemContextMenu: false,
+            addToContainerContextMenu: false,
             requiredPermission: {
                 action: 'images',
                 permission: GibsonOS.Permission.READ
             },
             store: {
-                type: 'hcNeopixelImageStore',
-                gos: {
-                    data: me.gos.data
-                }
+                type: 'gosModuleHcNeopixelImageStore'
             },
             listeners: {
                 select: function(combo, records) {
                     ledPosition = 0;
 
-                    me.down('gosModuleHcNeopixelLedView').getStore().each(function(led) {
+                    me.getStore().each(function(led) {
                         let imageLed = records[0].get('leds')[ledPosition];
 
                         led.set('red', imageLed.red);
@@ -117,16 +99,18 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 }
             }
         });
-        view.addAction({
+        me.addAction({
             xtype: 'tbseparator'
         });
-        view.addAction({
+        me.addAction({
             xtype: 'gosFormTextfield',
             hideLabel: true,
             width: 75,
             enableKeyEvents: true,
             emptyText: 'Name',
             itemId: 'hcNeopixelLedPanelImageName',
+            addToItemContextMenu: false,
+            addToContainerContextMenu: false,
             requiredPermission: {
                 action: 'saveImage',
                 permission: GibsonOS.Permission.WRITE
@@ -143,10 +127,12 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 }
             }
         });
-        view.addAction({
+        me.addAction({
             iconCls: 'icon_system system_save',
             disabled: true,
             itemId: 'hcNeopixelLedPanelSaveImageButton',
+            addToItemContextMenu: false,
+            addToContainerContextMenu: false,
             requiredPermission: {
                 action: 'saveImage',
                 permission: GibsonOS.Permission.WRITE
@@ -154,7 +140,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             save: function(name) {
                 let leds = [];
 
-                me.down('gosModuleHcNeopixelLedView').getStore().each(function(led) {
+                me.getStore().each(function(led) {
                     leds.push({
                         red: led.get('red'),
                         green: led.get('green'),
@@ -202,6 +188,21 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 let name = me.down('#hcNeopixelLedPanelImageName').getValue();
                 this.save(name);
             }
+        });
+
+        let colorPanel = me.down('gosModuleHcNeopixelLedColor');
+        let animationView = me.down('gosModuleHcNeopixelAnimationView');
+
+        colorPanel.on('changeColor', function(red, green, blue, fadeIn, blink) {
+            Ext.iterate(ledView.getSelectionModel().getSelection(), function(led) {
+                led.set('red', red);
+                led.set('green', green);
+                led.set('blue', blue);
+                led.set('fadeIn', fadeIn);
+                led.set('blink', blink);
+
+                me.setLiveLeds([led]);
+            });
         });
     },
     addColorActions: function() {
@@ -300,99 +301,6 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                     firstLed.set('blink', lastLed.blink);
                 }
             }
-        });
-    },
-    saveLeds: function() {
-        let me = this;
-        me.setLoading(true);
-        let leds = {};
-
-        ledView.getStore().each(function(led) {
-            leds[led.get('number')] = led.getData();
-            led.commit();
-        });
-
-        GibsonOS.Ajax.request({
-            url: baseDir + 'hc/neopixel/setLeds',
-            params: {
-                moduleId: me.gos.data.module.id,
-                leds: Ext.encode(leds)
-            },
-            success: function() {
-                me.setLoading(false);
-            },
-            failure: function() {
-                me.setLoading(false);
-            }
-        });
-    },
-    showLeds: function(leds) {
-        let me = this;
-        me.setLoading(true);
-        let paramLeds = {};
-
-        Ext.iterate(leds, function(led) {
-            paramLeds[led.get('number')] = led.getData();
-            led.commit();
-        });
-
-        GibsonOS.Ajax.request({
-            url: baseDir + 'hc/neopixel/showLeds',
-            params: {
-                moduleId: me.gos.data.module.id,
-                leds: Ext.encode(paramLeds)
-            },
-            callback: function() {
-                me.setLoading(false);
-            }
-        });
-    },
-    repairNumbers: function(start = 0) {
-        Ext.iterate(ledView.getStore().getRange(ledView.getStore().find('number', start)), function(led) {
-            led.set('number', start++);
-        });
-    },
-    findLastChannelLed: function(channel, index = 0) {
-        let me = this;
-        let view = me.down('gosModuleHcNeopixelLedView');
-        let record = view.getStore().getAt(index);
-
-        if (!record) {
-            return {
-                left: -3,
-                top: channel * 3,
-                number: -1
-            };
-        }
-
-        index = view.getStore().find('channel', channel, view.getStore().indexOf(record)+1, false, false, true);
-
-        if (index === -1) {
-            if (
-                channel > 0 &&
-                record.get('channel') !== channel
-            ) {
-                let data = findLastChannelLed(channel-1);
-                data.left = -3;
-                data.top += 3;
-
-                return data;
-            }
-
-            return record.getData();
-        }
-
-        return findLastChannelLed(channel, index);
-    },
-    setLiveLeds: function(leds) {
-        if (!me.down('#hcNeopixelLedViewLiveButton').pressed) {
-            return;
-        }
-
-        me.showLeds(leds);
-
-        Ext.iterate(leds, (led) => {
-            led.commit();
         });
     },
     addViewListeners: function() {
@@ -518,6 +426,99 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             }
 
             animationView.gos.function.updateTemplate(jsonData.data.length);
+        });
+    },
+    saveLeds: function() {
+        let me = this;
+        me.setLoading(true);
+        let leds = {};
+
+        ledView.getStore().each(function(led) {
+            leds[led.get('number')] = led.getData();
+            led.commit();
+        });
+
+        GibsonOS.Ajax.request({
+            url: baseDir + 'hc/neopixel/setLeds',
+            params: {
+                moduleId: me.gos.data.module.id,
+                leds: Ext.encode(leds)
+            },
+            success: function() {
+                me.setLoading(false);
+            },
+            failure: function() {
+                me.setLoading(false);
+            }
+        });
+    },
+    showLeds: function(leds) {
+        let me = this;
+        me.setLoading(true);
+        let paramLeds = {};
+
+        Ext.iterate(leds, function(led) {
+            paramLeds[led.get('number')] = led.getData();
+            led.commit();
+        });
+
+        GibsonOS.Ajax.request({
+            url: baseDir + 'hc/neopixel/showLeds',
+            params: {
+                moduleId: me.gos.data.module.id,
+                leds: Ext.encode(paramLeds)
+            },
+            callback: function() {
+                me.setLoading(false);
+            }
+        });
+    },
+    repairNumbers: function(start = 0) {
+        Ext.iterate(ledView.getStore().getRange(ledView.getStore().find('number', start)), function(led) {
+            led.set('number', start++);
+        });
+    },
+    findLastChannelLed: function(channel, index = 0) {
+        let me = this;
+        let view = me.down('gosModuleHcNeopixelLedView');
+        let record = view.getStore().getAt(index);
+
+        if (!record) {
+            return {
+                left: -3,
+                top: channel * 3,
+                number: -1
+            };
+        }
+
+        index = view.getStore().find('channel', channel, view.getStore().indexOf(record)+1, false, false, true);
+
+        if (index === -1) {
+            if (
+                channel > 0 &&
+                record.get('channel') !== channel
+            ) {
+                let data = findLastChannelLed(channel-1);
+                data.left = -3;
+                data.top += 3;
+
+                return data;
+            }
+
+            return record.getData();
+        }
+
+        return findLastChannelLed(channel, index);
+    },
+    setLiveLeds: function(leds) {
+        if (!me.down('#hcNeopixelLedViewLiveButton').pressed) {
+            return;
+        }
+
+        me.showLeds(leds);
+
+        Ext.iterate(leds, (led) => {
+            led.commit();
         });
     }
 });

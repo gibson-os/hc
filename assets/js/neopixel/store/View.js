@@ -1,6 +1,6 @@
 Ext.define('GibsonOS.module.hc.neopixel.store.View', {
     extend: 'GibsonOS.data.Store',
-    alias: ['store.hcNeopixelViewStore'],
+    alias: ['store.gosModuleHcNeopixelViewStore'],
     model: 'GibsonOS.module.hc.neopixel.model.Led',
     constructor: function(data) {
         let me = this;
