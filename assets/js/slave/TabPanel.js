@@ -7,10 +7,6 @@ Ext.define('GibsonOS.module.hc.slave.TabPanel', {
         let me = this;
 
         me.items.push({
-            xtype: 'gosModuleCoreEventGrid',
-            title: 'Events',
-            gos: me.gos
-        },{
             xtype: 'gosModuleHcIndexLogGrid',
             gos: {
                 data: {

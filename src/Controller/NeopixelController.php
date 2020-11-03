@@ -57,9 +57,8 @@ class NeopixelController extends AbstractController
      * @throws AbstractException
      * @throws SaveError
      */
-    public function saveLeds(
+    public function showLeds(
         NeopixelService $neopixelService,
-        LedService $ledService,
         ModuleRepository $moduleRepository,
         int $moduleId,
         array $leds = []
@@ -67,17 +66,6 @@ class NeopixelController extends AbstractController
         $this->checkPermission(PermissionService::MANAGE + PermissionService::WRITE);
 
         $slave = $moduleRepository->getById($moduleId);
-        $ledCounts = $ledService->getChannelCounts($slave, $leds);
-        $config = JsonUtility::decode($slave->getConfig() ?? '[]');
-
-        if (count(array_diff_assoc($ledCounts, $config['counts']))) {
-            $neopixelService->writeLedCounts($slave, $ledCounts);
-
-            $config['counts'] = $ledCounts;
-            $slave->setConfig(JsonUtility::encode($config));
-            $slave->save();
-        }
-
         $neopixelService->writeLeds($slave, $leds);
 
         return $this->returnSuccess();
@@ -95,23 +83,27 @@ class NeopixelController extends AbstractController
      */
     public function setLeds(
         NeopixelService $neopixelService,
+        LedService $ledService,
         ModuleRepository $moduleRepository,
         int $moduleId,
         array $leds = []
     ): AjaxResponse {
         $this->checkPermission(PermissionService::WRITE);
 
-        foreach ($leds as $id => $led) {
-            unset(
-                $led[LedService::ATTRIBUTE_KEY_TOP],
-                $led[LedService::ATTRIBUTE_KEY_LEFT],
-                $led[LedService::ATTRIBUTE_KEY_CHANNEL
-            ]);
+        $slave = $moduleRepository->getById($moduleId);
+        $ledCounts = $ledService->getChannelCounts($slave, $leds);
+        $config = JsonUtility::decode($slave->getConfig() ?? '[]');
 
-            $leds[$id] = $led;
+        if (count(array_diff_assoc($ledCounts, $config['counts']))) {
+            $neopixelService->writeLedCounts($slave, $ledCounts);
+
+            $config['counts'] = $ledCounts;
+            $slave->setConfig(JsonUtility::encode($config));
+            $slave->save();
         }
 
-        $neopixelService->writeLeds($moduleRepository->getById($moduleId), $leds);
+        $ledService->saveLeds($slave, $leds);
+        $ledService->deleteUnusedLeds($slave, $leds);
 
         return $this->returnSuccess();
     }
