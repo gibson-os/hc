@@ -78,7 +78,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.View', {
                     let leds = {};
 
                     me.getStore().each(function(led) {
-                        leds[led.getId()] = led.getData();
+                        leds[led.get('number')] = led.getData();
                         led.commit();
                     });
 
@@ -113,7 +113,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.View', {
                 let leds = {};
 
                 me.getStore().each(function(led) {
-                    leds[led.getId()] = led.getData();
+                    leds[led.get('number')] = led.getData();
                     led.commit();
                 });
                 moveCount++;
