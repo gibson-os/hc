@@ -71,8 +71,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             text: 'Senden',
             tbarText: 'Senden',
             handler: function() {
-                // LED Farben senden
-                //setLeds(ledView.getStore().getRange());
+                showLeds(ledView.getStore().getRange());
             }
         });
         view.addAction({
@@ -314,7 +313,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         });
 
         GibsonOS.Ajax.request({
-            url: baseDir + 'hc/neopixel/saveLeds',
+            url: baseDir + 'hc/neopixel/setLeds',
             params: {
                 moduleId: me.gos.data.module.id,
                 leds: Ext.encode(leds)
