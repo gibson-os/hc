@@ -310,9 +310,9 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
         me.callParent();
 
-        me.down('hcNeopixelAnimationStore').on('load', (store, records) => {
+        /*me.down('gosModuleHcNeopixelAnimationView').getStore().on('load', (store, records) => {
 
-        });
+        });*/
 
         GibsonOS.Ajax.request({
             url: baseDir + 'hc/neopixelAnimation/index',

@@ -19,16 +19,20 @@ Ext.define('GibsonOS.module.hc.neopixel.App', {
 
         me.callParent();
 
-        let viewStore = me.down('hcNeopixelViewStore');
+        let viewStore = me.down('gosModuleHcNeopixelLedView').getStore();
         viewStore.getProxy().setExtraParam('moduleId', me.gos.data.module.id);
         viewStore.load();
 
-        let animationsStore = me.down('hcNeopixelAnimationsStore');
+        /*let imageStore = me.down('#hcNeopixelLedPanelImageLoad').getStore();
+        imageStore.getProxy().setExtraParam('moduleId', me.gos.data.module.id);
+        imageStore.load();*/
+
+        /*let animationsStore = me.down('gosModuleHcNeopixelAnimationsStore');
         animationsStore.getProxy().setExtraParam('moduleId', me.gos.data.module.id);
         animationsStore.load();
 
-        let animationStore = me.down('hcNeopixelAnimationStore');
+        let animationStore = me.down('gosModuleHcNeopixelAnimationStore');
         animationStore.getProxy().setExtraParam('moduleId', me.gos.data.module.id);
-        animationStore.load();
+        animationStore.load();*/
     }
 });
