@@ -14,14 +14,11 @@ Ext.define('GibsonOS.module.hc.neopixel.App', {
 
         me.items = [{
             xtype: 'gosModuleHcNeopixelLedPanel',
-            title: 'LEDs'
+            title: 'LEDs',
+            hcModuleId: me.gos.data.module.id
         }];
 
         me.callParent();
-
-        let viewStore = me.down('gosModuleHcNeopixelLedView').getStore();
-        viewStore.getProxy().setExtraParam('moduleId', me.gos.data.module.id);
-        viewStore.load();
 
         /*let imageStore = me.down('#hcNeopixelLedPanelImageLoad').getStore();
         imageStore.getProxy().setExtraParam('moduleId', me.gos.data.module.id);
