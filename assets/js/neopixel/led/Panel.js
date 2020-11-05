@@ -191,8 +191,12 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         });
 
         let colorPanel = me.down('gosModuleHcNeopixelLedColor');
-        let animationView = me.down('gosModuleHcNeopixelAnimationView');
+        //let animationView = me.down('gosModuleHcNeopixelAnimationView');
 
+        ledView.getStore().on('load', (view) => {
+            const data = view.getProxy().getReader().rawData;
+            //me.down('#hcNeopixelLedViewAddButton').
+        });
         colorPanel.on('changeColor', function(red, green, blue, fadeIn, blink) {
             Ext.iterate(ledView.getSelectionModel().getSelection(), function(led) {
                 led.set('red', red);
