@@ -242,6 +242,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                         led.set('fadeIn', fadeIn);
                         led.set('blink', blink);
                     });
+
+                    me.setLiveLeds(view.getStore().getRange());
                 }
             }
         });
@@ -317,7 +319,6 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         let view = me.down('gosModuleHcNeopixelLedView');
 
         view.on('selectionchange', function(view, leds) {
-            console.log(leds);
             if (!leds.length) {
                 return;
             }
@@ -531,6 +532,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         return me.findLastChannelLed(channel, index);
     },
     setLiveLeds: function(leds) {
+        let me = this;
+
         if (!me.down('#hcNeopixelLedViewLiveButton').pressed) {
             return;
         }
