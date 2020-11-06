@@ -65,6 +65,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             itemId: 'hcNeopixelLedViewLiveButton',
             text: 'Live',
             tbarText: 'Live',
+            addToItemContextMenu: false,
+            addToContainerContextMenu: false,
             enableToggle: true
         });
         me.addAction({
