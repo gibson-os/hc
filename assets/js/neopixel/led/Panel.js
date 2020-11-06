@@ -211,6 +211,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             });
         });
 
+        me.addColorActions();
         me.addViewListeners();
     },
     addColorActions: function() {
@@ -316,10 +317,12 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         let view = me.down('gosModuleHcNeopixelLedView');
 
         view.on('selectionchange', function(view, leds) {
+            console.log(leds);
             if (!leds.length) {
                 return;
             }
 
+            let colorPanel = me.down('gosModuleHcNeopixelLedColor');
             let led = leds[0];
             let redField = me.down('#hcNeopixelLedColorRed');
             let greenField = me.down('#hcNeopixelLedColorGreen');
@@ -355,8 +358,6 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 me.down('#hcNeopixelLedViewDeleteButton').disable();
                 return;
             }
-
-            me.down('#hcNeopixelLedViewDeleteButton').enable();
         });
         view.getStore().on('load', function(store) {
             let ledAddToolbarMenu = me.down('#hcNeopixelLedViewAddButton').menu;

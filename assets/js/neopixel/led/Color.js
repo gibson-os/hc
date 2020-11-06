@@ -1,5 +1,5 @@
 Ext.define('GibsonOS.module.hc.neopixel.led.Color', {
-    extend: 'GibsonOS.form.Panel',
+    extend: 'GibsonOS.core.component.form.Panel',
     alias: ['widget.gosModuleHcNeopixelLedColor'],
     initComponent: function () {
         let me = this;
