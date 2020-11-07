@@ -3,7 +3,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
     alias: ['widget.gosModuleHcNeopixelLedPanel'],
     layout: 'border',
     enableContextMenu: true,
-    initComponent: function () {
+    initComponent() {
         let me = this;
         let ledView = new GibsonOS.module.hc.neopixel.led.View({
             region: 'center'
@@ -14,14 +14,15 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             region: 'east',
             width: 170,
             flex: 0
-        /*},{
+        }, {
             xtype: 'gosModuleHcNeopixelAnimationPanel',
             region: 'south',
             split: true,
             title: 'Animation',
             height: 200,
             collapsible: true,
-            hideCollapseTool: true*/
+            hideCollapseTool: true,
+            hcModuleId: me.hcModuleId
         }];
 
         me.viewItem = ledView;
@@ -29,18 +30,19 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             itemId: 'hcNeopixelLedViewAddButton',
             menu: []
         };
-        me.addFunction = () => {};
-        me.deleteFunction = (records) => {
+        me.addFunction = () => {
+        };
+        me.deleteFunction = records => {
             let number = me.getStore().getCount();
 
-            Ext.iterate(records, function(selectedLed) {
+            Ext.iterate(records, selectedLed => {
                 if (selectedLed.get('number') < number) {
                     number = selectedLed.get('number');
                 }
             });
 
             me.getStore().remove(records);
-            me.repairNumbers(number-1);
+            me.repairNumbers(number - 1);
             me.saveLeds();
         };
 
@@ -50,14 +52,12 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         viewStore.getProxy().setExtraParam('moduleId', me.hcModuleId);
         viewStore.load();
 
-        me.addAction({
-            xtype: 'tbseparator'
-        });
+        me.addAction({xtype: 'tbseparator'});
         me.addAction({
             itemId: 'hcNeopixelLedViewSendButton',
             text: 'Senden',
             tbarText: 'Senden',
-            handler: function() {
+            handler: () => {
                 me.showLeds(view.getStore().getRange());
             }
         });
@@ -69,9 +69,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             addToContainerContextMenu: false,
             enableToggle: true
         });
-        me.addAction({
-            xtype: 'tbseparator'
-        });
+        me.addAction({xtype: 'tbseparator'});
         me.addAction({
             xtype: 'gosFormComboBox',
             hideLabel: true,
@@ -88,10 +86,10 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 type: 'gosModuleHcNeopixelImageStore'
             },
             listeners: {
-                select: function(combo, records) {
+                select: (combo, records) => {
                     ledPosition = 0;
 
-                    me.getStore().each(function(led) {
+                    me.getStore().each((led) => {
                         let imageLed = records[0].get('leds')[ledPosition];
 
                         led.set('red', imageLed.red);
@@ -122,7 +120,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 permission: GibsonOS.Permission.WRITE
             },
             listeners: {
-                keyup: function(field) {
+                keyup: (field) => {
                     let saveButton = me.down('#hcNeopixelLedPanelSaveImageButton');
 
                     if (field.getValue().length) {
@@ -143,10 +141,10 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 action: 'saveImage',
                 permission: GibsonOS.Permission.WRITE
             },
-            save: function(name) {
+            save: name => {
                 let leds = [];
 
-                me.getStore().each(function(led) {
+                me.getStore().each(led => {
                     leds.push({
                         red: led.get('red'),
                         green: led.get('green'),
@@ -163,7 +161,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                         name: name,
                         leds: Ext.encode(leds)
                     },
-                    success: function(response) {
+                    success: response => {
                         let loadField = me.down('#hcNeopixelLedPanelImageLoad');
                         let data = Ext.decode(response.responseText);
 
@@ -172,13 +170,13 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
 
                         //rfmrgbpanel5x5ImageDirty[id] = false;
                     },
-                    failure: function(response) {
+                    failure: response => {
                         let data = Ext.decode(response.responseText).data;
 
                         if (data.overwrite) {
                             Ext.MessageBox.confirm(
                                 'Überschreiben?',
-                                'Es existiert schon ein Bild unter dem Namen "' + name + '". Möchten Sie es überschreiben?', function(buttonId) {
+                                'Es existiert schon ein Bild unter dem Namen "' + name + '". Möchten Sie es überschreiben?', buttonId => {
                                     if (buttonId === 'no') {
                                         return false;
                                     }
@@ -190,7 +188,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                     }
                 });
             },
-            handler: function() {
+            handler() {
                 let name = me.down('#hcNeopixelLedPanelImageName').getValue();
                 this.save(name);
             }
@@ -199,8 +197,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         let colorPanel = me.down('gosModuleHcNeopixelLedColor');
         //let animationView = me.down('gosModuleHcNeopixelAnimationView');
 
-        colorPanel.on('changeColor', function(red, green, blue, fadeIn, blink) {
-            Ext.iterate(ledView.getSelectionModel().getSelection(), function(led) {
+        colorPanel.on('changeColor', (red, green, blue, fadeIn, blink) => {
+            Ext.iterate(ledView.getSelectionModel().getSelection(), led => {
                 led.set('red', red);
                 led.set('green', green);
                 led.set('blue', blue);
@@ -214,7 +212,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         me.addColorActions();
         me.addViewListeners();
     },
-    addColorActions: function() {
+    addColorActions() {
         let me = this;
         let panel = me.down('gosModuleHcNeopixelLedColor');
         let view = me.down('gosModuleHcNeopixelLedView');
@@ -235,7 +233,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                     let fadeIn = panel.down('#hcNeopixelLedColorFadeIn').getValue();
                     let blink = panel.down('#hcNeopixelLedColorBlink').getValue();
 
-                    view.getStore().each(function(led) {
+                    view.getStore().each(led => {
                         led.set('red', red);
                         led.set('green', green);
                         led.set('blue', blue);
@@ -258,7 +256,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                     let firstLed = view.getStore().first().getData();
                     let previousLed = null;
 
-                    view.getStore().each(function(led) {
+                    view.getStore().each(led => {
                         if (previousLed !== null) {
                             previousLed.set('red', led.get('red'));
                             previousLed.set('green', led.get('green'));
@@ -289,7 +287,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                     let lastLed = view.getStore().last().getData();
                     let previousLed = null;
 
-                    view.getStore().each(function(led) {
+                    view.getStore().each(led => {
                         if (previousLed === null) {
                             previousLed = led.getData();
                             return false;
@@ -314,11 +312,11 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             }
         });
     },
-    addViewListeners: function() {
+    addViewListeners() {
         let me = this;
         let view = me.down('gosModuleHcNeopixelLedView');
 
-        view.on('selectionchange', function(view, leds) {
+        view.on('selectionchange', (view, leds) => {
             if (!leds.length) {
                 return;
             }
@@ -354,13 +352,12 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 colorPanel.resumeEvents();
             }
         });
-        view.on('selectionchange', function(view, records) {
+        view.on('selectionchange', (view, records) => {
             if (records.length === 0) {
                 me.down('#hcNeopixelLedViewDeleteButton').disable();
-                return;
             }
         });
-        view.getStore().on('load', function(store) {
+        view.getStore().on('load', store => {
             let ledAddToolbarMenu = me.down('#hcNeopixelLedViewAddButton').menu;
             let ledAddContainerContextMenu = me.viewItem.containerContextMenu.down('#hcNeopixelLedViewAddButton').menu;
             let ledAddItemContextMenu = me.viewItem.itemContextMenu.down('#hcNeopixelLedViewAddButton').menu;
@@ -368,7 +365,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             let pwmSteps = 256;
 
             if (jsonData.pwmSpeed) {
-                let setFadeInValues = function(record) {
+                let setFadeInValues = record => {
                     if (!record.get('id')) {
                         return true;
                     }
@@ -403,8 +400,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 const button = {
                     text: 'Channel ' + (i + 1),
                     iconCls: 'icon_system system_add',
-                    handler: function() {
-                        Ext.MessageBox.prompt('Anzahl', 'Wie viele LEDs sollen hinzugefügt werden?', function(btn, count) {
+                    handler: () => {
+                        Ext.MessageBox.prompt('Anzahl', 'Wie viele LEDs sollen hinzugefügt werden?', (btn, count) => {
                             if (btn !== 'ok') {
                                 return;
                             }
@@ -412,7 +409,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                             let lastChannelLed = me.findLastChannelLed(i);
 
                             for (let j = 0; j < count; j++) {
-                                let led  = {
+                                let led = {
                                     number: lastChannelLed['number'] + 1,
                                     channel: i,
                                     left: lastChannelLed['left'] + 3,
@@ -428,7 +425,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                                 if (index === -1) {
                                     lastChannelLed = store.add(led)[0].getData();
                                 } else {
-                                    lastChannelLed = store.insert(index+1, led)[0].getData();
+                                    lastChannelLed = store.insert(index + 1, led)[0].getData();
                                 }
                             }
 
@@ -445,13 +442,13 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             //animationView.gos.function.updateTemplate(jsonData.data.length);
         });
     },
-    saveLeds: function() {
+    saveLeds() {
         let me = this;
         let view = me.down('gosModuleHcNeopixelLedView');
         me.setLoading(true);
         let leds = {};
 
-        view.getStore().each(function(led) {
+        view.getStore().each(led => {
             leds[led.get('number')] = led.getData();
             led.commit();
         });
@@ -462,20 +459,20 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 moduleId: me.hcModuleId,
                 leds: Ext.encode(leds)
             },
-            success: function() {
+            success: () => {
                 me.setLoading(false);
             },
-            failure: function() {
+            failure: () => {
                 me.setLoading(false);
             }
         });
     },
-    showLeds: function(leds) {
+    showLeds(leds) {
         let me = this;
         me.setLoading(true);
         let paramLeds = {};
 
-        Ext.iterate(leds, function(led) {
+        Ext.iterate(leds, led => {
             paramLeds[led.get('number')] = led.getData();
             led.commit();
         });
@@ -486,20 +483,20 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 moduleId: me.hcModuleId,
                 leds: Ext.encode(paramLeds)
             },
-            callback: function() {
+            callback: () => {
                 me.setLoading(false);
             }
         });
     },
-    repairNumbers: function(start = 0) {
+    repairNumbers(start = 0) {
         let me = this;
         let view = me.down('gosModuleHcNeopixelLedView');
 
-        Ext.iterate(view.getStore().getRange(view.getStore().find('number', start)), function(led) {
+        Ext.iterate(view.getStore().getRange(view.getStore().find('number', start)), led => {
             led.set('number', start++);
         });
     },
-    findLastChannelLed: function(channel, index = 0) {
+    findLastChannelLed(channel, index = 0) {
         let me = this;
         let view = me.down('gosModuleHcNeopixelLedView');
         let record = view.getStore().getAt(index);
@@ -512,14 +509,14 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             };
         }
 
-        index = view.getStore().find('channel', channel, view.getStore().indexOf(record)+1, false, false, true);
+        index = view.getStore().find('channel', channel, view.getStore().indexOf(record) + 1, false, false, true);
 
         if (index === -1) {
             if (
                 channel > 0 &&
                 record.get('channel') !== channel
             ) {
-                let data = me.findLastChannelLed(channel-1);
+                let data = me.findLastChannelLed(channel - 1);
                 data.left = -3;
                 data.top += 3;
 
@@ -531,7 +528,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
 
         return me.findLastChannelLed(channel, index);
     },
-    setLiveLeds: function(leds) {
+    setLiveLeds(leds) {
         let me = this;
 
         if (!me.down('#hcNeopixelLedViewLiveButton').pressed) {
