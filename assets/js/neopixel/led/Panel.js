@@ -60,7 +60,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             text: 'Senden',
             tbarText: 'Senden',
             handler: () => {
-                me.showLeds(view.getStore().getRange());
+                me.showLeds(ledView.getStore().getRange());
             }
         });
         me.addAction({
