@@ -2,6 +2,7 @@ Ext.define('GibsonOS.module.hc.neopixel.store.Animations', {
     extend: 'GibsonOS.data.Store',
     alias: ['store.gosModuleHcNeopixelAnimationsStore'],
     model: 'GibsonOS.module.hc.neopixel.model.Animations',
+    autoLoad: false,
     constructor: function(data) {
         let me = this;
 

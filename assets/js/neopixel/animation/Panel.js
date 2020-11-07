@@ -2,72 +2,185 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
     extend: 'GibsonOS.core.component.Panel',
     alias: ['widget.gosModuleHcNeopixelAnimationPanel'],
     layout: 'border',
+    enableContextMenu: true,
     initComponent() {
         let me = this;
-
-        me.addFunction = () => {
-            let animationView = me.down('gosModuleHcNeopixelAnimationView');
-            let store = animationView.getStore();
-
-            Ext.iterate(
-                document.querySelectorAll('#' + animationView.getId() + ' div.selected'),
-                selectedLedDiv => {
-                    let ledIndex = store.find('led', selectedLedDiv.dataset.id, 0, false, false, true);
-                    let time = 0;
-                    let ledRecord;
-
-                    while (ledIndex > -1) {
-                        ledRecord = store.getAt(ledIndex);
-
-                        if (ledRecord.get('time') + ledRecord.get('length') > time) {
-                            time = ledRecord.get('time') + ledRecord.get('length');
-                        }
-
-                        ledIndex = store.find('led', selectedLedDiv.dataset.id, ledIndex + 1, false, false, true);
-                    }
-
-                    animationView.getStore().add({
-                        led: selectedLedDiv.dataset.id,
-                        red: me.down('#hcNeopixelLedColorRed').getValue(),
-                        green: me.down('#hcNeopixelLedColorGreen').getValue(),
-                        blue: me.down('#hcNeopixelLedColorBlue').getValue(),
-                        fadeIn: me.down('#hcNeopixelLedColorFadeIn').getValue(),
-                        blink: me.down('#hcNeopixelLedColorBlink').getValue(),
-                        time: time,
-                        length: me.down('#hcNeopixelLedColorTime').getValue(),
-                    });
-                }
-            );
-        };
-        me.deleteFunction = () => {
-            let animationView = me.down('gosModuleHcNeopixelAnimationView');
-            let store = me.down('gosModuleHcNeopixelAnimationView').getStore();
-            let record = animationView.getSelectionModel().getSelection()[0];
-            let index = store.indexOf(record);
-
-            store.remove(record);
-
-            Ext.iterate(store.getRange(index), led => {
-                if (led.get('led') !== record.get('led')) {
-                    return false;
-                }
-
-                led.set('time', led.get('time') - record.get('length'));
-            });
-        };
-
-        me.items = [{
-            xtype: 'gosModuleHcNeopixelAnimationView',
+        let animationView = new GibsonOS.module.hc.neopixel.animation.View({
             region: 'center'
-        }, {
+        });
+
+        me.items = [animationView, {
             xtype: 'gosModuleHcNeopixelLedColor',
             region: 'east',
             width: 170,
             flex: 0,
-            style: 'z-index: 100;'
+            style: 'z-index: 100;',
+            addButton: {
+                itemId: 'hcNeopixelLedColorAdd',
+                disabled: true
+            },
+            addFunction() {
+                let store = animationView.getStore();
+
+                Ext.iterate(
+                    document.querySelectorAll('#' + animationView.getId() + ' div.selected'),
+                    selectedLedDiv => {
+                        let ledIndex = store.find('led', selectedLedDiv.dataset.id, 0, false, false, true);
+                        let time = 0;
+                        let ledRecord;
+
+                        while (ledIndex > -1) {
+                            ledRecord = store.getAt(ledIndex);
+
+                            if (ledRecord.get('time') + ledRecord.get('length') > time) {
+                                time = ledRecord.get('time') + ledRecord.get('length');
+                            }
+
+                            ledIndex = store.find('led', selectedLedDiv.dataset.id, ledIndex + 1, false, false, true);
+                        }
+
+                        animationView.getStore().add({
+                            led: selectedLedDiv.dataset.id,
+                            red: me.down('#hcNeopixelLedColorRed').getValue(),
+                            green: me.down('#hcNeopixelLedColorGreen').getValue(),
+                            blue: me.down('#hcNeopixelLedColorBlue').getValue(),
+                            fadeIn: me.down('#hcNeopixelLedColorFadeIn').getValue(),
+                            blink: me.down('#hcNeopixelLedColorBlink').getValue(),
+                            time: time,
+                            length: me.down('#hcNeopixelLedColorTime').getValue(),
+                        });
+                    }
+                );
+            },
+            deleteButton: {
+                itemId: 'hcNeopixelLedColorDelete'
+            },
+            deleteFunction() {
+                let animationView = me.down('gosModuleHcNeopixelAnimationView');
+                let store = me.down('gosModuleHcNeopixelAnimationView').getStore();
+                let record = animationView.getSelectionModel().getSelection()[0];
+                let index = store.indexOf(record);
+
+                store.remove(record);
+
+                Ext.iterate(store.getRange(index), led => {
+                    if (led.get('led') !== record.get('led')) {
+                        return false;
+                    }
+
+                    led.set('time', led.get('time') - record.get('length'));
+                });
+            }
         }];
 
+        me.viewItem = animationView;
+
         me.callParent();
+
+        me.addActions();
+
+        let viewStore = me.down('gosModuleHcNeopixelAnimationView').getStore();
+        viewStore.getProxy().setExtraParam('moduleId', me.hcModuleId);
+        viewStore.on('load', store => {
+            let jsonData = store.getProxy().getReader().jsonData;
+
+            Ext.iterate(jsonData.steps, (time, step) => {
+                store.add(step);
+            });
+
+            let playTransmitted = me.down('#hcNeopixelAnimationPlayTransmitted');
+
+            if (jsonData.transmitted) {
+                playTransmitted.enable();
+            }
+
+            if (jsonData.started) {
+                if (jsonData.pid) {
+                    playTransmitted.disable();
+                    me.down('#hcNeopixelAnimationPlayUntransmitted').enable();
+                }
+
+                me.down('#hcNeopixelAnimationPause').enable();
+                me.down('#hcNeopixelAnimationStop').enable();
+            }
+        });
+        viewStore.load();
+
+        me.down('gosModuleHcNeopixelLedColor').add({
+            xtype: 'gosFormNumberfield',
+            itemId: 'hcNeopixelLedColorTime',
+            fieldLabel: 'Zeit',
+        });
+
+        let selectedRecord = null;
+
+        me.down('#hcNeopixelLedColorTime').on('change', (field, value, oldValue) => {
+            if (!oldValue) {
+                return;
+            }
+
+            let animationView = me.down('gosModuleHcNeopixelAnimationView');
+            let store = animationView.getStore();
+            let records = animationView.getSelectionModel().getSelection();
+
+            if (records.length) {
+                let record = records[0];
+
+                if (selectedRecord && selectedRecord !== record) {
+                    selectedRecord = record;
+
+                    return;
+                }
+
+                selectedRecord = record;
+                record.set('length', value);
+
+                Ext.iterate(store.getRange(store.indexOf(records[0]) + 1), led => {
+                    if (led.get('led') !== record.get('led')) {
+                        return false;
+                    }
+
+                    led.set('time', led.get('time') + (value - oldValue));
+                })
+            }
+        });
+        me.down('gosModuleHcNeopixelAnimationView').on('afterLedSelectionChange', view => {
+            let addButton = me.down('#hcNeopixelLedColorAdd');
+
+            if (document.querySelectorAll('#' + view.getId() + ' div.selected').length) {
+                addButton.enable();
+            } else {
+                addButton.disable();
+            }
+        });
+        me.down('gosModuleHcNeopixelAnimationView').on('selectionchange', (view, records) => {
+            let deleteButton = me.down('#hcNeopixelLedColorDelete');
+
+            if (records.length) {
+                let record = records[0];
+                deleteButton.enable();
+                me.down('#hcNeopixelLedColorRed').setValue(record.get('red'));
+                me.down('#hcNeopixelLedColorGreen').setValue(record.get('green'));
+                me.down('#hcNeopixelLedColorBlue').setValue(record.get('blue'));
+                me.down('#hcNeopixelLedColorFadeIn').setValue(record.get('fadeIn'));
+                me.down('#hcNeopixelLedColorBlink').setValue(record.get('blink'));
+                me.down('#hcNeopixelLedColorTime').setValue(record.get('length'));
+            } else {
+                deleteButton.disable();
+            }
+        });
+        me.down('#hcNeopixelLedColorFadeIn').on('change', (combo, value) => {
+            let record = combo.findRecordByValue(value);
+            let colorTime = me.down('#hcNeopixelLedColorTime');
+            let milliseconds = record.get('seconds') * 1000;
+
+            if (milliseconds > colorTime.getValue()) {
+                colorTime.setValue(milliseconds);
+            }
+        });
+    },
+    addActions() {
+        const me = this;
 
         me.addAction({
             itemId: 'hcNeopixelLedColorNew',
@@ -170,6 +283,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
         me.addAction({
             itemId: 'hcNeopixelAnimationPause',
             iconCls: 'icon_system system_pause',
+            text: 'Pause',
             disabled: true,
             listeners: {
                 click: () => {
@@ -222,7 +336,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 permission: GibsonOS.Permission.READ
             },
             store: {
-                type: 'hcNeopixelAnimationsStore'
+                type: 'gosModuleHcNeopixelAnimationsStore'
             },
             listeners: {
                 select: (combo, records) => {
@@ -328,114 +442,6 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                     let name = me.down('#hcNeopixelAnimationPanelAnimationName').getValue();
                     this.save(name);
                 }
-            }
-        });
-
-        /*me.down('gosModuleHcNeopixelAnimationView').getStore().on('load', (store, records) => {
-
-        });*/
-
-        GibsonOS.Ajax.request({
-            url: baseDir + 'hc/neopixelAnimation/index',
-            params: {
-                moduleId: me.hcModuleId
-            },
-            success: response => {
-                let store = me.down('gosModuleHcNeopixelAnimationView').getStore();
-                let data = Ext.decode(response.responseText).data;
-
-                Ext.iterate(data.steps, (time, step) => {
-                    store.add(step);
-                });
-
-                let playTransmitted = me.down('#hcNeopixelAnimationPlayTransmitted');
-
-                if (data.transmitted) {
-                    playTransmitted.enable();
-                }
-
-                if (data.started) {
-                    if (data.pid) {
-                        playTransmitted.disable();
-                        me.down('#hcNeopixelAnimationPlayUntransmitted').enable();
-                    }
-
-                    me.down('#hcNeopixelAnimationPause').enable();
-                    me.down('#hcNeopixelAnimationStop').enable();
-                }
-            }
-        });
-
-        me.down('gosModuleHcNeopixelLedColor').add({
-            xtype: 'gosFormNumberfield',
-            itemId: 'hcNeopixelLedColorTime',
-            fieldLabel: 'Zeit',
-        });
-
-        let selectedRecord = null;
-
-        me.down('#hcNeopixelLedColorTime').on('change', (field, value, oldValue) => {
-            if (!oldValue) {
-                return;
-            }
-
-            let animationView = me.down('gosModuleHcNeopixelAnimationView');
-            let store = animationView.getStore();
-            let records = animationView.getSelectionModel().getSelection();
-
-            if (records.length) {
-                let record = records[0];
-
-                if (selectedRecord && selectedRecord !== record) {
-                    selectedRecord = record;
-
-                    return;
-                }
-
-                selectedRecord = record;
-                record.set('length', value);
-
-                Ext.iterate(store.getRange(store.indexOf(records[0]) + 1), led => {
-                    if (led.get('led') !== record.get('led')) {
-                        return false;
-                    }
-
-                    led.set('time', led.get('time') + (value - oldValue));
-                })
-            }
-        });
-        me.down('gosModuleHcNeopixelAnimationView').on('afterLedSelectionChange', view => {
-            let addButton = me.down('#hcNeopixelLedColorAdd');
-
-            if (document.querySelectorAll('#' + view.getId() + ' div.selected').length) {
-                addButton.enable();
-            } else {
-                addButton.disable();
-            }
-        });
-        me.down('gosModuleHcNeopixelAnimationView').on('selectionchange', (view, records) => {
-            let deleteButton = me.down('#hcNeopixelLedColorDelete');
-
-            if (records.length) {
-                let record = records[0];
-                deleteButton.enable();
-                me.down('#hcNeopixelLedColorRed').setValue(record.get('red'));
-                me.down('#hcNeopixelLedColorGreen').setValue(record.get('green'));
-                me.down('#hcNeopixelLedColorBlue').setValue(record.get('blue'));
-                me.down('#hcNeopixelLedColorFadeIn').setValue(record.get('fadeIn'));
-                me.down('#hcNeopixelLedColorBlink').setValue(record.get('blink'));
-                me.down('#hcNeopixelLedColorTime').setValue(record.get('length'));
-            } else {
-                deleteButton.disable();
-            }
-        });
-        me.down('#hcNeopixelLedColorFadeIn').on('change', (combo, value) => {
-            let record = combo.findRecordByValue(value);
-            let colorTime = me.down('#hcNeopixelLedColorTime');
-            let milliseconds = record.get('seconds') * 1000;
-
-            if (milliseconds > colorTime.getValue()) {
-                colorTime.setValue(milliseconds);
             }
         });
     }

@@ -352,11 +352,6 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 colorPanel.resumeEvents();
             }
         });
-        view.on('selectionchange', (view, records) => {
-            if (records.length === 0) {
-                me.down('#hcNeopixelLedViewDeleteButton').disable();
-            }
-        });
         view.getStore().on('load', store => {
             let ledAddToolbarMenu = me.down('#hcNeopixelLedViewAddButton').menu;
             let ledAddContainerContextMenu = me.viewItem.containerContextMenu.down('#hcNeopixelLedViewAddButton').menu;
@@ -439,7 +434,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 ledAddItemContextMenu.add(button);
             }
 
-            //animationView.gos.function.updateTemplate(jsonData.data.length);
+            me.down('gosModuleHcNeopixelAnimationView').updateTemplate(jsonData.data.length);
         });
     },
     saveLeds() {
