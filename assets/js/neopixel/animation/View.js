@@ -1,5 +1,5 @@
 Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
-    extend: 'GibsonOS.View',
+    extend: 'GibsonOS.core.component.view.View',
     alias: ['widget.gosModuleHcNeopixelAnimationView'],
     itemSelector: 'div.hcNeopixelAnimationViewElement',
     selectedItemCls: 'hcNeopixelAnimationViewElementSelected',
@@ -8,9 +8,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
     initComponent: function() {
         let me = this;
 
-        me.store = new GibsonOS.module.hc.neopixel.store.Animation({
-            gos: me.gos
-        });
+        me.store = new GibsonOS.module.hc.neopixel.store.Animation();
         me.tpl = new Ext.XTemplate(
             '<div class="hcNeopixelAnimationViewHeader">',
                 '<div class="hcNeopixelAnimationViewHeaderTime">Zeit</div>',
@@ -35,11 +33,11 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
                 renderLeds: function() {
                     let leds = '';
 
-                    if (!me.gos.data.leds) {
+                    if (!me.leds) {
                         return leds;
                     }
 
-                    for (let i = 0; i < me.gos.data.leds; i++) {
+                    for (let i = 0; i < me.leds; i++) {
                         leds += '<div data-id="' + i + '">Pixel ' + (i+1) + '</div>';
                     }
 
@@ -99,115 +97,117 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
                 }
             }
         );
-        me.gos.data.lastSelectedLed = null;
-        me.gos.function = {
-            updateTemplate: function(leds) {
-                me.fireEvent('updateTemplate', [me, leds]);
-                me.gos.data.leds = leds;
-                me.refresh();
-            },
-            setDimensions: function() {
-                let elementsDiv = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewElements');
-                let elementsContainer = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewElementsContainer');
-                let ledsContainer = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewLedsContainer');
-                let timeline = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewHeaderTimeline');
-                let timelineContainer = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewHeaderTimelineContainer');
-
-                let milliseconds = 10000;
-
-                me.getStore().each(function(record) {
-                    if (milliseconds > record.get('time') + record.get('length')) {
-                        return true;
-                    }
-
-                    milliseconds = record.get('time') + record.get('length') + 1000;
-                });
-
-                let seconds = Math.ceil(milliseconds / 1000);
-                elementsContainer.style.height = ledsContainer.offsetHeight + 'px';
-                elementsContainer.style.width = (seconds * me.pixelPerSecond) + 'px';
-                timeline.style.width = (seconds * me.pixelPerSecond) + 'px';
-                timelineContainer.innerHTML = '';
-
-                for (let i = 0; i < seconds; i++) {
-                    timelineContainer.innerHTML += '<div>' + transformSeconds(i) + '</div>';
-                }
-
-                elementsDiv.onscroll = function() {
-                    ledsContainer.style.marginTop = 0 - elementsDiv.scrollTop;
-                    timelineContainer.style.marginLeft = 0 - elementsDiv.scrollLeft;
-                };
-            },
-            setLetClickEvents: function() {
-                let ledsContainer = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewLedsContainer');
-
-                Ext.iterate(ledsContainer.querySelectorAll('div'), function(ledDiv) {
-                    ledDiv.onclick =  function(event) {
-                        me.fireEvent('ledSelectionChange', me, ledDiv, event);
-
-                        if (!event.ctrlKey) {
-                            Ext.iterate(ledsContainer.querySelectorAll('div.selected'), function(selectedLedDiv) {
-                                selectedLedDiv.classList.remove('selected');
-                            });
-                        }
-
-                        if (event.shiftKey) {
-                            //die differenz zwischen lastSelectedLed und ledDiv selecten
-                            let select = false;
-
-                            Ext.iterate(ledsContainer.childNodes, function(ledNode) {
-                                if (select) {
-                                    ledNode.classList.add('selected');
-                                }
-
-                                if (
-                                    ledNode === lastSelectedLed ||
-                                    ledNode === ledDiv
-                                ) {
-                                    select = !select;
-                                }
-
-                                if (select) {
-                                    ledNode.classList.add('selected');
-                                }
-                            });
-                        } else {
-                            lastSelectedLed = ledDiv;
-
-                            if (ledDiv.classList.contains('selected')) {
-                                ledDiv.classList.remove('selected');
-                            } else {
-                                ledDiv.classList.add('selected');
-                            }
-                        }
-
-                        me.gos.data.selectedLeds = [];
-
-                        Ext.iterate(ledsContainer.querySelectorAll('div.selected'), function(selectedLedDiv) {
-                            me.gos.data.selectedLeds.push(selectedLedDiv.dataset.id);
-                        });
-
-                        me.fireEvent('afterLedSelectionChange', me, ledDiv, event);
-                    };
-                });
-            }
-        };
+        me.lastSelectedLed = null;
 
         me.callParent();
 
         me.on('refresh', function() {
             let ledsContainer = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewLedsContainer');
 
-            Ext.iterate(me.gos.data.selectedLeds, function(ledId) {
+            Ext.iterate(me.selectedLeds, function(ledId) {
                 let ledDiv = ledsContainer.querySelector('[data-id="' + ledId + '"]');
                 ledDiv.classList.add('selected');
             });
 
-            me.gos.function.setDimensions();
-            me.gos.function.setLetClickEvents();
+            me.setDimensions();
+            me.setLedClickEvents();
         });
         me.getStore().on('add', function() {
-            me.gos.function.setDimensions();
+            me.setDimensions();
+        });
+    },
+    updateTemplate(leds) {
+        let me = this;
+
+        me.fireEvent('updateTemplate', [me, leds]);
+        me.leds = leds;
+        me.refresh();
+    },
+    setDimensions() {
+        let me = this;
+        let elementsDiv = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewElements');
+        let elementsContainer = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewElementsContainer');
+        let ledsContainer = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewLedsContainer');
+        let timeline = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewHeaderTimeline');
+        let timelineContainer = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewHeaderTimelineContainer');
+
+        let milliseconds = 10000;
+
+        me.getStore().each(function(record) {
+            if (milliseconds > record.get('time') + record.get('length')) {
+                return true;
+            }
+
+            milliseconds = record.get('time') + record.get('length') + 1000;
+        });
+
+        let seconds = Math.ceil(milliseconds / 1000);
+        elementsContainer.style.height = ledsContainer.offsetHeight + 'px';
+        elementsContainer.style.width = (seconds * me.pixelPerSecond) + 'px';
+        timeline.style.width = (seconds * me.pixelPerSecond) + 'px';
+        timelineContainer.innerHTML = '';
+
+        for (let i = 0; i < seconds; i++) {
+            timelineContainer.innerHTML += '<div>' + transformSeconds(i) + '</div>';
+        }
+
+        elementsDiv.onscroll = function() {
+            ledsContainer.style.marginTop = 0 - elementsDiv.scrollTop;
+            timelineContainer.style.marginLeft = 0 - elementsDiv.scrollLeft;
+        };
+    },
+    setLedClickEvents() {
+        let me = this;
+        let ledsContainer = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewLedsContainer');
+
+        Ext.iterate(ledsContainer.querySelectorAll('div'), function(ledDiv) {
+            ledDiv.onclick =  function(event) {
+                me.fireEvent('ledSelectionChange', me, ledDiv, event);
+
+                if (!event.ctrlKey) {
+                    Ext.iterate(ledsContainer.querySelectorAll('div.selected'), function(selectedLedDiv) {
+                        selectedLedDiv.classList.remove('selected');
+                    });
+                }
+
+                if (event.shiftKey) {
+                    //die differenz zwischen lastSelectedLed und ledDiv selecten
+                    let select = false;
+
+                    Ext.iterate(ledsContainer.childNodes, function(ledNode) {
+                        if (select) {
+                            ledNode.classList.add('selected');
+                        }
+
+                        if (
+                            ledNode === me.lastSelectedLed ||
+                            ledNode === ledDiv
+                        ) {
+                            select = !select;
+                        }
+
+                        if (select) {
+                            ledNode.classList.add('selected');
+                        }
+                    });
+                } else {
+                    me.lastSelectedLed = ledDiv;
+
+                    if (ledDiv.classList.contains('selected')) {
+                        ledDiv.classList.remove('selected');
+                    } else {
+                        ledDiv.classList.add('selected');
+                    }
+                }
+
+                me.selectedLeds = [];
+
+                Ext.iterate(ledsContainer.querySelectorAll('div.selected'), function(selectedLedDiv) {
+                    me.selectedLeds.push(selectedLedDiv.dataset.id);
+                });
+
+                me.fireEvent('afterLedSelectionChange', me, ledDiv, event);
+            };
         });
     }
 });

@@ -369,19 +369,14 @@ class NeopixelService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws DeleteError
      * @throws GetError
      * @throws SaveError
-     * @throws SelectError
      */
     public function writeLeds(Module $slave, array $leds): void
     {
         $changedLeds = $this->ledService->getChanges($this->ledService->getActualState($slave), $leds);
         $changedSlaveLeds = $this->ledService->getChangedLedsWithoutIgnoredAttributes($changedLeds);
         $this->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
-        $this->ledService->saveLeds($slave, $leds);
-        $this->ledService->deleteUnusedLeds($slave, $leds);
         $lastChangedIds = $this->ledService->getLastIds($slave, $changedSlaveLeds);
 
         if (empty($lastChangedIds)) {
@@ -397,6 +392,7 @@ class NeopixelService extends AbstractHcSlave
             }, JsonUtility::decode($slave->getConfig() ?: JsonUtility::encode(['counts' => 0]))['counts']);
         }
 
+        // @todo umbauen das nur noch ein Command gesendet wird
         foreach ($lastChangedIds as $channel => $lastChangedId) {
             if ($lastChangedId < 1) {
                 continue;
@@ -408,6 +404,8 @@ class NeopixelService extends AbstractHcSlave
                 $this->ledService->getNumberById($slave, $lastChangedId) + 1
             );
         }
+
+        $this->ledService->saveLeds($slave, $leds);
     }
 
     /**

@@ -1,5 +1,5 @@
 Ext.define('GibsonOS.module.hc.neopixel.led.View', {
-    extend: 'GibsonOS.View',
+    extend: 'GibsonOS.core.component.view.View',
     alias: ['widget.gosModuleHcNeopixelLedView'],
     itemSelector: 'div.hcNeopixelLed',
     selectedItemCls: 'hcNeopixelLedSelected',
@@ -13,9 +13,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.View', {
         let me = this;
         let id = Ext.id();
 
-        me.store = new GibsonOS.module.hc.neopixel.store.View({
-            gos: me.gos
-        });
+        me.store = new GibsonOS.module.hc.neopixel.store.View();
         me.tpl = new Ext.XTemplate(
             '<tpl for=".">',
                 '<div ',
@@ -78,12 +76,12 @@ Ext.define('GibsonOS.module.hc.neopixel.led.View', {
                     let leds = {};
 
                     me.getStore().each(function(led) {
-                        leds[led.getId()] = led.getData();
+                        leds[led.get('number')] = led.getData();
                         led.commit();
                     });
 
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/neopixel/saveLeds',
+                        url: baseDir + 'hc/neopixel/setLeds',
                         params: {
                             moduleId: me.gos.data.module.id,
                             leds: Ext.encode(leds)
@@ -113,7 +111,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.View', {
                 let leds = {};
 
                 me.getStore().each(function(led) {
-                    leds[led.getId()] = led.getData();
+                    leds[led.get('number')] = led.getData();
                     led.commit();
                 });
                 moveCount++;
@@ -125,7 +123,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.View', {
                     }
 
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/neopixel/saveLeds',
+                        url: baseDir + 'hc/neopixel/setLeds',
                         params: {
                             moduleId: me.gos.data.module.id,
                             leds: Ext.encode(leds)
