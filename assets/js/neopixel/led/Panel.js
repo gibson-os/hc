@@ -100,7 +100,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 select: (combo, records) => {
                     ledPosition = 0;
 
-                    me.getStore().each((led) => {
+                    ledView.getStore().each((led) => {
                         let imageLed = records[0].get('leds')[ledPosition];
 
                         led.set('red', imageLed.red);
