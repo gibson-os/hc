@@ -3,6 +3,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
     alias: ['widget.gosModuleHcNeopixelAnimationPanel'],
     layout: 'border',
     enableContextMenu: true,
+    enableKeyEvents: true,
     initComponent() {
         let me = this;
         let animationView = new GibsonOS.module.hc.neopixel.animation.View({
@@ -15,6 +16,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             width: 170,
             flex: 0,
             style: 'z-index: 100;',
+            viewItem: animationView,
             addButton: {
                 itemId: 'hcNeopixelLedColorAdd',
                 disabled: true
@@ -55,10 +57,9 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             deleteButton: {
                 itemId: 'hcNeopixelLedColorDelete'
             },
-            deleteFunction() {
-                let animationView = me.down('gosModuleHcNeopixelAnimationView');
-                let store = me.down('gosModuleHcNeopixelAnimationView').getStore();
-                let record = animationView.getSelectionModel().getSelection()[0];
+            deleteFunction(records) {
+                let store = me.viewItem.getStore();
+                let record = records[0];
                 let index = store.indexOf(record);
 
                 store.remove(record);
@@ -377,13 +378,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             },
             listeners: {
                 keyup: (field) => {
-                    let saveButton = me.down('#hcNeopixelAnimationPanelSaveAnimationButton');
-
-                    if (field.getValue().length) {
-                        saveButton.enable();
-                    } else {
-                        saveButton.disable();
-                    }
+                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').setDisabled(!field.getValue().length);
                 }
             }
         });
@@ -444,5 +439,9 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 }
             }
         });
+
+        let animationStore = me.down('#hcNeopixelAnimationPanelAnimationLoad').getStore();
+        animationStore.getProxy().setExtraParam('moduleId', me.hcModuleId);
+        animationStore.load();
     }
 });

@@ -3,6 +3,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
     alias: ['widget.gosModuleHcNeopixelLedPanel'],
     layout: 'border',
     enableContextMenu: true,
+    enableKeyEvents: true,
     initComponent() {
         let me = this;
         let ledView = new GibsonOS.module.hc.neopixel.led.View({
@@ -33,7 +34,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         me.addFunction = () => {
         };
         me.deleteFunction = records => {
-            let number = me.getStore().getCount();
+            let store = me.viewItem.getStore();
+            let number = store.getCount();
 
             Ext.iterate(records, selectedLed => {
                 if (selectedLed.get('number') < number) {
@@ -41,7 +43,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 }
             });
 
-            me.getStore().remove(records);
+            store.remove(records);
             me.repairNumbers(number - 1);
             me.saveLeds();
         };
@@ -121,13 +123,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             },
             listeners: {
                 keyup: (field) => {
-                    let saveButton = me.down('#hcNeopixelLedPanelSaveImageButton');
-
-                    if (field.getValue().length) {
-                        saveButton.enable();
-                    } else {
-                        saveButton.disable();
-                    }
+                    me.down('#hcNeopixelLedPanelSaveImageButton').setDisabled(!field.getValue().length);
                 }
             }
         });
@@ -208,6 +204,10 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 me.setLiveLeds([led]);
             });
         });
+
+        let imageStore = me.down('#hcNeopixelLedPanelImageLoad').getStore();
+        imageStore.getProxy().setExtraParam('moduleId', me.hcModuleId);
+        imageStore.load();
 
         me.addColorActions();
         me.addViewListeners();
@@ -360,6 +360,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             let pwmSteps = 256;
 
             if (jsonData.pwmSpeed) {
+                let animationPanel = me.down('gosModuleHcNeopixelAnimationPanel');
+
                 let setFadeInValues = record => {
                     if (!record.get('id')) {
                         return true;
@@ -371,20 +373,20 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 };
 
                 me.down('#hcNeopixelLedColorFadeIn').getStore().each(setFadeInValues);
-                //me.down('gosModuleHcNeopixelAnimationPanel').down('#hcNeopixelLedColorFadeIn').getStore().each(setFadeInValues);
+                animationPanel.down('#hcNeopixelLedColorFadeIn').getStore().each(setFadeInValues);
 
-                // const setBlinkValues = function(record) {
-                //     if (!record.get('id')) {
-                //         return true;
-                //     }
-                //
-                //     let seconds = 1 / jsonData.pwmSpeed * (1 << record.get('id')) * 2;
-                //     record.set('seconds', seconds);
-                //     record.set('name', transformSeconds(seconds));
-                // };
-                //
-                // me.down('#hcNeopixelLedColorBlink').getStore().each(setBlinkValues);
-                // me.down('gosModuleHcNeopixelAnimationPanel').down('#hcNeopixelLedColorBlink').getStore().each(setBlinkValues);
+                const setBlinkValues = function(record) {
+                    if (!record.get('id')) {
+                        return true;
+                    }
+
+                    let seconds = 1 / jsonData.pwmSpeed * (1 << record.get('id')) * 2;
+                    record.set('seconds', seconds);
+                    record.set('name', transformSeconds(seconds));
+                };
+
+                me.down('#hcNeopixelLedColorBlink').getStore().each(setBlinkValues);
+                animationPanel.down('#hcNeopixelLedColorBlink').getStore().each(setBlinkValues);
             }
 
             ledAddToolbarMenu.removeAll();

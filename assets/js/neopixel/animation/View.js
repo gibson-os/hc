@@ -110,7 +110,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
             });
 
             me.setDimensions();
-            me.setLetClickEvents();
+            me.setLedClickEvents();
         });
         me.getStore().on('add', function() {
             me.setDimensions();
@@ -156,7 +156,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
             timelineContainer.style.marginLeft = 0 - elementsDiv.scrollLeft;
         };
     },
-    setLetClickEvents() {
+    setLedClickEvents() {
         let me = this;
         let ledsContainer = document.querySelector('#' + me.getId() + ' .hcNeopixelAnimationViewLedsContainer');
 
