@@ -68,8 +68,11 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             itemId: 'hcNeopixelLedViewSendButton',
             text: 'Senden',
             tbarText: 'Senden',
-            handler: () => {
-                me.showLeds(ledView.getStore().getRange());
+            keyEvent: Ext.EventObject.ENTER,
+            listeners: {
+                click() {
+                    me.showLeds(ledView.getStore().getRange());
+                }
             }
         });
         me.addAction({
