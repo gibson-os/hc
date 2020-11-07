@@ -34,18 +34,27 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         me.addFunction = () => {
         };
         me.deleteFunction = records => {
-            let store = me.viewItem.getStore();
-            let number = store.getCount();
+            Ext.MessageBox.confirm(
+                'Wirklich löschen?',
+                'Möchtest du die ' + (records.length === 1 ? 'LED' : records.length + ' LEDs ') + ' wirklich löschen ?', buttonId => {
+                    if (buttonId === 'no') {
+                        return false;
+                    }
 
-            Ext.iterate(records, selectedLed => {
-                if (selectedLed.get('number') < number) {
-                    number = selectedLed.get('number');
+                    let store = me.viewItem.getStore();
+                    let number = store.getCount();
+
+                    Ext.iterate(records, selectedLed => {
+                        if (selectedLed.get('number') < number) {
+                            number = selectedLed.get('number');
+                        }
+                    });
+
+                    store.remove(records);
+                    me.repairNumbers(number - 1);
+                    me.saveLeds();
                 }
-            });
-
-            store.remove(records);
-            me.repairNumbers(number - 1);
-            me.saveLeds();
+            );
         };
 
         me.callParent();
