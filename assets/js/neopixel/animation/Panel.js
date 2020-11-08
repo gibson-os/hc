@@ -11,7 +11,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
         });
 
         me.items = [animationView, {
-            xtype: 'gosModuleHcNeopixelLedColor',
+            xtype: 'gosModuleHcNeopixelColorPanel',
             region: 'east',
             width: 170,
             flex: 0,
@@ -46,8 +46,8 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                             red: me.down('#hcNeopixelLedColorRed').getValue(),
                             green: me.down('#hcNeopixelLedColorGreen').getValue(),
                             blue: me.down('#hcNeopixelLedColorBlue').getValue(),
-                            fadeIn: me.down('#hcNeopixelLedColorFadeIn').getValue(),
-                            blink: me.down('#hcNeopixelLedColorBlink').getValue(),
+                            fadeIn: me.down('gosModuleHcNeopixelColorFadeIn').getValue(),
+                            blink: me.down('gosModuleHcNeopixelColorBlink').getValue(),
                             time: time,
                             length: me.down('#hcNeopixelLedColorTime').getValue(),
                         });
@@ -107,7 +107,10 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
         });
         viewStore.load();
 
-        me.down('gosModuleHcNeopixelLedColor').add({
+        let colorForm = me.down('gosModuleHcNeopixelColorForm');
+        colorForm.add({xtype: 'gosModuleHcNeopixelColorFadeIn'});
+        colorForm.add({xtype: 'gosModuleHcNeopixelColorBlink'});
+        colorForm.add({
             xtype: 'gosFormNumberfield',
             itemId: 'hcNeopixelLedColorTime',
             fieldLabel: 'Zeit',
@@ -163,14 +166,14 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 me.down('#hcNeopixelLedColorRed').setValue(record.get('red'));
                 me.down('#hcNeopixelLedColorGreen').setValue(record.get('green'));
                 me.down('#hcNeopixelLedColorBlue').setValue(record.get('blue'));
-                me.down('#hcNeopixelLedColorFadeIn').setValue(record.get('fadeIn'));
-                me.down('#hcNeopixelLedColorBlink').setValue(record.get('blink'));
+                me.down('gosModuleHcNeopixelColorFadeIn').setValue(record.get('fadeIn'));
+                me.down('gosModuleHcNeopixelColorBlink').setValue(record.get('blink'));
                 me.down('#hcNeopixelLedColorTime').setValue(record.get('length'));
             } else {
                 deleteButton.disable();
             }
         });
-        me.down('#hcNeopixelLedColorFadeIn').on('change', (combo, value) => {
+        me.down('gosModuleHcNeopixelColorFadeIn').on('change', (combo, value) => {
             let record = combo.findRecordByValue(value);
             let colorTime = me.down('#hcNeopixelLedColorTime');
             let milliseconds = record.get('seconds') * 1000;

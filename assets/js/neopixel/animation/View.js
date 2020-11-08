@@ -77,7 +77,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
                             lastLedBlue = lastLed.get('blue');
                         }
 
-                        let gradientWidth = me.up().down('#hcNeopixelLedColorFadeIn').findRecordByValue(element.fadeIn).get('seconds') * me.pixelPerSecond;
+                        let gradientWidth = me.up().down('gosModuleHcNeopixelColorFadeIn').findRecordByValue(element.fadeIn).get('seconds') * me.pixelPerSecond;
 
                         div +=
                             'background: linear-gradient(' +
