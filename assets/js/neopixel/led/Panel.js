@@ -270,12 +270,45 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         panel.addAction({
             tbarText: 'G',
             selectionNeeded: true,
+            minSelectionNeeded: 3,
             listeners: {
                 click() {
-                    let window = new GibsonOS.module.hc.neopixel.gradient.Window({pwmSpeed: me.pwmSpeed});
+                    const window = new GibsonOS.module.hc.neopixel.gradient.Window({pwmSpeed: me.pwmSpeed});
+                    let colors = [];
 
                     window.down('#gosModuleHcNeopixelGradientSetButton').on('click', () => {
-                        console.log('set');
+                        const form = window.down('gosModuleHcNeopixelGradientForm');
+
+                        form.items.each((item) => {
+                            if (item.xtype !== 'gosModuleHcNeopixelColorPanel') {
+                                return true;
+                            }
+
+                            colors.push({
+                                red: item.down('#hcNeopixelLedColorRed').getValue(),
+                                green: item.down('#hcNeopixelLedColorGreen').getValue(),
+                                blue: item.down('#hcNeopixelLedColorBlue').getValue(),
+                            });
+                        });
+
+                        console.log(colors);
+
+                        // Anzahl der ausgewählten LEDs ermitteln
+                        const selectionModel = view.getSelectionModel();
+                        const selectedCount = selectionModel.getCount();
+
+                        console.log(selectedCount);
+                        console.log((selectedCount - colors.length) / (colors.length - 1));
+
+                        // Erste und letzte LED sollen immer die erste und letzte gewählte Farbe haben
+                        let selection = selectionModel.getSelection();
+                        selection.sort((a, b) => (a.get('number') > b.get('number') ? 1 : -1));
+                        console.log(selection);
+
+                        Ext.iterate(selection, (led) => {
+
+                        });
+
                         window.close();
                     });
                 }
