@@ -14,7 +14,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             xtype: 'gosModuleHcNeopixelColorPanel',
             region: 'east',
             width: 170,
-            flex: 0
+            flex: 0,
+            viewItem: ledView
         },{
             xtype: 'gosModuleHcNeopixelAnimationPanel',
             region: 'south',
@@ -268,9 +269,15 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         });
         panel.addAction({
             tbarText: 'G',
+            selectionNeeded: true,
             listeners: {
                 click() {
+                    let window = new GibsonOS.module.hc.neopixel.gradient.Window({pwmSpeed: me.pwmSpeed});
 
+                    window.down('#gosModuleHcNeopixelGradientSetButton').on('click', () => {
+                        console.log('set');
+                        window.close();
+                    });
                 }
             }
         });
@@ -394,6 +401,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
 
                 me.down('gosModuleHcNeopixelColorBlink').setValuesByPwmSpeed(jsonData.pwmSpeed);
                 animationPanel.down('gosModuleHcNeopixelColorBlink').setValuesByPwmSpeed(jsonData.pwmSpeed);
+
+                me.pwmSpeed = jsonData.pwmSpeed;
             }
 
             ledAddToolbarMenu.removeAll();
