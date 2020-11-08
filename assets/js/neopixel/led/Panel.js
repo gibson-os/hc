@@ -385,36 +385,15 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             let ledAddContainerContextMenu = me.viewItem.containerContextMenu.down('#hcNeopixelLedViewAddButton').menu;
             let ledAddItemContextMenu = me.viewItem.itemContextMenu.down('#hcNeopixelLedViewAddButton').menu;
             let jsonData = store.getProxy().getReader().jsonData;
-            let pwmSteps = 256;
 
             if (jsonData.pwmSpeed) {
                 let animationPanel = me.down('gosModuleHcNeopixelAnimationPanel');
 
-                let setFadeInValues = record => {
-                    if (!record.get('id')) {
-                        return true;
-                    }
+                me.down('gosModuleHcNeopixelColorFadeIn').setValuesByPwmSpeed(jsonData.pwmSpeed);
+                animationPanel.down('gosModuleHcNeopixelColorFadeIn').setValuesByPwmSpeed(jsonData.pwmSpeed);
 
-                    let seconds = 1 / jsonData.pwmSpeed * (65536 >> record.get('id')) * pwmSteps;
-                    record.set('seconds', seconds);
-                    record.set('name', transformSeconds(seconds));
-                };
-
-                me.down('gosModuleHcNeopixelColorFadeIn').getStore().each(setFadeInValues);
-                animationPanel.down('gosModuleHcNeopixelColorFadeIn').getStore().each(setFadeInValues);
-
-                const setBlinkValues = function(record) {
-                    if (!record.get('id')) {
-                        return true;
-                    }
-
-                    let seconds = 1 / jsonData.pwmSpeed * (1 << record.get('id')) * 2;
-                    record.set('seconds', seconds);
-                    record.set('name', transformSeconds(seconds));
-                };
-
-                me.down('gosModuleHcNeopixelColorBlink').getStore().each(setBlinkValues);
-                animationPanel.down('gosModuleHcNeopixelColorBlink').getStore().each(setBlinkValues);
+                me.down('gosModuleHcNeopixelColorBlink').setValuesByPwmSpeed(jsonData.pwmSpeed);
+                animationPanel.down('gosModuleHcNeopixelColorBlink').setValuesByPwmSpeed(jsonData.pwmSpeed);
             }
 
             ledAddToolbarMenu.removeAll();

@@ -62,4 +62,18 @@ Ext.define('GibsonOS.module.hc.neopixel.color.FadeIn', {
             name: 'Verdammt schnell'
         }]
     },
+    setValuesByPwmSpeed(pwmSpeed) {
+        const me = this;
+        const pwmSteps = 256;
+
+        me.getStore().each(record => {
+            if (!record.get('id')) {
+                return true;
+            }
+
+            const seconds = 1 / pwmSpeed * (65536 >> record.get('id')) * pwmSteps;
+            record.set('seconds', seconds);
+            record.set('name', transformSeconds(seconds));
+        });
+    }
 });

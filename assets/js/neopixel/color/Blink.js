@@ -62,4 +62,17 @@ Ext.define('GibsonOS.module.hc.neopixel.color.Blink', {
             name: 'Verdammt schnell'
         }]
     },
+    setValuesByPwmSpeed(pwmSpeed) {
+        const me = this;
+
+        me.getStore().each(record => {
+            if (!record.get('id')) {
+                return true;
+            }
+
+            const seconds = 1 / pwmSpeed * (1 << record.get('id')) * 2;
+            record.set('seconds', seconds);
+            record.set('name', transformSeconds(seconds));
+        });
+    }
 });
