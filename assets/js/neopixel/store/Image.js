@@ -1,17 +1,14 @@
 Ext.define('GibsonOS.module.hc.neopixel.store.Image', {
     extend: 'GibsonOS.data.Store',
-    alias: ['store.hcNeopixelImageStore'],
-    autoLoad: true,
+    alias: ['store.gosModuleHcNeopixelImageStore'],
+    autoLoad: false,
     model: 'GibsonOS.module.hc.neopixel.model.Image',
     constructor: function(data) {
         let me = this;
 
         me.proxy = {
             type: 'gosDataProxyAjax',
-            url: baseDir + 'hc/neopixel/images',
-            extraParams: {
-                moduleId: data.gos.data.module.id
-            }
+            url: baseDir + 'hc/neopixel/images'
         };
 
         me.callParent(arguments);
