@@ -321,14 +321,18 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
 
                         Ext.iterate(selection, (led, index) => {
                             if (startIndex !== parseInt(index / fadeLedSteps)) {
-                                startIndex = parseInt(index / fadeLedSteps);
+                                let floatStartIndex = index / fadeLedSteps;
+                                let floatRest = floatStartIndex%1;
+
+                                startIndex = parseInt(floatStartIndex);
                                 startLedIndex = index;
                                 startColor = colors[startIndex];
+                                // startColor Farben müssen floatRest diffs müssen auch neu berechnet werden
                                 diffs = {
                                     red: startColor.redDiff ? startColor.redDiff / fadeLedSteps : 0,
                                     green: startColor.greenDiff ? startColor.greenDiff / fadeLedSteps : 0,
                                     blue: startColor.blueDiff ? startColor.blueDiff / fadeLedSteps : 0,
-                                }
+                                };
                             }
 
                             let diffMultiplication = (index - startLedIndex);
