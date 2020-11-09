@@ -286,6 +286,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                                 return true;
                             }
 
+                            // @todo Idee in function auslagern und colors erenut durchlaufen um die farben erneut mit der verschiebung zu berechnen
                             color = {
                                 red: item.down('#hcNeopixelLedColorRed').getValue(),
                                 green: item.down('#hcNeopixelLedColorGreen').getValue(),
