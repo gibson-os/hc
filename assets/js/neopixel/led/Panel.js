@@ -278,35 +278,63 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
 
                     window.down('#gosModuleHcNeopixelGradientSetButton').on('click', () => {
                         const form = window.down('gosModuleHcNeopixelGradientForm');
+                        let previousColor = null;
+                        let color = null;
 
                         form.items.each((item) => {
                             if (item.xtype !== 'gosModuleHcNeopixelColorPanel') {
                                 return true;
                             }
 
-                            colors.push({
+                            color = {
                                 red: item.down('#hcNeopixelLedColorRed').getValue(),
                                 green: item.down('#hcNeopixelLedColorGreen').getValue(),
                                 blue: item.down('#hcNeopixelLedColorBlue').getValue(),
-                            });
-                        });
+                            };
 
-                        console.log(colors);
+                            if (previousColor !== null) {
+                                previousColor.redDiff = color.red - previousColor.red;
+                                previousColor.greenDiff = color.green - previousColor.green;
+                                previousColor.blueDiff = color.blue - previousColor.blue;
+                            }
+
+                            colors.push(color);
+                            previousColor = color;
+                        });
 
                         // Anzahl der ausgewählten LEDs ermitteln
                         const selectionModel = view.getSelectionModel();
                         const selectedCount = selectionModel.getCount();
-
-                        console.log(selectedCount);
-                        console.log((selectedCount - colors.length) / (colors.length - 1));
+                        const fadeLedSteps = ((selectedCount - colors.length) / (colors.length - 1)) + 1;
 
                         // Erste und letzte LED sollen immer die erste und letzte gewählte Farbe haben
                         let selection = selectionModel.getSelection();
                         selection.sort((a, b) => (a.get('number') > b.get('number') ? 1 : -1));
-                        console.log(selection);
+                        let startLedIndex = 0;
+                        let startIndex = 0;
+                        let startColor = colors[startIndex];
+                        let diffs = {
+                            red: startColor.redDiff ? startColor.redDiff / fadeLedSteps : 0,
+                            green: startColor.greenDiff ? startColor.greenDiff / fadeLedSteps : 0,
+                            blue: startColor.blueDiff ? startColor.blueDiff / fadeLedSteps : 0,
+                        };
 
-                        Ext.iterate(selection, (led) => {
+                        Ext.iterate(selection, (led, index) => {
+                            if (startIndex !== parseInt(index / fadeLedSteps)) {
+                                startIndex = parseInt(index / fadeLedSteps);
+                                startLedIndex = index;
+                                startColor = colors[startIndex];
+                                diffs = {
+                                    red: startColor.redDiff ? startColor.redDiff / fadeLedSteps : 0,
+                                    green: startColor.greenDiff ? startColor.greenDiff / fadeLedSteps : 0,
+                                    blue: startColor.blueDiff ? startColor.blueDiff / fadeLedSteps : 0,
+                                }
+                            }
 
+                            let diffMultiplication = (index - startLedIndex);
+                            led.set('red', startColor.red + (diffs.red * diffMultiplication));
+                            led.set('green', startColor.green + (diffs.green * diffMultiplication));
+                            led.set('blue', startColor.blue + (diffs.blue * diffMultiplication));
                         });
 
                         window.close();
