@@ -281,65 +281,89 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                         let previousColor = null;
                         let color = null;
 
+                        const selectionModel = view.getSelectionModel();
+                        const selectedCount = selectionModel.getCount();
+                        let colorsCount = 0;
+
                         form.items.each((item) => {
                             if (item.xtype !== 'gosModuleHcNeopixelColorPanel') {
                                 return true;
                             }
 
-                            // @todo Idee in function auslagern und colors erenut durchlaufen um die farben erneut mit der verschiebung zu berechnen
+                            colorsCount++;
+                        });
+
+                        const fadeLedSteps = ((selectedCount - colorsCount) / (colorsCount - 1)) + 1;
+                        colorsCount = 0;
+
+                        form.items.each((item) => {
+                            if (item.xtype !== 'gosModuleHcNeopixelColorPanel') {
+                                return true;
+                            }
+
+                            colorsCount++;
                             color = {
                                 red: item.down('#hcNeopixelLedColorRed').getValue(),
                                 green: item.down('#hcNeopixelLedColorGreen').getValue(),
                                 blue: item.down('#hcNeopixelLedColorBlue').getValue(),
+                                redDiff: 0,
+                                greenDiff: 0,
+                                blueDiff: 0
                             };
 
                             if (previousColor !== null) {
-                                previousColor.redDiff = color.red - previousColor.red;
-                                previousColor.greenDiff = color.green - previousColor.green;
-                                previousColor.blueDiff = color.blue - previousColor.blue;
+                                previousColor.redDiff = (color.red - previousColor.red) / fadeLedSteps;
+                                previousColor.greenDiff = (color.green - previousColor.green) / fadeLedSteps;
+                                previousColor.blueDiff = (color.blue - previousColor.blue) / fadeLedSteps;
                             }
 
                             colors.push(color);
                             previousColor = color;
                         });
 
-                        // Anzahl der ausgewählten LEDs ermitteln
-                        const selectionModel = view.getSelectionModel();
-                        const selectedCount = selectionModel.getCount();
-                        const fadeLedSteps = ((selectedCount - colors.length) / (colors.length - 1)) + 1;
-
-                        // Erste und letzte LED sollen immer die erste und letzte gewählte Farbe haben
                         let selection = selectionModel.getSelection();
-                        selection.sort((a, b) => (a.get('number') > b.get('number') ? 1 : -1));
                         let startLedIndex = 0;
                         let startIndex = 0;
                         let startColor = colors[startIndex];
-                        let diffs = {
-                            red: startColor.redDiff ? startColor.redDiff / fadeLedSteps : 0,
-                            green: startColor.greenDiff ? startColor.greenDiff / fadeLedSteps : 0,
-                            blue: startColor.blueDiff ? startColor.blueDiff / fadeLedSteps : 0,
-                        };
 
                         Ext.iterate(selection, (led, index) => {
                             if (startIndex !== parseInt(index / fadeLedSteps)) {
-                                let floatStartIndex = index / fadeLedSteps;
-                                let floatRest = floatStartIndex%1;
-
-                                startIndex = parseInt(floatStartIndex);
+                                startIndex = parseInt(index / fadeLedSteps);
                                 startLedIndex = index;
+                                previousColor = startColor;
                                 startColor = colors[startIndex];
-                                // startColor Farben müssen floatRest diffs müssen auch neu berechnet werden
-                                diffs = {
-                                    red: startColor.redDiff ? startColor.redDiff / fadeLedSteps : 0,
-                                    green: startColor.greenDiff ? startColor.greenDiff / fadeLedSteps : 0,
-                                    blue: startColor.blueDiff ? startColor.blueDiff / fadeLedSteps : 0,
-                                };
+
+                                let fadeStepRest = 1 - ((fadeLedSteps * startIndex) % 1);
+                                fadeStepRest = fadeStepRest === 1 ? 0 : fadeStepRest;
+
+                                console.log({
+                                    prev: previousColor,
+                                    start: startColor
+                                });
+
+                                const setDiff = (colorString) => {
+                                    const colorStringDiff = colorString.concat('Diff');
+
+                                    if (startColor[colorStringDiff] === 0) {
+                                        return;
+                                    }
+
+                                    if (previousColor[colorStringDiff] === 0) {
+                                        startColor[colorString] += startColor[colorStringDiff] * fadeStepRest;
+                                    } else {
+                                        startColor[colorString] -= previousColor[colorStringDiff] * fadeStepRest;
+                                    }
+                                }
+
+                                setDiff('red');
+                                setDiff('green');
+                                setDiff('blue');
                             }
 
                             let diffMultiplication = (index - startLedIndex);
-                            led.set('red', startColor.red + (diffs.red * diffMultiplication));
-                            led.set('green', startColor.green + (diffs.green * diffMultiplication));
-                            led.set('blue', startColor.blue + (diffs.blue * diffMultiplication));
+                            led.set('red', startColor.red + (startColor.redDiff ? (startColor.redDiff * diffMultiplication) : 0));
+                            led.set('green', startColor.green + (startColor.greenDiff ? (startColor.greenDiff * diffMultiplication) : 0));
+                            led.set('blue', startColor.blue + (startColor.blueDiff ? (startColor.blueDiff * diffMultiplication) : 0));
                         });
 
                         window.close();
