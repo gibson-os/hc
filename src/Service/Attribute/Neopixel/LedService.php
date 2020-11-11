@@ -207,8 +207,6 @@ class LedService
     {
         if (!isset($this->ledsAttributes[$id])) {
             $this->ledsAttributes[$id] = [];
-        } elseif (!isset($this->ledsAttributes[$id][$key])) {
-            $this->addAttribute($slave, $id, $key);
         }
 
         if (isset($this->ledsAttributes[$id][$key])) {
