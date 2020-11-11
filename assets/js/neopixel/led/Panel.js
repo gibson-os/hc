@@ -7,7 +7,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
     initComponent() {
         let me = this;
         let ledView = new GibsonOS.module.hc.neopixel.led.View({
-            region: 'center'
+            region: 'center',
+            hcModuleId: me.hcModuleId
         });
 
         me.items = [ledView, {
