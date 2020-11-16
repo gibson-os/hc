@@ -63,7 +63,7 @@ class NeopixelController extends AbstractController
         int $moduleId,
         array $leds = []
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::MANAGE + PermissionService::WRITE);
+        $this->checkPermission(PermissionService::WRITE);
 
         $slave = $moduleRepository->getById($moduleId);
         $neopixelService->writeLeds($slave, $leds);
@@ -88,7 +88,7 @@ class NeopixelController extends AbstractController
         int $moduleId,
         array $leds = []
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
+        $this->checkPermission(PermissionService::MANAGE + PermissionService::WRITE);
 
         $slave = $moduleRepository->getById($moduleId);
         $ledCounts = $ledService->getChannelCounts($slave, $leds);
