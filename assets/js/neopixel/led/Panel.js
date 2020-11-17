@@ -323,6 +323,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                         });
 
                         let selection = selectionModel.getSelection();
+                        selection.sort((a, b) => (a.get('number') > b.get('number') ? 1 : -1));
                         let startLedIndex = 0;
                         let startIndex = 0;
                         let startColor = colors[startIndex];
@@ -336,11 +337,6 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
 
                                 let fadeStepRest = 1 - ((fadeLedSteps * startIndex) % 1);
                                 fadeStepRest = fadeStepRest === 1 ? 0 : fadeStepRest;
-
-                                console.log({
-                                    prev: previousColor,
-                                    start: startColor
-                                });
 
                                 const setDiff = (colorString) => {
                                     const colorStringDiff = colorString.concat('Diff');
@@ -365,6 +361,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                             led.set('red', startColor.red + (startColor.redDiff ? (startColor.redDiff * diffMultiplication) : 0));
                             led.set('green', startColor.green + (startColor.greenDiff ? (startColor.greenDiff * diffMultiplication) : 0));
                             led.set('blue', startColor.blue + (startColor.blueDiff ? (startColor.blueDiff * diffMultiplication) : 0));
+                            led.set('fadeIn', form.down('gosModuleHcNeopixelColorFadeIn').getValue());
+                            led.set('blink', form.down('gosModuleHcNeopixelColorBlink').getValue());
                         });
 
                         window.close();
