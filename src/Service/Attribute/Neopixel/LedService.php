@@ -79,7 +79,6 @@ class LedService
     /**
      * @throws DateTimeError
      * @throws SaveError
-     * @throws SelectError
      */
     public function saveLeds(Module $slave, array $leds): void
     {
@@ -90,7 +89,7 @@ class LedService
             foreach ($leds as $id => $led) {
                 $this->saveLed($slave, $id, $led);
             }
-        } catch (SaveError | SelectError $exception) {
+        } catch (SaveError $exception) {
             $this->attributeRepository->rollback();
 
             throw $exception;
@@ -181,7 +180,6 @@ class LedService
     /**
      * @throws DateTimeError
      * @throws SaveError
-     * @throws SelectError
      */
     private function saveLed(Module $slave, int $id, array $led): void
     {
@@ -202,7 +200,6 @@ class LedService
     /**
      * @throws DateTimeError
      * @throws SaveError
-     * @throws SelectError
      */
     private function getLedAttribute(Module $slave, int $id, string $key): Attribute
     {
@@ -214,8 +211,12 @@ class LedService
             return $this->ledsAttributes[$id][$key];
         }
 
-        foreach ($this->attributeRepository->getByModule($slave, $id, null, self::ATTRIBUTE_TYPE) as $attribute) {
-            $this->ledsAttributes[$id][$attribute->getKey()] = $attribute;
+        try {
+            foreach ($this->attributeRepository->getByModule($slave, $id, null, self::ATTRIBUTE_TYPE) as $attribute) {
+                $this->ledsAttributes[$id][$attribute->getKey()] = $attribute;
+            }
+        } catch (SelectError $e) {
+            // No Attributes
         }
 
         if (!isset($this->ledsAttributes[$id][$key])) {

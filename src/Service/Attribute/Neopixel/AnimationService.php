@@ -104,7 +104,6 @@ class AnimationService
     /**
      * @throws DateTimeError
      * @throws SaveError
-     * @throws SelectError
      */
     public function setSteps(Module $slave, array $steps, bool $transmitted): void
     {
@@ -113,10 +112,10 @@ class AnimationService
         $stepsAttribute = $this->getAttribute($slave, self::ATTRIBUTE_KEY_STEPS);
         $transmittedAttribute = $this->getAttribute($slave, self::ATTRIBUTE_KEY_TRANSMITTED);
 
-        $this->saveAttributes($stepsAttribute, array_map(function ($step) {
+        $this->saveAttribute($stepsAttribute, array_map(function ($step) {
             return JsonUtility::encode($step);
         }, $steps));
-        $this->saveAttributes($transmittedAttribute, [$transmitted ? 'true' : 'false']);
+        $this->saveAttribute($transmittedAttribute, [$transmitted ? 'true' : 'false']);
 
         $this->attributeRepository->commit();
     }
@@ -132,8 +131,8 @@ class AnimationService
         $pidAttribute = $this->getAttribute($slave, self::ATTRIBUTE_KEY_PID);
         $startedAttribute = $this->getAttribute($slave, self::ATTRIBUTE_KEY_STARTED);
 
-        $this->saveAttributes($pidAttribute, [(string) ($pid ?? '')]);
-        $this->saveAttributes(
+        $this->saveAttribute($pidAttribute, [(string) ($pid ?? '')]);
+        $this->saveAttribute(
             $startedAttribute,
             [empty($pid) ? '' : (string) ((int) (microtime(true) * 1000000))]
         );
@@ -184,23 +183,18 @@ class AnimationService
         ;
     }
 
-    /**
-     * @throws SelectError
-     */
     private function getAttribute(Module $slave, string $key): Attribute
     {
-        $attributes = $this->attributeRepository->getByModule(
-            $slave,
-            null,
-            $key,
-            self::ATTRIBUTE_TYPE
-        );
-
-        if (count($attributes)) {
-            return reset($attributes);
+        try {
+            return $this->attributeRepository->getByModule(
+                $slave,
+                null,
+                $key,
+                self::ATTRIBUTE_TYPE
+            )[0];
+        } catch (SelectError $e) {
+            return $this->newAttribute($slave, $key);
         }
-
-        return $this->newAttribute($slave, $key);
     }
 
     /**
@@ -209,7 +203,7 @@ class AnimationService
      * @throws DateTimeError
      * @throws SaveError
      */
-    private function saveAttributes(Attribute $attribute, array $values): void
+    private function saveAttribute(Attribute $attribute, array $values): void
     {
         $attribute->save();
 

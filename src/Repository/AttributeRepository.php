@@ -51,7 +51,7 @@ class AttributeRepository extends AbstractRepository
 
         $table->setWhere($where);
 
-        if (!$table->selectPrepared(false)) {
+        if (!$table->selectPrepared()) {
             throw new SelectError();
         }
 
