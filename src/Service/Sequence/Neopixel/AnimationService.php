@@ -9,7 +9,9 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\AbstractService;
+use GibsonOS\Core\Service\CommandService;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Command\Neopixel\PlayAnimationCommand;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
@@ -29,10 +31,19 @@ class AnimationService extends AbstractService
      */
     private $elementRepository;
 
-    public function __construct(SequenceRepository $sequenceRepository, ElementRepository $elementRepository)
-    {
+    /**
+     * @var CommandService
+     */
+    private $commandService;
+
+    public function __construct(
+        SequenceRepository $sequenceRepository,
+        ElementRepository $elementRepository,
+        CommandService $commandService
+    ) {
         $this->sequenceRepository = $sequenceRepository;
         $this->elementRepository = $elementRepository;
+        $this->commandService = $commandService;
     }
 
     /**
@@ -125,12 +136,10 @@ class AnimationService extends AbstractService
 
     public function play(Module $slave, int $iterations): void
     {
-        system(
-            '/usr/bin/php /home/gibson_os/offline/tools/hc/hcNeopixelAnimation.php ' .
-            $slave->getId() . ' ' .
-            $iterations . ' ' .
-            '>/dev/null 2>/dev/null &'
-        );
+        $this->commandService->executeAsync(PlayAnimationCommand::class, [
+            'slaveId' => $slave->getId(),
+            'iterations' => $iterations,
+        ]);
     }
 
     public function transformToTimeSteps(array $items): array
