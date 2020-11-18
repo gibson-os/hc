@@ -83,6 +83,7 @@ class LedService
      */
     public function saveLeds(Module $slave, array $leds): void
     {
+        $this->ledsAttributes = [];
         $this->attributeRepository->startTransaction();
 
         try {
