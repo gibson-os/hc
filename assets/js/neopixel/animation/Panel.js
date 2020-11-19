@@ -90,18 +90,12 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             });
 
             if (jsonData.transmitted) {
-                me.down('#hcNeopixelAnimationPlayTransmitted').enable();
-                me.viewItem.itemContextMenu.down('#hcNeopixelAnimationPlayTransmitted').enable();
-                me.viewItem.containerContextMenu.down('#hcNeopixelAnimationPlayTransmitted').enable();
+                me.enableAction('#hcNeopixelAnimationPlayTransmitted');
             }
 
             if (jsonData.started) {
-                me.down('#hcNeopixelAnimationPause').enable();
-                me.viewItem.itemContextMenu.down('#hcNeopixelAnimationPause').enable();
-                me.viewItem.containerContextMenu.down('#hcNeopixelAnimationPause').enable();
-                me.down('#hcNeopixelAnimationStop').enable();
-                me.viewItem.itemContextMenu.down('#hcNeopixelAnimationStop').enable();
-                me.viewItem.containerContextMenu.down('#hcNeopixelAnimationStop').enable();
+                me.enableAction('#hcNeopixelAnimationPause');
+                me.enableAction('#hcNeopixelAnimationStop');
             }
         });
         viewStore.load();
@@ -227,9 +221,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                         },
                         success: () => {
                             me.setLoading(false);
-                            me.down('#hcNeopixelAnimationPlayTransmitted').enable();
-                            me.viewItem.itemContextMenu.down('#hcNeopixelAnimationPlayTransmitted').enable();
-                            me.viewItem.containerContextMenu.down('#hcNeopixelAnimationPlayTransmitted').enable();
+                            me.enableAction('#hcNeopixelAnimationPlayTransmitted');
                         }
                     });
                 }
@@ -255,6 +247,8 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                             },
                             success: () => {
                                 me.setLoading(false);
+                                me.enableAction('#hcNeopixelAnimationPause');
+                                me.enableAction('#hcNeopixelAnimationStop');
                             }
                         });
                     }
@@ -280,6 +274,8 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                         },
                         success: () => {
                             me.setLoading(false);
+                            me.enableAction('#hcNeopixelAnimationPause');
+                            me.enableAction('#hcNeopixelAnimationStop');
                         }
                     });
                 }
@@ -301,6 +297,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                         },
                         success: () => {
                             me.setLoading(false);
+                            me.disableAction('#hcNeopixelAnimationPause');
                         }
                     });
                 }
@@ -322,6 +319,8 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                         },
                         success: () => {
                             me.setLoading(false);
+                            me.disableAction('#hcNeopixelAnimationPause');
+                            me.disableAction('#hcNeopixelAnimationStop');
                         }
                     });
                 }
