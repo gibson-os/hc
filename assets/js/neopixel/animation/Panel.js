@@ -89,20 +89,19 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 store.add(step);
             });
 
-            let playTransmitted = me.down('#hcNeopixelAnimationPlayTransmitted');
-
             if (jsonData.transmitted) {
-                playTransmitted.enable();
+                me.down('#hcNeopixelAnimationPlayTransmitted').enable();
+                me.viewItem.itemContextMenu.down('#hcNeopixelAnimationPlayTransmitted').enable();
+                me.viewItem.containerContextMenu.down('#hcNeopixelAnimationPlayTransmitted').enable();
             }
 
             if (jsonData.started) {
-                if (jsonData.pid) {
-                    playTransmitted.disable();
-                    me.down('#hcNeopixelAnimationPlayUntransmitted').enable();
-                }
-
                 me.down('#hcNeopixelAnimationPause').enable();
+                me.viewItem.itemContextMenu.down('#hcNeopixelAnimationPause').enable();
+                me.viewItem.containerContextMenu.down('#hcNeopixelAnimationPause').enable();
                 me.down('#hcNeopixelAnimationStop').enable();
+                me.viewItem.itemContextMenu.down('#hcNeopixelAnimationStop').enable();
+                me.viewItem.containerContextMenu.down('#hcNeopixelAnimationStop').enable();
             }
         });
         viewStore.load();

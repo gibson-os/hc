@@ -39,11 +39,13 @@ class NeopixelAnimationController extends AbstractController
 
         $slave = $moduleRepository->getById($moduleId);
 
-        return $this->returnSuccess([
+        return new AjaxResponse([
             'pid' => $animationService->getPid($slave),
             'started' => $animationService->getStarted($slave),
             'steps' => $animationService->getSteps($slave),
             'transmitted' => $animationService->isTransmitted($slave),
+            'success' => true,
+            'failure' => false,
         ]);
     }
 
