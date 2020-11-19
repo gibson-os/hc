@@ -187,7 +187,6 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
         const me = this;
 
         me.addAction({
-            itemId: 'hcNeopixelLedColorNew',
             text: 'Neu',
             tbarText: 'Neu',
             listeners: {
@@ -197,6 +196,18 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             }
         });
         me.addAction({xtype: 'tbseparator'});
+        me.addAction({
+            xtype: 'gosFormNumberfield',
+            itemId: 'hcNeopixelAnimationPanelAnimationIterations',
+            minValue: 0,
+            maxValue: 255,
+            value: 1,
+            fieldLabel: 'Widerholungen',
+            labelWidth: 75,
+            width: 130,
+            addToItemContextMenu: false,
+            addToContainerContextMenu: false
+        });
         me.addAction({
             text: 'Upload',
             iconCls: 'icon_system system_upload',
@@ -217,22 +228,13 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                         },
                         success: () => {
                             me.setLoading(false);
+                            me.down('#hcNeopixelAnimationPlayTransmitted').enable();
+                            me.viewItem.itemContextMenu.down('#hcNeopixelAnimationPlayTransmitted').enable();
+                            me.viewItem.containerContextMenu.down('#hcNeopixelAnimationPlayTransmitted').enable();
                         }
                     });
                 }
             }
-        });
-        me.addAction({
-            xtype: 'gosFormNumberfield',
-            itemId: 'hcNeopixelAnimationPanelAnimationIterations',
-            minValue: 0,
-            maxValue: 255,
-            value: 1,
-            fieldLabel: 'Widerholungen',
-            labelWidth: 75,
-            width: 130,
-            addToItemContextMenu: false,
-            addToContainerContextMenu: false
         });
         me.addAction({
             iconCls: 'icon_system system_play',
