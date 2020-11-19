@@ -275,58 +275,18 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             listeners: {
                 click() {
                     const window = new GibsonOS.module.hc.neopixel.gradient.Window({pwmSpeed: me.pwmSpeed});
-                    let colors = [];
 
                     window.down('#gosModuleHcNeopixelGradientSetButton').on('click', () => {
                         const form = window.down('gosModuleHcNeopixelGradientForm');
-                        let previousColor = null;
-                        let color = null;
-
                         const selectionModel = view.getSelectionModel();
-                        const selectedCount = selectionModel.getCount();
-                        let colorsCount = 0;
-
-                        form.items.each((item) => {
-                            if (item.xtype !== 'gosModuleHcNeopixelColorPanel') {
-                                return true;
-                            }
-
-                            colorsCount++;
-                        });
-
-                        const fadeLedSteps = ((selectedCount - colorsCount) / (colorsCount - 1)) + 1;
-                        colorsCount = 0;
-
-                        form.items.each((item) => {
-                            if (item.xtype !== 'gosModuleHcNeopixelColorPanel') {
-                                return true;
-                            }
-
-                            colorsCount++;
-                            color = {
-                                red: item.down('#hcNeopixelLedColorRed').getValue(),
-                                green: item.down('#hcNeopixelLedColorGreen').getValue(),
-                                blue: item.down('#hcNeopixelLedColorBlue').getValue(),
-                                redDiff: 0,
-                                greenDiff: 0,
-                                blueDiff: 0
-                            };
-
-                            if (previousColor !== null) {
-                                previousColor.redDiff = (color.red - previousColor.red) / fadeLedSteps;
-                                previousColor.greenDiff = (color.green - previousColor.green) / fadeLedSteps;
-                                previousColor.blueDiff = (color.blue - previousColor.blue) / fadeLedSteps;
-                            }
-
-                            colors.push(color);
-                            previousColor = color;
-                        });
-
+                        const fadeLedSteps = window.getFadeSteps(selectionModel.getCount());
+                        let colors = window.getStepColors(fadeLedSteps);
                         let selection = selectionModel.getSelection();
                         selection.sort((a, b) => (a.get('number') > b.get('number') ? 1 : -1));
                         let startLedIndex = 0;
                         let startIndex = 0;
                         let startColor = colors[startIndex];
+                        let previousColor = null;
 
                         Ext.iterate(selection, (led, index) => {
                             if (startIndex !== parseInt(index / fadeLedSteps)) {

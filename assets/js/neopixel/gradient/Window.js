@@ -9,7 +9,7 @@ Ext.define('GibsonOS.module.hc.neopixel.gradient.Window', {
         module: 'hc',
         task: 'neopixel'
     },
-    initComponent: function() {
+    initComponent() {
         let me = this;
 
         me.items = [{
@@ -24,5 +24,53 @@ Ext.define('GibsonOS.module.hc.neopixel.gradient.Window', {
 
         me.down('gosModuleHcNeopixelColorFadeIn').setValuesByPwmSpeed(me.pwmSpeed);
         me.down('gosModuleHcNeopixelColorBlink').setValuesByPwmSpeed(me.pwmSpeed);
+    },
+    getFadeSteps(selectedCount) {
+        let me = this;
+        const form = me.down('gosModuleHcNeopixelGradientForm');
+        let colorsCount = 0;
+
+        form.items.each((item) => {
+            if (item.xtype !== 'gosModuleHcNeopixelColorPanel') {
+                return true;
+            }
+
+            colorsCount++;
+        });
+
+        return ((selectedCount - colorsCount) / (colorsCount - 1)) + 1;
+    },
+    getStepColors(fadeLedSteps) {
+        let me = this;
+        const form = me.down('gosModuleHcNeopixelGradientForm');
+        let colors = [];
+        let previousColor = null;
+        let color = null;
+
+        form.items.each((item) => {
+            if (item.xtype !== 'gosModuleHcNeopixelColorPanel') {
+                return true;
+            }
+
+            color = {
+                red: item.down('#hcNeopixelLedColorRed').getValue(),
+                green: item.down('#hcNeopixelLedColorGreen').getValue(),
+                blue: item.down('#hcNeopixelLedColorBlue').getValue(),
+                redDiff: 0,
+                greenDiff: 0,
+                blueDiff: 0
+            };
+
+            if (previousColor !== null) {
+                previousColor.redDiff = (color.red - previousColor.red) / fadeLedSteps;
+                previousColor.greenDiff = (color.green - previousColor.green) / fadeLedSteps;
+                previousColor.blueDiff = (color.blue - previousColor.blue) / fadeLedSteps;
+            }
+
+            colors.push(color);
+            previousColor = color;
+        });
+
+        return colors;
     }
 });
