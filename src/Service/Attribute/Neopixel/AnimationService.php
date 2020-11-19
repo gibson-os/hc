@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Service\Attribute\Neopixel;
 use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
+use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Attribute;
@@ -104,11 +105,14 @@ class AnimationService
     /**
      * @throws DateTimeError
      * @throws SaveError
+     * @throws SelectError
+     * @throws DeleteError
      */
     public function setSteps(Module $slave, array $steps, bool $transmitted): void
     {
         $this->attributeRepository->startTransaction();
 
+        $this->valueRepository->deleteByModule($slave, null, [self::ATTRIBUTE_KEY_STEPS], self::ATTRIBUTE_TYPE);
         $stepsAttribute = $this->getAttribute($slave, self::ATTRIBUTE_KEY_STEPS);
         $transmittedAttribute = $this->getAttribute($slave, self::ATTRIBUTE_KEY_TRANSMITTED);
 

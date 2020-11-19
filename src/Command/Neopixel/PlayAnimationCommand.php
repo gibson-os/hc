@@ -92,10 +92,9 @@ class PlayAnimationCommand extends AbstractCommand
         $steps = $this->animationAttributeService->getSteps($slave);
         $runtimes = $this->animationSequenceService->getRuntimes($steps);
         $this->mysqlDatabase->closeDB();
+        $startTime = (int) (microtime(true) * 1000000);
 
         for ($i = 0; $iterations === 0 || $i < $iterations; ++$i) {
-            $length = 0;
-
             foreach ($steps as $time => $leds) {
                 $newLeds = [];
 
@@ -103,21 +102,14 @@ class PlayAnimationCommand extends AbstractCommand
                     $newLeds[$led['led']] = $led;
                 }
 
-                $time += $runtimes[$time] * 1000;
-                $this->sleepToTime($time - 5000000);
                 $this->mysqlDatabase->openDB($this->envService->getString('MYSQL_DATABASE'));
                 $changedLeds = $this->getChanges($slave, $newLeds);
-                $this->sleepToTime($time);
+                $startTime += 1000000;
+                $this->sleepToTime($startTime);
                 $this->writeLeds($slave, $this->neopixelService, $newLeds, $changedLeds);
                 $this->mysqlDatabase->closeDB();
 
-                foreach ($leds as $led) {
-                    if ($led['length'] > $length) {
-                        $length = $led['length'];
-                    }
-                }
-
-                $startTime = $time + ($length * 1000);
+                $startTime += ($runtimes[$time] * 1000) - 1000000;
                 $this->sleepToTime($startTime);
             }
         }
@@ -128,9 +120,10 @@ class PlayAnimationCommand extends AbstractCommand
     private function sleepToTime(int $time): void
     {
         $now = (int) (microtime(true) * 1000000);
+        $difference = $time - $now;
 
-        if ($time - $now > 1000000) {
-            usleep($time - $now - 1000000);
+        if ($difference > 10000) {
+            usleep((int) ($difference - 10000));
         }
 
         while ((int) (microtime(true) * 1000000) < $time) {
