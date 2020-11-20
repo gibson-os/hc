@@ -79,6 +79,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
         me.callParent();
 
         me.addActions();
+        me.addColorActions();
 
         let viewStore = me.down('gosModuleHcNeopixelAnimationView').getStore();
         viewStore.getProxy().setExtraParam('moduleId', me.hcModuleId);
@@ -446,5 +447,24 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
         let animationStore = me.down('#hcNeopixelAnimationPanelAnimationLoad').getStore();
         animationStore.getProxy().setExtraParam('moduleId', me.hcModuleId);
         animationStore.load();
+    },
+    addColorActions() {
+        const me = this;
+        const panel = me.down('gosModuleHcNeopixelColorPanel');
+
+        panel.addAction({
+            tbarText: 'G',
+            selectionNeeded: true,
+            minSelectionNeeded: 3,
+            listeners: {
+                click() {
+                    const window = new GibsonOS.module.hc.neopixel.gradient.Window({pwmSpeed: me.pwmSpeed});
+
+                    window.down('#gosModuleHcNeopixelGradientSetButton').on('click', () => {
+
+                    });
+                }
+            }
+        });
     }
 });

@@ -26,7 +26,7 @@ Ext.define('GibsonOS.module.hc.neopixel.gradient.Window', {
         me.down('gosModuleHcNeopixelColorBlink').setValuesByPwmSpeed(me.pwmSpeed);
     },
     getFadeSteps(selectedCount) {
-        let me = this;
+        const me = this;
         const form = me.down('gosModuleHcNeopixelGradientForm');
         let colorsCount = 0;
 
@@ -41,7 +41,7 @@ Ext.define('GibsonOS.module.hc.neopixel.gradient.Window', {
         return ((selectedCount - colorsCount) / (colorsCount - 1)) + 1;
     },
     getStepColors(fadeLedSteps) {
-        let me = this;
+        const me = this;
         const form = me.down('gosModuleHcNeopixelGradientForm');
         let colors = [];
         let previousColor = null;
