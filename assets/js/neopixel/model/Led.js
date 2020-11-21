@@ -27,5 +27,8 @@ Ext.define('GibsonOS.module.hc.neopixel.model.Led', {
     },{
         name: 'blink',
         type: 'int'
+    },{
+        name: 'deactivated',
+        type: 'bool'
     }]
 });
