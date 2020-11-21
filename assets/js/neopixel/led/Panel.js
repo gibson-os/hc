@@ -279,48 +279,14 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                     window.down('#gosModuleHcNeopixelGradientSetButton').on('click', () => {
                         const form = window.down('gosModuleHcNeopixelGradientForm');
                         const selectionModel = view.getSelectionModel();
-                        const fadeLedSteps = window.getFadeSteps(selectionModel.getCount());
-                        let colors = window.getStepColors(fadeLedSteps);
                         let selection = selectionModel.getSelection();
                         selection.sort((a, b) => (a.get('number') > b.get('number') ? 1 : -1));
-                        let startLedIndex = 0;
-                        let startIndex = 0;
-                        let startColor = colors[startIndex];
-                        let previousColor = null;
 
-                        Ext.iterate(selection, (led, index) => {
-                            if (startIndex !== parseInt(index / fadeLedSteps)) {
-                                startIndex = parseInt(index / fadeLedSteps);
-                                startLedIndex = index;
-                                previousColor = startColor;
-                                startColor = colors[startIndex];
-
-                                let fadeStepRest = 1 - ((fadeLedSteps * startIndex) % 1);
-                                fadeStepRest = fadeStepRest === 1 ? 0 : fadeStepRest;
-
-                                const setDiff = (colorString) => {
-                                    const colorStringDiff = colorString.concat('Diff');
-
-                                    if (startColor[colorStringDiff] === 0) {
-                                        return;
-                                    }
-
-                                    if (previousColor[colorStringDiff] === 0) {
-                                        startColor[colorString] += startColor[colorStringDiff] * fadeStepRest;
-                                    } else {
-                                        startColor[colorString] -= previousColor[colorStringDiff] * fadeStepRest;
-                                    }
-                                }
-
-                                setDiff('red');
-                                setDiff('green');
-                                setDiff('blue');
-                            }
-
-                            let diffMultiplication = (index - startLedIndex);
-                            led.set('red', startColor.red + (startColor.redDiff ? (startColor.redDiff * diffMultiplication) : 0));
-                            led.set('green', startColor.green + (startColor.greenDiff ? (startColor.greenDiff * diffMultiplication) : 0));
-                            led.set('blue', startColor.blue + (startColor.blueDiff ? (startColor.blueDiff * diffMultiplication) : 0));
+                        window.eachColor(selectionModel.getCount(), (index, red, green, blue) => {
+                            const led = selection[index];
+                            led.set('red', red);
+                            led.set('green', green);
+                            led.set('blue', blue);
                             led.set('fadeIn', form.down('gosModuleHcNeopixelColorFadeIn').getValue());
                             led.set('blink', form.down('gosModuleHcNeopixelColorBlink').getValue());
                         });

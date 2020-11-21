@@ -72,5 +72,53 @@ Ext.define('GibsonOS.module.hc.neopixel.gradient.Window', {
         });
 
         return colors;
+    },
+    eachColor(selectedCount, callback) {
+        const me = this;
+        const fadeLedSteps = me.getFadeSteps(selectedCount);
+        let colors = me.getStepColors(fadeLedSteps);
+        let startLedIndex = 0;
+        let startIndex = 0;
+        let startColor = colors[startIndex];
+        let previousColor = null;
+
+        for (let index = 0; index < selectedCount; index++) {
+            if (startIndex !== parseInt(index / fadeLedSteps)) {
+                startIndex = parseInt(index / fadeLedSteps);
+                startLedIndex = index;
+                previousColor = startColor;
+                startColor = colors[startIndex];
+
+                let fadeStepRest = 1 - ((fadeLedSteps * startIndex) % 1);
+                fadeStepRest = fadeStepRest === 1 ? 0 : fadeStepRest;
+
+                const setDiff = (colorString) => {
+                    const colorStringDiff = colorString.concat('Diff');
+
+                    if (startColor[colorStringDiff] === 0) {
+                        return;
+                    }
+
+                    if (previousColor[colorStringDiff] === 0) {
+                        startColor[colorString] += startColor[colorStringDiff] * fadeStepRest;
+                    } else {
+                        startColor[colorString] -= previousColor[colorStringDiff] * fadeStepRest;
+                    }
+                }
+
+                setDiff('red');
+                setDiff('green');
+                setDiff('blue');
+            }
+
+            const diffMultiplication = (index - startLedIndex);
+
+            callback(
+                index,
+                startColor.red + (startColor.redDiff ? (startColor.redDiff * diffMultiplication) : 0),
+                startColor.green + (startColor.greenDiff ? (startColor.greenDiff * diffMultiplication) : 0),
+                startColor.blue + (startColor.blueDiff ? (startColor.blueDiff * diffMultiplication) : 0)
+            );
+        }
     }
 });
