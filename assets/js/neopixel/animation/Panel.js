@@ -112,12 +112,11 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
         let selectedRecord = null;
 
-        me.down('#hcNeopixelLedColorTime').on('change', (field, value, oldValue) => {
+        colorForm.down('#hcNeopixelLedColorTime').on('change', (field, value, oldValue) => {
             if (!oldValue) {
                 return;
             }
 
-            let animationView = me.down('gosModuleHcNeopixelAnimationView');
             let store = animationView.getStore();
             let records = animationView.getSelectionModel().getSelection();
 
@@ -142,13 +141,13 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 })
             }
         });
-        me.down('gosModuleHcNeopixelAnimationView').on('afterLedSelectionChange', view => {
+        animationView.on('afterLedSelectionChange', view => {
             const slectionLength = document.querySelectorAll('#'.concat(view.getId(), ' div.selected')).length;
 
             me.setActionDisabled('#hcNeopixelLedColorAdd', !slectionLength);
             me.setActionDisabled('#hcNeopixelAnimationGradientButton', slectionLength < 3);
         });
-        me.down('gosModuleHcNeopixelAnimationView').on('selectionchange', (view, records) => {
+        animationView.on('selectionchange', (view, records) => {
             let deleteButton = me.down('#hcNeopixelLedColorDelete');
 
             if (records.length) {
@@ -164,7 +163,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 deleteButton.disable();
             }
         });
-        me.down('gosModuleHcNeopixelColorFadeIn').on('change', (combo, value) => {
+        colorForm.down('gosModuleHcNeopixelColorFadeIn').on('change', (combo, value) => {
             let record = combo.findRecordByValue(value);
             let colorTime = me.down('#hcNeopixelLedColorTime');
             let milliseconds = record.get('seconds') * 1000;
@@ -456,9 +455,55 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             listeners: {
                 click() {
                     const window = new GibsonOS.module.hc.neopixel.gradient.Window({pwmSpeed: me.pwmSpeed});
+                    const form = window.down('gosModuleHcNeopixelGradientForm');
+                    const animationView = me.down('gosModuleHcNeopixelAnimationView');
+                    const store = animationView.getStore();
+
+                    form.insert(3, {
+                        xtype: 'gosFormNumberfield',
+                        itemId: 'hcNeopixelLedAnimationGradientTime',
+                        fieldLabel: 'Zeit',
+                    });
+                    form.down('gosModuleHcNeopixelColorFadeIn').on('change', (combo, value) => {
+                        const record = combo.findRecordByValue(value);
+                        const colorTime = form.down('#hcNeopixelLedAnimationGradientTime');
+                        const milliseconds = record.get('seconds') * 1000;
+
+                        if (milliseconds > colorTime.getValue()) {
+                            colorTime.setValue(milliseconds);
+                        }
+                    });
 
                     window.down('#gosModuleHcNeopixelGradientSetButton').on('click', () => {
+                        const selectedLeds = document.querySelectorAll('#' + animationView.getId() + ' div.selected');
 
+                        window.eachColor(selectedLeds.length, (index, red, green, blue) => {
+                            let ledIndex = store.find('led', selectedLeds[index].dataset.id, 0, false, false, true);
+                            let time = 0;
+                            let ledRecord = null;
+
+                            while (ledIndex > -1) {
+                                ledRecord = store.getAt(ledIndex);
+
+                                if (ledRecord.get('time') + ledRecord.get('length') > time) {
+                                    time = ledRecord.get('time') + ledRecord.get('length');
+                                }
+
+                                ledIndex = store.find('led', selectedLedDiv.dataset.id, ledIndex + 1, false, false, true);
+                            }
+
+                            store.add({
+                                led: selectedLeds[index].dataset.id,
+                                red: red,
+                                green: green,
+                                blue: blue,
+                                fadeIn: form.down('gosModuleHcNeopixelColorFadeIn').getValue(),
+                                blink: form.down('gosModuleHcNeopixelColorBlink').getValue(),
+                                time: time,
+                                length: form.down('#hcNeopixelLedAnimationGradientTime').getValue(),
+                            });
+                        });
+                        window.close();
                     });
                 }
             }

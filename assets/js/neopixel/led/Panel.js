@@ -418,6 +418,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 animationPanel.down('gosModuleHcNeopixelColorBlink').setValuesByPwmSpeed(jsonData.pwmSpeed);
 
                 me.pwmSpeed = jsonData.pwmSpeed;
+                animationPanel.pwmSpeed = me.pwmSpeed;
             }
 
             ledAddToolbarMenu.removeAll();
