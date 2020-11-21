@@ -143,13 +143,10 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             }
         });
         me.down('gosModuleHcNeopixelAnimationView').on('afterLedSelectionChange', view => {
-            let addButton = me.down('#hcNeopixelLedColorAdd');
+            const slectionLength = document.querySelectorAll('#'.concat(view.getId(), ' div.selected')).length;
 
-            if (document.querySelectorAll('#' + view.getId() + ' div.selected').length) {
-                addButton.enable();
-            } else {
-                addButton.disable();
-            }
+            me.setActionDisabled('#hcNeopixelLedColorAdd', !slectionLength);
+            me.setActionDisabled('#hcNeopixelAnimationGradientButton', slectionLength < 3);
         });
         me.down('gosModuleHcNeopixelAnimationView').on('selectionchange', (view, records) => {
             let deleteButton = me.down('#hcNeopixelLedColorDelete');
@@ -454,8 +451,8 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
         panel.addAction({
             tbarText: 'G',
-            selectionNeeded: true,
-            minSelectionNeeded: 3,
+            itemId: 'hcNeopixelAnimationGradientButton',
+            disabled: true,
             listeners: {
                 click() {
                     const window = new GibsonOS.module.hc.neopixel.gradient.Window({pwmSpeed: me.pwmSpeed});
