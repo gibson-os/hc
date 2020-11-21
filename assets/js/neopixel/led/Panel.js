@@ -158,7 +158,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             save: name => {
                 let leds = [];
 
-                me.getStore().each(led => {
+                ledView.getStore().each(led => {
                     leds.push({
                         red: led.get('red'),
                         green: led.get('green'),

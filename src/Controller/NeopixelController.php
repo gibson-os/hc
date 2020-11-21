@@ -209,6 +209,8 @@ class NeopixelController extends AbstractController
             'data' => $imageStore->getList(),
             'total' => $imageStore->getCount(),
             'id' => $image->getId(),
+            'success' => true,
+            'failure' => false,
         ]);
     }
 }
