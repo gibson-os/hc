@@ -152,7 +152,7 @@ class UdpService extends AbstractService implements ProtocolInterface
 
         if (
             $data->getIp() !== $this->subnet . '.' . $address ||
-            $data->getMessage() !== chr(MasterService::TYPE_RECEIVE_RETURN)
+            $data->getMessage() !== chr($address) . chr(MasterService::TYPE_RECEIVE_RETURN)
         ) {
             throw new ReceiveError('Empfangsbestätigung nicht erhalten!');
         }
