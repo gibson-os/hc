@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Protocol;
 
+use GibsonOS\Core\Dto\UdpMessage;
 use GibsonOS\Core\Exception\CreateError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -77,7 +78,7 @@ class UdpService extends AbstractService implements ProtocolInterface
         }
 
         try {
-            return $this->udpReceiveService->receive(self::RECEIVE_LENGTH);
+            return $this->udpReceiveService->receive(self::RECEIVE_LENGTH)->getMessage();
         } catch (ReceiveError $exception) {
             return null;
         }
@@ -92,7 +93,7 @@ class UdpService extends AbstractService implements ProtocolInterface
     {
         $udpSendService = new CoreUdpService($this->serverIp, self::SEND_PORT);
         $udpSendService->setTimeout(10);
-        $udpSendService->send(chr($type) . $data, $this->subnet . '.' . $address, self::SEND_PORT);
+        $udpSendService->send(new UdpMessage($this->subnet . '.' . $address, self::SEND_PORT, chr($type) . $data));
         $udpSendService->close();
     }
 
@@ -107,7 +108,7 @@ class UdpService extends AbstractService implements ProtocolInterface
         $udpSendService = $this->createSendService();
 
         try {
-            $data = $udpSendService->receive(self::RECEIVE_LENGTH);
+            $data = $udpSendService->receive(self::RECEIVE_LENGTH)->getMessage();
         } catch (ReceiveError $exception) {
             $udpSendService->close();
 
@@ -124,11 +125,11 @@ class UdpService extends AbstractService implements ProtocolInterface
      */
     public function sendReceiveReturn(int $address): void
     {
-        $this->udpReceiveService->send(
-            chr(MasterService::TYPE_RECEIVE_RETURN),
+        $this->udpReceiveService->send(new UdpMessage(
             $this->subnet . '.' . $address,
-            self::RECEIVE_PORT
-        );
+            self::RECEIVE_PORT,
+            chr(MasterService::TYPE_RECEIVE_RETURN)
+        ));
     }
 
     /**
@@ -149,7 +150,10 @@ class UdpService extends AbstractService implements ProtocolInterface
             $udpSendService->close();
         }
 
-        if ($data !== chr($address) . chr(MasterService::TYPE_RECEIVE_RETURN)) {
+        if (
+            $data->getIp() !== $this->subnet . '.' . $address ||
+            $data->getMessage() !== chr(MasterService::TYPE_RECEIVE_RETURN)
+        ) {
             throw new ReceiveError('Empfangsbestätigung nicht erhalten!');
         }
     }
