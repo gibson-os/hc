@@ -15,14 +15,14 @@ interface ProtocolInterface
     /**
      * @throws AbstractException
      */
-    public function send(int $type, string $data, int $address): void;
+    public function send(int $type, string $data, string $address): void;
 
     /**
      * @throws SendError
      */
-    public function sendReceiveReturn(int $address): void;
+    public function sendReceiveReturn(string $address): void;
 
-    public function receiveReceiveReturn(int $address): void;
+    public function receiveReceiveReturn(string $address): void;
 
     public function receiveReadData(): string;
 

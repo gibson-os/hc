@@ -74,7 +74,7 @@ class ReceiverService extends AbstractService
         $masterAddress = $this->masterFormatter->getMasterAddress($data);
         $type = $this->masterFormatter->getType($data);
 
-        $protocolService->sendReceiveReturn($masterAddress);
+        $protocolService->sendReceiveReturn((string) $masterAddress);
 
         if ($type === MasterService::TYPE_HANDSHAKE) {
             $this->handshake($protocolService, $cleanData, $masterAddress);

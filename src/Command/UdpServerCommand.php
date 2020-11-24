@@ -43,6 +43,8 @@ class UdpServerCommand extends AbstractCommand
         $this->receiverService = $receiverService;
         $this->envService = $envService;
         $this->mysqlDatabase = $mysqlDatabase;
+
+        $this->setArgument('bindIp', true);
     }
 
     /**

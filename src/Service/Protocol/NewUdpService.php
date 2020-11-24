@@ -5,7 +5,6 @@ namespace GibsonOS\Module\Hc\Service\Protocol;
 
 use GibsonOS\Core\Dto\UdpMessage;
 use GibsonOS\Core\Exception\CreateError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\Server\SendError;
 use GibsonOS\Core\Exception\SetError;
@@ -13,13 +12,11 @@ use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Service\UdpService as CoreUdpService;
 use GibsonOS\Module\Hc\Service\MasterService;
 
-class UdpService extends AbstractService implements ProtocolInterface
+class NewUdpService extends AbstractService implements ProtocolInterface
 {
     const SEND_PORT = 7363;
 
     const RECEIVE_PORT = 7339;
-
-    const ENV_SERVER_IP = 'HC_SERVER_IP';
 
     /**
      * @var CoreUdpService
@@ -27,34 +24,15 @@ class UdpService extends AbstractService implements ProtocolInterface
     private $udpReceiveService;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private $serverIp;
+    private $ip;
 
-    /**
-     * @var string
-     */
-    private $subnet;
-
-    /**
-     * Udp constructor.
-     *
-     * @throws GetError
-     */
-    public function __construct()
+    public function setIp(string $ip): NewUdpService
     {
-        $this->serverIp = (string) getenv(self::ENV_SERVER_IP);
+        $this->ip = $ip;
 
-        if (empty($this->serverIp)) {
-            throw new GetError(
-                sprintf(
-                    'Server IP ist leer oder kein String. Umgebungsvariable %s muss gesetzt sein.',
-                    self::ENV_SERVER_IP
-                )
-            );
-        }
-
-        $this->subnet = mb_substr($this->serverIp, 0, mb_strrpos($this->serverIp, '.') ?: null);
+        return $this;
     }
 
     /**
@@ -63,7 +41,11 @@ class UdpService extends AbstractService implements ProtocolInterface
      */
     private function setReceiveServer()
     {
-        $this->udpReceiveService = new CoreUdpService($this->serverIp, self::RECEIVE_PORT);
+        if ($this->ip === null) {
+            throw new CreateError('Server IP is null');
+        }
+
+        $this->udpReceiveService = new CoreUdpService($this->ip, self::RECEIVE_PORT);
         $this->udpReceiveService->setTimeout(3);
     }
 
@@ -91,9 +73,9 @@ class UdpService extends AbstractService implements ProtocolInterface
      */
     public function send(int $type, string $data, string $address): void
     {
-        $udpSendService = new CoreUdpService($this->serverIp, self::SEND_PORT);
+        $udpSendService = $this->createSendService();
         $udpSendService->setTimeout(10);
-        $udpSendService->send(new UdpMessage($this->subnet . '.' . $address, self::SEND_PORT, chr($type) . $data));
+        $udpSendService->send(new UdpMessage($address, self::SEND_PORT, chr($type) . $data));
         $udpSendService->close();
     }
 
@@ -123,10 +105,10 @@ class UdpService extends AbstractService implements ProtocolInterface
     /**
      * @throws SendError
      */
-    public function sendReceiveReturn(string $address): void
+    public function sendReceiveReturn(string $ip): void
     {
         $this->udpReceiveService->send(new UdpMessage(
-            $this->subnet . '.' . $address,
+            $ip,
             self::RECEIVE_PORT,
             chr(MasterService::TYPE_RECEIVE_RETURN)
         ));
@@ -138,7 +120,7 @@ class UdpService extends AbstractService implements ProtocolInterface
      * @throws CreateError
      * @throws CreateError
      */
-    public function receiveReceiveReturn(string $address): void
+    public function receiveReceiveReturn(string $ip): void
     {
         $udpSendService = $this->createSendService();
 
@@ -150,9 +132,8 @@ class UdpService extends AbstractService implements ProtocolInterface
             $udpSendService->close();
         }
 
-        if (
-            $data->getIp() !== $this->subnet . '.' . $address ||
-            $data->getMessage() !== chr((int) $address) . chr(MasterService::TYPE_RECEIVE_RETURN)
+        if ($data->getIp() !== $ip ||
+            $data->getMessage() !== chr(MasterService::TYPE_RECEIVE_RETURN)
         ) {
             throw new ReceiveError('Empfangsbestätigung nicht erhalten!');
         }
@@ -164,7 +145,11 @@ class UdpService extends AbstractService implements ProtocolInterface
      */
     private function createSendService(): CoreUdpService
     {
-        $udpSendService = new CoreUdpService($this->serverIp, self::SEND_PORT);
+        if ($this->ip === null) {
+            throw new CreateError('Server IP is null');
+        }
+
+        $udpSendService = new CoreUdpService($this->ip, self::SEND_PORT);
         $udpSendService->setTimeout(3);
 
         return $udpSendService;

@@ -54,7 +54,7 @@ class SenderService extends AbstractService
      */
     public function send(Master $master, int $type, string $data)
     {
-        $this->protocolFactory->get($master->getProtocol())->send($type, $data, $master->getAddress());
+        $this->protocolFactory->get($master->getProtocol())->send($type, $data, (string) $master->getAddress());
         usleep(500);
     }
 
@@ -85,6 +85,6 @@ class SenderService extends AbstractService
      */
     public function receiveReceiveReturn(Master $master): void
     {
-        $this->protocolFactory->get($master->getProtocol())->receiveReceiveReturn($master->getAddress());
+        $this->protocolFactory->get($master->getProtocol())->receiveReceiveReturn((string) $master->getAddress());
     }
 }
