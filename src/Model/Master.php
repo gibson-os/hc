@@ -31,7 +31,7 @@ class Master extends AbstractModel
     private $address;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $ip;
 
@@ -98,12 +98,12 @@ class Master extends AbstractModel
         return $this;
     }
 
-    public function getIp(): string
+    public function getIp(): ?string
     {
         return $this->ip;
     }
 
-    public function setIp(string $ip): Master
+    public function setIp(?string $ip): Master
     {
         $this->ip = $ip;
 
