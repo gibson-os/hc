@@ -83,7 +83,8 @@ class ReceiverService extends AbstractService
 
             $busMessage
                 ->setSlaveAddress($this->transformService->asciiToUnsignedInt($data, 0))
-                ->setData(substr($data, 1));
+                ->setData(substr($data, 1))
+            ;
 
             $this->masterService->receive($masterModel, $busMessage);
         }

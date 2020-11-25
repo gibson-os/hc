@@ -3,6 +3,7 @@
 namespace GibsonOS\Module\Hc\Mapper;
 
 use GibsonOS\Core\Dto\UdpMessage;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Service\TransformService;
 
@@ -18,6 +19,9 @@ class BusMessageMapper
         $this->transformService = $transformService;
     }
 
+    /**
+     * @throws GetError
+     */
     public function mapToUdpMessage(BusMessage $busMessage, int $port): UdpMessage
     {
         $message = '';
@@ -46,7 +50,8 @@ class BusMessageMapper
     {
         return (new BusMessage(
             $udpMessage->getIp(),
-            $this->transformService->asciiToUnsignedInt($udpMessage->getMessage(), 0)
+            $this->transformService->asciiToUnsignedInt($udpMessage->getMessage(), 0),
+            false
         ))
             ->setData(substr($udpMessage->getMessage(), 1, -1) ?: null)
             ->setChecksum(ord(substr($udpMessage->getMessage(), -1)))

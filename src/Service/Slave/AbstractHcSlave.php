@@ -232,7 +232,11 @@ abstract class AbstractHcSlave extends AbstractSlave
         }
 
         $slave->setMaster($master);
-        $this->masterService->send($slave->getMaster(), MasterService::TYPE_SLAVE_IS_HC, chr((int) $slave->getAddress()));
+        $this->masterService->send(
+            $slave->getMaster(),
+            (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_SLAVE_IS_HC, true))
+                ->setSlaveAddress($slave->getAddress())
+        );
         $this->masterService->receiveReceiveReturn($slave->getMaster());
 
         $slave
@@ -279,11 +283,7 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws FileNotFound
      * @throws GetError
-     * @throws SaveError
-     * @throws SelectError
      */
     private function handshakeExistingSlave(Module $slave): Module
     {

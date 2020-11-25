@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Service;
 use DateTime;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
@@ -135,17 +136,15 @@ class MasterService extends AbstractService
             echo 'New Slave ' . $slaveAddress . PHP_EOL;
             $slave = $this->slaveHandshake($master, $slaveAddress);
         } else {
-            if (empty($data)) {
-                throw new ReceiveError('No command in data!');
+            $command = $busMessage->getCommand();
+
+            if ($command === null) {
+                throw new ReceiveError('Command is null!');
             }
 
-            $busMessage
-                ->setCommand($this->transformService->asciiToUnsignedInt($data, 1))
-                ->setData(substr($data, 1))
-            ;
-            echo 'Command: ' . $busMessage->getCommand() . PHP_EOL;
+            echo 'Command: ' . $command . PHP_EOL;
             $slave = $this->slaveReceive($master, $busMessage);
-            $log->setCommand($busMessage->getCommand());
+            $log->setCommand($command);
         }
 
         $slave
@@ -162,9 +161,9 @@ class MasterService extends AbstractService
     /**
      * @throws AbstractException
      */
-    public function send(Master $master, int $type, string $data): void
+    public function send(Master $master, BusMessage $busMessage): void
     {
-        $this->senderService->send((new BusMessage($master->getAddress(), $type))->setData($data), $master->getProtocol());
+        $this->senderService->send($busMessage, $master->getProtocol());
     }
 
     /**
@@ -172,27 +171,28 @@ class MasterService extends AbstractService
      */
     public function scanBus(Master $master): void
     {
-        $this->send($master, self::TYPE_SCAN_BUS, '');
+        $this->send($master, new BusMessage($master->getAddress(), self::TYPE_SCAN_BUS, true));
         $this->receiveReceiveReturn($master);
     }
 
     /**
+     * @throws FactoryError
+     * @throws GetError
      * @throws ReceiveError
-     * @throws FileNotFound
      */
-    public function receiveReadData(Master $master, int $address, int $type, int $command): string
+    public function receiveReadData(Master $master, BusMessage $busMessage): BusMessage
     {
-        $data = $this->senderService->receiveReadData($master, $type)->getData() ?? '';
+        $receivedBusMessage = $this->senderService->receiveReadData($master, $busMessage->getType());
 
-        if ($address !== $this->transformService->asciiToUnsignedInt($data, 0)) {
-            throw new ReceiveError('Slave Adresse stimmt nicht überein!');
+        if ($busMessage->getSlaveAddress() !== $receivedBusMessage->getSlaveAddress()) {
+            throw new ReceiveError('Slave address not equal!');
         }
 
-        if ($command !== $this->transformService->asciiToUnsignedInt($data, 1)) {
-            throw new ReceiveError('Kommando stimmt nicht überein!');
+        if ($busMessage->getCommand() !== $receivedBusMessage->getCommand()) {
+            throw new ReceiveError('Command not equal!');
         }
 
-        return substr($data, 2);
+        return $receivedBusMessage;
     }
 
     /**
