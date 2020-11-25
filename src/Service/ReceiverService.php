@@ -107,6 +107,6 @@ class ReceiverService extends AbstractService
 
         $address = $masterModel->getAddress();
         $masterModel->setAddress($masterAddress);
-        $this->masterService->setAddress($masterModel, $address);
+        $this->masterService->setAddress($masterModel, (int) $address);
     }
 }

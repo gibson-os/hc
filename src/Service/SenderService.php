@@ -69,7 +69,7 @@ class SenderService extends AbstractService
 
         $this->masterFormatter->checksumEqual($data);
 
-        if ($this->masterFormatter->getMasterAddress($data) !== $master->getAddress()) {
+        if ($this->masterFormatter->getMasterAddress($data) !== (int) $master->getAddress()) {
             throw new ReceiveError('Master Adresse stimmt nicht überein!');
         }
 

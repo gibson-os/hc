@@ -26,14 +26,9 @@ class Master extends AbstractModel
     private $protocol;
 
     /**
-     * @var int
+     * @var string
      */
     private $address;
-
-    /**
-     * @var string|null
-     */
-    private $ip;
 
     /**
      * @var DateTime
@@ -86,26 +81,14 @@ class Master extends AbstractModel
         return $this;
     }
 
-    public function getAddress(): int
+    public function getAddress(): string
     {
         return $this->address;
     }
 
-    public function setAddress(int $address): Master
+    public function setAddress($address): Master
     {
         $this->address = $address;
-
-        return $this;
-    }
-
-    public function getIp(): ?string
-    {
-        return $this->ip;
-    }
-
-    public function setIp(?string $ip): Master
-    {
-        $this->ip = $ip;
 
         return $this;
     }
