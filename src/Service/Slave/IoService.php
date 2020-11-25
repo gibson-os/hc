@@ -10,6 +10,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Event\Describer\IoDescriber as IoDescriber;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
@@ -267,9 +268,9 @@ class IoService extends AbstractHcSlave
      * @throws DateTimeError
      * @throws SelectError
      */
-    public function receive(Module $slave, int $type, int $command, string $data): void
+    public function receive(Module $slave, BusMessage $busMessage): void
     {
-        foreach ($this->ioFormatter->getPortsAsArray($data, (int) $slave->getConfig()) as $number => $port) {
+        foreach ($this->ioFormatter->getPortsAsArray($busMessage->getData() ?? '', (int) $slave->getConfig()) as $number => $port) {
             $this->updatePortAttributes($slave, $number, $port);
         }
     }

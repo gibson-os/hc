@@ -4,9 +4,10 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service;
 
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\FileNotFound;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\ProtocolFactory;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Repository\MasterRepository as MasterRepository;
@@ -52,36 +53,44 @@ class SenderService extends AbstractService
     /**
      * @throws AbstractException
      */
-    public function send(Master $master, int $type, string $data)
+    public function send(BusMessage $busMessage, string $protocol): void
     {
-        $this->protocolFactory->get($master->getProtocol())->send($type, $data, (string) $master->getAddress());
+        $this->protocolFactory->get($protocol)->send($busMessage);
         usleep(500);
     }
 
     /**
-     * @throws FileNotFound
      * @throws ReceiveError
+     * @throws FactoryError
      */
-    public function receiveReadData(Master $master, int $type): string
+    public function receiveReadData(Master $master, int $type): BusMessage
     {
         $protocolService = $this->protocolFactory->get($master->getProtocol());
-        $data = $protocolService->receiveReadData();
+        $busMessage = $protocolService->receiveReadData();
 
-        $this->masterFormatter->checksumEqual($data);
+        $this->masterFormatter->checksumEqual($busMessage);
 
-        if ($this->masterFormatter->getMasterAddress($data) !== $master->getAddress()) {
-            throw new ReceiveError('Master Adresse stimmt nicht überein!');
+        if ($busMessage->getMasterAddress() !== $master->getAddress()) {
+            throw new ReceiveError(sprintf(
+                'Master Adresse %s not equal with data master %s!',
+                $master->getAddress(),
+                $busMessage->getMasterAddress()
+            ));
         }
 
-        if ($this->masterFormatter->getType($data) !== $type) {
-            throw new ReceiveError('Typ stimmt nicht überein!');
+        if ($busMessage->getType() !== $type) {
+            throw new ReceiveError(sprintf(
+                'Type %d not equal with data type %d!',
+                $type,
+                $busMessage->getType()
+            ));
         }
 
-        return $data;
+        return $busMessage;
     }
 
     /**
-     * @throws FileNotFound
+     * @throws FactoryError
      */
     public function receiveReceiveReturn(Master $master): void
     {

@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
@@ -111,28 +112,40 @@ class MasterService extends AbstractService
      * @throws SaveError
      * @throws SelectError
      */
-    public function receive(Master $master, int $type, string $data): void
+    public function receive(Master $master, BusMessage $busMessage): void
     {
+        $data = $busMessage->getData();
         $log = $this->logRepository->create(
-            $type,
-            strlen($data) < 2 ? '' : $this->transformService->asciiToHex(substr($data, 2)),
+            $busMessage->getType(),
+            $data ?? '',
             Log::DIRECTION_INPUT
         )
             ->setMaster($master)
         ;
 
-        $address = $this->transformService->asciiToUnsignedInt($data, 0);
+        echo 'Type: ' . $busMessage->getType() . PHP_EOL;
 
-        echo 'Type: ' . $type . PHP_EOL;
+        if ($busMessage->getType() === MasterService::TYPE_NEW_SLAVE) {
+            $slaveAddress = $busMessage->getSlaveAddress();
 
-        if ($type === MasterService::TYPE_NEW_SLAVE) {
-            echo 'New Slave ' . $address . PHP_EOL;
-            $slave = $this->slaveHandshake($master, $address);
+            if ($slaveAddress === null) {
+                throw new ReceiveError('Slave Address is null!');
+            }
+
+            echo 'New Slave ' . $slaveAddress . PHP_EOL;
+            $slave = $this->slaveHandshake($master, $slaveAddress);
         } else {
-            $command = $this->transformService->asciiToUnsignedInt($data, 1);
-            echo 'Command: ' . $command . PHP_EOL;
-            $slave = $this->slaveReceive($master, $address, $type, $command, substr($data, 2));
-            $log->setCommand($command);
+            if (empty($data)) {
+                throw new ReceiveError('No command in data!');
+            }
+
+            $busMessage
+                ->setCommand($this->transformService->asciiToUnsignedInt($data, 1))
+                ->setData(substr($data, 1))
+            ;
+            echo 'Command: ' . $busMessage->getCommand() . PHP_EOL;
+            $slave = $this->slaveReceive($master, $busMessage);
+            $log->setCommand($busMessage->getCommand());
         }
 
         $slave
@@ -151,34 +164,7 @@ class MasterService extends AbstractService
      */
     public function send(Master $master, int $type, string $data): void
     {
-        $this->senderService->send($master, $type, $data);
-    }
-
-    /**
-     * @throws AbstractException
-     * @throws DateTimeError
-     * @throws FileNotFound
-     * @throws SaveError
-     */
-    public function setAddress(Master $master, int $address): void
-    {
-        $data = $master->getName() . chr($address);
-        $this->send($master, MasterService::TYPE_HANDSHAKE, $data);
-        $this->receiveReceiveReturn($master);
-
-        $this->logRepository->create(
-            MasterService::TYPE_HANDSHAKE,
-            $this->transformService->asciiToHex($data),
-            Log::DIRECTION_OUTPUT
-        )
-            ->setMaster($master)
-            ->save()
-        ;
-
-        $master
-            ->setAddress($address)
-            ->save()
-        ;
+        $this->senderService->send((new BusMessage($master->getAddress(), $type))->setData($data), $master->getProtocol());
     }
 
     /**
@@ -196,7 +182,7 @@ class MasterService extends AbstractService
      */
     public function receiveReadData(Master $master, int $address, int $type, int $command): string
     {
-        $data = $this->masterFormatter->getData($this->senderService->receiveReadData($master, $type));
+        $data = $this->senderService->receiveReadData($master, $type)->getData() ?? '';
 
         if ($address !== $this->transformService->asciiToUnsignedInt($data, 0)) {
             throw new ReceiveError('Slave Adresse stimmt nicht überein!');
@@ -218,12 +204,9 @@ class MasterService extends AbstractService
     }
 
     /**
-     * @throws AbstractException
      * @throws DateTimeError
      * @throws FileNotFound
      * @throws GetError
-     * @throws ReceiveError
-     * @throws SaveError
      * @throws SelectError
      */
     private function slaveHandshake(Master $master, int $address): Module
@@ -257,9 +240,12 @@ class MasterService extends AbstractService
      * @throws ReceiveError
      * @throws SelectError
      */
-    private function slaveReceive(Master $master, int $address, int $type, int $command, string $data): Module
+    private function slaveReceive(Master $master, BusMessage $busMessage): Module
     {
-        $slaveModel = $this->moduleRepository->getByAddress($address, (int) $master->getId());
+        $slaveModel = $this->moduleRepository->getByAddress(
+            $busMessage->getSlaveAddress() ?? 0,
+            $master->getId() ?? 0
+        );
         $slave = $this->slaveFactory->get($slaveModel->getType()->getHelper());
 
         if (!$slave instanceof AbstractHcSlave) {
@@ -270,7 +256,7 @@ class MasterService extends AbstractService
             ));
         }
 
-        $slave->receive($slaveModel, $type, $command, $data);
+        $slave->receive($slaveModel, $busMessage);
 
         return $slaveModel;
     }

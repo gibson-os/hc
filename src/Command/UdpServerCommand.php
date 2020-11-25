@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Command;
 
 use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\ArgumentError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Service\EnvService;
 use GibsonOS\Module\Hc\Service\Protocol\UdpService;
@@ -49,9 +50,12 @@ class UdpServerCommand extends AbstractCommand
 
     /**
      * @throws GetError
+     * @throws ArgumentError
      */
     protected function run(): int
     {
+        $this->protocol->setIp($this->getArgument('bindIp') ?? '');
+
         echo 'Starte Server...' . PHP_EOL;
 
         while (1) {

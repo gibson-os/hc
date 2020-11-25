@@ -73,11 +73,10 @@ class MasterRepository extends AbstractRepository
     }
 
     /**
-     * @throws SelectError
      * @throws DateTimeError
-     * @throws GetError
+     * @throws SelectError
      */
-    public function getByAddress(int $address, string $protocol): MasterModel
+    public function getByAddress(string $address, string $protocol): MasterModel
     {
         $table = self::getTable(MasterModel::getTableName())
             ->setWhere('`protocol`=? AND `address`=?')
@@ -128,19 +127,8 @@ class MasterRepository extends AbstractRepository
      * @throws SaveError
      * @throws Exception
      */
-    public function add(string $name, string $protocol): MasterModel
+    public function add(string $name, string $protocol, string $address): MasterModel
     {
-        $table = self::getTable(MasterModel::getTableName());
-
-        $table->setWhere('`protocol`=' . self::escape($protocol));
-        $address = $table->selectAggregate('MAX(`address`)');
-
-        if (empty($address)) {
-            $address = self::START_ADDRESS;
-        } else {
-            $address = ((int) $address[0]) + 1;
-        }
-
         $model = new MasterModel();
         $model->setName($name);
         $model->setAddress($address);

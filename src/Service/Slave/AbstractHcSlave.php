@@ -11,6 +11,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Event\Describer\AbstractHcDescriber;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Module;
@@ -173,7 +174,7 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     abstract public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module;
 
-    abstract public function receive(Module $slave, int $type, int $command, string $data): void;
+    abstract public function receive(Module $slave, BusMessage $busMessage): void;
 
     public function __construct(
         MasterService $masterService,

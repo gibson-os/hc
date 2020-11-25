@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -140,7 +141,7 @@ class NeopixelService extends AbstractHcSlave
         return $slave;
     }
 
-    public function receive(Module $slave, int $type, int $command, string $data): void
+    public function receive(Module $slave, BusMessage $busMessage): void
     {
         // TODO: Implement receive() method.
     }
