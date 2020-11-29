@@ -11,6 +11,7 @@ use GibsonOS\Core\Service\EnvService;
 use GibsonOS\Module\Hc\Service\Protocol\UdpService;
 use GibsonOS\Module\Hc\Service\ReceiverService;
 use mysqlDatabase;
+use Psr\Log\LoggerInterface;
 
 class UdpServerCommand extends AbstractCommand
 {
@@ -38,12 +39,15 @@ class UdpServerCommand extends AbstractCommand
         UdpService $protocol,
         ReceiverService $receiverService,
         EnvService $envService,
-        mysqlDatabase $mysqlDatabase
+        mysqlDatabase $mysqlDatabase,
+        LoggerInterface $logger
     ) {
         $this->protocol = $protocol;
         $this->receiverService = $receiverService;
         $this->envService = $envService;
         $this->mysqlDatabase = $mysqlDatabase;
+
+        parent::__construct($logger);
 
         $this->setArgument('bindIp', true);
     }
@@ -56,7 +60,7 @@ class UdpServerCommand extends AbstractCommand
     {
         $this->protocol->setIp($this->getArgument('bindIp') ?? '');
 
-        echo 'Starte Server...' . PHP_EOL;
+        $this->logger->info('Start server...');
 
         while (1) {
             $this->mysqlDatabase->closeDB();
@@ -65,7 +69,7 @@ class UdpServerCommand extends AbstractCommand
             try {
                 $this->receiverService->receive($this->protocol);
             } catch (AbstractException $exception) {
-                echo 'Server Error: ' . $exception->getMessage() . PHP_EOL;
+                $this->logger->error('Server Error: ' . $exception->getMessage());
             }
         }
 
