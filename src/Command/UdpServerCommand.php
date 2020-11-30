@@ -49,7 +49,7 @@ class UdpServerCommand extends AbstractCommand
 
         parent::__construct($logger);
 
-        $this->setArgument('bindIp', true);
+        $this->setArgument('bindIp', false);
     }
 
     /**
@@ -58,8 +58,7 @@ class UdpServerCommand extends AbstractCommand
      */
     protected function run(): int
     {
-        $this->protocol->setIp($this->getArgument('bindIp') ?? '');
-
+        $this->protocol->setIp($this->getArgument('bindIp') ?? '0');
         $this->logger->info('Start server...');
 
         while (1) {
@@ -69,7 +68,7 @@ class UdpServerCommand extends AbstractCommand
             try {
                 $this->receiverService->receive($this->protocol);
             } catch (AbstractException $exception) {
-                $this->logger->error('Server Error: ' . $exception->getMessage());
+                $this->logger->error($exception->getMessage());
             }
         }
 

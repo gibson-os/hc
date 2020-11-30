@@ -14,6 +14,7 @@ use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
+use Psr\Log\LoggerInterface;
 
 class ReceiverService extends AbstractService
 {
@@ -38,18 +39,25 @@ class ReceiverService extends AbstractService
     private $masterRepository;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * Server constructor.
      */
     public function __construct(
         TransformService $transformService,
         MasterService $masterService,
         MasterFormatter $masterFormatter,
-        MasterRepository $masterRepository
+        MasterRepository $masterRepository,
+        LoggerInterface $logger
     ) {
         $this->transformService = $transformService;
         $this->masterService = $masterService;
         $this->masterFormatter = $masterFormatter;
         $this->masterRepository = $masterRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -62,6 +70,7 @@ class ReceiverService extends AbstractService
      */
     public function receive(ProtocolInterface $protocolService): void
     {
+        $this->logger->debug('Receive data');
         $busMessage = $protocolService->receive();
 
         if ($busMessage === null) {

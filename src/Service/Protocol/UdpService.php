@@ -13,6 +13,7 @@ use GibsonOS\Core\Service\UdpService as CoreUdpService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Mapper\BusMessageMapper;
 use GibsonOS\Module\Hc\Service\MasterService;
+use Psr\Log\LoggerInterface;
 
 class UdpService extends AbstractService implements ProtocolInterface
 {
@@ -26,18 +27,24 @@ class UdpService extends AbstractService implements ProtocolInterface
     private $udpReceiveService;
 
     /**
-     * @var string|null
+     * @var string
      */
-    private $ip;
+    private $ip = '0';
 
     /**
      * @var BusMessageMapper
      */
     private $busMessageMapper;
 
-    public function __construct(BusMessageMapper $busMessageMapper)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(BusMessageMapper $busMessageMapper, LoggerInterface $logger)
     {
         $this->busMessageMapper = $busMessageMapper;
+        $this->logger = $logger;
     }
 
     public function setIp(string $ip): UdpService
@@ -53,10 +60,7 @@ class UdpService extends AbstractService implements ProtocolInterface
      */
     private function setReceiveServer()
     {
-        if ($this->ip === null) {
-            throw new CreateError('Server IP is null');
-        }
-
+        $this->logger->debug(sprintf('Start UDP receive server %s:%d', $this->ip, self::RECEIVE_PORT));
         $this->udpReceiveService = new CoreUdpService($this->ip, self::RECEIVE_PORT);
         $this->udpReceiveService->setTimeout(3);
     }
@@ -72,6 +76,8 @@ class UdpService extends AbstractService implements ProtocolInterface
         }
 
         try {
+            $this->logger->debug('Receive UDP data');
+
             return $this->busMessageMapper->mapFromUdpMessage(
                 $this->udpReceiveService->receive(self::RECEIVE_LENGTH)
             );
@@ -156,10 +162,6 @@ class UdpService extends AbstractService implements ProtocolInterface
      */
     private function createSendService(): CoreUdpService
     {
-        if ($this->ip === null) {
-            throw new CreateError('Server IP is null');
-        }
-
         $udpSendService = new CoreUdpService($this->ip, self::SEND_PORT);
         $udpSendService->setTimeout(3);
 
