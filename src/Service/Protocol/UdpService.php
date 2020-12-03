@@ -132,7 +132,7 @@ class UdpService extends AbstractService implements ProtocolInterface
         $this->logger->debug(sprintf('Send receive return to %s', $address));
         $this->udpReceiveService->send(new UdpMessage(
             $address,
-            self::RECEIVE_PORT,
+            self::SEND_PORT,
             chr(MasterService::TYPE_RECEIVE_RETURN)
         ));
     }

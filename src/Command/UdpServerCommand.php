@@ -68,7 +68,7 @@ class UdpServerCommand extends AbstractCommand
             try {
                 $this->receiverService->receive($this->protocol);
             } catch (AbstractException $exception) {
-                $this->logger->error($exception->getMessage());
+                $this->logger->error($exception->getMessage(), ['exception' => $exception]);
             }
         }
 

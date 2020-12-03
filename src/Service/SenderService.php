@@ -12,6 +12,7 @@ use GibsonOS\Module\Hc\Factory\ProtocolFactory;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Repository\MasterRepository as MasterRepository;
 use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
+use Psr\Log\LoggerInterface;
 
 class SenderService extends AbstractService
 {
@@ -35,6 +36,11 @@ class SenderService extends AbstractService
      */
     private $protocolFactory;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     /**$data
      * Server constructor.
      */
@@ -42,12 +48,14 @@ class SenderService extends AbstractService
         MasterFormatter $masterFormatter,
         TransformService $transformService,
         MasterRepository $masterRepository,
-        ProtocolFactory $protocolFactory
+        ProtocolFactory $protocolFactory,
+        LoggerInterface $logger
     ) {
         $this->masterFormatter = $masterFormatter;
         $this->transformService = $transformService;
         $this->masterRepository = $masterRepository;
         $this->protocolFactory = $protocolFactory;
+        $this->logger = $logger;
     }
 
     /**

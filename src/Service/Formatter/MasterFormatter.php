@@ -54,8 +54,7 @@ class MasterFormatter implements FormatterInterface
         $checkSum = $busMessage->getType();
 
         foreach (explode('.', $busMessage->getMasterAddress()) as $ipByte) {
-            errlog($ipByte);
-            $checkSum += chr((int) $ipByte);
+            $checkSum += (int) $ipByte;
         }
 
         if (!empty($busMessage->getData())) {
