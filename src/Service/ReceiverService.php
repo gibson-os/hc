@@ -77,6 +77,11 @@ class ReceiverService extends AbstractService
             return;
         }
 
+        $this->logger->debug(sprintf(
+            'Received message "%s" from %s',
+            $busMessage->getData(),
+            $busMessage->getMasterAddress()
+        ));
         $this->masterFormatter->checksumEqual($busMessage);
         $protocolService->sendReceiveReturn($busMessage->getMasterAddress());
 
@@ -84,16 +89,7 @@ class ReceiverService extends AbstractService
             $this->handshake($protocolService, $busMessage);
         } else {
             $masterModel = $this->masterRepository->getByAddress($busMessage->getMasterAddress(), $protocolService->getName());
-            $data = $busMessage->getData();
-
-            if (empty($data)) {
-                throw new ReceiveError('No slave address in data!');
-            }
-
-            $busMessage
-                ->setSlaveAddress($this->transformService->asciiToUnsignedInt($data, 0))
-                ->setData(substr($data, 1))
-            ;
+            $this->getSlaveDataFromMessage($busMessage);
 
             $this->masterService->receive($masterModel, $busMessage);
         }
@@ -119,9 +115,26 @@ class ReceiverService extends AbstractService
 
         try {
             $masterModel = $this->masterRepository->getByName($data, $protocolName);
-            $masterModel->setAddress($busMessage->getMasterAddress());
+            $masterModel
+                ->setAddress($busMessage->getMasterAddress())
+                ->save()
+            ;
         } catch (SelectError $exception) {
             $this->masterRepository->add($data, $protocolName, $busMessage->getMasterAddress());
         }
+    }
+
+    /**
+     * @throws GetError
+     */
+    private function getSlaveDataFromMessage(BusMessage $busMessage): void
+    {
+        if (empty($busMessage->getData())) {
+            throw new GetError('No slave data transmitted!');
+        }
+
+        $busMessage->setSlaveAddress($this->transformService->asciiToUnsignedInt($busMessage->getData(), 0));
+        $busMessage->setCommand($this->transformService->asciiToUnsignedInt($busMessage->getData(), 1));
+        $busMessage->setData(substr($busMessage->getData(), 2) ?: null);
     }
 }

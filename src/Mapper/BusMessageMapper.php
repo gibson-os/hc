@@ -49,12 +49,22 @@ class BusMessageMapper
     public function mapFromUdpMessage(UdpMessage $udpMessage): BusMessage
     {
         return (new BusMessage(
-            $udpMessage->getIp(),
-            $this->transformService->asciiToUnsignedInt($udpMessage->getMessage(), 0),
-            false
+            $this->transformIpFromUdpMessage($udpMessage),
+            $this->transformService->asciiToUnsignedInt($udpMessage->getMessage(), 4)
         ))
-            ->setData(substr($udpMessage->getMessage(), 1, -1) ?: null)
+            ->setData(substr($udpMessage->getMessage(), 5, -1) ?: null)
             ->setChecksum(ord(substr($udpMessage->getMessage(), -1)))
         ;
+    }
+
+    private function transformIpFromUdpMessage(UdpMessage $udpMessage): string
+    {
+        $ipParts = [];
+
+        for ($i = 0; $i < 4; ++$i) {
+            $ipParts[] = $this->transformService->asciiToUnsignedInt($udpMessage->getMessage(), $i);
+        }
+
+        return implode('.', $ipParts);
     }
 }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Formatter;
 
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Model\Log;
@@ -13,11 +14,11 @@ class MasterFormatter implements FormatterInterface
     /**
      * @var TransformService
      */
-    private $transform;
+    private $transformService;
 
     public function __construct(TransformService $transform)
     {
-        $this->transform = $transform;
+        $this->transformService = $transform;
     }
 
     public function render(Log $log): ?string
@@ -37,24 +38,30 @@ class MasterFormatter implements FormatterInterface
 
     /**
      * @throws ReceiveError
+     * @throws GetError
      */
     public function checksumEqual(BusMessage $busMessage): void
     {
-        if ($busMessage->getChecksum() !== $this->getCheckSum($busMessage->getData())) {
-            throw new ReceiveError('Checksumme stimmt nicht überein!');
+        $checkSum = $this->getCheckSum($busMessage);
+
+        if ($busMessage->getChecksum() !== $checkSum) {
+            throw new ReceiveError(sprintf('Checksum not equal (%d === %d)!', $busMessage->getChecksum(), $checkSum));
         }
     }
 
-    private function getCheckSum(?string $data): ?int
+    private function getCheckSum(BusMessage $busMessage): ?int
     {
-        if (empty($data)) {
-            return null;
+        $checkSum = $busMessage->getType();
+
+        foreach (explode('.', $busMessage->getMasterAddress()) as $ipByte) {
+            errlog($ipByte);
+            $checkSum += chr((int) $ipByte);
         }
 
-        $checkSum = 0;
-
-        for ($i = 0; $i < strlen($data) - 1; ++$i) {
-            $checkSum += ord($data[$i]);
+        if (!empty($busMessage->getData())) {
+            for ($i = 0; $i < strlen($busMessage->getData()); ++$i) {
+                $checkSum += ord($busMessage->getData()[$i]);
+            }
         }
 
         return $checkSum % 256;

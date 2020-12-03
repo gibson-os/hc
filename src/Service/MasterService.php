@@ -24,6 +24,7 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
+use Psr\Log\LoggerInterface;
 
 class MasterService extends AbstractService
 {
@@ -82,6 +83,11 @@ class MasterService extends AbstractService
     private $masterFormatter;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * Master constructor.
      */
     public function __construct(
@@ -92,7 +98,8 @@ class MasterService extends AbstractService
         MasterFormatter $masterFormatter,
         LogRepository $logRepository,
         ModuleRepository $moduleRepository,
-        TypeRepository $typeRepository
+        TypeRepository $typeRepository,
+        LoggerInterface $logger
     ) {
         $this->senderService = $senderService;
         $this->eventService = $eventService;
@@ -102,6 +109,7 @@ class MasterService extends AbstractService
         $this->moduleRepository = $moduleRepository;
         $this->typeRepository = $typeRepository;
         $this->masterFormatter = $masterFormatter;
+        $this->logger = $logger;
     }
 
     /**
@@ -124,7 +132,7 @@ class MasterService extends AbstractService
             ->setMaster($master)
         ;
 
-        echo 'Type: ' . $busMessage->getType() . PHP_EOL;
+        $this->logger->info(sprintf('Receive type %d', $busMessage->getType()));
 
         if ($busMessage->getType() === MasterService::TYPE_NEW_SLAVE) {
             $slaveAddress = $busMessage->getSlaveAddress();
@@ -133,7 +141,7 @@ class MasterService extends AbstractService
                 throw new ReceiveError('Slave Address is null!');
             }
 
-            echo 'New Slave ' . $slaveAddress . PHP_EOL;
+            $this->logger->info(sprintf('New Slave %d', $slaveAddress));
             $slave = $this->slaveHandshake($master, $slaveAddress);
         } else {
             $command = $busMessage->getCommand();
@@ -142,7 +150,11 @@ class MasterService extends AbstractService
                 throw new ReceiveError('Command is null!');
             }
 
-            echo 'Command: ' . $command . PHP_EOL;
+            $this->logger->info(sprintf(
+                'Receive command %d for slave address %s',
+                $command,
+                $busMessage->getSlaveAddress()
+            ));
             $slave = $this->slaveReceive($master, $busMessage);
             $log->setCommand($command);
         }
@@ -171,7 +183,7 @@ class MasterService extends AbstractService
      */
     public function scanBus(Master $master): void
     {
-        $this->send($master, new BusMessage($master->getAddress(), self::TYPE_SCAN_BUS, true));
+        $this->send($master, new BusMessage($master->getAddress(), self::TYPE_SCAN_BUS));
         $this->receiveReceiveReturn($master);
     }
 

@@ -60,7 +60,7 @@ abstract class AbstractSlave extends AbstractService
     {
         $this->masterService->send(
             $slave->getMaster(),
-            (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_DATA, true))
+            (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_DATA))
                 ->setSlaveAddress($slave->getAddress())
                 ->setCommand($command)
                 ->setWrite(true)
@@ -77,7 +77,7 @@ abstract class AbstractSlave extends AbstractService
      */
     public function read(Module $slave, int $command, int $length): string
     {
-        $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_DATA, true))
+        $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_DATA))
             ->setSlaveAddress($slave->getAddress())
             ->setCommand($command)
             ->setData(chr($length))

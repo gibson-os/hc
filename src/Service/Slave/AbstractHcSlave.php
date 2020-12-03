@@ -234,7 +234,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $slave->setMaster($master);
         $this->masterService->send(
             $slave->getMaster(),
-            (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_SLAVE_IS_HC, true))
+            (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_SLAVE_IS_HC))
                 ->setSlaveAddress($slave->getAddress())
         );
         $this->masterService->receiveReceiveReturn($slave->getMaster());

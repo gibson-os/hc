@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Dto;
 
-use GibsonOS\Core\Exception\GetError;
-
 class BusMessage
 {
     /**
@@ -38,20 +36,14 @@ class BusMessage
     private $write = false;
 
     /**
-     * @var bool
-     */
-    private $isSend;
-
-    /**
      * @var int|null
      */
     private $checksum;
 
-    public function __construct(string $masterAddress, int $type, bool $isSend)
+    public function __construct(string $masterAddress, int $type)
     {
         $this->masterAddress = $masterAddress;
         $this->type = $type;
-        $this->isSend = $isSend;
     }
 
     public function getMasterAddress(): string
@@ -78,29 +70,9 @@ class BusMessage
         return $this;
     }
 
-    /**
-     * @throws GetError
-     */
-    private function getSlaveAddressFromData(): int
-    {
-        if ($this->slaveAddress === null) {
-            if (empty($this->data)) {
-                throw new GetError('Slave address not transmitted!');
-            }
-
-            $this->slaveAddress = ord(substr($this->data, 0, 1));
-            $this->data = substr($this->data, 1);
-        }
-
-        return $this->slaveAddress;
-    }
-
-    /**
-     * @throws GetError
-     */
     public function getSlaveAddress(): ?int
     {
-        return $this->isSend ? $this->slaveAddress : $this->getSlaveAddressFromData();
+        return $this->slaveAddress;
     }
 
     public function setSlaveAddress(?int $slaveAddress): BusMessage
@@ -110,31 +82,9 @@ class BusMessage
         return $this;
     }
 
-    /**
-     * @throws GetError
-     */
-    private function getCommandFromData(): int
-    {
-        $this->getSlaveAddressFromData();
-
-        if ($this->command === null) {
-            if (empty($this->data)) {
-                throw new GetError('Command not transmitted!');
-            }
-
-            $this->command = ord(substr($this->data, 0, 1));
-            $this->data = substr($this->data, 1);
-        }
-
-        return $this->command;
-    }
-
-    /**
-     * @throws GetError
-     */
     public function getCommand(): ?int
     {
-        return $this->isSend ? $this->command : $this->getCommandFromData();
+        return $this->command;
     }
 
     public function setCommand(?int $command): BusMessage
@@ -144,15 +94,8 @@ class BusMessage
         return $this;
     }
 
-    /**
-     * @throws GetError
-     */
     public function getData(): ?string
     {
-        if (!$this->isSend) {
-            $this->getCommandFromData();
-        }
-
         return $this->data;
     }
 
