@@ -25,6 +25,7 @@ use GibsonOS\Module\Hc\Repository\TypeRepository as TypeRepository;
 use GibsonOS\Module\Hc\Service\Formatter\IoFormatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 class IoService extends AbstractHcSlave
@@ -129,7 +130,8 @@ class IoService extends AbstractHcSlave
         LogRepository $logRepository,
         SlaveFactory $slaveFactory,
         AttributeRepository $attributeRepository,
-        ValueRepository $valueRepository
+        ValueRepository $valueRepository,
+        LoggerInterface $logger
     ) {
         parent::__construct(
             $masterService,
@@ -139,7 +141,8 @@ class IoService extends AbstractHcSlave
             $typeRepository,
             $masterRepository,
             $logRepository,
-            $slaveFactory
+            $slaveFactory,
+            $logger
         );
         $this->ioFormatter = $ioFormatter;
         $this->attributeRepository = $attributeRepository;

@@ -12,6 +12,7 @@ use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\Formatter\Bme280Formatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Psr\Log\LoggerInterface;
 
 class Bme280Service extends AbstractSlave
 {
@@ -52,9 +53,10 @@ class Bme280Service extends AbstractSlave
         MasterService $masterService,
         TransformService $transformService,
         LogRepository $logRepository,
-        Bme280Formatter $bme280Formatter
+        Bme280Formatter $bme280Formatter,
+        LoggerInterface $logger
     ) {
-        parent::__construct($masterService, $transformService, $logRepository);
+        parent::__construct($masterService, $transformService, $logRepository, $logger);
         $this->bme280Formatter = $bme280Formatter;
     }
 

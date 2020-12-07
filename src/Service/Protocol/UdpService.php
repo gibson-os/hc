@@ -5,7 +5,6 @@ namespace GibsonOS\Module\Hc\Service\Protocol;
 
 use GibsonOS\Core\Dto\UdpMessage;
 use GibsonOS\Core\Exception\CreateError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\Server\SendError;
 use GibsonOS\Core\Exception\SetError;
@@ -18,9 +17,9 @@ use Psr\Log\LoggerInterface;
 
 class UdpService extends AbstractService implements ProtocolInterface
 {
-    const SEND_PORT = 7363;
+    const RECEIVE_PORT = 42000;
 
-    const RECEIVE_PORT = 7339;
+    const START_PORT = 43000;
 
     /**
      * @var CoreUdpService
@@ -59,8 +58,12 @@ class UdpService extends AbstractService implements ProtocolInterface
      * @throws SetError
      * @throws CreateError
      */
-    private function setReceiveServer()
+    private function setReceiveServer(): void
     {
+        if ($this->udpReceiveService instanceof CoreUdpService) {
+            return;
+        }
+
         $this->logger->debug(sprintf('Start UDP receive server %s:%d', $this->ip, self::RECEIVE_PORT));
         $this->udpReceiveService = new CoreUdpService($this->logger, $this->ip, self::RECEIVE_PORT);
         $this->udpReceiveService->setTimeout(3);
@@ -72,9 +75,7 @@ class UdpService extends AbstractService implements ProtocolInterface
      */
     public function receive(): ?BusMessage
     {
-        if (!$this->udpReceiveService instanceof CoreUdpService) {
-            $this->setReceiveServer();
-        }
+        $this->setReceiveServer();
 
         try {
             $this->logger->debug(sprintf('Receive message'));
@@ -93,13 +94,12 @@ class UdpService extends AbstractService implements ProtocolInterface
      * @throws CreateError
      * @throws SendError
      * @throws SetError
-     * @throws GetError
      */
     public function send(BusMessage $busMessage): void
     {
-        $udpSendService = $this->createSendService();
+        $udpSendService = $this->createSendService($busMessage->getPort() ?? self::RECEIVE_PORT);
         $udpSendService->setTimeout(10);
-        $udpSendService->send($this->busMessageMapper->mapToUdpMessage($busMessage, self::SEND_PORT));
+        $udpSendService->send($this->busMessageMapper->mapToUdpMessage($busMessage));
         $udpSendService->close();
     }
 
@@ -107,11 +107,10 @@ class UdpService extends AbstractService implements ProtocolInterface
      * @throws ReceiveError
      * @throws SetError
      * @throws CreateError
-     * @throws CreateError
      */
-    public function receiveReadData(): BusMessage
+    public function receiveReadData(?int $port): BusMessage
     {
-        $udpSendService = $this->createSendService();
+        $udpSendService = $this->createSendService($port ?? self::RECEIVE_PORT);
 
         try {
             $this->logger->debug(sprintf('Receive read data UDP message'));
@@ -127,12 +126,12 @@ class UdpService extends AbstractService implements ProtocolInterface
     /**
      * @throws SendError
      */
-    public function sendReceiveReturn(string $address): void
+    public function sendReceiveReturn(BusMessage $busMessage): void
     {
-        $this->logger->debug(sprintf('Send receive return to %s', $address));
+        $this->logger->debug(sprintf('Send receive return to %s', $busMessage->getMasterAddress()));
         $this->udpReceiveService->send(new UdpMessage(
-            $address,
-            self::SEND_PORT,
+            $busMessage->getMasterAddress(),
+            $busMessage->getPort() ?? self::START_PORT,
             chr(MasterService::TYPE_RECEIVE_RETURN)
         ));
     }
@@ -143,9 +142,9 @@ class UdpService extends AbstractService implements ProtocolInterface
      * @throws CreateError
      * @throws CreateError
      */
-    public function receiveReceiveReturn(string $address): void
+    public function receiveReceiveReturn(BusMessage $busMessage): void
     {
-        $udpSendService = $this->createSendService();
+        $udpSendService = $this->createSendService($busMessage->getPort() ?? self::RECEIVE_PORT);
 
         try {
             $this->logger->debug(sprintf('Receive receive return'));
@@ -157,7 +156,7 @@ class UdpService extends AbstractService implements ProtocolInterface
         }
 
         if (
-            $data->getIp() !== $address ||
+            $data->getIp() !== $busMessage->getMasterAddress() ||
             $data->getMessage() !== chr(MasterService::TYPE_RECEIVE_RETURN)
         ) {
             throw new ReceiveError('Receive return data not equal!');
@@ -168,9 +167,9 @@ class UdpService extends AbstractService implements ProtocolInterface
      * @throws CreateError
      * @throws SetError
      */
-    private function createSendService(): CoreUdpService
+    private function createSendService(int $port): CoreUdpService
     {
-        $udpSendService = new CoreUdpService($this->logger, $this->ip, self::SEND_PORT);
+        $udpSendService = new CoreUdpService($this->logger, $this->ip, $port);
         $udpSendService->setTimeout(3);
 
         return $udpSendService;

@@ -14,6 +14,7 @@ use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
+use GibsonOS\Module\Hc\Service\Protocol\UdpService;
 use Psr\Log\LoggerInterface;
 
 class ReceiverService extends AbstractService
@@ -79,11 +80,11 @@ class ReceiverService extends AbstractService
 
         $this->logger->debug(sprintf(
             'Received message "%s" from %s',
-            $busMessage->getData(),
+            $busMessage->getData() ?? '',
             $busMessage->getMasterAddress()
         ));
         $this->masterFormatter->checksumEqual($busMessage);
-        $protocolService->sendReceiveReturn($busMessage->getMasterAddress());
+        $protocolService->sendReceiveReturn($busMessage);
 
         if ($busMessage->getType() === MasterService::TYPE_HANDSHAKE) {
             $this->handshake($protocolService, $busMessage);
@@ -114,14 +115,24 @@ class ReceiverService extends AbstractService
         }
 
         try {
-            $masterModel = $this->masterRepository->getByName($data, $protocolName);
-            $masterModel
+            $master = $this->masterRepository->getByName($data, $protocolName);
+            $master
                 ->setAddress($busMessage->getMasterAddress())
                 ->save()
             ;
         } catch (SelectError $exception) {
-            $this->masterRepository->add($data, $protocolName, $busMessage->getMasterAddress());
+            $master = $this->masterRepository->add($data, $protocolName, $busMessage->getMasterAddress());
         }
+
+        $this->masterService->send(
+            $master,
+            (new BusMessage($master->getAddress(), MasterService::TYPE_HANDSHAKE))
+                ->setData(
+                    chr($master->getSendPort() >> 8) .
+                    chr($master->getSendPort() & 255)
+                )
+                ->setPort(UdpService::START_PORT)
+        );
     }
 
     /**
@@ -129,12 +140,14 @@ class ReceiverService extends AbstractService
      */
     private function getSlaveDataFromMessage(BusMessage $busMessage): void
     {
-        if (empty($busMessage->getData())) {
+        $data = $busMessage->getData();
+
+        if (empty($data)) {
             throw new GetError('No slave data transmitted!');
         }
 
-        $busMessage->setSlaveAddress($this->transformService->asciiToUnsignedInt($busMessage->getData(), 0));
-        $busMessage->setCommand($this->transformService->asciiToUnsignedInt($busMessage->getData(), 1));
-        $busMessage->setData(substr($busMessage->getData(), 2) ?: null);
+        $busMessage->setSlaveAddress($this->transformService->asciiToUnsignedInt($data, 0));
+        $busMessage->setCommand($this->transformService->asciiToUnsignedInt($data, 1));
+        $busMessage->setData(substr($data, 2) ?: null);
     }
 }

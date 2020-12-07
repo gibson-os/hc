@@ -38,6 +38,11 @@ class BusMessage
     /**
      * @var int|null
      */
+    private $port;
+
+    /**
+     * @var int|null
+     */
     private $checksum;
 
     public function __construct(string $masterAddress, int $type)
@@ -126,6 +131,18 @@ class BusMessage
     public function setChecksum(?int $checksum): BusMessage
     {
         $this->checksum = $checksum;
+
+        return $this;
+    }
+
+    public function getPort(): ?int
+    {
+        return $this->port;
+    }
+
+    public function setPort(?int $port): BusMessage
+    {
+        $this->port = $port;
 
         return $this;
     }

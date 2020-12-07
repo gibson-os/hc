@@ -21,11 +21,11 @@ interface ProtocolInterface
     /**
      * @throws SendError
      */
-    public function sendReceiveReturn(string $address): void;
+    public function sendReceiveReturn(BusMessage $busMessage): void;
 
-    public function receiveReceiveReturn(string $address): void;
+    public function receiveReceiveReturn(BusMessage $busMessage): void;
 
-    public function receiveReadData(): BusMessage;
+    public function receiveReadData(?int $port): BusMessage;
 
     public function getName(): string;
 }

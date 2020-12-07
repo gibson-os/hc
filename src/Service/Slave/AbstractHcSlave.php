@@ -22,6 +22,7 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractHcSlave extends AbstractSlave
 {
@@ -184,9 +185,10 @@ abstract class AbstractHcSlave extends AbstractSlave
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
         LogRepository $logRepository,
-        SlaveFactory $slaveFactory
+        SlaveFactory $slaveFactory,
+        LoggerInterface $logger
     ) {
-        parent::__construct($masterService, $transformService, $logRepository);
+        parent::__construct($masterService, $transformService, $logRepository, $logger);
         $this->eventService = $eventService;
         $this->moduleRepository = $moduleRepository;
         $this->typeRepository = $typeRepository;
@@ -232,12 +234,11 @@ abstract class AbstractHcSlave extends AbstractSlave
         }
 
         $slave->setMaster($master);
-        $this->masterService->send(
-            $slave->getMaster(),
-            (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_SLAVE_IS_HC))
-                ->setSlaveAddress($slave->getAddress())
-        );
-        $this->masterService->receiveReceiveReturn($slave->getMaster());
+        $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_SLAVE_IS_HC))
+            ->setSlaveAddress($slave->getAddress())
+        ;
+        $this->masterService->send($slave->getMaster(), $busMessage);
+        $this->masterService->receiveReceiveReturn($slave->getMaster(), $busMessage);
 
         $slave
             ->setHertz($this->readHertz($slave))

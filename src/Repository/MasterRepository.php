@@ -10,23 +10,25 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
-use GibsonOS\Module\Hc\Model\Master as MasterModel;
-use GibsonOS\Module\Hc\Model\Module as ModuleModel;
+use GibsonOS\Module\Hc\Model\Master;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type\DefaultAddress;
 
 class MasterRepository extends AbstractRepository
 {
-    const START_ADDRESS = 2;
+    private const MIN_PORT = 42001;
+
+    private const MAX_PORT = 42999;
 
     /**
+     *@throws GetError
      * @throws DateTimeError
-     * @throws GetError
      *
-     * @return MasterModel[]
+     * @return Master[]
      */
     public function getByProtocol(string $protocol): array
     {
-        $table = self::getTable(MasterModel::getTableName())
+        $table = self::getTable(Master::getTableName())
             ->setWhere('`protocol`=?')
             ->addWhereParameter($protocol)
         ;
@@ -38,7 +40,7 @@ class MasterRepository extends AbstractRepository
         }
 
         do {
-            $model = new MasterModel();
+            $model = new Master();
             $model->loadFromMysqlTable($table);
             $models[] = $model;
         } while ($table->next());
@@ -51,9 +53,9 @@ class MasterRepository extends AbstractRepository
      * @throws GetError
      * @throws SelectError
      */
-    public function getById(int $id): MasterModel
+    public function getById(int $id): Master
     {
-        $table = self::getTable(MasterModel::getTableName())
+        $table = self::getTable(Master::getTableName())
             ->setWhere('`id`=?')
             ->addWhereParameter($id)
             ->setLimit(1)
@@ -66,7 +68,7 @@ class MasterRepository extends AbstractRepository
             throw $exception;
         }
 
-        $model = new MasterModel();
+        $model = new Master();
         $model->loadFromMysqlTable($table);
 
         return $model;
@@ -76,9 +78,9 @@ class MasterRepository extends AbstractRepository
      * @throws DateTimeError
      * @throws SelectError
      */
-    public function getByAddress(string $address, string $protocol): MasterModel
+    public function getByAddress(string $address, string $protocol): Master
     {
-        $table = self::getTable(MasterModel::getTableName())
+        $table = self::getTable(Master::getTableName())
             ->setWhere('`protocol`=? AND `address`=?')
             ->setWhereParameters([$protocol, $address])
             ->setLimit(1)
@@ -91,7 +93,7 @@ class MasterRepository extends AbstractRepository
             throw $exception;
         }
 
-        $model = new MasterModel();
+        $model = new Master();
         $model->loadFromMysqlTable($table);
 
         return $model;
@@ -102,9 +104,9 @@ class MasterRepository extends AbstractRepository
      * @throws GetError
      * @throws SelectError
      */
-    public function getByName(string $name, string $protocol): MasterModel
+    public function getByName(string $name, string $protocol): Master
     {
-        $table = self::getTable(MasterModel::getTableName())
+        $table = self::getTable(Master::getTableName())
             ->setWhere('`protocol`=? AND `name`=?')
             ->setWhereParameters([$protocol, $name])
             ->setLimit(1)
@@ -117,7 +119,7 @@ class MasterRepository extends AbstractRepository
             throw $exception;
         }
 
-        $model = new MasterModel();
+        $model = new Master();
         $model->loadFromMysqlTable($table);
 
         return $model;
@@ -127,13 +129,14 @@ class MasterRepository extends AbstractRepository
      * @throws SaveError
      * @throws Exception
      */
-    public function add(string $name, string $protocol, string $address): MasterModel
+    public function add(string $name, string $protocol, string $address): Master
     {
-        $model = new MasterModel();
-        $model->setName($name);
-        $model->setAddress($address);
-        $model->setProtocol($protocol);
-        $model->setAdded(new DateTime());
+        $model = (new Master())
+            ->setName($name)
+            ->setProtocol($protocol)
+            ->setAddress($address)
+            ->setSendPort($this->findFreePort())
+            ->setAdded(new DateTime());
         $model->save();
 
         return $model;
@@ -144,10 +147,10 @@ class MasterRepository extends AbstractRepository
      */
     public function getNextFreeAddress(int $masterId): int
     {
-        $table = self::getTable(ModuleModel::getTableName());
+        $table = $this->getTable(Module::getTableName());
         $table->setWhere('`master_id`=' . $masterId);
 
-        $typeDefaultAddressTable = self::getTable(DefaultAddress::getTableName());
+        $typeDefaultAddressTable = $this->getTable(DefaultAddress::getTableName());
         $typeDefaultAddressTable->setSelectString('`address`');
 
         $table->appendUnion(null, '`address`');
@@ -167,7 +170,7 @@ class MasterRepository extends AbstractRepository
         while (in_array($address, $reservedAddresses)) {
             ++$address;
 
-            if ($address > ModuleModel::MAX_ADDRESS) {
+            if ($address > Module::MAX_ADDRESS) {
                 $exception = new SelectError('Keine freie Adresse vorhanden!');
                 $exception->setTable($table);
 
@@ -176,5 +179,21 @@ class MasterRepository extends AbstractRepository
         }
 
         return $address;
+    }
+
+    private function findFreePort(): int
+    {
+        $table = $this->getTable(Master::getTableName());
+        $port = mt_rand(self::MIN_PORT, self::MAX_PORT);
+        $table
+            ->setWhere('`send_port`=?')
+            ->addWhereParameter($port)
+        ;
+
+        if ($table->select(false)) {
+            return $this->findFreePort();
+        }
+
+        return $port;
     }
 }

@@ -45,7 +45,11 @@ class MasterFormatter implements FormatterInterface
         $checkSum = $this->getCheckSum($busMessage);
 
         if ($busMessage->getChecksum() !== $checkSum) {
-            throw new ReceiveError(sprintf('Checksum not equal (%d === %d)!', $busMessage->getChecksum(), $checkSum));
+            throw new ReceiveError(sprintf(
+                'Checksum not equal (%d === %d)!',
+                $busMessage->getChecksum() ?? 0,
+                $checkSum ?? 0
+            ));
         }
     }
 
@@ -57,9 +61,11 @@ class MasterFormatter implements FormatterInterface
             $checkSum += (int) $ipByte;
         }
 
-        if (!empty($busMessage->getData())) {
-            for ($i = 0; $i < strlen($busMessage->getData()); ++$i) {
-                $checkSum += ord($busMessage->getData()[$i]);
+        $data = $busMessage->getData();
+
+        if (!empty($data)) {
+            for ($i = 0; $i < strlen($data); ++$i) {
+                $checkSum += ord($data[$i]);
             }
         }
 

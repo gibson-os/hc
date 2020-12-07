@@ -3,7 +3,6 @@
 namespace GibsonOS\Module\Hc\Mapper;
 
 use GibsonOS\Core\Dto\UdpMessage;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Service\TransformService;
 
@@ -19,10 +18,7 @@ class BusMessageMapper
         $this->transformService = $transformService;
     }
 
-    /**
-     * @throws GetError
-     */
-    public function mapToUdpMessage(BusMessage $busMessage, int $port): UdpMessage
+    public function mapToUdpMessage(BusMessage $busMessage): UdpMessage
     {
         $message = '';
         $slaveAddress = $busMessage->getSlaveAddress();
@@ -43,7 +39,7 @@ class BusMessageMapper
             $message .= $data;
         }
 
-        return new UdpMessage($busMessage->getMasterAddress(), $port, $message);
+        return new UdpMessage($busMessage->getMasterAddress(), $busMessage->getPort() ?? 0, $message);
     }
 
     public function mapFromUdpMessage(UdpMessage $udpMessage): BusMessage

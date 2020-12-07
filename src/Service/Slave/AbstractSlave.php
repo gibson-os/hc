@@ -15,13 +15,10 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractSlave extends AbstractService
 {
-    const READ_BIT = 1;
-
-    const WRITE_BIT = 0;
-
     /**
      * @var MasterService
      */
@@ -37,6 +34,11 @@ abstract class AbstractSlave extends AbstractService
      */
     private $logRepository;
 
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
     abstract public function handshake(Module $slave): Module;
 
     /**
@@ -45,11 +47,13 @@ abstract class AbstractSlave extends AbstractService
     public function __construct(
         MasterService $masterService,
         TransformService $transformService,
-        LogRepository $logRepository
+        LogRepository $logRepository,
+        LoggerInterface $logger
     ) {
         $this->masterService = $masterService;
         $this->transformService = $transformService;
         $this->logRepository = $logRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -58,15 +62,21 @@ abstract class AbstractSlave extends AbstractService
      */
     public function write(Module $slave, int $command, string $data): void
     {
-        $this->masterService->send(
-            $slave->getMaster(),
-            (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_DATA))
-                ->setSlaveAddress($slave->getAddress())
-                ->setCommand($command)
-                ->setWrite(true)
-                ->setData($data)
-        );
-        $this->masterService->receiveReceiveReturn($slave->getMaster());
+        $this->logger->debug(sprintf(
+            'Write command %d with data "%s" to %d',
+            $command,
+            $data,
+            $slave->getAddress() ?? 0
+        ));
+        $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_DATA))
+            ->setSlaveAddress($slave->getAddress())
+            ->setCommand($command)
+            ->setWrite(true)
+            ->setData($data)
+            ->setPort($slave->getMaster()->getSendPort())
+        ;
+        $this->masterService->send($slave->getMaster(), $busMessage);
+        $this->masterService->receiveReceiveReturn($slave->getMaster(), $busMessage);
         $this->addLog($slave, MasterService::TYPE_DATA, $command, $data, Log::DIRECTION_OUTPUT);
     }
 
@@ -77,13 +87,26 @@ abstract class AbstractSlave extends AbstractService
      */
     public function read(Module $slave, int $command, int $length): string
     {
+        $this->logger->debug(sprintf(
+            'Read command %d with length %d from %d',
+            $command,
+            $length,
+            $slave->getAddress() ?? 0
+        ));
         $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_DATA))
             ->setSlaveAddress($slave->getAddress())
             ->setCommand($command)
             ->setData(chr($length))
+            ->setPort($slave->getMaster()->getSendPort())
         ;
         $this->masterService->send($slave->getMaster(), $busMessage);
         $receivedBusMessage = $this->masterService->receiveReadData($slave->getMaster(), $busMessage);
+        $this->logger->debug(sprintf(
+            'Read data "%s" from %d with command %d',
+            $receivedBusMessage->getData() ?? '',
+            $receivedBusMessage->getSlaveAddress() ?? 0,
+            $receivedBusMessage->getCommand() ?? ''
+        ));
         $this->addLog(
             $slave,
             MasterService::TYPE_DATA,

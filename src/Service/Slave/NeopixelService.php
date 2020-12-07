@@ -26,6 +26,7 @@ use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
 use LogicException;
+use Psr\Log\LoggerInterface;
 
 class NeopixelService extends AbstractHcSlave
 {
@@ -75,7 +76,8 @@ class NeopixelService extends AbstractHcSlave
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
         LogRepository $logRepository,
-        SlaveFactory $slaveFactory
+        SlaveFactory $slaveFactory,
+        LoggerInterface $logger
     ) {
         parent::__construct(
             $masterService,
@@ -85,7 +87,8 @@ class NeopixelService extends AbstractHcSlave
             $typeRepository,
             $masterRepository,
             $logRepository,
-            $slaveFactory
+            $slaveFactory,
+            $logger
         );
         $this->ledService = $ledService;
         $this->neopixelFormatter = $neopixelFormatter;

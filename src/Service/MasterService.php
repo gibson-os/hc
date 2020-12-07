@@ -28,11 +28,11 @@ use Psr\Log\LoggerInterface;
 
 class MasterService extends AbstractService
 {
-    const TYPE_RECEIVE_RETURN = 0;
+    public const TYPE_RECEIVE_RETURN = 0;
 
-    const TYPE_HANDSHAKE = 1;
+    public const TYPE_HANDSHAKE = 1;
 
-    const TYPE_STATUS = 2;
+    public const TYPE_STATUS = 2;
 
     const TYPE_NEW_SLAVE = 3;
 
@@ -134,7 +134,7 @@ class MasterService extends AbstractService
 
         $this->logger->info(sprintf('Receive type %d', $busMessage->getType()));
 
-        if ($busMessage->getType() === MasterService::TYPE_NEW_SLAVE) {
+        if ($busMessage->getType() === self::TYPE_NEW_SLAVE) {
             $slaveAddress = $busMessage->getSlaveAddress();
 
             if ($slaveAddress === null) {
@@ -153,7 +153,7 @@ class MasterService extends AbstractService
             $this->logger->info(sprintf(
                 'Receive command %d for slave address %s',
                 $command,
-                $busMessage->getSlaveAddress()
+                $busMessage->getSlaveAddress() ?? 0
             ));
             $slave = $this->slaveReceive($master, $busMessage);
             $log->setCommand($command);
@@ -177,7 +177,7 @@ class MasterService extends AbstractService
     {
         $this->logger->debug(sprintf(
             'Send data "%d" to %s',
-            $busMessage->getData(),
+            $busMessage->getData() ?? 0,
             $busMessage->getMasterAddress()
         ));
         $this->senderService->send($busMessage, $master->getProtocol());
@@ -188,8 +188,11 @@ class MasterService extends AbstractService
      */
     public function scanBus(Master $master): void
     {
-        $this->send($master, new BusMessage($master->getAddress(), self::TYPE_SCAN_BUS));
-        $this->receiveReceiveReturn($master);
+        $busMessage = (new BusMessage($master->getAddress(), self::TYPE_SCAN_BUS))
+            ->setPort($master->getSendPort())
+        ;
+        $this->send($master, $busMessage);
+        $this->receiveReceiveReturn($master, $busMessage);
     }
 
     /**
@@ -215,9 +218,9 @@ class MasterService extends AbstractService
     /**
      * @throws FileNotFound
      */
-    public function receiveReceiveReturn(Master $master): void
+    public function receiveReceiveReturn(Master $master, BusMessage $busMessage): void
     {
-        $this->senderService->receiveReceiveReturn($master);
+        $this->senderService->receiveReceiveReturn($master, $busMessage);
     }
 
     /**

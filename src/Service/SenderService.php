@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Service;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
@@ -68,13 +69,14 @@ class SenderService extends AbstractService
     }
 
     /**
-     * @throws ReceiveError
      * @throws FactoryError
+     * @throws ReceiveError
+     * @throws GetError
      */
     public function receiveReadData(Master $master, int $type): BusMessage
     {
         $protocolService = $this->protocolFactory->get($master->getProtocol());
-        $busMessage = $protocolService->receiveReadData();
+        $busMessage = $protocolService->receiveReadData($master->getSendPort());
 
         $this->masterFormatter->checksumEqual($busMessage);
 
@@ -100,8 +102,8 @@ class SenderService extends AbstractService
     /**
      * @throws FactoryError
      */
-    public function receiveReceiveReturn(Master $master): void
+    public function receiveReceiveReturn(Master $master, BusMessage $busMessage): void
     {
-        $this->protocolFactory->get($master->getProtocol())->receiveReceiveReturn((string) $master->getAddress());
+        $this->protocolFactory->get($master->getProtocol())->receiveReceiveReturn($busMessage);
     }
 }
