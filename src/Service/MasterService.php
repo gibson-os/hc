@@ -203,9 +203,14 @@ class MasterService extends AbstractService
     public function receiveReadData(Master $master, BusMessage $busMessage): BusMessage
     {
         $receivedBusMessage = $this->senderService->receiveReadData($master, $busMessage->getType());
+        $this->masterFormatter->extractSlaveDataFromMessage($receivedBusMessage);
 
         if ($busMessage->getSlaveAddress() !== $receivedBusMessage->getSlaveAddress()) {
-            throw new ReceiveError('Slave address not equal!');
+            throw new ReceiveError(sprintf(
+                'Slave address %d not equal with received %d!',
+                $busMessage->getSlaveAddress() ?? 0,
+                $receivedBusMessage->getSlaveAddress() ?? 0
+            ));
         }
 
         if ($busMessage->getCommand() !== $receivedBusMessage->getCommand()) {

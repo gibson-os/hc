@@ -82,7 +82,7 @@ class SenderService extends AbstractService
 
         if ($busMessage->getMasterAddress() !== $master->getAddress()) {
             throw new ReceiveError(sprintf(
-                'Master Adresse %s not equal with data master %s!',
+                'Master Adresse %s not equal with received master %s!',
                 $master->getAddress(),
                 $busMessage->getMasterAddress()
             ));
@@ -90,7 +90,7 @@ class SenderService extends AbstractService
 
         if ($busMessage->getType() !== $type) {
             throw new ReceiveError(sprintf(
-                'Type %d not equal with data type %d!',
+                'Type %d not equal with received type %d!',
                 $type,
                 $busMessage->getType()
             ));

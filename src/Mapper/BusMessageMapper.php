@@ -4,6 +4,7 @@ namespace GibsonOS\Module\Hc\Mapper;
 
 use GibsonOS\Core\Dto\UdpMessage;
 use GibsonOS\Module\Hc\Dto\BusMessage;
+use GibsonOS\Module\Hc\Exception\TransformException;
 use GibsonOS\Module\Hc\Service\TransformService;
 
 class BusMessageMapper
@@ -20,7 +21,7 @@ class BusMessageMapper
 
     public function mapToUdpMessage(BusMessage $busMessage): UdpMessage
     {
-        $message = '';
+        $message = chr($busMessage->getType());
         $slaveAddress = $busMessage->getSlaveAddress();
         $command = $busMessage->getCommand();
         $data = $busMessage->getData();
@@ -33,8 +34,6 @@ class BusMessageMapper
             $message .= chr($command);
         }
 
-        $message .= chr($busMessage->getType());
-
         if ($data !== null) {
             $message .= $data;
         }
@@ -42,6 +41,9 @@ class BusMessageMapper
         return new UdpMessage($busMessage->getMasterAddress(), $busMessage->getPort() ?? 0, $message);
     }
 
+    /**
+     * @throws TransformException
+     */
     public function mapFromUdpMessage(UdpMessage $udpMessage): BusMessage
     {
         return (new BusMessage(
@@ -53,12 +55,20 @@ class BusMessageMapper
         ;
     }
 
+    /**
+     * @throws TransformException
+     */
     private function transformIpFromUdpMessage(UdpMessage $udpMessage): string
     {
         $ipParts = [];
+        $message = $udpMessage->getMessage();
+
+        if (strlen($message) < 4) {
+            throw new TransformException('Message has no IP!');
+        }
 
         for ($i = 0; $i < 4; ++$i) {
-            $ipParts[] = $this->transformService->asciiToUnsignedInt($udpMessage->getMessage(), $i);
+            $ipParts[] = $this->transformService->asciiToUnsignedInt($message, $i);
         }
 
         return implode('.', $ipParts);

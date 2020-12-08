@@ -88,10 +88,11 @@ abstract class AbstractSlave extends AbstractService
     public function read(Module $slave, int $command, int $length): string
     {
         $this->logger->debug(sprintf(
-            'Read command %d with length %d from %d',
+            'Read command %d with length %d from slave %d on master %s',
             $command,
             $length,
-            $slave->getAddress() ?? 0
+            $slave->getAddress() ?? 0,
+            $slave->getMaster()->getAddress()
         ));
         $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_DATA))
             ->setSlaveAddress($slave->getAddress())
@@ -102,9 +103,10 @@ abstract class AbstractSlave extends AbstractService
         $this->masterService->send($slave->getMaster(), $busMessage);
         $receivedBusMessage = $this->masterService->receiveReadData($slave->getMaster(), $busMessage);
         $this->logger->debug(sprintf(
-            'Read data "%s" from %d with command %d',
+            'Read data "%s" from slave %d on master %s with command %d',
             $receivedBusMessage->getData() ?? '',
             $receivedBusMessage->getSlaveAddress() ?? 0,
+            $receivedBusMessage->getMasterAddress(),
             $receivedBusMessage->getCommand() ?? ''
         ));
         $this->addLog(

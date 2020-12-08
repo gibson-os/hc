@@ -11,6 +11,7 @@ use GibsonOS\Core\Exception\SetError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Service\UdpService as CoreUdpService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
+use GibsonOS\Module\Hc\Exception\TransformException;
 use GibsonOS\Module\Hc\Mapper\BusMessageMapper;
 use GibsonOS\Module\Hc\Service\MasterService;
 use Psr\Log\LoggerInterface;
@@ -104,9 +105,10 @@ class UdpService extends AbstractService implements ProtocolInterface
     }
 
     /**
+     * @throws CreateError
      * @throws ReceiveError
      * @throws SetError
-     * @throws CreateError
+     * @throws TransformException
      */
     public function receiveReadData(?int $port): BusMessage
     {

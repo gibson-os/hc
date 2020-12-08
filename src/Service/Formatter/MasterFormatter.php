@@ -8,6 +8,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Psr\Log\LoggerInterface;
 
 class MasterFormatter implements FormatterInterface
 {
@@ -16,9 +17,15 @@ class MasterFormatter implements FormatterInterface
      */
     private $transformService;
 
-    public function __construct(TransformService $transform)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(TransformService $transform, LoggerInterface $logger)
     {
         $this->transformService = $transform;
+        $this->logger = $logger;
     }
 
     public function render(Log $log): ?string
@@ -51,6 +58,24 @@ class MasterFormatter implements FormatterInterface
                 $checkSum ?? 0
             ));
         }
+    }
+
+    /**
+     * @throws GetError
+     */
+    public function extractSlaveDataFromMessage(BusMessage $busMessage): void
+    {
+        $data = $busMessage->getData();
+
+        if (empty($data)) {
+            throw new GetError('No slave data transmitted!');
+        }
+
+        $this->logger->debug('Get Slave data from message');
+
+        $busMessage->setSlaveAddress($this->transformService->asciiToUnsignedInt($data, 0));
+        $busMessage->setCommand($this->transformService->asciiToUnsignedInt($data, 1));
+        $busMessage->setData(substr($data, 2) ?: null);
     }
 
     private function getCheckSum(BusMessage $busMessage): ?int

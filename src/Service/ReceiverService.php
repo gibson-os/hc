@@ -79,7 +79,7 @@ class ReceiverService extends AbstractService
         }
 
         $this->logger->debug(sprintf(
-            'Received message "%s" from %s',
+            'Received message "%s" from master %s',
             $busMessage->getData() ?? '',
             $busMessage->getMasterAddress()
         ));
@@ -90,7 +90,7 @@ class ReceiverService extends AbstractService
             $this->handshake($protocolService, $busMessage);
         } else {
             $masterModel = $this->masterRepository->getByAddress($busMessage->getMasterAddress(), $protocolService->getName());
-            $this->getSlaveDataFromMessage($busMessage);
+            $this->masterFormatter->extractSlaveDataFromMessage($busMessage);
 
             $this->masterService->receive($masterModel, $busMessage);
         }
@@ -133,21 +133,5 @@ class ReceiverService extends AbstractService
                 )
                 ->setPort(UdpService::START_PORT)
         );
-    }
-
-    /**
-     * @throws GetError
-     */
-    private function getSlaveDataFromMessage(BusMessage $busMessage): void
-    {
-        $data = $busMessage->getData();
-
-        if (empty($data)) {
-            throw new GetError('No slave data transmitted!');
-        }
-
-        $busMessage->setSlaveAddress($this->transformService->asciiToUnsignedInt($data, 0));
-        $busMessage->setCommand($this->transformService->asciiToUnsignedInt($data, 1));
-        $busMessage->setData(substr($data, 2) ?: null);
     }
 }
