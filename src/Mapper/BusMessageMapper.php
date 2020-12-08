@@ -26,7 +26,7 @@ class BusMessageMapper
         $data = $busMessage->getData();
 
         if ($slaveAddress !== null) {
-            $message .= ($slaveAddress << 1) | (int) $busMessage->isWrite();
+            $message .= chr(($slaveAddress << 1) | (int) $busMessage->isWrite());
         }
 
         if ($command !== null) {

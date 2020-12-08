@@ -176,8 +176,8 @@ class MasterService extends AbstractService
     public function send(Master $master, BusMessage $busMessage): void
     {
         $this->logger->debug(sprintf(
-            'Send data "%d" to %s',
-            $busMessage->getData() ?? 0,
+            'Send data "%s" to %s',
+            $busMessage->getData() ?? '',
             $busMessage->getMasterAddress()
         ));
         $this->senderService->send($busMessage, $master->getProtocol());
