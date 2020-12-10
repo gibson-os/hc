@@ -28,9 +28,9 @@ abstract class AbstractHcSlave extends AbstractSlave
 {
     const TYPE = 0;
 
-    const MAX_DEVICE_ID = 65534;
+    public const MAX_DEVICE_ID = 65534;
 
-    const COMMAND_DEVICE_ID = 200;
+    public const COMMAND_DEVICE_ID = 200;
 
     const COMMAND_DEVICE_ID_READ_LENGTH = 2;
 
@@ -205,6 +205,12 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function handshake(Module $slave): Module
     {
+        $this->logger->debug(sprintf(
+            'Handshake hc slave address %d on master address %s',
+            $slave->getAddress() ?? 0,
+            $slave->getMaster()->getAddress()
+        ));
+
         $typeId = $this->readTypeId($slave);
 
         if ($typeId !== $slave->getTypeId()) {
@@ -236,6 +242,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $slave->setMaster($master);
         $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_SLAVE_IS_HC))
             ->setSlaveAddress($slave->getAddress())
+            ->setPort($slave->getMaster()->getSendPort())
         ;
         $this->masterService->send($slave->getMaster(), $busMessage);
         $this->masterService->receiveReceiveReturn($slave->getMaster(), $busMessage);
@@ -321,9 +328,17 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeAddress(Module $slave, int $address): void
     {
+        $deviceId = $slave->getDeviceId();
+
+        $this->logger->debug(sprintf(
+            'Write new address %d to slave with current address %d and device ID %d',
+            $address,
+            $slave->getAddress() ?? 0,
+            $deviceId ?? 0
+        ));
+
         $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_ADDRESS, ['slave' => $slave, 'newAddress' => $address]);
 
-        $deviceId = $slave->getDeviceId();
         $this->write(
             $slave,
             self::COMMAND_ADDRESS,
@@ -343,10 +358,18 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readDeviceId(Module $slave): int
     {
+        $this->logger->debug(sprintf('Read device ID from slave %d', $slave->getAddress() ?? 0));
+
         $data = $this->read($slave, self::COMMAND_DEVICE_ID, self::COMMAND_DEVICE_ID_READ_LENGTH);
         $deviceId = $this->transformService->asciiToUnsignedInt($data);
 
         $this->eventService->fire(AbstractHcDescriber::READ_DEVICE_ID, ['slave' => $slave, 'deviceId' => $deviceId]);
+
+        $this->logger->debug(sprintf(
+            'Device ID from slave %d is %d',
+            $slave->getAddress() ?? 0,
+            $deviceId
+        ));
 
         return $deviceId;
     }
@@ -356,6 +379,8 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeDeviceId(Module $slave, int $deviceId): void
     {
+        $this->logger->debug(sprintf('Write device ID %d to slave %d', $deviceId, $slave->getAddress() ?? 0));
+
         $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_DEVICE_ID, ['slave' => $slave, 'newDeviceId' => $deviceId]);
 
         $currentDeviceId = $slave->getDeviceId();
@@ -378,6 +403,8 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readTypeId(Module $slave): int
     {
+        $this->logger->debug(sprintf('Read type ID from slave %d', $slave->getAddress() ?? 0));
+
         $data = $this->read($slave, self::COMMAND_TYPE, self::COMMAND_TYPE_READ_LENGTH);
         $typeId = $this->transformService->asciiToUnsignedInt($data, 0);
 
@@ -394,6 +421,12 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeTypeId(Module $slave, Type $type): AbstractSlave
     {
+        $this->logger->debug(sprintf(
+            'Write type ID %d to slave %d',
+            $type->getId() ?? 0,
+            $slave->getAddress() ?? 0
+        ));
+
         $this->eventService->fire(AbstractHcDescriber::BEFORE_WRITE_TYPE_ID, ['slave' => $slave, 'typeId' => $type->getId()]);
 
         $this->write($slave, self::COMMAND_TYPE, chr((int) $type->getId()));
@@ -463,6 +496,8 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readHertz(Module $slave): int
     {
+        $this->logger->debug(sprintf('Read hertz from slave %d', $slave->getAddress() ?? 0));
+
         $data = $this->read($slave, self::COMMAND_HERTZ, self::COMMAND_HERTZ_READ_LENGTH);
         $hertz = $this->transformService->asciiToUnsignedInt($data);
 
@@ -478,6 +513,8 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readPwmSpeed(Module $slave): int
     {
+        $this->logger->debug(sprintf('Read pwm speed from slave %d', $slave->getAddress() ?? 0));
+
         $data = $this->read($slave, self::COMMAND_PWM_SPEED, self::COMMAND_PWM_SPEED_READ_LENGTH);
         $speed = $this->transformService->asciiToUnsignedInt($data);
 
@@ -493,6 +530,8 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readEepromSize(Module $slave): int
     {
+        $this->logger->debug(sprintf('Read eeprom size slave %d', $slave->getAddress() ?? 0));
+
         $data = $this->read($slave, self::COMMAND_EEPROM_SIZE, self::COMMAND_EEPROM_SIZE_READ_LENGTH);
         $eepromSize = $this->transformService->asciiToUnsignedInt($data);
 
@@ -508,6 +547,8 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readEepromFree(Module $slave): int
     {
+        $this->logger->debug(sprintf('Read eeprom free from slave %d', $slave->getAddress() ?? 0));
+
         $data = $this->read($slave, self::COMMAND_EEPROM_FREE, self::COMMAND_EEPROM_FREE_READ_LENGTH);
         $eepromFree = $this->transformService->asciiToUnsignedInt($data);
 
@@ -523,6 +564,8 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readEepromPosition(Module $slave): int
     {
+        $this->logger->debug(sprintf('Read eeprom position from slave %d', $slave->getAddress() ?? 0));
+
         $data = $this->read($slave, self::COMMAND_EEPROM_POSITION, self::COMMAND_EEPROM_POSITION_READ_LENGTH);
         $eepromPosition = $this->transformService->asciiToUnsignedInt($data);
 
@@ -573,6 +616,8 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readBufferSize(Module $slave): int
     {
+        $this->logger->debug(sprintf('Read buffer size from slave %d', $slave->getAddress() ?? 0));
+
         $data = $this->read($slave, self::COMMAND_BUFFER_SIZE, self::COMMAND_BUFFER_SIZE_READ_LENGTH);
         $bufferSize = $this->transformService->asciiToUnsignedInt($data);
 
@@ -588,6 +633,8 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function readLedStatus(Module $slave): array
     {
+        $this->logger->debug(sprintf('Read LED status from slave %d', $slave->getAddress() ?? 0));
+
         $leds = $this->transformService->asciiToUnsignedInt($this->read(
             $slave,
             self::COMMAND_LEDS,

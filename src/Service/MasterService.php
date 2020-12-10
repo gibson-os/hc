@@ -239,6 +239,11 @@ class MasterService extends AbstractService
         try {
             $slave = $this->moduleRepository->getByAddress($address, (int) $master->getId());
         } catch (SelectError $exception) {
+            $this->logger->debug(sprintf(
+                'Add new slave with address %d on master address %s',
+                $address,
+                $master->getAddress()
+            ));
             $slave = (new Module())
                 ->setName('Neues Modul')
                 ->setAddress($address)

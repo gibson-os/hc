@@ -84,7 +84,6 @@ class ReceiverService extends AbstractService
             $busMessage->getMasterAddress()
         ));
         $this->masterFormatter->checksumEqual($busMessage);
-        $protocolService->sendReceiveReturn($busMessage);
 
         if ($busMessage->getType() === MasterService::TYPE_HANDSHAKE) {
             $this->handshake($protocolService, $busMessage);
