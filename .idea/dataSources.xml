@@ -2,10 +2,10 @@
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
     <data-source source="LOCAL" name="MySQL for 5.1 - gibson_os@192.168.27.1" uuid="d1d095b6-d3bd-4085-b9e3-febcb56354c9">
-      <driver-ref>mysql</driver-ref>
+      <driver-ref>mariadb</driver-ref>
       <synchronize>true</synchronize>
-      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://192.168.27.1:3306/gibson_os</jdbc-url>
+      <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mariadb://192.168.27.1:3306/gibson_os</jdbc-url>
     </data-source>
     <data-source source="LOCAL" name=".gibsonStore" uuid="88bb03f6-665d-4651-b26f-0ab0674fa6ae">
       <driver-ref>sqlite.xerial</driver-ref>

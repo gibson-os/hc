@@ -279,12 +279,17 @@ abstract class AbstractHcSlave extends AbstractSlave
      * @throws DateTimeError
      * @throws GetError
      * @throws SaveError
-     * @throws SelectError
      */
     private function handshakeNewSlave(Module $slave): Module
     {
         $this->checkDeviceId($slave);
-        $this->writeAddress($slave, $this->masterRepository->getNextFreeAddress((int) $slave->getMaster()->getId()));
+
+        try {
+            $this->typeRepository->getByDefaultAddress($slave->getAddress() ?? 0);
+            $this->writeAddress($slave, $this->masterRepository->getNextFreeAddress((int) $slave->getMaster()->getId()));
+        } catch (SelectError $e) {
+            // Given address is allowed
+        }
 
         return $slave;
     }
