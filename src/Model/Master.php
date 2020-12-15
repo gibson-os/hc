@@ -31,6 +31,11 @@ class Master extends AbstractModel
     private $address;
 
     /**
+     * @var int
+     */
+    private $sendPort;
+
+    /**
      * @var DateTime
      */
     private $added;
@@ -86,9 +91,21 @@ class Master extends AbstractModel
         return $this->address;
     }
 
-    public function setAddress($address): Master
+    public function setAddress(string $address): Master
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    public function getSendPort(): int
+    {
+        return $this->sendPort;
+    }
+
+    public function setSendPort(int $sendPort): Master
+    {
+        $this->sendPort = $sendPort;
 
         return $this;
     }

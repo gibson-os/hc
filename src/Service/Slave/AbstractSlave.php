@@ -9,18 +9,16 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractSlave extends AbstractService
 {
-    const READ_BIT = 1;
-
-    const WRITE_BIT = 0;
-
     /**
      * @var MasterService
      */
@@ -36,6 +34,11 @@ abstract class AbstractSlave extends AbstractService
      */
     private $logRepository;
 
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
     abstract public function handshake(Module $slave): Module;
 
     /**
@@ -44,11 +47,13 @@ abstract class AbstractSlave extends AbstractService
     public function __construct(
         MasterService $masterService,
         TransformService $transformService,
-        LogRepository $logRepository
+        LogRepository $logRepository,
+        LoggerInterface $logger
     ) {
         $this->masterService = $masterService;
         $this->transformService = $transformService;
         $this->logRepository = $logRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -57,12 +62,21 @@ abstract class AbstractSlave extends AbstractService
      */
     public function write(Module $slave, int $command, string $data): void
     {
-        $this->masterService->send(
-            $slave->getMaster(),
-            MasterService::TYPE_DATA,
-            chr($this->getAddressWithReadWriteBit($slave, self::WRITE_BIT)) . chr($command) . $data
-        );
-        $this->masterService->receiveReceiveReturn($slave->getMaster());
+        $this->logger->debug(sprintf(
+            'Write command %d with data "%s" to %d',
+            $command,
+            $data,
+            $slave->getAddress() ?? 0
+        ));
+        $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_DATA))
+            ->setSlaveAddress($slave->getAddress())
+            ->setCommand($command)
+            ->setWrite(true)
+            ->setData($data)
+            ->setPort($slave->getMaster()->getSendPort())
+        ;
+        $this->masterService->send($slave->getMaster(), $busMessage);
+        $this->masterService->receiveReceiveReturn($slave->getMaster(), $busMessage);
         $this->addLog($slave, MasterService::TYPE_DATA, $command, $data, Log::DIRECTION_OUTPUT);
     }
 
@@ -73,25 +87,37 @@ abstract class AbstractSlave extends AbstractService
      */
     public function read(Module $slave, int $command, int $length): string
     {
-        $this->masterService->send(
-            $slave->getMaster(),
+        $this->logger->debug(sprintf(
+            'Read command %d with length %d from slave %d on master %s',
+            $command,
+            $length,
+            $slave->getAddress() ?? 0,
+            $slave->getMaster()->getAddress()
+        ));
+        $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_DATA))
+            ->setSlaveAddress($slave->getAddress())
+            ->setCommand($command)
+            ->setData(chr($length))
+            ->setPort($slave->getMaster()->getSendPort())
+        ;
+        $this->masterService->send($slave->getMaster(), $busMessage);
+        $receivedBusMessage = $this->masterService->receiveReadData($slave->getMaster(), $busMessage);
+        $this->logger->debug(sprintf(
+            'Read data "%s" from slave %d on master %s with command %d',
+            $receivedBusMessage->getData() ?? '',
+            $receivedBusMessage->getSlaveAddress() ?? 0,
+            $receivedBusMessage->getMasterAddress(),
+            $receivedBusMessage->getCommand() ?? ''
+        ));
+        $this->addLog(
+            $slave,
             MasterService::TYPE_DATA,
-            chr($this->getAddressWithReadWriteBit($slave, self::READ_BIT)) . chr($command) . chr($length)
+            $command,
+            $receivedBusMessage->getData() ?? '',
+            Log::DIRECTION_INPUT
         );
-        $data = $this->masterService->receiveReadData(
-            $slave->getMaster(),
-            (int) $slave->getAddress(),
-            MasterService::TYPE_DATA,
-            $command
-        );
-        $this->addLog($slave, MasterService::TYPE_DATA, $command, $data, Log::DIRECTION_INPUT);
 
-        return $data;
-    }
-
-    private function getAddressWithReadWriteBit(Module $slave, int $bit): int
-    {
-        return ($slave->getAddress() << 1) | $bit;
+        return $receivedBusMessage->getData() ?? '';
     }
 
     /**

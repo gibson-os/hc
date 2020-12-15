@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Service;
 use DateTime;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
@@ -13,6 +14,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
@@ -22,14 +24,15 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
+use Psr\Log\LoggerInterface;
 
 class MasterService extends AbstractService
 {
-    const TYPE_RECEIVE_RETURN = 0;
+    public const TYPE_RECEIVE_RETURN = 0;
 
-    const TYPE_HANDSHAKE = 1;
+    public const TYPE_HANDSHAKE = 1;
 
-    const TYPE_STATUS = 2;
+    public const TYPE_STATUS = 2;
 
     const TYPE_NEW_SLAVE = 3;
 
@@ -80,6 +83,11 @@ class MasterService extends AbstractService
     private $masterFormatter;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * Master constructor.
      */
     public function __construct(
@@ -90,7 +98,8 @@ class MasterService extends AbstractService
         MasterFormatter $masterFormatter,
         LogRepository $logRepository,
         ModuleRepository $moduleRepository,
-        TypeRepository $typeRepository
+        TypeRepository $typeRepository,
+        LoggerInterface $logger
     ) {
         $this->senderService = $senderService;
         $this->eventService = $eventService;
@@ -100,6 +109,7 @@ class MasterService extends AbstractService
         $this->moduleRepository = $moduleRepository;
         $this->typeRepository = $typeRepository;
         $this->masterFormatter = $masterFormatter;
+        $this->logger = $logger;
     }
 
     /**
@@ -111,27 +121,41 @@ class MasterService extends AbstractService
      * @throws SaveError
      * @throws SelectError
      */
-    public function receive(Master $master, int $type, string $data): void
+    public function receive(Master $master, BusMessage $busMessage): void
     {
+        $data = $busMessage->getData();
         $log = $this->logRepository->create(
-            $type,
-            strlen($data) < 2 ? '' : $this->transformService->asciiToHex(substr($data, 2)),
+            $busMessage->getType(),
+            $data ?? '',
             Log::DIRECTION_INPUT
         )
             ->setMaster($master)
         ;
 
-        $address = $this->transformService->asciiToUnsignedInt($data, 0);
+        $this->logger->info(sprintf('Receive type %d', $busMessage->getType()));
 
-        echo 'Type: ' . $type . PHP_EOL;
+        if ($busMessage->getType() === self::TYPE_NEW_SLAVE) {
+            $slaveAddress = $busMessage->getSlaveAddress();
 
-        if ($type === MasterService::TYPE_NEW_SLAVE) {
-            echo 'New Slave ' . $address . PHP_EOL;
-            $slave = $this->slaveHandshake($master, $address);
+            if ($slaveAddress === null) {
+                throw new ReceiveError('Slave Address is null!');
+            }
+
+            $this->logger->info(sprintf('New Slave %d', $slaveAddress));
+            $slave = $this->slaveHandshake($master, $slaveAddress);
         } else {
-            $command = $this->transformService->asciiToUnsignedInt($data, 1);
-            echo 'Command: ' . $command . PHP_EOL;
-            $slave = $this->slaveReceive($master, $address, $type, $command, substr($data, 2));
+            $command = $busMessage->getCommand();
+
+            if ($command === null) {
+                throw new ReceiveError('Command is null!');
+            }
+
+            $this->logger->info(sprintf(
+                'Receive command %d for slave address %s',
+                $command,
+                $busMessage->getSlaveAddress() ?? 0
+            ));
+            $slave = $this->slaveReceive($master, $busMessage);
             $log->setCommand($command);
         }
 
@@ -149,36 +173,14 @@ class MasterService extends AbstractService
     /**
      * @throws AbstractException
      */
-    public function send(Master $master, int $type, string $data): void
+    public function send(Master $master, BusMessage $busMessage): void
     {
-        $this->senderService->send($master, $type, $data);
-    }
-
-    /**
-     * @throws AbstractException
-     * @throws DateTimeError
-     * @throws FileNotFound
-     * @throws SaveError
-     */
-    public function setAddress(Master $master, int $address): void
-    {
-        $data = $master->getName() . chr($address);
-        $this->send($master, MasterService::TYPE_HANDSHAKE, $data);
-        $this->receiveReceiveReturn($master);
-
-        $this->logRepository->create(
-            MasterService::TYPE_HANDSHAKE,
-            $this->transformService->asciiToHex($data),
-            Log::DIRECTION_OUTPUT
-        )
-            ->setMaster($master)
-            ->save()
-        ;
-
-        $master
-            ->setAddress($address)
-            ->save()
-        ;
+        $this->logger->debug(sprintf(
+            'Send data "%s" to %s',
+            $busMessage->getData() ?? '',
+            $busMessage->getMasterAddress()
+        ));
+        $this->senderService->send($busMessage, $master->getProtocol());
     }
 
     /**
@@ -186,44 +188,50 @@ class MasterService extends AbstractService
      */
     public function scanBus(Master $master): void
     {
-        $this->send($master, self::TYPE_SCAN_BUS, '');
-        $this->receiveReceiveReturn($master);
+        $busMessage = (new BusMessage($master->getAddress(), self::TYPE_SCAN_BUS))
+            ->setPort($master->getSendPort())
+        ;
+        $this->send($master, $busMessage);
+        $this->receiveReceiveReturn($master, $busMessage);
     }
 
     /**
+     * @throws FactoryError
+     * @throws GetError
      * @throws ReceiveError
-     * @throws FileNotFound
      */
-    public function receiveReadData(Master $master, int $address, int $type, int $command): string
+    public function receiveReadData(Master $master, BusMessage $busMessage): BusMessage
     {
-        $data = $this->masterFormatter->getData($this->senderService->receiveReadData($master, $type));
+        $receivedBusMessage = $this->senderService->receiveReadData($master, $busMessage->getType());
+        $this->masterFormatter->extractSlaveDataFromMessage($receivedBusMessage);
 
-        if ($address !== $this->transformService->asciiToUnsignedInt($data, 0)) {
-            throw new ReceiveError('Slave Adresse stimmt nicht überein!');
+        if ($busMessage->getSlaveAddress() !== $receivedBusMessage->getSlaveAddress()) {
+            throw new ReceiveError(sprintf(
+                'Slave address %d not equal with received %d!',
+                $busMessage->getSlaveAddress() ?? 0,
+                $receivedBusMessage->getSlaveAddress() ?? 0
+            ));
         }
 
-        if ($command !== $this->transformService->asciiToUnsignedInt($data, 1)) {
-            throw new ReceiveError('Kommando stimmt nicht überein!');
+        if ($busMessage->getCommand() !== $receivedBusMessage->getCommand()) {
+            throw new ReceiveError('Command not equal!');
         }
 
-        return substr($data, 2);
+        return $receivedBusMessage;
     }
 
     /**
      * @throws FileNotFound
      */
-    public function receiveReceiveReturn(Master $master): void
+    public function receiveReceiveReturn(Master $master, BusMessage $busMessage): void
     {
-        $this->senderService->receiveReceiveReturn($master);
+        $this->senderService->receiveReceiveReturn($master, $busMessage);
     }
 
     /**
-     * @throws AbstractException
      * @throws DateTimeError
      * @throws FileNotFound
      * @throws GetError
-     * @throws ReceiveError
-     * @throws SaveError
      * @throws SelectError
      */
     private function slaveHandshake(Master $master, int $address): Module
@@ -231,6 +239,11 @@ class MasterService extends AbstractService
         try {
             $slave = $this->moduleRepository->getByAddress($address, (int) $master->getId());
         } catch (SelectError $exception) {
+            $this->logger->debug(sprintf(
+                'Add new slave with address %d on master address %s',
+                $address,
+                $master->getAddress()
+            ));
             $slave = (new Module())
                 ->setName('Neues Modul')
                 ->setAddress($address)
@@ -257,9 +270,12 @@ class MasterService extends AbstractService
      * @throws ReceiveError
      * @throws SelectError
      */
-    private function slaveReceive(Master $master, int $address, int $type, int $command, string $data): Module
+    private function slaveReceive(Master $master, BusMessage $busMessage): Module
     {
-        $slaveModel = $this->moduleRepository->getByAddress($address, (int) $master->getId());
+        $slaveModel = $this->moduleRepository->getByAddress(
+            $busMessage->getSlaveAddress() ?? 0,
+            $master->getId() ?? 0
+        );
         $slave = $this->slaveFactory->get($slaveModel->getType()->getHelper());
 
         if (!$slave instanceof AbstractHcSlave) {
@@ -270,7 +286,7 @@ class MasterService extends AbstractService
             ));
         }
 
-        $slave->receive($slaveModel, $type, $command, $data);
+        $slave->receive($slaveModel, $busMessage);
 
         return $slaveModel;
     }

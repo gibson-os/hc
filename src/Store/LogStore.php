@@ -178,7 +178,7 @@ class LogStore extends AbstractDatabaseStore
                     ->setId((int) $log['master_id'])
                     ->setName($log['master_name'])
                     ->setProtocol($log['master_protocol'])
-                    ->setAddress((int) $log['master_address'])
+                    ->setAddress($log['master_address'])
                 ;
                 $logModel->setMaster($master);
 

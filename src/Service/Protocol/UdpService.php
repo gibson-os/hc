@@ -3,23 +3,23 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Protocol;
 
-use GibsonOS\Core\Dto\UdpMessage;
 use GibsonOS\Core\Exception\CreateError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\Server\SendError;
 use GibsonOS\Core\Exception\SetError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Service\UdpService as CoreUdpService;
+use GibsonOS\Module\Hc\Dto\BusMessage;
+use GibsonOS\Module\Hc\Exception\TransformException;
+use GibsonOS\Module\Hc\Mapper\BusMessageMapper;
 use GibsonOS\Module\Hc\Service\MasterService;
+use Psr\Log\LoggerInterface;
 
 class UdpService extends AbstractService implements ProtocolInterface
 {
-    const SEND_PORT = 7363;
+    const RECEIVE_PORT = 42000;
 
-    const RECEIVE_PORT = 7339;
-
-    const ENV_SERVER_IP = 'HC_SERVER_IP';
+    const START_PORT = 43000;
 
     /**
      * @var CoreUdpService
@@ -29,41 +29,45 @@ class UdpService extends AbstractService implements ProtocolInterface
     /**
      * @var string
      */
-    private $serverIp;
+    private $ip = '0';
 
     /**
-     * @var string
+     * @var BusMessageMapper
      */
-    private $subnet;
+    private $busMessageMapper;
 
     /**
-     * Udp constructor.
-     *
-     * @throws GetError
+     * @var LoggerInterface
      */
-    public function __construct()
+    private $logger;
+
+    public function __construct(
+        BusMessageMapper $busMessageMapper,
+        LoggerInterface $logger
+    ) {
+        $this->busMessageMapper = $busMessageMapper;
+        $this->logger = $logger;
+    }
+
+    public function setIp(string $ip): UdpService
     {
-        $this->serverIp = (string) getenv(self::ENV_SERVER_IP);
+        $this->ip = $ip;
 
-        if (empty($this->serverIp)) {
-            throw new GetError(
-                sprintf(
-                    'Server IP ist leer oder kein String. Umgebungsvariable %s muss gesetzt sein.',
-                    self::ENV_SERVER_IP
-                )
-            );
-        }
-
-        $this->subnet = mb_substr($this->serverIp, 0, mb_strrpos($this->serverIp, '.') ?: null);
+        return $this;
     }
 
     /**
      * @throws SetError
      * @throws CreateError
      */
-    private function setReceiveServer()
+    private function setReceiveServer(): void
     {
-        $this->udpReceiveService = new CoreUdpService($this->serverIp, self::RECEIVE_PORT);
+        if ($this->udpReceiveService instanceof CoreUdpService) {
+            return;
+        }
+
+        $this->logger->debug(sprintf('Start UDP receive server %s:%d', $this->ip, self::RECEIVE_PORT));
+        $this->udpReceiveService = new CoreUdpService($this->logger, $this->ip, self::RECEIVE_PORT);
         $this->udpReceiveService->setTimeout(3);
     }
 
@@ -71,100 +75,98 @@ class UdpService extends AbstractService implements ProtocolInterface
      * @throws SetError
      * @throws CreateError
      */
-    public function receive(): ?string
+    public function receive(): ?BusMessage
     {
-        if (!$this->udpReceiveService instanceof CoreUdpService) {
-            $this->setReceiveServer();
-        }
+        $this->setReceiveServer();
 
         try {
-            return $this->udpReceiveService->receive(self::RECEIVE_LENGTH)->getMessage();
+            $this->logger->debug(sprintf('Receive message'));
+
+            return $this->busMessageMapper->mapFromUdpMessage(
+                $this->udpReceiveService->receive(self::RECEIVE_LENGTH)
+            );
         } catch (ReceiveError $exception) {
+            $this->logger->debug('Nothing received');
+
             return null;
         }
     }
 
     /**
+     * @throws CreateError
      * @throws SendError
      * @throws SetError
-     * @throws CreateError
      */
-    public function send(int $type, string $data, string $address): void
+    public function send(BusMessage $busMessage): void
     {
-        $udpSendService = new CoreUdpService($this->serverIp, self::SEND_PORT);
+        $udpSendService = $this->createSendService($busMessage->getPort() ?? self::START_PORT);
         $udpSendService->setTimeout(10);
-        $udpSendService->send(new UdpMessage($this->subnet . '.' . $address, self::SEND_PORT, chr($type) . $data));
+        $udpSendService->send($this->busMessageMapper->mapToUdpMessage($busMessage));
         $udpSendService->close();
     }
 
     /**
+     * @throws CreateError
      * @throws ReceiveError
      * @throws SetError
-     * @throws CreateError
-     * @throws CreateError
+     * @throws TransformException
      */
-    public function receiveReadData(): string
+    public function receiveReadData(?int $port): BusMessage
     {
-        $udpSendService = $this->createSendService();
+        $udpSendService = $this->createSendService($port ?? self::RECEIVE_PORT);
 
         try {
-            $data = $udpSendService->receive(self::RECEIVE_LENGTH)->getMessage();
-        } catch (ReceiveError $exception) {
-            $udpSendService->close();
+            $this->logger->debug(sprintf('Receive read data UDP message'));
 
-            throw $exception;
-        }
-
-        $udpSendService->close();
-
-        return $data;
-    }
-
-    /**
-     * @throws SendError
-     */
-    public function sendReceiveReturn(string $address): void
-    {
-        $this->udpReceiveService->send(new UdpMessage(
-            $this->subnet . '.' . $address,
-            self::RECEIVE_PORT,
-            chr(MasterService::TYPE_RECEIVE_RETURN)
-        ));
-    }
-
-    /**
-     * @throws ReceiveError
-     * @throws SetError
-     * @throws CreateError
-     * @throws CreateError
-     */
-    public function receiveReceiveReturn(string $address): void
-    {
-        $udpSendService = $this->createSendService();
-
-        try {
-            $data = $udpSendService->receive(2);
-        } catch (ReceiveError $exception) {
-            throw new ReceiveError('Empfangsbestätigung nicht erhalten!');
+            $data = $udpSendService->receive(self::RECEIVE_LENGTH);
         } finally {
             $udpSendService->close();
         }
 
-        if (
-            $data->getIp() !== $this->subnet . '.' . $address ||
-            $data->getMessage() !== chr((int) $address) . chr(MasterService::TYPE_RECEIVE_RETURN)
-        ) {
-            throw new ReceiveError('Empfangsbestätigung nicht erhalten!');
+        return $this->busMessageMapper->mapFromUdpMessage($data);
+    }
+
+    /**
+     * @throws CreateError
+     * @throws ReceiveError
+     * @throws SetError
+     * @throws TransformException
+     */
+    public function receiveReceiveReturn(BusMessage $busMessage): void
+    {
+        $udpSendService = $this->createSendService($busMessage->getPort() ?? self::RECEIVE_PORT);
+
+        try {
+            $this->logger->debug(sprintf('Receive receive return'));
+            $receivedBusMessage = $this->busMessageMapper->mapFromUdpMessage($udpSendService->receive(6));
+        } catch (ReceiveError $exception) {
+            throw new ReceiveError('Receive return not received!');
+        } finally {
+            $udpSendService->close();
         }
+
+        if ($receivedBusMessage->getMasterAddress() !== $busMessage->getMasterAddress()) {
+            throw new ReceiveError(sprintf(
+                'IP address %s not equal with received IP address %s',
+                $busMessage->getMasterAddress(),
+                $receivedBusMessage->getMasterAddress()
+            ));
+        }
+
+        if ($receivedBusMessage->getType() !== MasterService::TYPE_RECEIVE_RETURN) {
+            throw new ReceiveError('Received return data not equal!');
+        }
+
+        $this->logger->debug('Received receive return');
     }
 
     /**
      * @throws CreateError
      * @throws SetError
      */
-    private function createSendService(): CoreUdpService
+    private function createSendService(int $port): CoreUdpService
     {
-        $udpSendService = new CoreUdpService($this->serverIp, self::SEND_PORT);
+        $udpSendService = new CoreUdpService($this->logger, $this->ip, $port);
         $udpSendService->setTimeout(3);
 
         return $udpSendService;

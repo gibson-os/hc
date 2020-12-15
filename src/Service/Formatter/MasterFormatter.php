@@ -3,20 +3,29 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Formatter;
 
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Psr\Log\LoggerInterface;
 
 class MasterFormatter implements FormatterInterface
 {
     /**
      * @var TransformService
      */
-    private $transform;
+    private $transformService;
 
-    public function __construct(TransformService $transform)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(TransformService $transform, LoggerInterface $logger)
     {
-        $this->transform = $transform;
+        $this->transformService = $transform;
+        $this->logger = $logger;
     }
 
     public function render(Log $log): ?string
@@ -34,39 +43,55 @@ class MasterFormatter implements FormatterInterface
         return null;
     }
 
-    public function getMasterAddress(string $data): int
-    {
-        return $this->transform->asciiToUnsignedInt($data, 0);
-    }
-
-    public function getType(string $data): int
-    {
-        return $this->transform->asciiToUnsignedInt($data, 1);
-    }
-
-    public function getData(string $data): string
-    {
-        return (string) substr($data, 2, -1);
-    }
-
     /**
      * @throws ReceiveError
+     * @throws GetError
      */
-    public function checksumEqual(string $data): void
+    public function checksumEqual(BusMessage $busMessage): void
     {
-        //echo strlen($this->data) . PHP_EOL;
-        //echo ord(substr($this->data, -1)) . ' !== ' . $this->getCheckSum() . PHP_EOL;
-        if (ord(substr($data, -1)) !== $this->getCheckSum($data)) {
-            throw new ReceiveError('Checksumme stimmt nicht überein!');
+        $checkSum = $this->getCheckSum($busMessage);
+
+        if ($busMessage->getChecksum() !== $checkSum) {
+            throw new ReceiveError(sprintf(
+                'Checksum not equal (%d === %d)!',
+                $busMessage->getChecksum() ?? 0,
+                $checkSum ?? 0
+            ));
         }
     }
 
-    private function getCheckSum(string $data): int
+    /**
+     * @throws GetError
+     */
+    public function extractSlaveDataFromMessage(BusMessage $busMessage): void
     {
-        $checkSum = 0;
+        $data = $busMessage->getData();
 
-        for ($i = 0; $i < strlen($data) - 1; ++$i) {
-            $checkSum += ord($data[$i]);
+        if (empty($data)) {
+            throw new GetError('No slave data transmitted!');
+        }
+
+        $this->logger->debug('Get Slave data from message');
+
+        $busMessage->setSlaveAddress($this->transformService->asciiToUnsignedInt($data, 0));
+        $busMessage->setCommand($this->transformService->asciiToUnsignedInt($data, 1));
+        $busMessage->setData(substr($data, 2) ?: null);
+    }
+
+    private function getCheckSum(BusMessage $busMessage): ?int
+    {
+        $checkSum = $busMessage->getType();
+
+        foreach (explode('.', $busMessage->getMasterAddress()) as $ipByte) {
+            $checkSum += (int) $ipByte;
+        }
+
+        $data = $busMessage->getData();
+
+        if (!empty($data)) {
+            for ($i = 0; $i < strlen($data); ++$i) {
+                $checkSum += ord($data[$i]);
+            }
         }
 
         return $checkSum % 256;

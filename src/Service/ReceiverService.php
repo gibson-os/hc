@@ -5,15 +5,17 @@ namespace GibsonOS\Module\Hc\Service;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
+use GibsonOS\Module\Hc\Service\Protocol\UdpService;
+use Psr\Log\LoggerInterface;
 
 class ReceiverService extends AbstractService
 {
@@ -38,18 +40,25 @@ class ReceiverService extends AbstractService
     private $masterRepository;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * Server constructor.
      */
     public function __construct(
         TransformService $transformService,
         MasterService $masterService,
         MasterFormatter $masterFormatter,
-        MasterRepository $masterRepository
+        MasterRepository $masterRepository,
+        LoggerInterface $logger
     ) {
         $this->transformService = $transformService;
         $this->masterService = $masterService;
         $this->masterFormatter = $masterFormatter;
         $this->masterRepository = $masterRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -62,25 +71,27 @@ class ReceiverService extends AbstractService
      */
     public function receive(ProtocolInterface $protocolService): void
     {
-        $data = $protocolService->receive();
+        $this->logger->debug('Receive data');
+        $busMessage = $protocolService->receive();
 
-        if (empty($data)) {
+        if ($busMessage === null) {
             return;
         }
 
-        $this->masterFormatter->checksumEqual($data);
+        $this->logger->debug(sprintf(
+            'Received message "%s" from master %s',
+            $busMessage->getData() ?? '',
+            $busMessage->getMasterAddress()
+        ));
+        $this->masterFormatter->checksumEqual($busMessage);
 
-        $cleanData = $this->masterFormatter->getData($data);
-        $masterAddress = $this->masterFormatter->getMasterAddress($data);
-        $type = $this->masterFormatter->getType($data);
-
-        $protocolService->sendReceiveReturn((string) $masterAddress);
-
-        if ($type === MasterService::TYPE_HANDSHAKE) {
-            $this->handshake($protocolService, $cleanData, $masterAddress);
+        if ($busMessage->getType() === MasterService::TYPE_HANDSHAKE) {
+            $this->handshake($protocolService, $busMessage);
         } else {
-            $masterModel = $this->masterRepository->getByAddress($masterAddress, $protocolService->getName());
-            $this->masterService->receive($masterModel, $type, $cleanData);
+            $masterModel = $this->masterRepository->getByAddress($busMessage->getMasterAddress(), $protocolService->getName());
+            $this->masterFormatter->extractSlaveDataFromMessage($busMessage);
+
+            $this->masterService->receive($masterModel, $busMessage);
         }
 
         // Log schreiben
@@ -89,24 +100,37 @@ class ReceiverService extends AbstractService
     }
 
     /**
-     * @throws AbstractException
      * @throws DateTimeError
      * @throws GetError
      * @throws SaveError
-     * @throws FileNotFound
      */
-    private function handshake(ProtocolInterface $protocolService, string $data, int $masterAddress): void
+    private function handshake(ProtocolInterface $protocolService, BusMessage $busMessage): void
     {
         $protocolName = $protocolService->getName();
+        $data = $busMessage->getData();
 
-        try {
-            $masterModel = $this->masterRepository->getByName($data, $protocolName);
-        } catch (SelectError $exception) {
-            $masterModel = $this->masterRepository->add($data, $protocolName);
+        if (empty($data)) {
+            throw new GetError('No master name transmitted!');
         }
 
-        $address = $masterModel->getAddress();
-        $masterModel->setAddress($masterAddress);
-        $this->masterService->setAddress($masterModel, (int) $address);
+        try {
+            $master = $this->masterRepository->getByName($data, $protocolName);
+            $master
+                ->setAddress($busMessage->getMasterAddress())
+                ->save()
+            ;
+        } catch (SelectError $exception) {
+            $master = $this->masterRepository->add($data, $protocolName, $busMessage->getMasterAddress());
+        }
+
+        $this->masterService->send(
+            $master,
+            (new BusMessage($master->getAddress(), MasterService::TYPE_HANDSHAKE))
+                ->setData(
+                    chr($master->getSendPort() >> 8) .
+                    chr($master->getSendPort() & 255)
+                )
+                ->setPort(UdpService::START_PORT)
+        );
     }
 }

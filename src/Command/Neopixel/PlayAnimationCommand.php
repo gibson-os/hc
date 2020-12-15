@@ -17,6 +17,7 @@ use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService as AnimationSequenceService;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use mysqlDatabase;
+use Psr\Log\LoggerInterface;
 
 class PlayAnimationCommand extends AbstractCommand
 {
@@ -62,7 +63,8 @@ class PlayAnimationCommand extends AbstractCommand
         LedService $ledService,
         ModuleRepository $moduleRepository,
         mysqlDatabase $mysqlDatabase,
-        EnvService $envService
+        EnvService $envService,
+        LoggerInterface $logger
     ) {
         $this->neopixelService = $neopixelService;
         $this->animationAttributeService = $animationAttributeService;
@@ -71,6 +73,8 @@ class PlayAnimationCommand extends AbstractCommand
         $this->moduleRepository = $moduleRepository;
         $this->mysqlDatabase = $mysqlDatabase;
         $this->envService = $envService;
+
+        parent::__construct($logger);
 
         $this->setArgument('slaveId', true);
         $this->setArgument('iterations', false);

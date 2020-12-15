@@ -11,15 +11,26 @@ use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
+use Psr\Log\LoggerInterface;
 
 class ModuleRepository extends AbstractRepository
 {
-    const START_ADDRESS = 2;
+    private const MAX_GENERATE_DEVICE_ID_RETRY = 10;
 
-    const MAX_GENERATE_DEVICE_ID_RETRY = 10;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
 
     public function create(string $name, Type $type): Module
     {
+        $this->logger->debug(sprintf('Create slave with name %d and type %d', $name, $type->getName()));
+
         return (new Module())
             ->setName($name)
             ->setType($type)
@@ -27,7 +38,6 @@ class ModuleRepository extends AbstractRepository
     }
 
     /**
-     *@throws GetError
      * @throws SelectError
      * @throws DateTimeError
      *
@@ -35,6 +45,8 @@ class ModuleRepository extends AbstractRepository
      */
     public function findByName(string $name, int $typeId = null): array
     {
+        $this->logger->debug(sprintf('Find slave with name %d and type id %s', $name, $typeId ?? 0));
+
         $tableName = Module::getTableName();
         $table = self::getTable($tableName);
 
@@ -65,13 +77,14 @@ class ModuleRepository extends AbstractRepository
     }
 
     /**
-     *@throws GetError
      * @throws DateTimeError
      *
      * @return Module[]
      */
     public function getByMasterId(int $masterId): array
     {
+        $this->logger->debug(sprintf('Get slaves by master id %d', $masterId));
+
         $table = self::getTable(Module::getTableName());
         $table->setWhere('`master_id`=' . $masterId);
 
@@ -92,11 +105,12 @@ class ModuleRepository extends AbstractRepository
 
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws SelectError
      */
     public function getByDeviceId(int $deviceId): Module
     {
+        $this->logger->debug(sprintf('Get slave by device ID %d', $deviceId));
+
         $table = self::getTable(Module::getTableName());
         $table->setWhere('`device_id`=' . $deviceId);
         $table->setLimit(1);
@@ -116,11 +130,12 @@ class ModuleRepository extends AbstractRepository
 
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws SelectError
      */
     public function getById(int $id): Module
     {
+        $this->logger->debug(sprintf('Get slave by id %s', $id));
+
         $table = self::getTable(Module::getTableName());
         $table->setWhere('`id`=' . $id);
         $table->setLimit(1);
@@ -140,11 +155,12 @@ class ModuleRepository extends AbstractRepository
 
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws SelectError
      */
     public function getByAddress(int $address, int $masterId): Module
     {
+        $this->logger->debug(sprintf('Get slave by address %d and master id %d', $address, $masterId));
+
         $table = self::getTable(Module::getTableName());
         $table->setWhere(
             '`address`=' . $address . ' AND ' .
@@ -170,6 +186,8 @@ class ModuleRepository extends AbstractRepository
      */
     public function getFreeDeviceId(int $tryCount = 0): int
     {
+        $this->logger->debug(sprintf('Get free device id. Try %d', $tryCount));
+
         $deviceId = mt_rand(1, AbstractHcSlave::MAX_DEVICE_ID);
         ++$tryCount;
 
@@ -195,6 +213,8 @@ class ModuleRepository extends AbstractRepository
      */
     public function deleteById(int $id)
     {
+        $this->logger->debug(sprintf('Delete slave by id %s', $id));
+
         $table = self::getTable(Module::getTableName());
         $table->setWhere('`id`=' . $id);
 
