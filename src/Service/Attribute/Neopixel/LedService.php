@@ -16,6 +16,7 @@ use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository as ValueRepository;
 use GibsonOS\Module\Hc\Repository\AttributeRepository as AttributeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use OutOfRangeException;
+use Psr\Log\LoggerInterface;
 
 class LedService
 {
@@ -68,12 +69,19 @@ class LedService
      */
     private $ledsAttributes = [];
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         AttributeRepository $attributeRepository,
-        ValueRepository $valueRepository
+        ValueRepository $valueRepository,
+        LoggerInterface $logger
     ) {
         $this->valueRepository = $valueRepository;
         $this->attributeRepository = $attributeRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -185,8 +193,17 @@ class LedService
     {
         foreach ($led as $attribute => $value) {
             if (!in_array($attribute, self::ATTRIBUTES)) {
+                $this->logger->debug(sprintf('LED %d attribute %s not allowed!', $id, $attribute));
+
                 continue;
             }
+
+            $this->logger->debug(sprintf(
+                'Set LED %d attribute %s with value %s!',
+                $id,
+                $attribute,
+                (string) $value
+            ));
 
             (new ValueModel())
                 ->setAttribute($this->getLedAttribute($slave, $id, $attribute))

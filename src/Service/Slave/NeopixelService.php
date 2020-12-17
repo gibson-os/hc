@@ -124,6 +124,7 @@ class NeopixelService extends AbstractHcSlave
             for ($i = 0; $i < $count; ++$i) {
                 $top = $this->ledService->getById($slave, $id, LedService::ATTRIBUTE_KEY_TOP);
                 $left = $this->ledService->getById($slave, $id, LedService::ATTRIBUTE_KEY_LEFT);
+
                 $leds[$id] = [
                     LedService::ATTRIBUTE_KEY_CHANNEL => $channel,
                     LedService::ATTRIBUTE_KEY_RED => 0,

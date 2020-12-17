@@ -24,7 +24,7 @@ class ValueRepository extends AbstractRepository
      */
     public function getByTypeId(
         int $typeId,
-        ?int $subId = 0,
+        ?int $subId,
         ?array $moduleIds = [],
         ?string $type = '',
         string $key = null,
@@ -210,7 +210,7 @@ class ValueRepository extends AbstractRepository
         int $updateOrder,
         ?array $moduleIds = [],
         ?string $type = '',
-        ?int $subId = 0,
+        int $subId = null,
         string $key = null
     ): void {
         $where = '`hc_attribute`.`type_id`=' . $this->escape((string) $typeId);
@@ -244,7 +244,7 @@ class ValueRepository extends AbstractRepository
         int $typeId,
         array $keys = null,
         ?array $moduleIds = [],
-        ?int $subId = 0,
+        int $subId = null,
         ?string $type = ''
     ): array {
         $where =
@@ -368,10 +368,6 @@ class ValueRepository extends AbstractRepository
     {
         if ($subId === null) {
             return ' AND `' . $table . '`.`sub_id` IS NULL';
-        }
-
-        if ($subId === 0) {
-            return '';
         }
 
         return ' AND `' . $table . '`.`sub_id`=' . $this->escape((string) $subId);
