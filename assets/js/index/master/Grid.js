@@ -58,8 +58,7 @@ Ext.define('GibsonOS.module.hc.index.master.Grid', {
         }, {
             header: 'Adresse',
             dataIndex: 'address',
-            width: 70,
-            align: 'right'
+            width: 100
         }, {
             header: 'Hinzugefügt',
             dataIndex: 'added',

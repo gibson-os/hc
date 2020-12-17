@@ -11,7 +11,7 @@ Ext.define('GibsonOS.module.hc.index.model.Master', {
         type: 'string'
     },{
         name: 'address',
-        type: 'int'
+        type: 'string'
     },{
         name: 'added',
         type: 'string'
