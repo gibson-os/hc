@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
+use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
@@ -20,9 +21,12 @@ use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
+use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
+use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
+use GibsonOS\Module\Hc\Service\Protocol\UdpService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use Psr\Log\LoggerInterface;
 
@@ -88,6 +92,16 @@ class MasterService extends AbstractService
     private $logger;
 
     /**
+     * @var MasterRepository
+     */
+    private $masterRepository;
+
+    /**
+     * @var DateTimeService
+     */
+    private $dateTimeService;
+
+    /**
      * Master constructor.
      */
     public function __construct(
@@ -99,7 +113,9 @@ class MasterService extends AbstractService
         LogRepository $logRepository,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        MasterRepository $masterRepository,
+        DateTimeService $dateTimeService
     ) {
         $this->senderService = $senderService;
         $this->eventService = $eventService;
@@ -110,6 +126,8 @@ class MasterService extends AbstractService
         $this->typeRepository = $typeRepository;
         $this->masterFormatter = $masterFormatter;
         $this->logger = $logger;
+        $this->masterRepository = $masterRepository;
+        $this->dateTimeService = $dateTimeService;
     }
 
     /**
@@ -181,6 +199,43 @@ class MasterService extends AbstractService
             $busMessage->getMasterAddress()
         ));
         $this->senderService->send($busMessage, $master->getProtocol());
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws DateTimeError
+     * @throws GetError
+     * @throws SaveError
+     */
+    public function handshake(ProtocolInterface $protocolService, BusMessage $busMessage): void
+    {
+        $protocolName = $protocolService->getName();
+        $data = $busMessage->getData();
+
+        if (empty($data)) {
+            throw new GetError('No master name transmitted!');
+        }
+
+        try {
+            $master = $this->masterRepository->getByName($data, $protocolName);
+            $master
+                ->setAddress($busMessage->getMasterAddress())
+                ->setModified($this->dateTimeService->get())
+                ->save()
+            ;
+        } catch (SelectError $exception) {
+            $master = $this->masterRepository->add($data, $protocolName, $busMessage->getMasterAddress());
+        }
+
+        $this->send(
+            $master,
+            (new BusMessage($master->getAddress(), MasterService::TYPE_HANDSHAKE))
+                ->setData(
+                    chr($master->getSendPort() >> 8) .
+                    chr($master->getSendPort() & 255)
+                )
+                ->setPort(UdpService::START_PORT)
+        );
     }
 
     /**

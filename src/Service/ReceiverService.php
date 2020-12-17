@@ -10,11 +10,9 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
-use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
-use GibsonOS\Module\Hc\Service\Protocol\UdpService;
 use Psr\Log\LoggerInterface;
 
 class ReceiverService extends AbstractService
@@ -86,7 +84,7 @@ class ReceiverService extends AbstractService
         $this->masterFormatter->checksumEqual($busMessage);
 
         if ($busMessage->getType() === MasterService::TYPE_HANDSHAKE) {
-            $this->handshake($protocolService, $busMessage);
+            $this->masterService->handshake($protocolService, $busMessage);
         } else {
             $masterModel = $this->masterRepository->getByAddress($busMessage->getMasterAddress(), $protocolService->getName());
             $this->masterFormatter->extractSlaveDataFromMessage($busMessage);
@@ -97,40 +95,5 @@ class ReceiverService extends AbstractService
         // Log schreiben
         // Push senden
         // Callbacks ausführen
-    }
-
-    /**
-     * @throws DateTimeError
-     * @throws GetError
-     * @throws SaveError
-     */
-    private function handshake(ProtocolInterface $protocolService, BusMessage $busMessage): void
-    {
-        $protocolName = $protocolService->getName();
-        $data = $busMessage->getData();
-
-        if (empty($data)) {
-            throw new GetError('No master name transmitted!');
-        }
-
-        try {
-            $master = $this->masterRepository->getByName($data, $protocolName);
-            $master
-                ->setAddress($busMessage->getMasterAddress())
-                ->save()
-            ;
-        } catch (SelectError $exception) {
-            $master = $this->masterRepository->add($data, $protocolName, $busMessage->getMasterAddress());
-        }
-
-        $this->masterService->send(
-            $master,
-            (new BusMessage($master->getAddress(), MasterService::TYPE_HANDSHAKE))
-                ->setData(
-                    chr($master->getSendPort() >> 8) .
-                    chr($master->getSendPort() & 255)
-                )
-                ->setPort(UdpService::START_PORT)
-        );
     }
 }
