@@ -433,7 +433,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 });
             },
             listeners: {
-                click: () => {
+                click() {
                     let name = me.down('#hcNeopixelAnimationPanelAnimationName').getValue();
                     this.save(name);
                 }

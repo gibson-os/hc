@@ -142,6 +142,8 @@ class NeopixelAnimationController extends AbstractController
             'data' => $animationStore->getList(),
             'total' => $animationStore->getCount(),
             'id' => $animation->getId(),
+            'success' => true,
+            'failure' => false,
         ]);
     }
 
