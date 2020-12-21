@@ -10,7 +10,7 @@ class Master extends AbstractModel
 {
     const PROTOCOL_UDP = 'udp';
 
-    private ?int $id;
+    private ?int $id = null;
 
     private string $name;
 
@@ -20,9 +20,9 @@ class Master extends AbstractModel
 
     private int $sendPort;
 
-    private ?DateTimeInterface $added;
+    private ?DateTimeInterface $added = null;
 
-    private ?DateTimeInterface $modified;
+    private ?DateTimeInterface $modified = null;
 
     public static function getTableName(): string
     {

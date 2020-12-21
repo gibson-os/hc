@@ -10,19 +10,19 @@ use mysqlDatabase;
 
 class Attribute extends AbstractModel
 {
-    private ?int $id;
+    private ?int $id = null;
 
-    private ?int $typeId;
+    private ?int $typeId = null;
 
-    private ?int $moduleId;
+    private ?int $moduleId = null;
 
-    private ?int $subId;
+    private ?int $subId = null;
 
     private string $key;
 
-    private ?string $type;
+    private ?string $type = null;
 
-    private ?DateTimeInterface $added;
+    private ?DateTimeInterface $added = null;
 
     private Module $module;
 

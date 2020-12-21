@@ -10,26 +10,26 @@ use GibsonOS\Module\Hc\Model\Sequence\Element;
 
 class Sequence extends AbstractModel
 {
-    private ?int $id;
+    private ?int $id = null;
 
     private string $name;
 
-    private ?int $typeId;
+    private ?int $typeId = null;
 
-    private ?int $moduleId;
+    private ?int $moduleId = null;
 
-    private ?int $type;
+    private ?int $type = null;
 
-    private ?DateTimeInterface $added;
+    private ?DateTimeInterface $added = null;
 
-    private ?Type $typeModel;
+    private ?Type $typeModel = null;
 
-    private ?Module $module;
+    private ?Module $module = null;
 
     /**
      * @var Element[]|null
      */
-    private ?array $elements;
+    private ?array $elements = null;
 
     public static function getTableName(): string
     {

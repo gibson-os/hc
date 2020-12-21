@@ -13,35 +13,35 @@ class Module extends AbstractModel implements JsonSerializable
 {
     const MAX_ADDRESS = 119;
 
-    private ?int $id;
+    private ?int $id = null;
 
-    private ?int $deviceId;
+    private ?int $deviceId = null;
 
     private string $name;
 
     private int $typeId;
 
-    private ?string $config;
+    private ?string $config = null;
 
-    private ?int $hertz;
+    private ?int $hertz = null;
 
-    private ?int $bufferSize;
+    private ?int $bufferSize = null;
 
-    private ?int $eepromSize;
+    private ?int $eepromSize = null;
 
-    private ?int $pwmSpeed;
+    private ?int $pwmSpeed = null;
 
-    private ?int $address;
+    private ?int $address = null;
 
-    private ?int $ip;
+    private ?int $ip = null;
 
-    private ?int $masterId;
+    private ?int $masterId = null;
 
     private bool $offline = false;
 
-    private ?DateTimeInterface $added;
+    private ?DateTimeInterface $added = null;
 
-    private ?DateTimeInterface $modified;
+    private ?DateTimeInterface $modified = null;
 
     private Type $type;
 

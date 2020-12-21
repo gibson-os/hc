@@ -14,19 +14,19 @@ class Log extends AbstractModel
 
     public const DIRECTION_OUTPUT = 'output';
 
-    private ?int $id;
+    private ?int $id = null;
 
-    private ?int $moduleId;
+    private ?int $moduleId = null;
 
-    private ?DateTimeInterface $added;
+    private ?DateTimeInterface $added = null;
 
-    private ?int $masterId;
+    private ?int $masterId = null;
 
-    private ?int $slaveAddress;
+    private ?int $slaveAddress = null;
 
     private int $type;
 
-    private ?int $command;
+    private ?int $command = null;
 
     private string $data;
 

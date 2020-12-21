@@ -10,7 +10,7 @@ use GibsonOS\Module\Hc\Model\Sequence;
 
 class Element extends AbstractModel
 {
-    private ?int $id;
+    private ?int $id = null;
 
     private int $sequenceId;
 
@@ -18,7 +18,7 @@ class Element extends AbstractModel
 
     private int $order = 0;
 
-    private ?DateTimeInterface $added;
+    private ?DateTimeInterface $added = null;
 
     private Sequence $sequence;
 

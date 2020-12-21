@@ -14,7 +14,7 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 class IoFormatter extends AbstractHcFormatter
 {
-    private ?int $directConnectReadInputPort;
+    private ?int $directConnectReadInputPort = null;
 
     private ValueRepository $valueRepository;
 

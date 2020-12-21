@@ -249,7 +249,7 @@ class ValueRepository extends AbstractRepository
         ?string $type = ''
     ): array {
         $where =
-            '`value`.`value` REGEXP ' . $this->getRegexString($value) . ' AND ' .
+            '`value`.`value` REGEXP \'' . $this->getRegexString($value) . '\' AND ' .
             '`hc_attribute`.`type_id`=' . $this->escape((string) $typeId);
         $where .= $this->getModuleIdWhere($moduleIds);
         $where .= $this->getSubIdWhere($subId);

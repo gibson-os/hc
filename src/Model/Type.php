@@ -12,7 +12,7 @@ use GibsonOS\Core\Model\AbstractModel;
  */
 class Type extends AbstractModel
 {
-    private ?int $id;
+    private ?int $id = null;
 
     private string $name;
 
@@ -24,7 +24,7 @@ class Type extends AbstractModel
 
     private bool $isHcSlave;
 
-    private ?string $uiSettings;
+    private ?string $uiSettings = null;
 
     public static function getTableName(): string
     {

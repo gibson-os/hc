@@ -9,17 +9,17 @@ class BusMessage
 
     private int $type;
 
-    private ?int $slaveAddress;
+    private ?int $slaveAddress = null;
 
-    private ?int $command;
+    private ?int $command = null;
 
-    private ?string $data;
+    private ?string $data = null;
 
     private bool $write = false;
 
-    private ?int $port;
+    private ?int $port = null;
 
-    private ?int $checksum;
+    private ?int $checksum = null;
 
     public function __construct(string $masterAddress, int $type)
     {

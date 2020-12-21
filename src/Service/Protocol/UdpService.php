@@ -21,7 +21,7 @@ class UdpService extends AbstractService implements ProtocolInterface
 
     const START_PORT = 43000;
 
-    private ?CoreUdpService $udpReceiveService;
+    private ?CoreUdpService $udpReceiveService = null;
 
     private string $ip = '0';
 

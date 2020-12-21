@@ -99,7 +99,7 @@ class SequenceRepository extends AbstractRepository
     }
 
     /**
-     *@throws SelectError
+     * @throws SelectError
      * @throws DateTimeError
      *
      * @return Sequence[]
