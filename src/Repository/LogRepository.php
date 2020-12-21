@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Repository;
 
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Log;
@@ -83,11 +82,12 @@ class LogRepository extends AbstractRepository
         return $model;
     }
 
-    /**
-     * @return string
-     */
-    private function completeWhere(mysqlTable $table, int $command = null, int $type = null, string $direction = null)
-    {
+    private function completeWhere(
+        mysqlTable $table,
+        int $command = null,
+        int $type = null,
+        string $direction = null
+    ): string {
         $where = '';
 
         if ($command !== null) {
@@ -110,7 +110,6 @@ class LogRepository extends AbstractRepository
 
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws SelectError
      */
     public function getPreviewEntryByModuleId(

@@ -4,32 +4,19 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model\Attribute;
 
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Attribute;
 use mysqlDatabase;
 
 class Value extends AbstractModel
 {
-    /**
-     * @var int
-     */
-    private $attributeId;
+    private int $attributeId;
 
-    /**
-     * @var int
-     */
-    private $order;
+    private int $order;
 
-    /**
-     * @var string
-     */
-    private $value;
+    private string $value;
 
-    /**
-     * @var Attribute
-     */
-    private $attribute;
+    private Attribute $attribute;
 
     public function __construct(mysqlDatabase $database = null)
     {
@@ -81,7 +68,6 @@ class Value extends AbstractModel
 
     /**
      * @throws DateTimeError
-     * @throws SelectError
      */
     public function getAttribute(): Attribute
     {

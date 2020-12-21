@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Event;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Core\Utility\JsonUtility;
@@ -19,15 +18,9 @@ use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 
 class NeopixelEvent extends AbstractHcEvent
 {
-    /**
-     * @var NeopixelService
-     */
-    private $neopixelService;
+    private NeopixelService $neopixelService;
 
-    /**
-     * @var ElementRepository
-     */
-    private $elementRepository;
+    private ElementRepository $elementRepository;
 
     public function __construct(
         NeopixelDescriber $describer,
@@ -145,13 +138,10 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
-     * @throws SelectError
      */
     public function sendImage(Module $slave, Sequence $sequence): void
     {
-        // @todo load gedöns umbauen
-        $sequence->loadElements();
-        $elements = $sequence->getElements();
+        $elements = $sequence->getElements() ?? [];
         $element = reset($elements);
         $this->writeSetLeds($slave, JsonUtility::decode($element->getData()));
     }

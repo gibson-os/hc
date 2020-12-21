@@ -5,7 +5,6 @@ namespace GibsonOS\Module\Hc\AutoComplete\Neopixel;
 
 use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\ModelInterface;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
@@ -14,15 +13,9 @@ use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService as ImageService;
 
 class ImageAutoComplete implements AutoCompleteInterface
 {
-    /**
-     * @var ModuleRepository
-     */
-    private $moduleRepository;
+    private ModuleRepository $moduleRepository;
 
-    /**
-     * @var SequenceRepository
-     */
-    private $sequenceRepository;
+    private SequenceRepository $sequenceRepository;
 
     public function __construct(ModuleRepository $moduleRepository, SequenceRepository $sequenceRepository)
     {
@@ -32,7 +25,6 @@ class ImageAutoComplete implements AutoCompleteInterface
 
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws SelectError
      */
     public function getByNamePart(string $namePart, array $parameters): array

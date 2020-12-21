@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Controller;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\LoginRequired;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\PermissionDenied;
@@ -29,12 +28,11 @@ class BlankController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
-     * @throws SaveError
      * @throws PermissionDenied
-     * @throws SelectError
      * @throws ReceiveError
+     * @throws SaveError
+     * @throws SelectError
      */
     public function read(
         BlankService $blankService,
@@ -71,7 +69,6 @@ class BlankController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SaveError

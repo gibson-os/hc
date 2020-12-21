@@ -17,10 +17,7 @@ class ModuleRepository extends AbstractRepository
 {
     private const MAX_GENERATE_DEVICE_ID_RETRY = 10;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(LoggerInterface $logger)
     {

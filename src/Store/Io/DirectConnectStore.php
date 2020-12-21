@@ -7,14 +7,9 @@ use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
 
-/**
- * Class Port.
- *
- * @package GibsonOS\Module\Hc\Store\Io
- */
 class DirectConnectStore extends AbstractDatabaseStore
 {
-    private $moduleId;
+    private int $moduleId;
 
     protected function getTableName(): string
     {
@@ -97,10 +92,7 @@ class DirectConnectStore extends AbstractDatabaseStore
         return $this;
     }
 
-    /**
-     * @param array $inputPort
-     */
-    private function getInputElement($inputPort): array
+    private function getInputElement(array $inputPort): array
     {
         return [
             'inputPort' => $inputPort['number'],

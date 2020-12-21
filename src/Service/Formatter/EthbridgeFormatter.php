@@ -17,15 +17,9 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 class EthbridgeFormatter extends AbstractFormatter
 {
-    /**
-     * @var ModuleSettingService
-     */
-    private $moduleSetting;
+    private ModuleSettingService $moduleSetting;
 
-    /**
-     * @var ValueRepository
-     */
-    private $valueRepository;
+    private ValueRepository $valueRepository;
 
     public function __construct(
         TransformService $transform,

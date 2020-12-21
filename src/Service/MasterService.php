@@ -7,7 +7,6 @@ use DateTime;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -46,64 +45,28 @@ class MasterService extends AbstractService
 
     const TYPE_DATA = 255;
 
-    /**
-     * @var SenderService
-     */
-    private $senderService;
+    private SenderService $senderService;
 
-    /**
-     * @var EventService
-     */
-    private $eventService;
+    private EventService $eventService;
 
-    /**
-     * @var TransformService
-     */
-    private $transformService;
+    private TransformService $transformService;
 
-    /**
-     * @var ModuleRepository
-     */
-    private $moduleRepository;
+    private ModuleRepository $moduleRepository;
 
-    /**
-     * @var TypeRepository
-     */
-    private $typeRepository;
+    private TypeRepository $typeRepository;
 
-    /**
-     * @var SlaveFactory
-     */
-    private $slaveFactory;
+    private SlaveFactory $slaveFactory;
 
-    /**
-     * @var LogRepository
-     */
-    private $logRepository;
+    private LogRepository $logRepository;
 
-    /**
-     * @var MasterFormatter
-     */
-    private $masterFormatter;
+    private MasterFormatter $masterFormatter;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var MasterRepository
-     */
-    private $masterRepository;
+    private MasterRepository $masterRepository;
 
-    /**
-     * @var DateTimeService
-     */
-    private $dateTimeService;
+    private DateTimeService $dateTimeService;
 
-    /**
-     * Master constructor.
-     */
     public function __construct(
         SenderService $senderService,
         EventService $eventService,
@@ -131,10 +94,8 @@ class MasterService extends AbstractService
     }
 
     /**
-     * @throws AbstractException
      * @throws DateTimeError
-     * @throws FileNotFound
-     * @throws GetError
+     * @throws FactoryError
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
@@ -276,7 +237,7 @@ class MasterService extends AbstractService
     }
 
     /**
-     * @throws FileNotFound
+     * @throws FactoryError
      */
     public function receiveReceiveReturn(Master $master, BusMessage $busMessage): void
     {
@@ -285,8 +246,7 @@ class MasterService extends AbstractService
 
     /**
      * @throws DateTimeError
-     * @throws FileNotFound
-     * @throws GetError
+     * @throws FactoryError
      * @throws SelectError
      */
     private function slaveHandshake(Master $master, int $address): Module
@@ -320,8 +280,7 @@ class MasterService extends AbstractService
 
     /**
      * @throws DateTimeError
-     * @throws FileNotFound
-     * @throws GetError
+     * @throws FactoryError
      * @throws ReceiveError
      * @throws SelectError
      */

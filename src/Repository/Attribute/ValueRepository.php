@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Repository\Attribute;
 
 use DateTime;
-use GibsonOS\Core\Exception\GetError;
+use Exception;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Repository\UpdateError;
@@ -18,7 +18,7 @@ class ValueRepository extends AbstractRepository
     /**
      * @param int[]|null $moduleIds
      *
-     * @throws GetError
+     * @throws Exception
      *
      * @return ValueModel[]
      */
@@ -238,6 +238,7 @@ class ValueRepository extends AbstractRepository
 
     /**
      * @throws SelectError
+     * @throws Exception
      */
     public function findAttributesByValue(
         string $value,

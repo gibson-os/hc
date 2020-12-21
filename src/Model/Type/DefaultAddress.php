@@ -4,32 +4,17 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model\Type;
 
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Type;
 use mysqlDatabase;
 
-/**
- * Class Type.
- *
- * @package GibsonOS\Module\Hc\Model
- */
 class DefaultAddress extends AbstractModel
 {
-    /**
-     * @var int
-     */
-    private $typeId;
+    private int $typeId;
 
-    /**
-     * @var int
-     */
-    private $address;
+    private int $address;
 
-    /**
-     * @var Type
-     */
-    private $type;
+    private Type $type;
 
     public function __construct(mysqlDatabase $database = null)
     {
@@ -69,7 +54,6 @@ class DefaultAddress extends AbstractModel
 
     /**
      * @throws DateTimeError
-     * @throws SelectError
      */
     public function getType(): Type
     {

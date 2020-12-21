@@ -27,7 +27,6 @@ class NeopixelAnimationController extends AbstractController
 {
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SelectError
@@ -148,13 +147,13 @@ class NeopixelAnimationController extends AbstractController
     }
 
     /**
+     * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
+     * @throws DeleteError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
-     * @throws AbstractException
      */
     public function send(
         LedService $ledService,
@@ -206,7 +205,7 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws DateTimeError
-     * @throws GetError
+     * @throws DeleteError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SaveError
@@ -233,7 +232,6 @@ class NeopixelAnimationController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SaveError
@@ -258,7 +256,6 @@ class NeopixelAnimationController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SaveError
@@ -282,7 +279,6 @@ class NeopixelAnimationController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SaveError

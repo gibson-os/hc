@@ -6,6 +6,9 @@ namespace GibsonOS\Module\Hc\Command\Neopixel;
 use Exception;
 use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\ArgumentError;
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\EnvService;
@@ -21,40 +24,19 @@ use Psr\Log\LoggerInterface;
 
 class PlayAnimationCommand extends AbstractCommand
 {
-    /**
-     * @var NeopixelService
-     */
-    private $neopixelService;
+    private NeopixelService $neopixelService;
 
-    /**
-     * @var AnimationAttributeService
-     */
-    private $animationAttributeService;
+    private AnimationAttributeService $animationAttributeService;
 
-    /**
-     * @var AnimationSequenceService
-     */
-    private $animationSequenceService;
+    private AnimationSequenceService $animationSequenceService;
 
-    /**
-     * @var LedService
-     */
-    private $ledService;
+    private LedService $ledService;
 
-    /**
-     * @var ModuleRepository
-     */
-    private $moduleRepository;
+    private ModuleRepository$moduleRepository;
 
-    /**
-     * @var mysqlDatabase
-     */
-    private $mysqlDatabase;
+    private mysqlDatabase $mysqlDatabase;
 
-    /**
-     * @var EnvService
-     */
-    private $envService;
+    private EnvService $envService;
 
     public function __construct(
         NeopixelService $neopixelService,
@@ -74,12 +56,21 @@ class PlayAnimationCommand extends AbstractCommand
         $this->mysqlDatabase = $mysqlDatabase;
         $this->envService = $envService;
 
-        parent::__construct($logger);
-
         $this->setArgument('slaveId', true);
         $this->setArgument('iterations', false);
+
+        parent::__construct($logger);
     }
 
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     * @throws SelectError
+     * @throws ArgumentError
+     * @throws DateTimeError
+     * @throws GetError
+     * @throws Exception
+     */
     protected function run(): int
     {
         $slaveId = (int) $this->getArgument('slaveId');
@@ -147,8 +138,8 @@ class PlayAnimationCommand extends AbstractCommand
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
      * @throws SaveError
-     * @throws SelectError
      */
     private function writeLeds(Module $slave, NeopixelService $neopixelService, array &$leds, array &$changedSlaveLeds): void
     {

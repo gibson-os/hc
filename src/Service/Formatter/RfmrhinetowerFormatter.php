@@ -10,8 +10,7 @@ use GibsonOS\Module\Hc\Service\MasterService;
 
 class RfmrhinetowerFormatter extends AbstractFormatter
 {
-    /** @var array Große LED Liste */
-    private $_keyList = [
+    private const KEY_LIST = [
         0 => [0, 1, 2, 3, 4, 5, 6, 7],
         1 => [0, 1, 2, 3, 4, 5, 6, 7],
         2 => [0, 1, 2, 3, 4, 5, 6, 7],
@@ -22,8 +21,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
         7 => [0, 1, 2, 3, 4, 5, 6, 7],
     ];
 
-    /** @var array Kleine LED Liste */
-    private $_smallKeyList = [
+    private const SMALL_KEY_LIST = [
         1 => [0, 1],
         3 => [0, 1],
         5 => [0, 1, 2, 3, 4],
@@ -82,24 +80,13 @@ class RfmrhinetowerFormatter extends AbstractFormatter
         return parent::render($log);
     }
 
-    /**
-     * Gibt LED Liste zurück.
-     *
-     * Gibt LED Liste von einem Datenstring zurück.
-     *
-     * @param string $data      Daten
-     * @param bool   $smallList Kleine LED Liste
-     * @param string $prefix    Index Präfix
-     *
-     * @return array
-     */
-    public function getArrayFromDataString($data, $smallList = false, $prefix = 'l')
+    public function getArrayFromDataString(string $data, bool $smallList = false, string $prefix = 'l'): array
     {
         $ledList = [];
-        $keyList = $this->_keyList;
+        $keyList = self::KEY_LIST;
 
         if (mb_strlen($data) <= 52) {
-            $keyList = $this->_smallKeyList;
+            $keyList = self::SMALL_KEY_LIST;
         }
 
         $i = 0;
@@ -107,7 +94,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
         foreach ($keyList as $x => $list) {
             if (
                 $smallList &&
-                !array_key_exists($x, $this->_smallKeyList)
+                !array_key_exists($x, self::SMALL_KEY_LIST)
             ) {
                 $i += 16;
 
@@ -118,10 +105,10 @@ class RfmrhinetowerFormatter extends AbstractFormatter
                 $ledList[$prefix . $x] = [];
             }
 
-            foreach ($keyList[$x] as $y) {
+            foreach ($keyList[$x] ?? [] as $y) {
                 if (
                     $smallList &&
-                    !in_array($y, $this->_smallKeyList[$x])
+                    !in_array($y, self::SMALL_KEY_LIST[$x])
                 ) {
                     $i += 2;
 
@@ -138,17 +125,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
         return $ledList;
     }
 
-    /**
-     * Gibt Datenstring zurück.
-     *
-     * Gibt Datenstring von einer LED Liste zurück.
-     *
-     * @param array $ledList   LED Liste
-     * @param bool  $withClock Uhrzeit weiterhin anzeigen
-     *
-     * @return string
-     */
-    public function getDataStringFromArray($ledList, $withClock = false)
+    public function getDataStringFromArray(array $ledList, bool $withClock = false): string
     {
         $data = RfmrhinetowerConstant::MODE_SET_LED;
 
@@ -161,20 +138,9 @@ class RfmrhinetowerFormatter extends AbstractFormatter
         return $data;
     }
 
-    /**
-     * Fügt fehlende Elemente hinzu.
-     *
-     * Fügt fehlende Elemente einer LED Liste hinzu.
-     *
-     * @param array $ledList   LED Liste
-     * @param bool  $fullList  Volle Liste mit Uhrzeit LEDs
-     * @param bool  $smallList Kleine LED Liste
-     *
-     * @return array
-     */
-    private function addMissingDataElements($ledList, $fullList = false, $smallList = false)
+    private function addMissingDataElements(array $ledList, bool $fullList = false, bool $smallList = false): array
     {
-        $keyList = $this->_keyList;
+        $keyList = self::KEY_LIST;
         $newLedList = [];
 
         if (
@@ -189,7 +155,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
                 (ArrayKeyUtility::exists(5, $ledList) && ArrayKeyUtility::exists([5, 6, 7], $ledList[5]))
             )
         ) {
-            $keyList = $this->_smallKeyList;
+            $keyList = self::SMALL_KEY_LIST;
         }
 
         foreach ($keyList as $x => $list) {
@@ -219,16 +185,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
         return $newLedList;
     }
 
-    /**
-     * Formatiert Uhrzeit.
-     *
-     * Gibt Uhrzeit formatiert zurück.
-     *
-     * @param string $data Daten
-     *
-     * @return string
-     */
-    private function clockLogFormat($data)
+    private function clockLogFormat(string $data): string
     {
         $year = ($this->transform->hexToInt($data, 0) << 8) | $this->transform->hexToInt($data, 1);
         $month = $this->transform->hexToInt($data, 2);

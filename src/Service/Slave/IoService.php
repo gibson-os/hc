@@ -104,20 +104,11 @@ class IoService extends AbstractHcSlave
 
     const DIRECT_CONNECT_READ_RETRY = 5;
 
-    /**
-     * @var IoFormatter
-     */
-    private $ioFormatter;
+    private IoFormatter $ioFormatter;
 
-    /**
-     * @var AttributeRepository
-     */
-    private $attributeRepository;
+    private AttributeRepository $attributeRepository;
 
-    /**
-     * @var ValueRepository
-     */
-    private $valueRepository;
+    private ValueRepository $valueRepository;
 
     public function __construct(
         MasterService $masterService,
@@ -267,9 +258,8 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @throws SaveError
      * @throws DateTimeError
-     * @throws SelectError
+     * @throws SaveError
      */
     public function receive(Module $slave, BusMessage $busMessage): void
     {
@@ -371,7 +361,6 @@ class IoService extends AbstractHcSlave
     /**
      * @throws DateTimeError
      * @throws SaveError
-     * @throws SelectError
      * @throws Exception
      */
     private function updatePortAttributes(Module $slave, int $number, array $data): bool
@@ -642,6 +631,7 @@ class IoService extends AbstractHcSlave
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
+     * @throws Exception
      */
     public function readDirectConnect(Module $slave, int $port, int $order): array
     {
@@ -703,6 +693,7 @@ class IoService extends AbstractHcSlave
     /**
      * @throws DateTimeError
      * @throws SaveError
+     * @throws Exception
      */
     private function createDirectConnectAttributes(Module $slave, int $port, array $data, int $order = 0): void
     {

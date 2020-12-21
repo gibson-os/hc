@@ -3,58 +3,33 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
-use DateTime;
+use DateTimeInterface;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Sequence\Element;
 
 class Sequence extends AbstractModel
 {
-    /**
-     * @var int|null
-     */
-    private $id;
+    private ?int $id;
+
+    private string $name;
+
+    private ?int $typeId;
+
+    private ?int $moduleId;
+
+    private ?int $type;
+
+    private ?DateTimeInterface $added;
+
+    private ?Type $typeModel;
+
+    private ?Module $module;
 
     /**
-     * @var string
+     * @var Element[]|null
      */
-    private $name;
-
-    /**
-     * @var int|null
-     */
-    private $typeId;
-
-    /**
-     * @var int|null
-     */
-    private $moduleId;
-
-    /**
-     * @var int|null
-     */
-    private $type;
-
-    /**
-     * @var DateTime|null
-     */
-    private $added;
-
-    /**
-     * @var Type|null
-     */
-    private $typeModel;
-
-    /**
-     * @var Module|null
-     */
-    private $module;
-
-    /**
-     * @var Element[]
-     */
-    private $elements = [];
+    private ?array $elements;
 
     public static function getTableName(): string
     {
@@ -121,12 +96,12 @@ class Sequence extends AbstractModel
         return $this;
     }
 
-    public function getAdded(): ?DateTime
+    public function getAdded(): ?DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(?DateTime $added): Sequence
+    public function setAdded(?DateTimeInterface $added): Sequence
     {
         $this->added = $added;
 
@@ -135,7 +110,6 @@ class Sequence extends AbstractModel
 
     /**
      * @throws DateTimeError
-     * @throws SelectError
      */
     public function getTypeModel(): ?Type
     {
@@ -162,7 +136,6 @@ class Sequence extends AbstractModel
 
     /**
      * @throws DateTimeError
-     * @throws SelectError
      */
     public function getModule(): ?Module
     {
@@ -192,7 +165,7 @@ class Sequence extends AbstractModel
      *
      * @return Element[]
      */
-    public function getElements(): array
+    public function getElements(): ?array
     {
         if ($this->elements === null) {
             $this->loadElements();
@@ -204,7 +177,7 @@ class Sequence extends AbstractModel
     /**
      * @param Element[] $elements
      */
-    public function setElements(array $elements): Sequence
+    public function setElements(?array $elements): Sequence
     {
         $this->elements = $elements;
 

@@ -7,9 +7,6 @@ use GibsonOS\Core\Dto\Event\Describer\Parameter\AbstractParameter;
 
 class TypeParameter extends AbstractParameter
 {
-    /**
-     * TypeParameter constructor.
-     */
     public function __construct(string $title = 'Typ')
     {
         parent::__construct($title, 'type');

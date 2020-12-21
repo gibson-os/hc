@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Repository;
 use DateTime;
 use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
@@ -21,7 +20,6 @@ class MasterRepository extends AbstractRepository
     private const MAX_PORT = 42999;
 
     /**
-     *@throws GetError
      * @throws DateTimeError
      *
      * @return Master[]
@@ -50,7 +48,6 @@ class MasterRepository extends AbstractRepository
 
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws SelectError
      */
     public function getById(int $id): Master
@@ -101,7 +98,6 @@ class MasterRepository extends AbstractRepository
 
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws SelectError
      */
     public function getByName(string $name, string $protocol): Master

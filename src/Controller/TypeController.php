@@ -32,11 +32,10 @@ class TypeController extends AbstractController
     }
 
     /**
-     * @throws GetError
+     * @throws DateTimeError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SelectError
-     * @throws DateTimeError
      */
     public function autoComplete(
         TypeRepository $typeRepository,

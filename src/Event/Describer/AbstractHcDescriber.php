@@ -119,15 +119,9 @@ abstract class AbstractHcDescriber implements DescriberInterface
 
     public const AFTER_WRITE_ALL_LEDS = 'afterWriteAllLeds';
 
-    /**
-     * @var SlaveParameter
-     */
-    protected $slaveParameter;
+    protected SlaveParameter $slaveParameter;
 
-    /**
-     * @var TypeRepository
-     */
-    protected $typeRepository;
+    protected TypeRepository $typeRepository;
 
     public function __construct(TypeRepository $typeRepository, SlaveAutoComplete $slaveAutoComplete)
     {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Sequence\Neopixel;
 
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -21,20 +20,11 @@ class AnimationService extends AbstractService
 {
     public const SEQUENCE_TYPE = 1;
 
-    /**
-     * @var SequenceRepository
-     */
-    private $sequenceRepository;
+    private SequenceRepository $sequenceRepository;
 
-    /**
-     * @var ElementRepository
-     */
-    private $elementRepository;
+    private ElementRepository $elementRepository;
 
-    /**
-     * @var CommandService
-     */
-    private $commandService;
+    private CommandService $commandService;
 
     public function __construct(
         SequenceRepository $sequenceRepository,
@@ -65,7 +55,7 @@ class AnimationService extends AbstractService
         $sequence->loadElements();
         $steps = [];
 
-        foreach ($sequence->getElements() as $element) {
+        foreach ($sequence->getElements() ?? [] as $element) {
             //$steps[$element->getOrder()] = Json::decode($element->getData());
             $steps[] = JsonUtility::decode($element->getData());
         }
@@ -76,9 +66,7 @@ class AnimationService extends AbstractService
     /**
      * @throws DateTimeError
      * @throws DeleteError
-     * @throws GetError
      * @throws SaveError
-     * @throws SelectError
      */
     public function save(Module $slave, string $name, array $steps, int $id = null): Sequence
     {

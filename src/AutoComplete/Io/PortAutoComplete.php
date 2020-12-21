@@ -15,15 +15,9 @@ use GibsonOS\Module\Hc\Service\Slave\IoService;
 
 class PortAutoComplete implements AutoCompleteInterface
 {
-    /**
-     * @var ModuleRepository
-     */
-    private $moduleRepository;
+    private ModuleRepository $moduleRepository;
 
-    /**
-     * @var ValueRepository
-     */
-    private $valueRepository;
+    private ValueRepository $valueRepository;
 
     public function __construct(ModuleRepository $moduleRepository, ValueRepository $valueRepository)
     {
@@ -31,6 +25,10 @@ class PortAutoComplete implements AutoCompleteInterface
         $this->valueRepository = $valueRepository;
     }
 
+    /**
+     * @throws DateTimeError
+     * @throws SelectError
+     */
     public function getByNamePart(string $namePart, array $parameters): array
     {
         $slave = $this->getSlave($parameters);
@@ -52,6 +50,13 @@ class PortAutoComplete implements AutoCompleteInterface
         return $ports;
     }
 
+    /**
+     * @param $id
+     *
+     * @throws DateTimeError
+     * @throws GetError
+     * @throws SelectError
+     */
     public function getById($id, array $parameters): ModelInterface
     {
         $slave = $this->getSlave($parameters);
@@ -78,7 +83,6 @@ class PortAutoComplete implements AutoCompleteInterface
 
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws SelectError
      */
     private function getSlave(array $parameters): Module

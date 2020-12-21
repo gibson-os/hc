@@ -3,47 +3,26 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
-use DateTime;
+use DateTimeInterface;
 use GibsonOS\Core\Model\AbstractModel;
 
 class Master extends AbstractModel
 {
     const PROTOCOL_UDP = 'udp';
 
-    /**
-     * @var int|null
-     */
-    private $id;
+    private ?int $id;
 
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
-    /**
-     * @var string
-     */
-    private $protocol;
+    private string $protocol;
 
-    /**
-     * @var string
-     */
-    private $address;
+    private string $address;
 
-    /**
-     * @var int
-     */
-    private $sendPort;
+    private int $sendPort;
 
-    /**
-     * @var DateTime
-     */
-    private $added;
+    private ?DateTimeInterface $added;
 
-    /**
-     * @var DateTime
-     */
-    private $modified;
+    private ?DateTimeInterface $modified;
 
     public static function getTableName(): string
     {
@@ -110,24 +89,24 @@ class Master extends AbstractModel
         return $this;
     }
 
-    public function getAdded(): ?DateTime
+    public function getAdded(): ?DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(DateTime $added): Master
+    public function setAdded(DateTimeInterface $added): Master
     {
         $this->added = $added;
 
         return $this;
     }
 
-    public function getModified(): ?DateTime
+    public function getModified(): ?DateTimeInterface
     {
         return $this->modified;
     }
 
-    public function setModified(DateTime $modified): Master
+    public function setModified(DateTimeInterface $modified): Master
     {
         $this->modified = $modified;
 

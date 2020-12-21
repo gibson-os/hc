@@ -3,16 +3,13 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Factory;
 
-use GibsonOS\Core\Exception\FileNotFound;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 
 class SlaveFactory
 {
-    /**
-     * @var ServiceManagerService
-     */
-    private $serviceManagerService;
+    private ServiceManagerService $serviceManagerService;
 
     public function __construct(ServiceManagerService $serviceManagerService)
     {
@@ -20,7 +17,7 @@ class SlaveFactory
     }
 
     /**
-     * @throws FileNotFound
+     * @throws FactoryError
      */
     public function get(string $serviceName): AbstractSlave
     {

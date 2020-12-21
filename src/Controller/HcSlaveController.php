@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use Exception;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\LoginRequired;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\PermissionDenied;
@@ -26,7 +26,6 @@ class HcSlaveController extends AbstractController
 {
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SelectError
@@ -53,11 +52,11 @@ class HcSlaveController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
+     * @throws FactoryError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SelectError
-     * @throws FactoryError
+     * @throws Exception
      */
     public function saveGeneralSettings(
         ServiceManagerService $serviceManagerService,
@@ -168,12 +167,11 @@ class HcSlaveController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws FactoryError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
+     * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
-     * @throws ReceiveError
      */
     public function eepromSettings(
         ServiceManagerService $serviceManagerService,
@@ -196,7 +194,6 @@ class HcSlaveController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws FactoryError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SaveError
@@ -221,7 +218,6 @@ class HcSlaveController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws FactoryError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SaveError
@@ -245,11 +241,10 @@ class HcSlaveController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws FactoryError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
-     * @throws SelectError
      * @throws SaveError
+     * @throws SelectError
      */
     public function restart(
         ServiceManagerService $serviceManagerService,
@@ -267,8 +262,12 @@ class HcSlaveController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws GetError
+     * @throws DateTimeError
+     * @throws FactoryError
+     * @throws LoginRequired
+     * @throws PermissionDenied
      * @throws ReceiveError
+     * @throws SaveError
      * @throws SelectError
      */
     public function getStatusLeds(
@@ -307,7 +306,9 @@ class HcSlaveController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws GetError
+     * @throws DateTimeError
+     * @throws FactoryError
+     * @throws SaveError
      * @throws SelectError
      */
     public function setStatusLeds(

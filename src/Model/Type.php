@@ -12,40 +12,19 @@ use GibsonOS\Core\Model\AbstractModel;
  */
 class Type extends AbstractModel
 {
-    /**
-     * @var int|null
-     */
-    private $id;
+    private ?int $id;
 
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
-    /**
-     * @var string
-     */
-    private $helper;
+    private string $helper;
 
-    /**
-     * @var int
-     */
-    private $network;
+    private int $network;
 
-    /**
-     * @var int
-     */
-    private $hertz;
+    private int $hertz;
 
-    /**
-     * @var bool
-     */
-    private $isHcSlave;
+    private bool $isHcSlave;
 
-    /**
-     * @var string|null
-     */
-    private $uiSettings;
+    private ?string $uiSettings;
 
     public static function getTableName(): string
     {

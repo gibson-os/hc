@@ -9,14 +9,8 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 abstract class AbstractFormatter implements FormatterInterface
 {
-    /**
-     * @var TransformService
-     */
-    protected $transform;
+    protected TransformService $transform;
 
-    /**
-     * AbstractFormatter constructor.
-     */
     public function __construct(TransformService $transform)
     {
         $this->transform = $transform;

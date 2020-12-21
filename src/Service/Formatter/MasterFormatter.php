@@ -12,15 +12,9 @@ use Psr\Log\LoggerInterface;
 
 class MasterFormatter implements FormatterInterface
 {
-    /**
-     * @var TransformService
-     */
-    private $transformService;
+    private TransformService $transformService;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(TransformService $transform, LoggerInterface $logger)
     {
@@ -45,7 +39,6 @@ class MasterFormatter implements FormatterInterface
 
     /**
      * @throws ReceiveError
-     * @throws GetError
      */
     public function checksumEqual(BusMessage $busMessage): void
     {

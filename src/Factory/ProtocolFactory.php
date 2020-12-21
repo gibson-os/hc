@@ -9,10 +9,7 @@ use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 
 class ProtocolFactory
 {
-    /**
-     * @var ServiceManagerService
-     */
-    private $serviceManagerService;
+    private ServiceManagerService $serviceManagerService;
 
     public function __construct(ServiceManagerService $serviceManagerService)
     {

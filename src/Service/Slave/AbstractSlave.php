@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Service\Slave;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
@@ -19,31 +18,16 @@ use Psr\Log\LoggerInterface;
 
 abstract class AbstractSlave extends AbstractService
 {
-    /**
-     * @var MasterService
-     */
-    protected $masterService;
+    protected MasterService $masterService;
 
-    /**
-     * @var TransformService
-     */
-    protected $transformService;
+    protected TransformService $transformService;
 
-    /**
-     * @var LogRepository
-     */
-    private $logRepository;
+    private LogRepository $logRepository;
 
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    protected LoggerInterface $logger;
 
     abstract public function handshake(Module $slave): Module;
 
-    /**
-     * Slave constructor.
-     */
     public function __construct(
         MasterService $masterService,
         TransformService $transformService,
@@ -123,7 +107,6 @@ abstract class AbstractSlave extends AbstractService
     /**
      * @throws DateTimeError
      * @throws SaveError
-     * @throws SelectError
      */
     private function addLog(Module $slave, int $type, int $command, string $data, string $direction): void
     {

@@ -76,19 +76,11 @@ class IoDescriber extends AbstractHcDescriber
 
     public const AFTER_IS_DIRECT_CONNECT_ACTIVE = 'afterIsDirectConnectActive';
 
-    /**
-     * @var OptionParameter
-     */
-    private $directionParameter;
+    private OptionParameter $directionParameter;
+
+    private AutoCompleteParameter $portParameter;
 
     /**
-     * @var AutoCompleteParameter
-     */
-    private $portParameter;
-
-    /**
-     * Io constructor.
-     *
      * @throws DateTimeError
      * @throws SelectError
      */

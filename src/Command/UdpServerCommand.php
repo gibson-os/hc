@@ -19,30 +19,15 @@ class UdpServerCommand extends AbstractCommand
 {
     private const LOCK_NAME = 'hcUdpServer';
 
-    /**
-     * @var UdpService
-     */
-    private $protocol;
+    private UdpService $protocol;
 
-    /**
-     * @var ReceiverService
-     */
-    private $receiverService;
+    private ReceiverService $receiverService;
 
-    /**
-     * @var EnvService
-     */
-    private $envService;
+    private EnvService $envService;
 
-    /**
-     * @var mysqlDatabase
-     */
-    private $mysqlDatabase;
+    private mysqlDatabase $mysqlDatabase;
 
-    /**
-     * @var LockService
-     */
-    private $lockService;
+    private LockService $lockService;
 
     public function __construct(
         UdpService $protocol,
@@ -58,9 +43,9 @@ class UdpServerCommand extends AbstractCommand
         $this->mysqlDatabase = $mysqlDatabase;
         $this->lockService = $lockService;
 
-        parent::__construct($logger);
-
         $this->setArgument('bindIp', false);
+
+        parent::__construct($logger);
     }
 
     /**

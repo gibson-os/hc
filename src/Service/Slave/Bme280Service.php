@@ -44,10 +44,7 @@ class Bme280Service extends AbstractSlave
 
     const MODE = 1;
 
-    /**
-     * @var Bme280Formatter
-     */
-    private $bme280Formatter;
+    private Bme280Formatter $bme280Formatter;
 
     public function __construct(
         MasterService $masterService,
@@ -127,7 +124,8 @@ class Bme280Service extends AbstractSlave
     private function calibrateTemperatureAndPressure(Module $slave): array
     {
         $data = $this->read($slave, self::COMMAND_CALIBRATION1, self::COMMAND_CALIBRATION1_READ_LENGTH);
-        $config = [
+
+        return [
             'temperature' => [
                 ($this->transformService->asciiToUnsignedInt($data, 1) << 8) | $this->transformService->asciiToUnsignedInt($data, 0),
                 $this->transformService->getSignedInt(($this->transformService->asciiToUnsignedInt($data, 3) << 8) | $this->transformService->asciiToUnsignedInt($data, 2)),
@@ -145,8 +143,6 @@ class Bme280Service extends AbstractSlave
                 $this->transformService->getSignedInt(($this->transformService->asciiToUnsignedInt($data, 23) << 8) | $this->transformService->asciiToUnsignedInt($data, 22)),
             ],
         ];
-
-        return $config;
     }
 
     /**

@@ -5,7 +5,6 @@ namespace GibsonOS\Module\Hc\Repository;
 
 use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -71,7 +70,6 @@ class AttributeRepository extends AbstractRepository
      *
      * @throws DateTimeError
      * @throws SaveError
-     * @throws GetError
      */
     public function addByModule(
         ModuleModel $module,

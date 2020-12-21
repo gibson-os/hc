@@ -21,25 +21,13 @@ class UdpService extends AbstractService implements ProtocolInterface
 
     const START_PORT = 43000;
 
-    /**
-     * @var CoreUdpService
-     */
-    private $udpReceiveService;
+    private ?CoreUdpService $udpReceiveService;
 
-    /**
-     * @var string
-     */
-    private $ip = '0';
+    private string $ip = '0';
 
-    /**
-     * @var BusMessageMapper
-     */
-    private $busMessageMapper;
+    private BusMessageMapper $busMessageMapper;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
         BusMessageMapper $busMessageMapper,
@@ -60,30 +48,31 @@ class UdpService extends AbstractService implements ProtocolInterface
      * @throws SetError
      * @throws CreateError
      */
-    private function setReceiveServer(): void
+    private function getReceiveServer(): CoreUdpService
     {
         if ($this->udpReceiveService instanceof CoreUdpService) {
-            return;
+            return $this->udpReceiveService;
         }
 
         $this->logger->debug(sprintf('Start UDP receive server %s:%d', $this->ip, self::RECEIVE_PORT));
         $this->udpReceiveService = new CoreUdpService($this->logger, $this->ip, self::RECEIVE_PORT);
         $this->udpReceiveService->setTimeout(3);
+
+        return $this->udpReceiveService;
     }
 
     /**
-     * @throws SetError
      * @throws CreateError
+     * @throws SetError
+     * @throws TransformException
      */
     public function receive(): ?BusMessage
     {
-        $this->setReceiveServer();
-
         try {
             $this->logger->debug(sprintf('Receive message'));
 
             return $this->busMessageMapper->mapFromUdpMessage(
-                $this->udpReceiveService->receive(self::RECEIVE_LENGTH)
+                $this->getReceiveServer()->receive(self::RECEIVE_LENGTH)
             );
         } catch (ReceiveError $exception) {
             $this->logger->debug('Nothing received');
@@ -100,7 +89,7 @@ class UdpService extends AbstractService implements ProtocolInterface
     public function send(BusMessage $busMessage): void
     {
         $udpSendService = $this->createSendService($busMessage->getPort() ?? self::START_PORT);
-        $udpSendService->setTimeout(10);
+        $udpSendService->setTimeout();
         $udpSendService->send($this->busMessageMapper->mapToUdpMessage($busMessage));
         $udpSendService->close();
     }

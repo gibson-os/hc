@@ -3,53 +3,28 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
-use DateTime;
+use DateTimeInterface;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use mysqlDatabase;
 
 class Attribute extends AbstractModel
 {
-    /**
-     * @var int|null
-     */
-    private $id;
+    private ?int $id;
 
-    /**
-     * @var int|null
-     */
-    private $typeId;
+    private ?int $typeId;
 
-    /**
-     * @var int|null
-     */
-    private $moduleId;
+    private ?int $moduleId;
 
-    /**
-     * @var int|null
-     */
-    private $subId;
+    private ?int $subId;
 
-    /**
-     * @var string
-     */
-    private $key;
+    private string $key;
 
-    /**
-     * @var string|null
-     */
-    private $type;
+    private ?string $type;
 
-    /**
-     * @var DateTime|null
-     */
-    private $added;
+    private ?DateTimeInterface $added;
 
-    /**
-     * @var Module
-     */
-    private $module;
+    private Module $module;
 
     public function __construct(mysqlDatabase $database = null)
     {
@@ -135,12 +110,12 @@ class Attribute extends AbstractModel
         return $this;
     }
 
-    public function getAdded(): ?DateTime
+    public function getAdded(): ?DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(?DateTime $added): Attribute
+    public function setAdded(?DateTimeInterface $added): Attribute
     {
         $this->added = $added;
 
@@ -149,7 +124,6 @@ class Attribute extends AbstractModel
 
     /**
      * @throws DateTimeError
-     * @throws SelectError
      */
     public function getModule(): Module
     {

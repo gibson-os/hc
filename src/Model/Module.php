@@ -3,9 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
-use DateTime;
+use DateTimeInterface;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use JsonSerializable;
 use mysqlDatabase;
@@ -14,90 +13,39 @@ class Module extends AbstractModel implements JsonSerializable
 {
     const MAX_ADDRESS = 119;
 
-    /**
-     * @var int|null
-     */
-    private $id;
+    private ?int $id;
 
-    /**
-     * @var int|null
-     */
-    private $deviceId;
+    private ?int $deviceId;
 
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
-    /**
-     * @var int
-     */
-    private $typeId;
+    private int $typeId;
 
-    /**
-     * @var string|null
-     */
-    private $config;
+    private ?string $config;
 
-    /**
-     * @var int|null
-     */
-    private $hertz;
+    private ?int $hertz;
 
-    /**
-     * @var int|null
-     */
-    private $bufferSize;
+    private ?int $bufferSize;
 
-    /**
-     * @var int|null
-     */
-    private $eepromSize;
+    private ?int $eepromSize;
 
-    /**
-     * @var int|null
-     */
-    private $pwmSpeed;
+    private ?int $pwmSpeed;
 
-    /**
-     * @var int|null
-     */
-    private $address;
+    private ?int $address;
 
-    /**
-     * @var int|null
-     */
-    private $ip;
+    private ?int $ip;
 
-    /**
-     * @var int|null
-     */
-    private $masterId;
+    private ?int $masterId;
 
-    /**
-     * @var bool
-     */
-    private $offline = false;
+    private bool $offline = false;
 
-    /**
-     * @var DateTime|null
-     */
-    private $added;
+    private ?DateTimeInterface $added;
 
-    /**
-     * @var DateTime|null
-     */
-    private $modified;
+    private ?DateTimeInterface $modified;
 
-    /**
-     * @var Type
-     */
-    private $type;
+    private Type $type;
 
-    /**
-     * @var Master
-     */
-    private $master;
+    private Master $master;
 
     public function __construct(mysqlDatabase $database = null)
     {
@@ -273,24 +221,24 @@ class Module extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getAdded(): ?DateTime
+    public function getAdded(): ?DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(?DateTime $added): Module
+    public function setAdded(?DateTimeInterface $added): Module
     {
         $this->added = $added;
 
         return $this;
     }
 
-    public function getModified(): ?DateTime
+    public function getModified(): ?DateTimeInterface
     {
         return $this->modified;
     }
 
-    public function setModified(?DateTime $modified): Module
+    public function setModified(?DateTimeInterface $modified): Module
     {
         $this->modified = $modified;
 
@@ -299,7 +247,6 @@ class Module extends AbstractModel implements JsonSerializable
 
     /**
      * @throws DateTimeError
-     * @throws SelectError
      */
     public function getType(): Type
     {
@@ -317,7 +264,6 @@ class Module extends AbstractModel implements JsonSerializable
     }
 
     /**
-     * @throws SelectError
      * @throws DateTimeError
      */
     public function getMaster(): Master
@@ -335,6 +281,9 @@ class Module extends AbstractModel implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @throws DateTimeError
+     */
     public function jsonSerialize(): array
     {
         return [

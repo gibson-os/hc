@@ -7,7 +7,7 @@ use GibsonOS\Module\Hc\Constant\Rfmrgbpanel5x5 as Rfmrgbpanel5x5Constant;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\MasterService;
 
-class Rfmrgbpanel5X5Formatter extends AbstractFormatter
+class Rfmrgbpanel5x5Formatter extends AbstractFormatter
 {
     public function text(Log $log): ?string
     {
@@ -75,16 +75,7 @@ class Rfmrgbpanel5X5Formatter extends AbstractFormatter
         return $this->renderLeds($data);
     }
 
-    /**
-     * Rendert eine HTML Tabelle.
-     *
-     * Rendert eine HTML Tabelle von einer LED Liste.
-     *
-     * @param string $ledList LED Liste
-     *
-     * @return string|null
-     */
-    public function renderLeds($ledList)
+    public function renderLeds(string $ledList): ?string
     {
         $return = null;
         $ledList = $this->getLedList($ledList);
@@ -113,16 +104,7 @@ class Rfmrgbpanel5X5Formatter extends AbstractFormatter
         return $return;
     }
 
-    /**
-     * Gibt LED Liste zurück.
-     *
-     * Gibt eine LED Liste zurück.
-     *
-     * @param string $data Daten
-     *
-     * @return array
-     */
-    public function getLedList($data)
+    public function getLedList(string $data): array
     {
         $ledList = [];
 

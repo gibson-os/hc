@@ -26,15 +26,9 @@ class AnimationService
 
     private const ATTRIBUTE_KEY_TRANSMITTED = 'transmitted';
 
-    /**
-     * @var ValueRepository
-     */
-    private $valueRepository;
+    private ValueRepository $valueRepository;
 
-    /**
-     * @var AttributeRepository
-     */
-    private $attributeRepository;
+    private AttributeRepository $attributeRepository;
 
     public function __construct(
         AttributeRepository $attributeRepository,
@@ -66,7 +60,7 @@ class AnimationService
         try {
             $value = $this->getValueModel($slave, self::ATTRIBUTE_KEY_TRANSMITTED)->getValue();
 
-            return $value === 'true' ? true : false;
+            return $value === 'true';
         } catch (SelectError $e) {
             return false;
         }
@@ -107,6 +101,7 @@ class AnimationService
      * @throws SaveError
      * @throws SelectError
      * @throws DeleteError
+     * @throws Exception
      */
     public function setSteps(Module $slave, array $steps, bool $transmitted): void
     {
@@ -127,6 +122,7 @@ class AnimationService
     /**
      * @throws DateTimeError
      * @throws SaveError
+     * @throws Exception
      */
     public function setPid(Module $slave, int $pid = null): void
     {
@@ -166,15 +162,13 @@ class AnimationService
      */
     private function getValueModels(Module $slave, string $key): array
     {
-        $valueModels = $this->valueRepository->getByTypeId(
+        return $this->valueRepository->getByTypeId(
             $slave->getTypeId(),
             null,
             [(int) $slave->getId()],
             self::ATTRIBUTE_TYPE,
             $key
         );
-
-        return $valueModels;
     }
 
     private function newAttribute(Module $slave, string $key): Attribute
@@ -187,6 +181,9 @@ class AnimationService
         ;
     }
 
+    /**
+     * @throws Exception
+     */
     private function getAttribute(Module $slave, string $key): Attribute
     {
         try {

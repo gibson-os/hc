@@ -3,43 +3,24 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model\Sequence;
 
-use DateTime;
+use DateTimeInterface;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Sequence;
 
 class Element extends AbstractModel
 {
-    /**
-     * @var int|null
-     */
-    private $id;
+    private ?int $id;
 
-    /**
-     * @var int
-     */
-    private $sequenceId;
+    private int $sequenceId;
 
-    /**
-     * @var string
-     */
-    private $data;
+    private string $data;
 
-    /**
-     * @var int
-     */
-    private $order = 0;
+    private int $order = 0;
 
-    /**
-     * @var DateTime|null
-     */
-    private $added;
+    private ?DateTimeInterface $added;
 
-    /**
-     * @var Sequence
-     */
-    private $sequence;
+    private Sequence $sequence;
 
     public static function getTableName(): string
     {
@@ -94,12 +75,12 @@ class Element extends AbstractModel
         return $this;
     }
 
-    public function getAdded(): ?DateTime
+    public function getAdded(): ?DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(?DateTime $added): Element
+    public function setAdded(?DateTimeInterface $added): Element
     {
         $this->added = $added;
 
@@ -108,7 +89,6 @@ class Element extends AbstractModel
 
     /**
      * @throws DateTimeError
-     * @throws SelectError
      */
     public function getSequence(): Sequence
     {

@@ -9,14 +9,8 @@ use GibsonOS\Module\Hc\Model\Type;
 
 class SlaveParameter extends AutoCompleteParameter
 {
-    /**
-     * @var SlaveAutoComplete
-     */
-    private $slaveAutoComplete;
+    private SlaveAutoComplete $slaveAutoComplete;
 
-    /**
-     * SlaveParameter constructor.
-     */
     public function __construct(SlaveAutoComplete $slaveAutoComplete, string $title = 'Sklave')
     {
         parent::__construct($title, $slaveAutoComplete);

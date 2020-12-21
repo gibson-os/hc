@@ -11,14 +11,10 @@ use GibsonOS\Module\Hc\Event\Describer\IoDescriber;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
-use GibsonOS\Module\Hc\Service\Slave\IoService as IoSlave;
 
 class IoEvent extends AbstractHcEvent
 {
-    /**
-     * @var IoService
-     */
-    private $ioService;
+    private IoService $ioService;
 
     public function __construct(
         IoDescriber $describer,
@@ -34,10 +30,8 @@ class IoEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     *
-     * @return array
      */
-    public function readPort(Module $slave, array $params)
+    public function readPort(Module $slave, array $params): array
     {
         return $this->ioService->readPort($slave, $params['number']);
     }
@@ -90,14 +84,14 @@ class IoEvent extends AbstractHcEvent
         $this->ioService->setPort(
             $slave,
             $params['number'],
-            $params[IoSlave::ATTRIBUTE_PORT_KEY_NAME],
-            $params[IoSlave::ATTRIBUTE_PORT_KEY_DIRECTION],
-            $params[IoSlave::ATTRIBUTE_PORT_KEY_PULL_UP],
-            $params[IoSlave::ATTRIBUTE_PORT_KEY_DELAY],
-            $params[IoSlave::ATTRIBUTE_PORT_KEY_PWM],
-            $params[IoSlave::ATTRIBUTE_PORT_KEY_BLINK],
-            $params[IoSlave::ATTRIBUTE_PORT_KEY_FADE_IN],
-            $params[IoSlave::ATTRIBUTE_PORT_KEY_VALUE_NAMES]
+            $params[IoService::ATTRIBUTE_PORT_KEY_NAME],
+            $params[IoService::ATTRIBUTE_PORT_KEY_DIRECTION],
+            $params[IoService::ATTRIBUTE_PORT_KEY_PULL_UP],
+            $params[IoService::ATTRIBUTE_PORT_KEY_DELAY],
+            $params[IoService::ATTRIBUTE_PORT_KEY_PWM],
+            $params[IoService::ATTRIBUTE_PORT_KEY_BLINK],
+            $params[IoService::ATTRIBUTE_PORT_KEY_FADE_IN],
+            $params[IoService::ATTRIBUTE_PORT_KEY_VALUE_NAMES]
         );
     }
 
@@ -118,14 +112,14 @@ class IoEvent extends AbstractHcEvent
         $this->ioService->saveDirectConnect(
             $slave,
             $params['inputPort'],
-            $params[IoSlave::ATTRIBUTE_DIRECT_CONNECT_KEY_INPUT_PORT_VALUE],
+            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_INPUT_PORT_VALUE],
             $params['order'],
-            $params[IoSlave::ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT],
-            $params[IoSlave::ATTRIBUTE_DIRECT_CONNECT_KEY_VALUE],
-            $params[IoSlave::ATTRIBUTE_DIRECT_CONNECT_KEY_PWM],
-            $params[IoSlave::ATTRIBUTE_DIRECT_CONNECT_KEY_BLINK],
-            $params[IoSlave::ATTRIBUTE_DIRECT_CONNECT_KEY_FADE_IN],
-            $params[IoSlave::ATTRIBUTE_DIRECT_CONNECT_KEY_ADD_OR_SUB]
+            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT],
+            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_VALUE],
+            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_PWM],
+            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_BLINK],
+            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_FADE_IN],
+            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_ADD_OR_SUB]
         );
     }
 

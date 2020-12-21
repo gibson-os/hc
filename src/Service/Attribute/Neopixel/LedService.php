@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Attribute\Neopixel;
 
+use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -54,25 +54,16 @@ class LedService
         self::ATTRIBUTE_KEY_LEFT,
     ];
 
-    /**
-     * @var ValueRepository
-     */
-    private $valueRepository;
+    private ValueRepository $valueRepository;
 
-    /**
-     * @var AttributeRepository
-     */
-    private $attributeRepository;
+    private AttributeRepository $attributeRepository;
 
     /**
      * @var Attribute[][]
      */
-    private $ledsAttributes = [];
+    private array $ledsAttributes = [];
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
         AttributeRepository $attributeRepository,
@@ -137,7 +128,7 @@ class LedService
     }
 
     /**
-     * @throws GetError
+     * @throws Exception
      */
     public function getActualState(Module $slave): array
     {
@@ -217,6 +208,7 @@ class LedService
     /**
      * @throws DateTimeError
      * @throws SaveError
+     * @throws Exception
      */
     private function getLedAttribute(Module $slave, int $id, string $key): Attribute
     {
@@ -300,7 +292,7 @@ class LedService
     }
 
     /**
-     * @throws GetError
+     * @throws Exception
      *
      * @return ValueModel[]
      */

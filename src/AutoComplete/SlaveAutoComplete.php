@@ -5,17 +5,13 @@ namespace GibsonOS\Module\Hc\AutoComplete;
 
 use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\ModelInterface;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 
 class SlaveAutoComplete implements AutoCompleteInterface
 {
-    /**
-     * @var ModuleRepository
-     */
-    private $moduleRepository;
+    private ModuleRepository $moduleRepository;
 
     public function __construct(ModuleRepository $moduleRepository)
     {
@@ -24,7 +20,6 @@ class SlaveAutoComplete implements AutoCompleteInterface
 
     /**
      * @throws DateTimeError
-     * @throws GetError
      * @throws SelectError
      */
     public function getByNamePart(string $namePart, array $parameters): array
@@ -36,7 +31,6 @@ class SlaveAutoComplete implements AutoCompleteInterface
      * @param int $id
      *
      * @throws DateTimeError
-     * @throws GetError
      * @throws SelectError
      */
     public function getById($id, array $parameters = []): ModelInterface

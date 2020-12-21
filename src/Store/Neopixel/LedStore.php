@@ -7,11 +7,6 @@ use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService as LedAttribute;
 
-/**
- * Class Port.
- *
- * @package GibsonOS\Module\Hc\Store\Neopixel
- */
 class LedStore extends AbstractDatabaseStore
 {
     protected function getTableName(): string

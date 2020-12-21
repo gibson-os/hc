@@ -5,7 +5,6 @@ namespace GibsonOS\Module\Hc\Service;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
@@ -17,34 +16,16 @@ use Psr\Log\LoggerInterface;
 
 class SenderService extends AbstractService
 {
-    /**
-     * @var MasterFormatter
-     */
-    private $masterFormatter;
+    private MasterFormatter $masterFormatter;
 
-    /**
-     * @var TransformService
-     */
-    private $transformService;
+    private TransformService $transformService;
 
-    /**
-     * @var MasterRepository
-     */
-    private $masterRepository;
+    private MasterRepository $masterRepository;
 
-    /**
-     * @var ProtocolFactory
-     */
-    private $protocolFactory;
+    private ProtocolFactory $protocolFactory;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**$data
-     * Server constructor.
-     */
     public function __construct(
         MasterFormatter $masterFormatter,
         TransformService $transformService,
@@ -71,7 +52,6 @@ class SenderService extends AbstractService
     /**
      * @throws FactoryError
      * @throws ReceiveError
-     * @throws GetError
      */
     public function receiveReadData(Master $master, int $type): BusMessage
     {

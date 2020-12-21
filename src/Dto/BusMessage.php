@@ -5,45 +5,21 @@ namespace GibsonOS\Module\Hc\Dto;
 
 class BusMessage
 {
-    /**
-     * @var string
-     */
-    private $masterAddress;
+    private string $masterAddress;
 
-    /**
-     * @var int
-     */
-    private $type;
+    private int $type;
 
-    /**
-     * @var int|null
-     */
-    private $slaveAddress;
+    private ?int $slaveAddress;
 
-    /**
-     * @var int|null
-     */
-    private $command;
+    private ?int $command;
 
-    /**
-     * @var string|null
-     */
-    private $data;
+    private ?string $data;
 
-    /**
-     * @var bool
-     */
-    private $write = false;
+    private bool $write = false;
 
-    /**
-     * @var int|null
-     */
-    private $port;
+    private ?int $port;
 
-    /**
-     * @var int|null
-     */
-    private $checksum;
+    private ?int $checksum;
 
     public function __construct(string $masterAddress, int $type)
     {

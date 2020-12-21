@@ -15,14 +15,9 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 
 class NeopixelDescriber extends AbstractHcDescriber
 {
-    /**
-     * @var ImageAutoComplete
-     */
-    private $imageAutoComplete;
+    private ImageAutoComplete $imageAutoComplete;
 
     /**
-     * NeopixelDescriber constructor.
-     *
      * @throws DateTimeError
      * @throws SelectError
      */

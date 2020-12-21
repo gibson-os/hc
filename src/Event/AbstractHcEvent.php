@@ -17,10 +17,7 @@ use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
 abstract class AbstractHcEvent extends AbstractEvent
 {
-    /**
-     * @var TypeRepository
-     */
-    private $typeRepository;
+    private TypeRepository $typeRepository;
 
     public function __construct(
         DescriberInterface $describer,

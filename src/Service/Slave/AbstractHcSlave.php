@@ -5,7 +5,7 @@ namespace GibsonOS\Module\Hc\Service\Slave;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\FileNotFound;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -146,30 +146,15 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     const RGB_LED_KEY = 'rgb';
 
-    /**
-     * @var EventService
-     */
-    protected $eventService;
+    protected EventService $eventService;
 
-    /**
-     * @var ModuleRepository
-     */
-    private $moduleRepository;
+    private ModuleRepository $moduleRepository;
 
-    /**
-     * @var TypeRepository
-     */
-    private $typeRepository;
+    private TypeRepository $typeRepository;
 
-    /**
-     * @var MasterRepository
-     */
-    private $masterRepository;
+    private MasterRepository $masterRepository;
 
-    /**
-     * @var SlaveFactory
-     */
-    private $slaveFactory;
+    private SlaveFactory $slaveFactory;
 
     abstract public function slaveHandshake(Module $slave): Module;
 
@@ -421,8 +406,8 @@ abstract class AbstractHcSlave extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws FileNotFound
      * @throws SaveError
+     * @throws FactoryError
      */
     public function writeTypeId(Module $slave, Type $type): AbstractSlave
     {

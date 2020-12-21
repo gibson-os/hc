@@ -6,7 +6,7 @@ namespace GibsonOS\Module\Hc\Store;
 use DateTime;
 use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Factory\FormatterFactory;
 use GibsonOS\Module\Hc\Model\Log;
@@ -17,10 +17,7 @@ use mysqlDatabase;
 
 class LogStore extends AbstractDatabaseStore
 {
-    /**
-     * @var FormatterFactory
-     */
-    private $formatterFactory;
+    private FormatterFactory $formatterFactory;
 
     public function __construct(FormatterFactory $formatterFactory, mysqlDatabase $database = null)
     {
@@ -81,7 +78,7 @@ class LogStore extends AbstractDatabaseStore
 
     /**
      * @throws DateTimeError
-     * @throws SelectError
+     * @throws FileNotFound
      * @throws Exception
      */
     public function getList(): array
@@ -215,7 +212,7 @@ class LogStore extends AbstractDatabaseStore
     public function getTraffic(): int
     {
         $this->table->clearJoin();
-        $this->table->setOrderBy(null);
+        $this->table->setOrderBy();
         $this->table->setWhere($this->getWhere());
 
         $traffic = $this->table->selectAggregate(

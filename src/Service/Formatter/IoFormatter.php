@@ -5,7 +5,6 @@ namespace GibsonOS\Module\Hc\Service\Formatter;
 
 use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
@@ -15,20 +14,11 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 class IoFormatter extends AbstractHcFormatter
 {
-    /**
-     * @var int
-     */
-    private $directConnectReadInputPort;
+    private ?int $directConnectReadInputPort;
 
-    /**
-     * @var ValueRepository
-     */
-    private $valueRepository;
+    private ValueRepository $valueRepository;
 
-    /**
-     * @var LogRepository
-     */
-    private $logRepository;
+    private LogRepository $logRepository;
 
     public function __construct(
         TransformService $transform,
@@ -339,8 +329,6 @@ class IoFormatter extends AbstractHcFormatter
 
     /**
      * @throws DateTimeError
-     * @throws SelectError
-     * @throws GetError
      */
     private function getChangedPorts(Log $log): array
     {

@@ -10,10 +10,7 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 class BusMessageMapper
 {
-    /**
-     * @var TransformService
-     */
-    private $transformService;
+    private TransformService $transformService;
 
     public function __construct(TransformService $transformService)
     {

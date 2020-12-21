@@ -75,7 +75,6 @@ class NeopixelController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws DeleteError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SaveError
@@ -111,7 +110,6 @@ class NeopixelController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SaveError

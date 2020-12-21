@@ -3,9 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
-use DateTime;
+use DateTimeInterface;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AbstractModel;
 use mysqlDatabase;
 
@@ -15,60 +14,27 @@ class Log extends AbstractModel
 
     public const DIRECTION_OUTPUT = 'output';
 
-    /**
-     * @var int|null
-     */
-    private $id;
+    private ?int $id;
 
-    /**
-     * @var int|null
-     */
-    private $moduleId;
+    private ?int $moduleId;
 
-    /**
-     * @var DateTime|null
-     */
-    private $added;
+    private ?DateTimeInterface $added;
 
-    /**
-     * @var int|null
-     */
-    private $masterId;
+    private ?int $masterId;
 
-    /**
-     * @var int|null
-     */
-    private $slaveAddress;
+    private ?int $slaveAddress;
 
-    /**
-     * @var int
-     */
-    private $type;
+    private int $type;
 
-    /**
-     * @var int|null
-     */
-    private $command;
+    private ?int $command;
 
-    /**
-     * @var string
-     */
-    private $data;
+    private string $data;
 
-    /**
-     * @var string
-     */
-    private $direction;
+    private string $direction;
 
-    /**
-     * @var Module
-     */
-    private $module;
+    private Module $module;
 
-    /**
-     * @var Master
-     */
-    private $master;
+    private Master $master;
 
     public function __construct(mysqlDatabase $database = null)
     {
@@ -107,12 +73,12 @@ class Log extends AbstractModel
         return $this;
     }
 
-    public function getAdded(): ?DateTime
+    public function getAdded(): ?DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(DateTime $added): Log
+    public function setAdded(DateTimeInterface $added): Log
     {
         $this->added = $added;
 
@@ -192,7 +158,6 @@ class Log extends AbstractModel
     }
 
     /**
-     * @throws SelectError
      * @throws DateTimeError
      */
     public function getModule(): Module
@@ -212,7 +177,6 @@ class Log extends AbstractModel
 
     /**
      * @throws DateTimeError
-     * @throws SelectError
      */
     public function getMaster(): Master
     {

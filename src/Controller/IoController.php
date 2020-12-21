@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Controller;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\LoginRequired;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\PermissionDenied;
@@ -24,7 +23,6 @@ class IoController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SelectError
@@ -78,7 +76,6 @@ class IoController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SelectError
@@ -99,12 +96,11 @@ class IoController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
-     * @throws SelectError
-     * @throws SaveError
      * @throws ReceiveError
+     * @throws SaveError
+     * @throws SelectError
      */
     public function loadFromEeprom(IoService $ioService, ModuleRepository $moduleRepository, int $moduleId): AjaxResponse
     {
@@ -134,7 +130,6 @@ class IoController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws ReceiveError
@@ -160,7 +155,6 @@ class IoController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SelectError
@@ -200,7 +194,6 @@ class IoController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SelectError
@@ -222,7 +215,6 @@ class IoController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SelectError
@@ -243,7 +235,6 @@ class IoController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws ReceiveError
@@ -280,7 +271,6 @@ class IoController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SaveError

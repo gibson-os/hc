@@ -9,7 +9,6 @@ use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
@@ -56,15 +55,9 @@ class NeopixelService extends AbstractHcSlave
 
     public const CONFIG_COUNTS = 'counts';
 
-    /**
-     * @var LedService
-     */
-    private $ledService;
+    private LedService $ledService;
 
-    /**
-     * @var NeopixelFormatter
-     */
-    private $neopixelFormatter;
+    private NeopixelFormatter $neopixelFormatter;
 
     public function __construct(
         MasterService $masterService,
@@ -96,12 +89,10 @@ class NeopixelService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws DeleteError
      * @throws ReceiveError
      * @throws SaveError
-     * @throws SelectError
-     * @throws DateTimeError
-     * @throws GetError
-     * @throws DeleteError
      * @throws Exception
      */
     public function slaveHandshake(Module $slave): Module
@@ -374,8 +365,9 @@ class NeopixelService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
-     * @throws GetError
+     * @throws DateTimeError
      * @throws SaveError
+     * @throws Exception
      */
     public function writeLeds(Module $slave, array $leds): void
     {

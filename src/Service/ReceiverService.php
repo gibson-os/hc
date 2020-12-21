@@ -17,34 +17,16 @@ use Psr\Log\LoggerInterface;
 
 class ReceiverService extends AbstractService
 {
-    /**
-     * @var TransformService
-     */
-    private $transformService;
+    private TransformService $transformService;
 
-    /**
-     * @var MasterService
-     */
-    private $masterService;
+    private MasterService $masterService;
 
-    /**
-     * @var MasterFormatter
-     */
-    private $masterFormatter;
+    private MasterFormatter $masterFormatter;
 
-    /**
-     * @var MasterRepository
-     */
-    private $masterRepository;
+    private MasterRepository $masterRepository;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * Server constructor.
-     */
     public function __construct(
         TransformService $transformService,
         MasterService $masterService,

@@ -4,7 +4,10 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Factory;
 
 use Exception;
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\FileNotFound;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\Formatter\AbstractFormatter;
@@ -13,10 +16,7 @@ use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 
 class FormatterFactory
 {
-    /**
-     * @var ServiceManagerService
-     */
-    private $serviceManagerService;
+    private ServiceManagerService $serviceManagerService;
 
     public function __construct(ServiceManagerService $serviceManagerService)
     {
@@ -40,8 +40,9 @@ class FormatterFactory
     }
 
     /**
-     * @throws FileNotFound
-     * @throws Exception
+     * @throws DateTimeError
+     * @throws FactoryError
+     * @throws SelectError
      */
     private function getModuleFormatter(Log $log): AbstractFormatter
     {
