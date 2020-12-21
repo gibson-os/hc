@@ -62,7 +62,7 @@ class EthbridgeFormatter extends AbstractFormatter
                             throw new GetError('Protokolle konnten nicht geladen werden!');
                         }
 
-                        $irProtocols = JsonUtility::decode((string) $irProtocols->getValue());
+                        $irProtocols = JsonUtility::decode($irProtocols->getValue());
                         $irData = $this->getIrData($log);
 
                         if (empty($irData)) {

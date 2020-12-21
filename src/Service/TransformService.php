@@ -58,7 +58,7 @@ class TransformService extends AbstractService
         $return = '';
 
         for ($i = 0; $i < strlen($hexString); $i += 2) {
-            $return .= chr((int) hexdec(substr($hexString, $i, 2)));
+            $return .= chr(hexdec(substr($hexString, $i, 2)));
         }
 
         return $return;
@@ -67,10 +67,10 @@ class TransformService extends AbstractService
     public function hexToInt(string $hexString, int $byte = null): int
     {
         if ($byte === null) {
-            return (int) hexdec($hexString);
+            return hexdec($hexString);
         }
 
-        return (int) hexdec(substr($hexString, $byte * 2, 2));
+        return hexdec(substr($hexString, $byte * 2, 2));
     }
 
     public function hexToBin(string $hexString, int $byte = null): string

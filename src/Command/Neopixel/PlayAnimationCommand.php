@@ -127,7 +127,7 @@ class PlayAnimationCommand extends AbstractCommand
         $difference = $time - $now;
 
         if ($difference > 10000) {
-            usleep((int) ($difference - 10000));
+            usleep($difference - 10000);
         }
 
         while ((int) (microtime(true) * 1000000) < $time) {
