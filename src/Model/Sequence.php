@@ -7,8 +7,9 @@ use DateTimeInterface;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Sequence\Element;
+use JsonSerializable;
 
-class Sequence extends AbstractModel
+class Sequence extends AbstractModel implements JsonSerializable
 {
     private ?int $id = null;
 
@@ -207,5 +208,16 @@ class Sequence extends AbstractModel
         $this->setElements($elements);
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'typeId' => $this->getTypeId(),
+            'moduleId' => $this->getModuleId(),
+            'type' => $this->getType(),
+        ];
     }
 }
