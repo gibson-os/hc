@@ -37,13 +37,13 @@ class MasterService extends AbstractService
 
     public const TYPE_STATUS = 2;
 
-    const TYPE_NEW_SLAVE = 3;
+    private const TYPE_NEW_SLAVE = 3;
 
-    const TYPE_SLAVE_IS_HC = 4;
+    public const TYPE_SLAVE_IS_HC = 4;
 
-    const TYPE_SCAN_BUS = 5;
+    private const TYPE_SCAN_BUS = 5;
 
-    const TYPE_DATA = 255;
+    public const TYPE_DATA = 255;
 
     private SenderService $senderService;
 

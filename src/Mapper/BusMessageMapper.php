@@ -19,10 +19,19 @@ class BusMessageMapper
 
     public function mapToUdpMessage(BusMessage $busMessage): UdpMessage
     {
-        $message = chr($busMessage->getType());
+        return new UdpMessage(
+            $busMessage->getMasterAddress(),
+            $busMessage->getPort() ?? 0,
+            chr($busMessage->getType()) . $this->mapSlaveData($busMessage)
+        );
+    }
+
+    public function mapSlaveData(BusMessage $busMessage): string
+    {
         $slaveAddress = $busMessage->getSlaveAddress();
         $command = $busMessage->getCommand();
         $data = $busMessage->getData();
+        $message = '';
 
         if ($slaveAddress !== null) {
             $message .= chr(($slaveAddress << 1) | (int) $busMessage->isWrite());
@@ -36,7 +45,7 @@ class BusMessageMapper
             $message .= $data;
         }
 
-        return new UdpMessage($busMessage->getMasterAddress(), $busMessage->getPort() ?? 0, $message);
+        return $message;
     }
 
     /**
