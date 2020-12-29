@@ -49,13 +49,12 @@ class NeopixelController extends AbstractController
     }
 
     /**
+     * @throws AbstractException
      * @throws DateTimeError
-     * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
-     * @throws SelectError
-     * @throws AbstractException
      * @throws SaveError
+     * @throws SelectError
      */
     public function showLeds(
         NeopixelService $neopixelService,
