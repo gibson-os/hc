@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Dto\Sequence;
+namespace GibsonOS\Module\Hc\Dto\DirectConnect;
 
 use GibsonOS\Module\Hc\Dto\BusMessage;
 
