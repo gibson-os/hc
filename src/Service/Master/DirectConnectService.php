@@ -7,7 +7,7 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
-use GibsonOS\Module\Hc\Dto\DirectConnect\Step;
+use GibsonOS\Module\Hc\Dto\DirectConnect;
 use GibsonOS\Module\Hc\Mapper\BusMessageMapper;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
@@ -19,11 +19,13 @@ class DirectConnectService extends AbstractService
 
     private const TYPE_SEQUENCE_ADD_STEP = 101;
 
-    private const TYPE_SEQUENCE_START = 102;
+    private const TYPE_SEQUENCE_ADD_TRIGGER = 102;
 
-    private const TYPE_SEQUENCE_STOP = 103;
+    private const TYPE_SEQUENCE_START = 110;
 
-    private const TYPE_SEQUENCE_PAUSE = 104;
+    private const TYPE_SEQUENCE_STOP = 111;
+
+    private const TYPE_SEQUENCE_PAUSE = 112;
 
     private MasterService $masterService;
 
@@ -36,24 +38,63 @@ class DirectConnectService extends AbstractService
     }
 
     /**
-     * @param Step[] $steps
-     *
      * @throws AbstractException
      */
-    public function send(Master $master, array $steps): void
+    public function send(Master $master, DirectConnect $directConnect): void
     {
         $this->masterService->send($master, new BusMessage($master->getAddress(), self::TYPE_SEQUENCE_NEW));
 
-        foreach ($steps as $step) {
-            $this->masterService->send(
-                $master,
-                (new BusMessage($master->getAddress(), self::TYPE_SEQUENCE_ADD_STEP))->setData(
-                    chr($step->getRuntime() >> 8) .
-                    chr($step->getRuntime() & 255) .
-                    $this->busMessageMapper->mapSlaveData($step->getBusMessage())
-                )
-            );
+        foreach ($directConnect->getSteps() as $step) {
+            $this->addStep($master, $directConnect->getId(), $step);
         }
+
+        foreach ($directConnect->getTriggers() as $trigger) {
+            $this->addTrigger($master, $directConnect->getId(), $trigger);
+        }
+    }
+
+    /**
+     * @throws AbstractException
+     */
+    public function addStep(Master $master, int $id, DirectConnect\Step $step): void
+    {
+        $this->masterService->send(
+            $master,
+            (new BusMessage($master->getAddress(), self::TYPE_SEQUENCE_ADD_STEP))->setData(
+                chr($id) .
+                chr($step->getRuntime() >> 8) .
+                chr($step->getRuntime() & 255) .
+                $this->busMessageMapper->mapSlaveData($step->getBusMessage())
+            )
+        );
+    }
+
+    /**
+     * @throws AbstractException
+     */
+    public function addTrigger(Master $master, int $id, DirectConnect\Trigger $trigger): void
+    {
+        $busMessage = $trigger->getBusMessage();
+        $data = $busMessage->getData() ?? '';
+        $newData = '';
+
+        foreach ($trigger->getEqualBytes() as $equalByte) {
+            $newData .= chr($equalByte) . (substr($data, $equalByte, 1) ?: '');
+        }
+
+        if (empty($newData)) {
+            $newData = chr(255) . $data;
+        }
+
+        $busMessage->setData($newData);
+
+        $this->masterService->send(
+            $master,
+            (new BusMessage($master->getAddress(), self::TYPE_SEQUENCE_ADD_TRIGGER))->setData(
+                chr($id) .
+                $this->busMessageMapper->mapSlaveData($busMessage)
+            )
+        );
     }
 
     /**
