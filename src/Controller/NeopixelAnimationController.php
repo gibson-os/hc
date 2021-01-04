@@ -241,12 +241,13 @@ class NeopixelAnimationController extends AbstractController
         //AnimationAttributeService $animationService,
         NeopixelService $neopixelService,
         ModuleRepository $moduleRepository,
-        int $moduleId
+        int $moduleId,
+        int $iterations = 0
     ): AjaxResponse {
         $this->checkPermission(PermissionService::WRITE);
 
         $slave = $moduleRepository->getById($moduleId);
-        $neopixelService->writeSequenceStart($slave);
+        $neopixelService->writeSequenceStart($slave, $iterations);
         // @todo refactor. Sollte mit dem locker arbeiten um laufende prozesse zu setzen
         //$animationService->setStarted($slave, true);
 
