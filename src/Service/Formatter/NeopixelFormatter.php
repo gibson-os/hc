@@ -26,9 +26,12 @@ class NeopixelFormatter extends AbstractHcFormatter
 
         foreach ($colors as $color) {
             sort($color['leds']);
-            $data[] = self::getRangedColorString($leds, $color);
-            $data[] = self::getSingleColorString($color);
-            $data = array_merge($data, self::getGroupedColorStrings($color, $maxLength));
+            $data = array_merge(
+                $data,
+                $this->getRangedColorStrings($leds, $color),
+                [$this->getSingleColorString($color)],
+                $this->getGroupedColorStrings($color, $maxLength)
+            );
         }
 
         return $data;
@@ -69,22 +72,22 @@ class NeopixelFormatter extends AbstractHcFormatter
         ];
     }
 
-    private function getRangedColorString(array &$leds, array &$color): string
+    private function getRangedColorStrings(array &$leds, array &$color): array
     {
         if (count($color['leds']) < self::MIN_RANGE_LEDS) {
-            return '';
+            return [];
         }
 
         $firstLed = reset($color['leds']);
         $lastLed = null;
         $rangedLeds = [];
-        $recursiveData = '';
+        $recursiveData = [];
         $data = chr(self::RANGE_ADDRESS >> 8) . chr(self::RANGE_ADDRESS & 255) .
             chr($firstLed >> 8) . chr($firstLed & 255);
 
         for ($i = $firstLed; $i <= end($color['leds']); ++$i) {
             if (!isset($leds[$i])) {
-                $recursiveData = self::getRangedColorString($leds, $color);
+                $recursiveData = $this->getRangedColorStrings($leds, $color);
 
                 break;
             }
@@ -108,16 +111,19 @@ class NeopixelFormatter extends AbstractHcFormatter
             return $recursiveData;
         }
 
-        $data .= chr($lastLed >> 8) . chr($lastLed & 255) .
+        $recursiveData[] =
+            $data .
+            chr($lastLed >> 8) . chr($lastLed & 255) .
             chr($color[LedAttribute::ATTRIBUTE_KEY_RED]) .
             chr($color[LedAttribute::ATTRIBUTE_KEY_GREEN]) .
             chr($color[LedAttribute::ATTRIBUTE_KEY_BLUE]) .
             chr(
                 ($color[LedAttribute::ATTRIBUTE_KEY_FADE_IN] << 4) |
                 $color[LedAttribute::ATTRIBUTE_KEY_BLINK]
-            );
+            )
+        ;
 
-        return $data . $recursiveData;
+        return $recursiveData;
     }
 
     private function getSingleColorString(array $color): string
@@ -151,12 +157,12 @@ class NeopixelFormatter extends AbstractHcFormatter
         $dataString = '';
         $length = 6;
         $count = 0;
-        // @todo maximale buffergröße beachten
+
         foreach ($color['leds'] as $led) {
             $length += 2;
 
-            if ($length > $maxLength) {
-                $data[] = self::completeGroupedColorString($dataString, $count, $color);
+            if ($length + 10 > $maxLength) {
+                $data[] = $this->completeGroupedColorString($dataString, $count, $color);
                 $length = 0;
                 $count = 0;
                 $dataString = '';
@@ -166,7 +172,7 @@ class NeopixelFormatter extends AbstractHcFormatter
             ++$count;
         }
 
-        $data[] = self::completeGroupedColorString($dataString, $count, $color);
+        $data[] = $this->completeGroupedColorString($dataString, $count, $color);
 
         return $data;
     }

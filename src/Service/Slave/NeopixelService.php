@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\BusMessage;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -144,6 +145,7 @@ class NeopixelService extends AbstractHcSlave
     /**
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws WriteException
      */
     public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module
     {
@@ -187,11 +189,13 @@ class NeopixelService extends AbstractHcSlave
         $ledStore->setModule($existingSlave->getId() ?? 0);
         $list = $ledStore->getList();
         $this->writeSetLeds($slave, $list);
+        $channels = [];
 
         for ($channel = 0; $channel < $config[self::CONFIG_CHANNELS]; ++$channel) {
-            $this->writeChannel($slave, $channel);
+            $channels[$channel] = $config[self::CONFIG_COUNTS][$channel];
         }
 
+        $this->writeChannels($slave, $channels);
         $slave->setConfig(JsonUtility::encode($config));
 
         return $slave;
@@ -215,13 +219,48 @@ class NeopixelService extends AbstractHcSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function writeChannel(Module $slave, int $channel, int $length = 0): NeopixelService
     {
+        return $this->writeChannels($slave, [$channel => $length]);
+    }
+
+    /**
+     * @param int[] $channelsLength
+     *
+     * @throws AbstractException
+     * @throws SaveError
+     * @throws WriteException
+     */
+    public function writeChannels(Module $slave, array $channelsLength): NeopixelService
+    {
+        $config = JsonUtility::decode((string) $slave->getConfig());
+
+        for ($channel = 0; $channel < $config[self::CONFIG_CHANNELS]; ++$channel) {
+            if (isset($channelsLength[$channel])) {
+                continue;
+            }
+
+            $channelsLength[$channel] = 0;
+        }
+
+        if (max($channelsLength) === 0) {
+            throw new WriteException('No channels set!');
+        }
+
+        ksort($channelsLength);
+
         $this->write(
             $slave,
             self::COMMAND_CHANNEL_WRITE,
-            chr($channel) . chr($length >> 8) . chr($length & 255)
+            implode('', array_map(static function ($length) {
+                if ($length === null) {
+                    $length = 0;
+                }
+
+                return chr($length >> 8) . chr($length & 255);
+            }, $channelsLength))
         );
 
         return $this;
@@ -389,24 +428,21 @@ class NeopixelService extends AbstractHcSlave
             }, JsonUtility::decode($slave->getConfig() ?: JsonUtility::encode(['counts' => 0]))['counts']);
         }
 
-        // @todo umbauen das nur noch ein Command gesendet wird
-        foreach ($lastChangedIds as $channel => $lastChangedId) {
-            if ($lastChangedId < 1) {
-                continue;
-            }
-
-            $this->writeChannel(
-                $slave,
-                $channel,
-                $this->ledService->getNumberById($slave, $lastChangedId) + 1
-            );
-        }
+        $this->writeChannels(
+            $slave,
+            array_map(
+                fn ($lastChangedId) => $this->ledService->getNumberById($slave, $lastChangedId) + 1,
+                $lastChangedIds
+            )
+        );
 
         $this->ledService->saveLeds($slave, $leds);
     }
 
     /**
      * @param string[] $data
+     *
+     * @throws WriteException
      *
      * @return string[]
      */
@@ -419,7 +455,15 @@ class NeopixelService extends AbstractHcSlave
             $dataString = '';
 
             foreach ($data as $key => $string) {
-                if (strlen($dataString) + strlen($string) > $bufferSize) {
+                if (strlen($string) + 2 > $bufferSize) {
+                    throw new WriteException(sprintf(
+                        'Write string has a length of %d. Max allowed length is %d',
+                        strlen($string) + 2,
+                        $bufferSize ?? 0
+                    ));
+                }
+
+                if (strlen($dataString) + strlen($string) + 2 > $bufferSize) {
                     continue;
                 }
 

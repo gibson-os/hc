@@ -16,6 +16,7 @@ use GibsonOS\Core\Service\PermissionService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService;
@@ -113,6 +114,7 @@ class NeopixelController extends AbstractController
      * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
     public function send(
         NeopixelService $neopixelService,
@@ -125,13 +127,13 @@ class NeopixelController extends AbstractController
 
         $slave = $moduleRepository->getById($moduleId);
 
-        foreach ($channels as $channel => $maxId) {
-            $neopixelService->writeChannel(
-                $slave,
-                $channel,
-                $ledService->getNumberById($slave, $maxId) + 1
-            );
-        }
+        $neopixelService->writeChannels(
+            $slave,
+            array_map(
+                fn ($maxId) => $ledService->getNumberById($slave, $maxId) + 1,
+                $channels
+            )
+        );
 
         return $this->returnSuccess();
     }

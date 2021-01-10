@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\EnvService;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
@@ -140,6 +141,7 @@ class PlayAnimationCommand extends AbstractCommand
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
+     * @throws WriteException
      */
     private function writeLeds(Module $slave, NeopixelService $neopixelService, array &$leds, array &$changedSlaveLeds): void
     {
@@ -157,12 +159,12 @@ class PlayAnimationCommand extends AbstractCommand
             }, JsonUtility::decode((string) $slave->getConfig())['counts']);
         }
 
-        foreach ($lastChangedIds as $channel => $lastChangedId) {
-            $neopixelService->writeChannel(
-                $slave,
-                $channel,
-                $this->ledService->getNumberById($slave, $lastChangedId) + 1
-            );
-        }
+        $neopixelService->writeChannels(
+            $slave,
+            array_map(
+                fn ($lastChangedId) => $this->ledService->getNumberById($slave, $lastChangedId) + 1,
+                $lastChangedIds
+            )
+        );
     }
 }

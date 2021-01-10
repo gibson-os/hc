@@ -104,7 +104,7 @@ class LedService
     {
         $lastIds = [];
 
-        foreach ($leds as $id => $led) {
+        foreach (array_keys($leds) as $id) {
             $lastIds[$this->getChannelById($slave, $id)] = $id;
         }
 
