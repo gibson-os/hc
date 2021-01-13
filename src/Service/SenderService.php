@@ -46,7 +46,6 @@ class SenderService extends AbstractService
     public function send(BusMessage $busMessage, string $protocol): void
     {
         $this->protocolFactory->get($protocol)->send($busMessage);
-        usleep(500);
     }
 
     /**
