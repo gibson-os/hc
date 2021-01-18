@@ -44,18 +44,23 @@ class UdpServerCommand extends AbstractCommand
         $this->lockService = $lockService;
 
         $this->setArgument('bindIp', false);
+        $this->setOption('force');
 
         parent::__construct($logger);
     }
 
     /**
-     * @throws GetError
      * @throws ArgumentError
+     * @throws GetError
      */
     protected function run(): int
     {
         try {
-            $this->lockService->lock(self::LOCK_NAME);
+            if (!$this->hasOption('force')) {
+                $this->lockService->forceLock(self::LOCK_NAME);
+            } else {
+                $this->lockService->lock(self::LOCK_NAME);
+            }
         } catch (LockError $e) {
             $this->logger->info('Server already runs!');
 
