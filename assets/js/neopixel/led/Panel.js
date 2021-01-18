@@ -227,7 +227,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 led.set('blink', value);
             });
         });
-        me.down('#gosModuleHcNeopixelColorDeactivated').on('change', (field, value) => {
+        me.down('#hcNeopixelLedColorDeactivated').on('change', (field, value) => {
             Ext.iterate(ledView.getSelectionModel().getSelection(), led => {
                 led.set('deactivated', value);
             });
@@ -384,7 +384,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             let blueField = me.down('#hcNeopixelLedColorBlue');
             let fadeInField = me.down('gosModuleHcNeopixelColorFadeIn');
             let blinkField = me.down('gosModuleHcNeopixelColorBlink');
-            let deactivatedField = me.down('gosModuleHcNeopixelColorDeavtivated');
+            let deactivatedField = me.down('#hcNeopixelLedColorDeactivated');
 
             if (colorPanel.down('#hcNeopixelLedColorFillButton').pressed) {
                 led.set('deactivated', deactivatedField.getValue());
@@ -393,7 +393,6 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 led.set('blue', blueField.getValue());
                 led.set('fadeIn', fadeInField.getValue());
                 led.set('blink', blinkField.getValue());
-                led.set('deactivated', deactivateField.getValue());
 
                 me.setLiveLeds([led]);
             } else {
@@ -409,7 +408,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 blueField.setValue(led.get('blue'));
                 fadeInField.setValue(led.get('fadeIn'));
                 blinkField.setValue(led.get('blink'));
-                deactivateField.setValue(led.get('deactivated'));
+                deactivatedField.setValue(led.get('deactivated'));
                 colorPanel.resumeEvents();
             }
         });
