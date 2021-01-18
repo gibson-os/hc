@@ -245,7 +245,10 @@ class NeopixelService extends AbstractHcSlave
             $channelsLength[$channel] = 0;
         }
 
-        if (max($channelsLength) === 0) {
+        if (
+                empty($channelsLength) ||
+                max($channelsLength) === 0
+            ) {
             throw new WriteException('No channels set!');
         }
 
