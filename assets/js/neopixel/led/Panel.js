@@ -21,8 +21,9 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             xtype: 'gosModuleHcNeopixelAnimationPanel',
             region: 'south',
             split: true,
+            flex: 0,
             title: 'Animation',
-            height: 200,
+            height: 410,
             collapsible: true,
             hideCollapseTool: true,
             hcModuleId: me.hcModuleId

@@ -46,49 +46,54 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
                 renderElement: function(element) {
                     let div = '<div class="hcNeopixelAnimationViewElement" style="';
 
-                    if (element.fadeIn) {
-                        let store = me.getStore();
-                        let ledIndex = store.find('led', element.led, 0, false, false, true);
-                        let lastLed = null;
+                    if (element.deactivated) {
+                        div += 'background-color: transparent; border: 1px solid #000;';
+                    } else {
+                        if (element.fadeIn) {
+                            let store = me.getStore();
+                            let ledIndex = store.find('led', element.led, 0, false, false, true);
+                            let lastLed = null;
 
-                        while (ledIndex > -1) {
-                            ledRecord = store.getAt(ledIndex);
+                            while (ledIndex > -1) {
+                                ledRecord = store.getAt(ledIndex);
 
-                            if (
-                                ledRecord.get('time') < element.time &&
-                                (
-                                    !lastLed ||
-                                    ledRecord.get('time') > lastLed.get('time')
-                                )
-                            ) {
-                                lastLed = ledRecord;
+                                if (
+                                    ledRecord.get('time') < element.time &&
+                                    (
+                                        !lastLed ||
+                                        ledRecord.get('time') > lastLed.get('time')
+                                    )
+                                ) {
+                                    lastLed = ledRecord;
+                                }
+
+                                ledIndex = store.find('led', element.led, ledIndex+1, false, false, true);
                             }
 
-                            ledIndex = store.find('led', element.led, ledIndex+1, false, false, true);
+                            let lastLedRed = 0;
+                            let lastLedGreen = 0;
+                            let lastLedBlue = 0;
+
+                            if (lastLed) {
+                                lastLedRed = lastLed.get('red');
+                                lastLedGreen = lastLed.get('green');
+                                lastLedBlue = lastLed.get('blue');
+                            }
+
+                            let gradientWidth = me.up().down('gosModuleHcNeopixelColorFadeIn').findRecordByValue(element.fadeIn).get('seconds') * me.pixelPerSecond;
+
+                            div +=
+                                'background: linear-gradient(' +
+                                    'to right, ' +
+                                    'rgb(' + lastLedRed + ', ' + lastLedGreen + ', ' + lastLedBlue + '), ' +
+                                    'rgb(' + element.red + ', ' + element.green + ', ' + element.blue + ') ' + gradientWidth + 'px' +
+                                '); '
+                            ;
                         }
 
-                        let lastLedRed = 0;
-                        let lastLedGreen = 0;
-                        let lastLedBlue = 0;
-
-                        if (lastLed) {
-                            lastLedRed = lastLed.get('red');
-                            lastLedGreen = lastLed.get('green');
-                            lastLedBlue = lastLed.get('blue');
-                        }
-
-                        let gradientWidth = me.up().down('gosModuleHcNeopixelColorFadeIn').findRecordByValue(element.fadeIn).get('seconds') * me.pixelPerSecond;
-
-                        div +=
-                            'background: linear-gradient(' +
-                                'to right, ' +
-                                'rgb(' + lastLedRed + ', ' + lastLedGreen + ', ' + lastLedBlue + '), ' +
-                                'rgb(' + element.red + ', ' + element.green + ', ' + element.blue + ') ' + gradientWidth + 'px' +
-                            '); '
-                        ;
+                        div += 'background-color: rgb(' + element.red + ', ' + element.green + ', ' + element.blue + '); ';
                     }
 
-                    div += 'background-color: rgb(' + element.red + ', ' + element.green + ', ' + element.blue + '); ';
                     div += 'width: ' + ((element.length / 1000) * me.pixelPerSecond) + 'px; ';
                     div += 'top: ' + ((23 * element.led) + 4) + 'px; ';
                     div += 'left: ' + ((element.time / 1000) * me.pixelPerSecond + 1) + 'px;';

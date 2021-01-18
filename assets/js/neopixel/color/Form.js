@@ -10,18 +10,7 @@ Ext.define('GibsonOS.module.hc.neopixel.color.Form', {
         me.items = [{
             xtype: 'gosFormCheckbox',
             itemId: 'hcNeopixelLedColorDeactivated',
-            boxLabel: 'Deaktivieren',
-            listeners: {
-                change: (checkbox, value) => {
-                    me.items.each((item) => {
-                        if (item.getItemId() === 'hcNeopixelLedColorDeactivated') {
-                            return true;
-                        }
-
-                        item.setDisabled(value);
-                    });
-                }
-            }
+            boxLabel: 'Deaktiviert'
         },{
             xtype: 'gosFormTextfield',
             itemId: 'hcNeopixelLedColorColor',

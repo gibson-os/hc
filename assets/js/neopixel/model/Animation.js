@@ -24,5 +24,8 @@ Ext.define('GibsonOS.module.hc.neopixel.model.Animation', {
     },{
         name: 'length',
         type: 'int'
+    },{
+        name: 'deactivated',
+        type: 'bool'
     }]
 });

@@ -50,6 +50,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                             blink: me.down('gosModuleHcNeopixelColorBlink').getValue(),
                             time: time,
                             length: me.down('#hcNeopixelLedColorTime').getValue(),
+                            deactivated: me.down('#hcNeopixelLedColorDeactivated').getValue(),
                         });
                     }
                 );
@@ -159,6 +160,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 me.down('gosModuleHcNeopixelColorFadeIn').setValue(record.get('fadeIn'));
                 me.down('gosModuleHcNeopixelColorBlink').setValue(record.get('blink'));
                 me.down('#hcNeopixelLedColorTime').setValue(record.get('length'));
+                me.down('#hcNeopixelLedColorDeactivated').setValue(record.get('deactivated'));
             } else {
                 deleteButton.disable();
             }
