@@ -56,7 +56,7 @@ class UdpServerCommand extends AbstractCommand
     protected function run(): int
     {
         try {
-            if (!$this->hasOption('force')) {
+            if ($this->hasOption('force')) {
                 $this->lockService->forceLock(self::LOCK_NAME);
             } else {
                 $this->lockService->lock(self::LOCK_NAME);
