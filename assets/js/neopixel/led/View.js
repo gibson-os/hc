@@ -20,6 +20,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.View', {
                     'id="' + id + '{number}" ',
                     'class="hcNeopixelLed" ',
                     'style="',
+                        '<tpl if="deactivated">opacity: .5; </tpl>',
                         'left: {left*' + me.ledSize + '+' + me.ledOffsetLeft + '}px; ',
                         'top: {top*' + me.ledSize + '+' + me.ledOffsetTop + '}px; ',
                         'background-color: rgb({red}, {green}, {blue});">',

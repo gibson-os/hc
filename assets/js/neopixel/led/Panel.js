@@ -227,6 +227,11 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 led.set('blink', value);
             });
         });
+        me.down('#gosModuleHcNeopixelColorDeactivated').on('change', (field, value) => {
+            Ext.iterate(ledView.getSelectionModel().getSelection(), led => {
+                led.set('deactivated', value);
+            });
+        });
 
         let imageStore = me.down('#hcNeopixelLedPanelImageLoad').getStore();
         imageStore.getProxy().setExtraParam('moduleId', me.hcModuleId);
@@ -250,13 +255,15 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             iconCls: 'icon_system system_paintcan',
             listeners: {
                 click() {
-                    let red = panel.down('#hcNeopixelLedColorRed').getValue();
-                    let green = panel.down('#hcNeopixelLedColorGreen').getValue();
-                    let blue = panel.down('#hcNeopixelLedColorBlue').getValue();
-                    let fadeIn = panel.down('gosModuleHcNeopixelColorFadeIn').getValue();
-                    let blink = panel.down('gosModuleHcNeopixelColorBlink').getValue();
+                    const deactivated = panel.down('#hcNeopixelLedColorDeactivated').getValue();
+                    const red = panel.down('#hcNeopixelLedColorRed').getValue();
+                    const green = panel.down('#hcNeopixelLedColorGreen').getValue();
+                    const blue = panel.down('#hcNeopixelLedColorBlue').getValue();
+                    const fadeIn = panel.down('gosModuleHcNeopixelColorFadeIn').getValue();
+                    const blink = panel.down('gosModuleHcNeopixelColorBlink').getValue();
 
                     view.getStore().each(led => {
+                        led.set('deactivated', deactivated);
                         led.set('red', red);
                         led.set('green', green);
                         led.set('blue', blue);
@@ -377,8 +384,10 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             let blueField = me.down('#hcNeopixelLedColorBlue');
             let fadeInField = me.down('gosModuleHcNeopixelColorFadeIn');
             let blinkField = me.down('gosModuleHcNeopixelColorBlink');
+            let deactivatedField = me.down('gosModuleHcNeopixelColorDeavtivated');
 
             if (colorPanel.down('#hcNeopixelLedColorFillButton').pressed) {
+                led.set('deactivated', deactivatedField.getValue());
                 led.set('red', redField.getValue());
                 led.set('green', greenField.getValue());
                 led.set('blue', blueField.getValue());
