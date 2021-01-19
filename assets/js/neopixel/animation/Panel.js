@@ -30,6 +30,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                         let ledIndex = store.find('led', selectedLedDiv.dataset.id, 0, false, false, true);
                         let time = 0;
                         let ledRecord;
+                        const deactivated = me.down('#hcNeopixelLedColorDeactivated').getValue();
 
                         while (ledIndex > -1) {
                             ledRecord = store.getAt(ledIndex);
@@ -41,16 +42,42 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                             ledIndex = store.find('led', selectedLedDiv.dataset.id, ledIndex + 1, false, false, true);
                         }
 
+                        const red = me.down('#hcNeopixelLedColorRed').getValue();
+                        const green = me.down('#hcNeopixelLedColorGreen').getValue();
+                        const blue = me.down('#hcNeopixelLedColorBlue').getValue();
+                        const fadeIn = me.down('gosModuleHcNeopixelColorFadeIn').getValue();
+                        const blink = me.down('gosModuleHcNeopixelColorBlink').getValue();
+
+                        if (
+                            ledRecord &&
+                            (
+                                deactivated ||
+                                (
+                                    red === ledRecord.get('red') &&
+                                    green === ledRecord.get('green') &&
+                                    blue === ledRecord.get('blue') &&
+                                    (blink === ledRecord.get('blink') || (blink === null && ledRecord.get('blink') === 0))
+                                )
+                            )
+                        ) {
+                            ledRecord.set(
+                                'length',
+                                ledRecord.get('length') + me.down('#hcNeopixelLedColorTime').getValue()
+                            );
+
+                            return true;
+                        }
+
                         animationView.getStore().add({
                             led: selectedLedDiv.dataset.id,
-                            red: me.down('#hcNeopixelLedColorRed').getValue(),
-                            green: me.down('#hcNeopixelLedColorGreen').getValue(),
-                            blue: me.down('#hcNeopixelLedColorBlue').getValue(),
-                            fadeIn: me.down('gosModuleHcNeopixelColorFadeIn').getValue(),
-                            blink: me.down('gosModuleHcNeopixelColorBlink').getValue(),
+                            red: deactivated ? '00' : red,
+                            green: deactivated ? '00' : green,
+                            blue: deactivated ? '00' : blue,
+                            fadeIn: deactivated ? 0 : fadeIn,
+                            blink: deactivated ? 0 : blink,
                             time: time,
                             length: me.down('#hcNeopixelLedColorTime').getValue(),
-                            deactivated: me.down('#hcNeopixelLedColorDeactivated').getValue(),
+                            deactivated: deactivated,
                         });
                     }
                 );
