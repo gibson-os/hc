@@ -21,5 +21,17 @@ Ext.define('GibsonOS.module.hc.neopixel.color.Panel', {
         }];
 
         me.callParent();
+
+        me.down('#hcNeopixelLedColorDeactivated').on('change', (checkbox, value) => {
+            colorPicker.setDisabled(value);
+
+            me.down('gosModuleHcNeopixelColorForm').items.each((item) => {
+                if (item.getItemId() === 'hcNeopixelLedColorDeactivated') {
+                    return true;
+                }
+
+                item.setDisabled(value);
+            });
+        });
     }
 });

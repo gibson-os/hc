@@ -174,6 +174,9 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 colorTime.setValue(milliseconds);
             }
         });
+        colorForm.down('#hcNeopixelLedColorDeactivated').on('change', (checkbox, value) => {
+            colorForm.down('#hcNeopixelLedColorTime').enable();
+        });
     },
     addActions() {
         const me = this;
