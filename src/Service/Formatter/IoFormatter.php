@@ -9,6 +9,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
+use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
 
@@ -54,7 +55,7 @@ class IoFormatter extends AbstractHcFormatter
                 return 'DC aktiviert';
         }
 
-        if ($log->getCommand() < (int) $log->getModule()->getConfig()) {
+        if ($log->getCommand() !== null && $log->getCommand() < (int) $log->getModule()->getConfig()) {
             $name = $this->valueRepository->getByTypeId(
                 $log->getModule()->getTypeId(),
                 $log->getCommand(),
@@ -296,8 +297,8 @@ class IoFormatter extends AbstractHcFormatter
                 //return 'Status in EEPROM';
         }
 
-        if ($log->getCommand() < (int) $log->getModule()->getConfig()) {
-            $port = self::getPortAsArray($this->transform->hexToAscii($log->getData()));
+        if ($log->getType() === MasterService::TYPE_DATA && $log->getCommand() < (int) $log->getModule()->getConfig()) {
+            $port = $this->getPortAsArray($this->transform->hexToAscii($log->getData()));
             $valueNames = $this->valueRepository->getByTypeId(
                 $log->getModule()->getTypeId(),
                 $log->getCommand(),

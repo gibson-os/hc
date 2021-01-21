@@ -138,7 +138,7 @@ class LogStore extends AbstractDatabaseStore
                 ->setData($log['data'])
                 ->setId((int) $log['id'])
                 ->setAdded(new DateTime($log['added']))
-                ->setCommand((int) $log['command'])
+                ->setCommand($log['command'] === null ? null : (int) $log['command'])
                 ->setDirection($log['direction'])
                 ->setSlaveAddress((int) $log['address'])
             ;
