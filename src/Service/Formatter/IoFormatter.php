@@ -540,7 +540,7 @@ class IoFormatter extends AbstractHcFormatter
                     ($data[IoService::ATTRIBUTE_PORT_KEY_VALUE] << 2) |
                     ($data[IoService::ATTRIBUTE_PORT_KEY_BLINK] << 3)
                 ) .
-                chr($pwm);
+                chr((int) $pwm);
     }
 
     public function getDirectConnectAsArray(string $data): array
