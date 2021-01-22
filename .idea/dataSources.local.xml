@@ -2,7 +2,7 @@
 <project version="4">
   <component name="dataSourceStorageLocal">
     <data-source name="MySQL for 5.1 - gibson_os@192.168.27.1" uuid="d1d095b6-d3bd-4085-b9e3-febcb56354c9">
-      <database-info product="MariaDB" version="10.3.27-MariaDB-0+deb10u1" jdbc-version="4.2" driver-name="MariaDB Connector/J" driver-version="2.6.0" dbms="MARIADB" exact-version="10.3.27" exact-driver-version="2.6">
+      <database-info product="MySQL" version="5.5.5-10.3.27-MariaDB-0+deb10u1" jdbc-version="4.0" driver-name="MySQL Connector Java" driver-version="mysql-connector-java-5.1.47 ( Revision: fe1903b1ecb4a96a917f7ed3190d80c049b1de29 )" dbms="MARIADB" exact-version="10.3.27" exact-driver-version="5.1">
         <extra-name-characters>#@</extra-name-characters>
         <identifier-quote-string>`</identifier-quote-string>
       </database-info>
@@ -11,7 +11,10 @@
       <user-name>root</user-name>
       <schema-mapping>
         <introspection-scope>
-          <node kind="schema" qname="@" />
+          <node kind="schema">
+            <name qname="@" />
+            <name qname="mysql" />
+          </node>
         </introspection-scope>
       </schema-mapping>
     </data-source>
@@ -21,7 +24,7 @@
       <schema-mapping />
     </data-source>
     <data-source name="MySQL - @localhost" uuid="6644c731-baf5-4148-b10c-2b50c51dab33">
-      <database-info product="MariaDB" version="10.4.8-MariaDB-1:10.4.8+maria~bionic" jdbc-version="4.2" driver-name="MariaDB Connector/J" driver-version="2.6.0" dbms="MARIADB" exact-version="10.4.8" exact-driver-version="2.6">
+      <database-info product="MariaDB" version="10.5.4-MariaDB-1:10.5.4+maria~focal" jdbc-version="4.2" driver-name="MariaDB Connector/J" driver-version="2.6.0" dbms="MARIADB" exact-version="10.5.4" exact-driver-version="2.6">
         <extra-name-characters>#@</extra-name-characters>
         <identifier-quote-string>`</identifier-quote-string>
       </database-info>

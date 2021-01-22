@@ -381,11 +381,13 @@ class IoService extends AbstractHcSlave
                 continue;
             }
 
-            $value = (string) $data[$key];
+            $value = $data[$key];
 
             if ($key === self::ATTRIBUTE_PORT_KEY_VALUE_NAMES) {
                 $value = $value[$valueModel->getOrder()];
             }
+
+            $value = (string) $value;
 
             if ($value === $valueModel->getValue()) {
                 continue;
