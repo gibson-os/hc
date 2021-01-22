@@ -201,7 +201,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 colorTime.setValue(milliseconds);
             }
         });
-        colorForm.down('#hcNeopixelLedColorDeactivated').on('change', (checkbox, value) => {
+        colorForm.down('#hcNeopixelLedColorDeactivated').on('change', () => {
             colorForm.down('#hcNeopixelLedColorTime').enable();
         });
     },
@@ -235,18 +235,13 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             iconCls: 'icon_system system_upload',
             listeners: {
                 click: () => {
-                    let data = [];
-
-                    me.down('gosModuleHcNeopixelAnimationView').getStore().each(record => {
-                        data.push(record.getData());
-                    });
                     me.setLoading(true);
 
                     GibsonOS.Ajax.request({
                         url: baseDir + 'hc/neopixelAnimation/send',
                         params: {
                             moduleId: me.hcModuleId,
-                            items: Ext.encode(data),
+                            items: Ext.encode(me.getLeds()),
                         },
                         success: () => {
                             me.setLoading(false);
@@ -287,18 +282,13 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 iconCls: 'icon_system system_play',
                 text: 'Unübertragene Animation abspielen',
                 handler: () => {
-                    let data = [];
-
-                    me.down('gosModuleHcNeopixelAnimationView').getStore().each(record => {
-                        data.push(record.getData());
-                    });
                     me.setLoading(true);
 
                     GibsonOS.Ajax.request({
                         url: baseDir + 'hc/neopixelAnimation/play',
                         params: {
                             moduleId: me.hcModuleId,
-                            items: Ext.encode(data),
+                            items: Ext.encode(me.getLeds()),
                             iterations: me.down('#hcNeopixelAnimationPanelAnimationIterations').getValue()
                         },
                         success: () => {
@@ -426,18 +416,14 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 permission: GibsonOS.Permission.WRITE
             },
             save: name => {
-                let items = [];
-
-                me.down('gosModuleHcNeopixelAnimationView').getStore().each(record => {
-                    items.push(record.getData());
-                });
+                me.setLoading(true);
 
                 GibsonOS.Ajax.request({
                     url: baseDir + 'hc/neopixelAnimation/save',
                     params: {
                         moduleId: me.hcModuleId,
                         name: name,
-                        items: Ext.encode(items)
+                        items: Ext.encode(me.getLeds())
                     },
                     success: response => {
                         let loadField = me.down('#hcNeopixelAnimationPanelAnimationLoad');
@@ -445,6 +431,8 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
                         loadField.getStore().loadData(data.data);
                         loadField.setValue(data.id);
+
+                        me.setLoading(false);
                     },
                     failure: response => {
                         let data = Ext.decode(response.responseText).data;
@@ -541,5 +529,19 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 }
             }
         });
+    },
+    getLeds() {
+        const me = this;
+        let leds = [];
+
+        me.down('gosModuleHcNeopixelAnimationView').getStore().each(record => {
+            if (record.get('deactivated')) {
+                return true;
+            }
+
+            leds.push(record.getData());
+        });
+
+        return leds;
     }
 });
