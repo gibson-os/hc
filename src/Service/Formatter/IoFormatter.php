@@ -534,13 +534,14 @@ class IoFormatter extends AbstractHcFormatter
         }
 
         return
-                chr(
-                    $data[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] |
-                    ($data[IoService::ATTRIBUTE_PORT_KEY_PULL_UP] << 1) |
-                    ($data[IoService::ATTRIBUTE_PORT_KEY_VALUE] << 2) |
-                    ($data[IoService::ATTRIBUTE_PORT_KEY_BLINK] << 3)
-                ) .
-                chr((int) $pwm);
+            chr(
+                $data[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] |
+                ($data[IoService::ATTRIBUTE_PORT_KEY_PULL_UP] << 1) |
+                ($data[IoService::ATTRIBUTE_PORT_KEY_VALUE] << 2) |
+                ($data[IoService::ATTRIBUTE_PORT_KEY_BLINK] << 3)
+            ) .
+            chr((int) $pwm)
+        ;
     }
 
     public function getDirectConnectAsArray(string $data): array
