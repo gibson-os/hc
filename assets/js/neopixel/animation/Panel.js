@@ -374,11 +374,25 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                         success: response => {
                             let data = Ext.decode(response.responseText);
                             let store = me.down('gosModuleHcNeopixelAnimationView').getStore();
+                            let setLeds = [];
 
                             store.removeAll();
 
                             Ext.iterate(data.data, item => {
+                                if (
+                                    setLeds.indexOf(item.led) === -1 &&
+                                    item.time !== 0
+                                ) {
+                                    store.add({
+                                        led: item.led,
+                                        deactivated: true,
+                                        time: 0,
+                                        length: item.time
+                                    });
+                                }
+
                                 store.add(item);
+                                setLeds.push(item.led);
                             });
                         }
                     });
