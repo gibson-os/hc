@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "885a827536d7f0db686eb9b7e374b49bef8d7c65"
+                "reference": "cc6c821f1b11a77c694ed2c3be61c0d86821c359"
             },
             "require": {
                 "ext-fileinfo": "*",
@@ -69,7 +69,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2021-01-18T22:35:45+00:00"
+            "time": "2021-01-19T23:07:01+00:00"
         },
         {
             "name": "mdo/mdo",
@@ -1592,16 +1592,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v2.18.0",
+            "version": "v2.18.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfPHP/PHP-CS-Fixer.git",
-                "reference": "cbc5b50bfa2688a1afca20e5a8c71f058e9ccbef"
+                "reference": "c68ff6231adb276857761e43b7ed082f164dce0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/cbc5b50bfa2688a1afca20e5a8c71f058e9ccbef",
-                "reference": "cbc5b50bfa2688a1afca20e5a8c71f058e9ccbef",
+                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/c68ff6231adb276857761e43b7ed082f164dce0b",
+                "reference": "c68ff6231adb276857761e43b7ed082f164dce0b",
                 "shasum": ""
             },
             "require": {
@@ -1683,7 +1683,7 @@
             "description": "A tool to automatically fix PHP code style",
             "support": {
                 "issues": "https://github.com/FriendsOfPHP/PHP-CS-Fixer/issues",
-                "source": "https://github.com/FriendsOfPHP/PHP-CS-Fixer/tree/v2.18.0"
+                "source": "https://github.com/FriendsOfPHP/PHP-CS-Fixer/tree/v2.18.1"
             },
             "funding": [
                 {
@@ -1691,7 +1691,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-01-18T03:31:06+00:00"
+            "time": "2021-01-21T18:50:42+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -6117,12 +6117,12 @@
             "version": "1.9.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/webmozart/assert.git",
+                "url": "https://github.com/webmozarts/assert.git",
                 "reference": "bafc69caeb4d49c39fd0779086c03a3738cbb389"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozart/assert/zipball/bafc69caeb4d49c39fd0779086c03a3738cbb389",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/bafc69caeb4d49c39fd0779086c03a3738cbb389",
                 "reference": "bafc69caeb4d49c39fd0779086c03a3738cbb389",
                 "shasum": ""
             },
@@ -6160,8 +6160,8 @@
                 "validate"
             ],
             "support": {
-                "issues": "https://github.com/webmozart/assert/issues",
-                "source": "https://github.com/webmozart/assert/tree/master"
+                "issues": "https://github.com/webmozarts/assert/issues",
+                "source": "https://github.com/webmozarts/assert/tree/1.9.1"
             },
             "time": "2020-07-08T17:02:28+00:00"
         },
