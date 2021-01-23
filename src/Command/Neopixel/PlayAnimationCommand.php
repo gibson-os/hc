@@ -123,6 +123,7 @@ class PlayAnimationCommand extends AbstractCommand
         }
 
         while ((int) (microtime(true) * 1000000) < $time) {
+            // Wait
         }
     }
 
@@ -132,9 +133,11 @@ class PlayAnimationCommand extends AbstractCommand
     private function getChanges(Module $slave, array &$leds): array
     {
         ksort($leds);
-        $changedLeds = $this->ledService->getChanges($this->ledService->getActualState($slave), $leds);
 
-        return $this->ledService->getChangedLedsWithoutIgnoredAttributes($changedLeds);
+        return $this->ledService->getChanges(
+            $this->ledService->getChangedLedsWithoutIgnoredAttributes($this->ledService->getActualState($slave)),
+            $this->ledService->getChangedLedsWithoutIgnoredAttributes($leds)
+        );
     }
 
     /**

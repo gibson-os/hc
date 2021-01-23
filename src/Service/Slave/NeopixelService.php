@@ -413,8 +413,10 @@ class NeopixelService extends AbstractHcSlave
      */
     public function writeLeds(Module $slave, array $leds): void
     {
-        $changedLeds = $this->ledService->getChanges($this->ledService->getActualState($slave), $leds);
-        $changedSlaveLeds = $this->ledService->getChangedLedsWithoutIgnoredAttributes($changedLeds);
+        $changedSlaveLeds = $this->ledService->getChanges(
+            $this->ledService->getChangedLedsWithoutIgnoredAttributes($this->ledService->getActualState($slave)),
+            $this->ledService->getChangedLedsWithoutIgnoredAttributes($leds)
+        );
         $this->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
         $lastChangedIds = $this->ledService->getLastIds($slave, $changedSlaveLeds);
 

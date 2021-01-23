@@ -133,14 +133,16 @@ class LedService
     public function getActualState(Module $slave): array
     {
         $actualLeds = [];
-        $id = 0;
         $config = JsonUtility::decode($slave->getConfig() ?? '[]');
 
-        foreach ($config[NeopixelService::CONFIG_COUNTS] as $channel => $count) {
-            for ($i = 0; $i < $count; ++$i) {
-                $actualLeds[$id] = $this->getById($slave, $id);
-                ++$id;
+        for ($i = 0; $i < array_sum($config[NeopixelService::CONFIG_COUNTS]); ++$i) {
+            $attributes = [];
+
+            foreach ($this->getById($slave, $i) as $attributeValue) {
+                $attributes[$attributeValue->getAttribute()->getKey()] = $attributeValue->getValue();
             }
+
+            $actualLeds[$i] = $attributes;
         }
 
         return $actualLeds;
@@ -161,7 +163,10 @@ class LedService
             $slaveLedChanges = [];
 
             foreach ($changedLed as $key => $attribute) {
-                if (in_array($key, self::IGNORE_ATTRIBUTES)) {
+                if (
+                    in_array($key, self::IGNORE_ATTRIBUTES) ||
+                    !in_array($key, self::ATTRIBUTES)
+                ) {
                     continue;
                 }
 
