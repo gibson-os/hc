@@ -108,8 +108,6 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             },
             listeners: {
                 select: (combo, records) => {
-                    ledPosition = 0;
-
                     ledView.getStore().each((led) => {
                         let imageLed = records[0].get('leds')[led.get('number')];
 
@@ -124,8 +122,6 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                         led.set('blue', imageLed.blue);
                         led.set('blink', imageLed.blink);
                         led.set('fadeIn', imageLed.fadeIn);
-
-                        ledPosition++;
                     });
                 }
             }
