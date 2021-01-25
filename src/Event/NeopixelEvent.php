@@ -149,4 +149,32 @@ class NeopixelEvent extends AbstractHcEvent
     public function sendAnimation(Module $slave, int $animationId): void
     {
     }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     */
+    public function randomImage(
+        Module $slave,
+        int $start,
+        int $end,
+        int $redFrom,
+        int $redTo,
+        int $greenFrom,
+        int $greenTo,
+        int $blueFrom,
+        int $blueTo
+    ): void {
+        $leds = [];
+
+        for ($i = $start; $i <= $end; ++$i) {
+            $leds[$i - 1] = [
+                'red' => mt_rand($redFrom, $redTo),
+                'green' => mt_rand($greenFrom, $greenTo),
+                'blue' => mt_rand($blueFrom, $blueTo),
+            ];
+        }
+
+        $this->writeSetLeds($slave, $leds);
+    }
 }

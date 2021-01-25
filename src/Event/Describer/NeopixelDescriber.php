@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Event\Describer;
 
 use GibsonOS\Core\Dto\Event\Describer\Method;
 use GibsonOS\Core\Dto\Event\Describer\Parameter\AutoCompleteParameter;
+use GibsonOS\Core\Dto\Event\Describer\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -12,6 +13,7 @@ use GibsonOS\Module\Hc\AutoComplete\Neopixel\ImageAutoComplete;
 use GibsonOS\Module\Hc\AutoComplete\SlaveAutoComplete;
 use GibsonOS\Module\Hc\Event\NeopixelEvent;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
+use GibsonOS\Module\Hc\Service\Formatter\NeopixelFormatter;
 
 class NeopixelDescriber extends AbstractHcDescriber
 {
@@ -113,6 +115,26 @@ class NeopixelDescriber extends AbstractHcDescriber
             'sendAnimation' => (new Method('Animation senden'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
+                ]),
+            'randomImage' => (new Method('Zufallsanzeige'))
+                ->setParameters([
+                    'slave' => $this->slaveParameter,
+                    'start' => (new IntParameter('Start LED'))
+                        ->setRange(1, NeopixelFormatter::MAX_PROTOCOL_LEDS + 1),
+                    'end' => (new IntParameter('End LED'))
+                        ->setRange(1, NeopixelFormatter::MAX_PROTOCOL_LEDS + 1),
+                    'redFrom' => (new IntParameter('Rot von'))
+                        ->setRange(0, 255),
+                    'redTo' => (new IntParameter('Rot bis'))
+                        ->setRange(0, 255),
+                    'greenFrom' => (new IntParameter('Grün von'))
+                        ->setRange(0, 255),
+                    'greenTo' => (new IntParameter('Grün bis'))
+                        ->setRange(0, 255),
+                    'blueFrom' => (new IntParameter('Blau von'))
+                        ->setRange(0, 255),
+                    'blueTo' => (new IntParameter('Blau bis'))
+                        ->setRange(0, 255),
                 ]),
         ]);
     }
