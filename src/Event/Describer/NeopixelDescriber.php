@@ -12,8 +12,8 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\AutoComplete\Neopixel\ImageAutoComplete;
 use GibsonOS\Module\Hc\AutoComplete\SlaveAutoComplete;
 use GibsonOS\Module\Hc\Event\NeopixelEvent;
+use GibsonOS\Module\Hc\Mapper\NeopixelMapper;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Service\Formatter\NeopixelFormatter;
 
 class NeopixelDescriber extends AbstractHcDescriber
 {
@@ -120,9 +120,9 @@ class NeopixelDescriber extends AbstractHcDescriber
                 ->setParameters([
                     'slave' => $this->slaveParameter,
                     'start' => (new IntParameter('Start LED'))
-                        ->setRange(1, NeopixelFormatter::MAX_PROTOCOL_LEDS + 1),
+                        ->setRange(1, NeopixelMapper::MAX_PROTOCOL_LEDS + 1),
                     'end' => (new IntParameter('End LED'))
-                        ->setRange(1, NeopixelFormatter::MAX_PROTOCOL_LEDS + 1),
+                        ->setRange(1, NeopixelMapper::MAX_PROTOCOL_LEDS + 1),
                     'redFrom' => (new IntParameter('Rot von'))
                         ->setRange(0, 255),
                     'redTo' => (new IntParameter('Rot bis'))
