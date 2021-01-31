@@ -52,7 +52,7 @@ class FormatterFactory
         ;
 
         /** @var AbstractFormatter $formatter */
-        $formatter = (new ServiceManagerService())->get($className);
+        $formatter = $this->serviceManagerService->get($className);
 
         return $formatter;
     }

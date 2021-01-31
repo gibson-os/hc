@@ -30,9 +30,9 @@ class LogStore extends AbstractDatabaseStore
         return Log::getTableName();
     }
 
-    public function setMasterId(int $masterId): LogStore
+    public function setMasterId(?int $masterId): LogStore
     {
-        if (empty($masterId)) {
+        if ($masterId === null) {
             unset($this->where['masterId']);
         } else {
             $this->where['masterId'] = '`' . $this->getTableName() . '`.`master_id`=' . $masterId;
@@ -41,9 +41,9 @@ class LogStore extends AbstractDatabaseStore
         return $this;
     }
 
-    public function setModuleId(int $moduleId): LogStore
+    public function setModuleId(?int $moduleId): LogStore
     {
-        if (empty($moduleId)) {
+        if ($moduleId === null) {
             unset($this->where['moduleId']);
         } else {
             $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $moduleId;
@@ -63,7 +63,7 @@ class LogStore extends AbstractDatabaseStore
         return $this;
     }
 
-    public function setTypes(array $types): LogStore
+    public function setTypes(?array $types): LogStore
     {
         if (empty($types)) {
             unset($this->where['types']);
