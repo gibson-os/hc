@@ -10,6 +10,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Event\Describer\NeopixelDescriber;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
@@ -46,6 +47,7 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function writeChannel(Module $slave, int $channel, int $length = 0): void
     {
