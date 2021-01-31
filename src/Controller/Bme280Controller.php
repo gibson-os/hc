@@ -14,9 +14,9 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\PermissionService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Formatter\Bme280Formatter;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
-use GibsonOS\Module\Hc\Service\Formatter\Bme280Formatter;
 use GibsonOS\Module\Hc\Service\Slave\Bme280Service;
 use GibsonOS\Module\Hc\Service\TransformService;
 

@@ -10,8 +10,8 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
+use GibsonOS\Module\Hc\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
-use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use Psr\Log\LoggerInterface;
 

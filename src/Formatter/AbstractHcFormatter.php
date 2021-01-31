@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Service\Formatter;
+namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;

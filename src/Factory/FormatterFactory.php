@@ -6,13 +6,11 @@ namespace GibsonOS\Module\Hc\Factory;
 use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\FileNotFound;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\ServiceManagerService;
+use GibsonOS\Module\Hc\Formatter\AbstractFormatter;
+use GibsonOS\Module\Hc\Formatter\FormatterInterface;
+use GibsonOS\Module\Hc\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Model\Log;
-use GibsonOS\Module\Hc\Service\Formatter\AbstractFormatter;
-use GibsonOS\Module\Hc\Service\Formatter\FormatterInterface;
-use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 
 class FormatterFactory
 {
@@ -24,7 +22,6 @@ class FormatterFactory
     }
 
     /**
-     * @throws FileNotFound
      * @throws Exception
      */
     public function get(Log $log): FormatterInterface
@@ -42,12 +39,11 @@ class FormatterFactory
     /**
      * @throws DateTimeError
      * @throws FactoryError
-     * @throws SelectError
      */
     private function getModuleFormatter(Log $log): AbstractFormatter
     {
         $className =
-            'GibsonOS\\Module\\Hc\\Service\\Formatter\\' .
+            'GibsonOS\\Module\\Hc\\Formatter\\' .
             ucfirst($log->getModule()->getType()->getHelper()) . 'Formatter'
         ;
 

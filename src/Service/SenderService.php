@@ -9,9 +9,9 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\ProtocolFactory;
+use GibsonOS\Module\Hc\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Repository\MasterRepository as MasterRepository;
-use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use Psr\Log\LoggerInterface;
 
 class SenderService extends AbstractService

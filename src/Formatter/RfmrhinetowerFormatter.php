@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Service\Formatter;
+namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Core\Utility\ArrayKeyUtility;
 use GibsonOS\Module\Hc\Constant\Rfmrhinetower as RfmrhinetowerConstant;

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Service\Formatter;
+namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
