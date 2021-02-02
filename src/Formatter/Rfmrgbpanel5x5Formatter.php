@@ -75,7 +75,7 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
         return $this->renderLeds($data);
     }
 
-    public function renderLeds(string $ledList): ?string
+    private function renderLeds(string $ledList): ?string
     {
         $return = null;
         $ledList = $this->getLedList($ledList);
@@ -104,7 +104,7 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
         return $return;
     }
 
-    public function getLedList(string $data): array
+    private function getLedList(string $data): array
     {
         $ledList = [];
 

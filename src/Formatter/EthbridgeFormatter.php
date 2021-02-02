@@ -93,7 +93,7 @@ class EthbridgeFormatter extends AbstractFormatter
     /**
      * @return int[]|null
      */
-    public function getIrData(Log $log): ?array
+    private function getIrData(Log $log): ?array
     {
         $data = $log->getData();
 
@@ -111,7 +111,7 @@ class EthbridgeFormatter extends AbstractFormatter
     /**
      * @throws Exception
      */
-    public function getIrKey(Log $log, int $protocol, int $address, int $command): array
+    private function getIrKey(Log $log, int $protocol, int $address, int $command): array
     {
         $subId = (int) ($protocol . $address . $command);
 

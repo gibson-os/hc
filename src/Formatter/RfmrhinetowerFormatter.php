@@ -80,7 +80,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
         return parent::render($log);
     }
 
-    public function getArrayFromDataString(string $data, bool $smallList = false, string $prefix = 'l'): array
+    private function getArrayFromDataString(string $data, bool $smallList = false, string $prefix = 'l'): array
     {
         $ledList = [];
         $keyList = self::KEY_LIST;
@@ -123,66 +123,6 @@ class RfmrhinetowerFormatter extends AbstractFormatter
         }
 
         return $ledList;
-    }
-
-    public function getDataStringFromArray(array $ledList, bool $withClock = false): string
-    {
-        $data = RfmrhinetowerConstant::MODE_SET_LED;
-
-        foreach ($this->addMissingDataElements($ledList, false, !$withClock) as $x => $pc) {
-            foreach ($pc as $y => $led) {
-                $data .= sprintf('%02x', ($led['brightness'] << 4) + $led['blink']);
-            }
-        }
-
-        return $data;
-    }
-
-    private function addMissingDataElements(array $ledList, bool $fullList = false, bool $smallList = false): array
-    {
-        $keyList = self::KEY_LIST;
-        $newLedList = [];
-
-        if (
-            $smallList ||
-            !$fullList &&
-            !(
-                ArrayKeyUtility::exists(0, $ledList) ||
-                (ArrayKeyUtility::exists(1, $ledList) && ArrayKeyUtility::exists([2, 3, 4, 5, 6, 7], $ledList[1])) ||
-                ArrayKeyUtility::exists(2, $ledList) ||
-                (ArrayKeyUtility::exists(3, $ledList) && ArrayKeyUtility::exists([2, 3, 4, 5, 6, 7], $ledList[3])) ||
-                ArrayKeyUtility::exists(4, $ledList) ||
-                (ArrayKeyUtility::exists(5, $ledList) && ArrayKeyUtility::exists([5, 6, 7], $ledList[5]))
-            )
-        ) {
-            $keyList = self::SMALL_KEY_LIST;
-        }
-
-        foreach ($keyList as $x => $list) {
-            if (!ArrayKeyUtility::exists($x, $newLedList)) {
-                $newLedList[$x] = [];
-            }
-
-            foreach ($list as $y) {
-                $newLedList[$x][$y] = [
-                    'brightness' => 0,
-                    'blink' => 0,
-                ];
-
-                if (
-                    ArrayKeyUtility::exists($x, $ledList) &&
-                    ArrayKeyUtility::exists($y, $ledList[$x])
-                ) {
-                    $newLedList[$x][$y] = $ledList[$x][$y];
-                }
-            }
-
-            ksort($newLedList[$x]);
-        }
-
-        ksort($newLedList);
-
-        return $newLedList;
     }
 
     private function clockLogFormat(string $data): string

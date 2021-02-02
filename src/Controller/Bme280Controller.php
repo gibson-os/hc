@@ -14,7 +14,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\PermissionService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Module\Hc\Formatter\Bme280Formatter;
+use GibsonOS\Module\Hc\Mapper\Bme280Mapper;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Slave\Bme280Service;
@@ -49,7 +49,7 @@ class Bme280Controller extends AbstractController
      * @throws SelectError
      */
     public function status(
-        Bme280Formatter $bme280Formatter,
+        Bme280Mapper $bme280Mapper,
         ModuleRepository $moduleRepository,
         LogRepository $logRepository,
         int $moduleId
@@ -59,7 +59,7 @@ class Bme280Controller extends AbstractController
         $slave = $moduleRepository->getById($moduleId);
         $log = $logRepository->getLastEntryByModuleId($moduleId, Bme280Service::COMMAND_MEASURE);
 
-        return $this->returnSuccess($bme280Formatter->measureData(
+        return $this->returnSuccess($bme280Mapper->measureData(
             $log->getRawData(),
             JsonUtility::decode((string) $slave->getConfig())
         ));

@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Formatter;
 use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Module\Hc\Mapper\IoMapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -21,14 +22,18 @@ class IoFormatter extends AbstractHcFormatter
 
     private LogRepository $logRepository;
 
+    private IoMapper $ioMapper;
+
     public function __construct(
         TransformService $transform,
         ValueRepository $valueRepository,
-        LogRepository $logRepository
+        LogRepository $logRepository,
+        IoMapper $ioMapper
     ) {
         parent::__construct($transform);
         $this->valueRepository = $valueRepository;
         $this->logRepository = $logRepository;
+        $this->ioMapper = $ioMapper;
     }
 
     /**
@@ -298,7 +303,7 @@ class IoFormatter extends AbstractHcFormatter
         }
 
         if ($log->getType() === MasterService::TYPE_DATA && $log->getCommand() < (int) $log->getModule()->getConfig()) {
-            $port = $this->getPortAsArray($log->getRawData());
+            $port = $this->ioMapper->getPortAsArray($log->getRawData());
             $valueNames = $this->valueRepository->getByTypeId(
                 $log->getModule()->getTypeId(),
                 $log->getCommand(),
@@ -333,7 +338,7 @@ class IoFormatter extends AbstractHcFormatter
      */
     private function getChangedPorts(Log $log): array
     {
-        $ports = $this->getPortsAsArray($log->getRawData(), (int) $log->getModule()->getConfig());
+        $ports = $this->ioMapper->getPortsAsArray($log->getRawData(), (int) $log->getModule()->getConfig());
 
         if ($log->getId() === 0) {
             return $ports;
@@ -351,7 +356,7 @@ class IoFormatter extends AbstractHcFormatter
             return $ports;
         }
 
-        $lastPorts = $this->getPortsAsArray($lastData, (int) $log->getModule()->getConfig());
+        $lastPorts = $this->ioMapper->getPortsAsArray($lastData, (int) $log->getModule()->getConfig());
         $changedPorts = [];
 
         foreach ($ports as $number => $port) {
@@ -410,7 +415,7 @@ class IoFormatter extends AbstractHcFormatter
      */
     private function getDirectConnectTableRows(Log $log, int $inputPort, string $data): string
     {
-        $directConnect = self::getDirectConnectAsArray($data);
+        $directConnect = $this->ioMapper->getDirectConnectAsArray($data);
         $moduleIds = [(int) $log->getModule()->getId()];
 
         $inputValueNames = $this->valueRepository->getByTypeId(
@@ -472,142 +477,5 @@ class IoFormatter extends AbstractHcFormatter
                 '<th>Anwenden</th>' .
                 '<td>' . $addOrSub . '</td>' .
             '</tr>';
-    }
-
-    public function getPortAsArray(string $data): array
-    {
-        $byte1 = $this->transform->asciiToUnsignedInt($data, 0);
-        $byte2 = $this->transform->asciiToUnsignedInt($data, 1);
-
-        $port = [
-            IoService::ATTRIBUTE_PORT_KEY_DIRECTION => $byte1 & 1,
-            IoService::ATTRIBUTE_PORT_KEY_VALUE => $byte1 >> 2 & 1,
-        ];
-
-        if ($port[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] == IoService::DIRECTION_INPUT) {
-            $port[IoService::ATTRIBUTE_PORT_KEY_DELAY] = ($byte1 >> 3) | $byte2;
-            $port[IoService::ATTRIBUTE_PORT_KEY_PULL_UP] = $byte1 >> 1 & 1;
-        } else {
-            $port[IoService::ATTRIBUTE_PORT_KEY_PWM] = $byte2;
-            $port[IoService::ATTRIBUTE_PORT_KEY_FADE_IN] = 0;
-
-            if ($port[IoService::ATTRIBUTE_PORT_KEY_VALUE]) {
-                $port[IoService::ATTRIBUTE_PORT_KEY_FADE_IN] = $port[IoService::ATTRIBUTE_PORT_KEY_PWM];
-                $port[IoService::ATTRIBUTE_PORT_KEY_PWM] = 0;
-            }
-
-            $port[IoService::ATTRIBUTE_PORT_KEY_BLINK] = $byte1 >> 3;
-        }
-
-        return $port;
-    }
-
-    public function getPortsAsArray(string $data, int $portCount): array
-    {
-        $byteCount = 0;
-        $ports = [];
-
-        for ($i = 0; $i < $portCount; ++$i) {
-            $ports[$i] = $this->getPortAsArray(substr($data, $byteCount, 2));
-            $byteCount += 2;
-        }
-
-        return $ports;
-    }
-
-    public function getPortAsString(array $data): string
-    {
-        if ($data[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] == IoService::DIRECTION_INPUT) {
-            return
-                chr(
-                    $data[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] |
-                    ($data[IoService::ATTRIBUTE_PORT_KEY_PULL_UP] << 1) |
-                    ($data[IoService::ATTRIBUTE_PORT_KEY_VALUE] << 2) |
-                    ($data[IoService::ATTRIBUTE_PORT_KEY_DELAY] << 3)
-                ) .
-                chr($data[IoService::ATTRIBUTE_PORT_KEY_DELAY]);
-        }
-        $pwm = $data[IoService::ATTRIBUTE_PORT_KEY_PWM];
-
-        if ($data[IoService::ATTRIBUTE_PORT_KEY_VALUE]) {
-            $pwm = $data[IoService::ATTRIBUTE_PORT_KEY_FADE_IN];
-        }
-
-        return
-            chr(
-                $data[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] |
-                ($data[IoService::ATTRIBUTE_PORT_KEY_PULL_UP] << 1) |
-                ($data[IoService::ATTRIBUTE_PORT_KEY_VALUE] << 2) |
-                ($data[IoService::ATTRIBUTE_PORT_KEY_BLINK] << 3)
-            ) .
-            chr((int) $pwm)
-        ;
-    }
-
-    public function getDirectConnectAsArray(string $data): array
-    {
-        $inputValueAndOutputPortByte = $this->transform->asciiToUnsignedInt($data, 0);
-        $setByte = $this->transform->asciiToUnsignedInt($data, 1);
-        $pwmByte = $this->transform->asciiToUnsignedInt($data, 2);
-        $addOrSub = 0;
-
-        if ($setByte & 1) {
-            $addOrSub = 1;
-        } elseif (($pwmByte >> 1) & 1) {
-            $addOrSub = -1;
-        }
-
-        $value = (($setByte >> 2) & 1);
-
-        return [
-            IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_INPUT_PORT_VALUE => ($inputValueAndOutputPortByte >> 7),
-            IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT => ($inputValueAndOutputPortByte & 127),
-            IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_VALUE => $value,
-            IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_PWM => $value ? 0 : $pwmByte,
-            IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_BLINK => (($setByte >> 3) & 7),
-            IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_FADE_IN => $value ? $pwmByte : 0,
-            IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_ADD_OR_SUB => $addOrSub,
-        ];
-    }
-
-    public function getDirectConnectAsString(
-        int $inputPort,
-        int $inputValue,
-        int $outputPort,
-        int $value,
-        int $pwm,
-        int $blink,
-        int $fadeIn,
-        int $addOrSub,
-        int $order = null
-    ): string {
-        $return = chr($inputPort);
-
-        if (null !== $order) {
-            $return .= chr($order);
-        }
-
-        if ($value === 1) {
-            $pwm = 0;
-
-            if ($addOrSub === 0) {
-                $pwm = $fadeIn;
-            }
-        }
-
-        $return .= chr(($inputValue << 7) | ($outputPort & 127));
-        $setByte = ($value << 2) | ($blink << 3);
-
-        if ($addOrSub === -1) {
-            $setByte += 64;
-        } elseif ($addOrSub === 1) {
-            $setByte += 128;
-        } else {
-            $setByte += 192;
-        }
-
-        $return .= chr($setByte) . chr($pwm);
-
-        return $return;
     }
 }

@@ -7,7 +7,7 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Module\Hc\Formatter\Bme280Formatter;
+use GibsonOS\Module\Hc\Mapper\Bme280Mapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
@@ -44,17 +44,17 @@ class Bme280Service extends AbstractSlave
 
     const MODE = 1;
 
-    private Bme280Formatter $bme280Formatter;
+    private Bme280Mapper $bme280Mapper;
 
     public function __construct(
         MasterService $masterService,
         TransformService $transformService,
         LogRepository $logRepository,
-        Bme280Formatter $bme280Formatter,
+        Bme280Mapper $bme280Mapper,
         LoggerInterface $logger
     ) {
         parent::__construct($masterService, $transformService, $logRepository, $logger);
-        $this->bme280Formatter = $bme280Formatter;
+        $this->bme280Mapper = $bme280Mapper;
     }
 
     /**
@@ -113,7 +113,7 @@ class Bme280Service extends AbstractSlave
         $config = JsonUtility::decode((string) $slave->getConfig());
         $data = $this->read($slave, self::COMMAND_MEASURE, self::COMMAND_MEASURE_READ_LENGTH);
 
-        return $this->bme280Formatter->measureData($data, $config);
+        return $this->bme280Mapper->measureData($data, $config);
     }
 
     /**

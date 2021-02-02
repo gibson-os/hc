@@ -13,7 +13,7 @@ use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Event\Describer\IoDescriber as IoDescriber;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
-use GibsonOS\Module\Hc\Formatter\IoFormatter;
+use GibsonOS\Module\Hc\Mapper\IoMapper;
 use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
 use GibsonOS\Module\Hc\Model\Module;
@@ -104,7 +104,7 @@ class IoService extends AbstractHcSlave
 
     const DIRECT_CONNECT_READ_RETRY = 5;
 
-    private IoFormatter $ioFormatter;
+    private IoMapper $ioMapper;
 
     private AttributeRepository $attributeRepository;
 
@@ -114,7 +114,7 @@ class IoService extends AbstractHcSlave
         MasterService $masterService,
         TransformService $transformService,
         EventService $eventService,
-        IoFormatter $ioFormatter,
+        IoMapper $ioMapper,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
@@ -135,7 +135,7 @@ class IoService extends AbstractHcSlave
             $slaveFactory,
             $logger
         );
-        $this->ioFormatter = $ioFormatter;
+        $this->ioMapper = $ioMapper;
         $this->attributeRepository = $attributeRepository;
         $this->valueRepository = $valueRepository;
     }
@@ -263,7 +263,7 @@ class IoService extends AbstractHcSlave
      */
     public function receive(Module $slave, BusMessage $busMessage): void
     {
-        foreach ($this->ioFormatter->getPortsAsArray($busMessage->getData() ?? '', (int) $slave->getConfig()) as $number => $port) {
+        foreach ($this->ioMapper->getPortsAsArray($busMessage->getData() ?? '', (int) $slave->getConfig()) as $number => $port) {
             $this->updatePortAttributes($slave, $number, $port);
         }
     }
@@ -278,7 +278,7 @@ class IoService extends AbstractHcSlave
         $eventData = ['slave' => $slave, 'number' => $number];
         $this->eventService->fire(IoDescriber::BEFORE_READ_PORT, $eventData);
 
-        $port = $this->ioFormatter->getPortAsArray($this->read($slave, $number, self::COMMAND_PORT_LENGTH));
+        $port = $this->ioMapper->getPortAsArray($this->read($slave, $number, self::COMMAND_PORT_LENGTH));
         $this->updatePortAttributes($slave, $number, $port);
 
         $eventData = array_merge($eventData, $port);
@@ -298,7 +298,7 @@ class IoService extends AbstractHcSlave
         $eventData['number'] = $number;
 
         $this->eventService->fire(IoDescriber::BEFORE_WRITE_PORT, $eventData);
-        $this->write($slave, $number, $this->ioFormatter->getPortAsString($data));
+        $this->write($slave, $number, $this->ioMapper->getPortAsString($data));
         $this->eventService->fire(IoDescriber::AFTER_WRITE_PORT, $eventData);
     }
 
@@ -507,7 +507,7 @@ class IoService extends AbstractHcSlave
         $config = (int) $slave->getConfig();
         $length = ($config) * self::PORT_BYTE_LENGTH;
         $data = $this->read($slave, self::COMMAND_STATUS, $length);
-        $ports = $this->ioFormatter->getPortsAsArray($data, $config);
+        $ports = $this->ioMapper->getPortsAsArray($data, $config);
 
         $this->eventService->fire(IoDescriber::AFTER_READ_PORTS, ['slave' => $slave]);
 
@@ -601,7 +601,7 @@ class IoService extends AbstractHcSlave
                 $this->write(
                     $slave,
                     $new ? self::COMMAND_ADD_DIRECT_CONNECT : self::COMMAND_SET_DIRECT_CONNECT,
-                    $this->ioFormatter->getDirectConnectAsString(
+                    $this->ioMapper->getDirectConnectAsString(
                         $inputPort,
                         $inputValue,
                         $outputPort,
@@ -668,7 +668,7 @@ class IoService extends AbstractHcSlave
             $this->attributeRepository->startTransaction();
 
             try {
-                $directConnect = $this->ioFormatter->getDirectConnectAsArray($data);
+                $directConnect = $this->ioMapper->getDirectConnectAsArray($data);
                 $this->createDirectConnectAttributes($slave, $port, $directConnect, $order);
             } catch (AbstractException $exception) {
                 $this->attributeRepository->rollback();

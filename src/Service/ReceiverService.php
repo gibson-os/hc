@@ -10,7 +10,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
-use GibsonOS\Module\Hc\Formatter\MasterFormatter;
+use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use Psr\Log\LoggerInterface;
@@ -21,7 +21,7 @@ class ReceiverService extends AbstractService
 
     private MasterService $masterService;
 
-    private MasterFormatter $masterFormatter;
+    private MasterMapper $masterMapper;
 
     private MasterRepository $masterRepository;
 
@@ -30,13 +30,13 @@ class ReceiverService extends AbstractService
     public function __construct(
         TransformService $transformService,
         MasterService $masterService,
-        MasterFormatter $masterFormatter,
+        MasterMapper $masterMapper,
         MasterRepository $masterRepository,
         LoggerInterface $logger
     ) {
         $this->transformService = $transformService;
         $this->masterService = $masterService;
-        $this->masterFormatter = $masterFormatter;
+        $this->masterMapper = $masterMapper;
         $this->masterRepository = $masterRepository;
         $this->logger = $logger;
     }
@@ -63,13 +63,13 @@ class ReceiverService extends AbstractService
             $busMessage->getData() ?? '',
             $busMessage->getMasterAddress()
         ));
-        $this->masterFormatter->checksumEqual($busMessage);
+        $this->masterMapper->checksumEqual($busMessage);
 
         if ($busMessage->getType() === MasterService::TYPE_HANDSHAKE) {
             $this->masterService->handshake($protocolService, $busMessage);
         } else {
             $masterModel = $this->masterRepository->getByAddress($busMessage->getMasterAddress(), $protocolService->getName());
-            $this->masterFormatter->extractSlaveDataFromMessage($busMessage);
+            $this->masterMapper->extractSlaveDataFromMessage($busMessage);
 
             $this->masterService->receive($masterModel, $busMessage);
         }

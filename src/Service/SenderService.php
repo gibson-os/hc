@@ -9,14 +9,14 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\ProtocolFactory;
-use GibsonOS\Module\Hc\Formatter\MasterFormatter;
+use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Repository\MasterRepository as MasterRepository;
 use Psr\Log\LoggerInterface;
 
 class SenderService extends AbstractService
 {
-    private MasterFormatter $masterFormatter;
+    private MasterMapper $masterMapper;
 
     private TransformService $transformService;
 
@@ -27,13 +27,13 @@ class SenderService extends AbstractService
     private LoggerInterface $logger;
 
     public function __construct(
-        MasterFormatter $masterFormatter,
+        MasterMapper $masterMapper,
         TransformService $transformService,
         MasterRepository $masterRepository,
         ProtocolFactory $protocolFactory,
         LoggerInterface $logger
     ) {
-        $this->masterFormatter = $masterFormatter;
+        $this->masterMapper = $masterMapper;
         $this->transformService = $transformService;
         $this->masterRepository = $masterRepository;
         $this->protocolFactory = $protocolFactory;
@@ -57,7 +57,7 @@ class SenderService extends AbstractService
         $protocolService = $this->protocolFactory->get($master->getProtocol());
         $busMessage = $protocolService->receiveReadData($master->getSendPort());
 
-        $this->masterFormatter->checksumEqual($busMessage);
+        $this->masterMapper->checksumEqual($busMessage);
 
         if ($busMessage->getMasterAddress() !== $master->getAddress()) {
             throw new ReceiveError(sprintf(

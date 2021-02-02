@@ -16,7 +16,7 @@ use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
-use GibsonOS\Module\Hc\Formatter\MasterFormatter;
+use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
@@ -59,7 +59,7 @@ class MasterService extends AbstractService
 
     private LogRepository $logRepository;
 
-    private MasterFormatter $masterFormatter;
+    private MasterMapper $masterMapper;
 
     private LoggerInterface $logger;
 
@@ -72,7 +72,7 @@ class MasterService extends AbstractService
         EventService $eventService,
         TransformService $transformService,
         SlaveFactory $slaveFactory,
-        MasterFormatter $masterFormatter,
+        MasterMapper $masterMapper,
         LogRepository $logRepository,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
@@ -87,7 +87,7 @@ class MasterService extends AbstractService
         $this->logRepository = $logRepository;
         $this->moduleRepository = $moduleRepository;
         $this->typeRepository = $typeRepository;
-        $this->masterFormatter = $masterFormatter;
+        $this->masterMapper = $masterMapper;
         $this->logger = $logger;
         $this->masterRepository = $masterRepository;
         $this->dateTimeService = $dateTimeService;
@@ -219,7 +219,7 @@ class MasterService extends AbstractService
     public function receiveReadData(Master $master, BusMessage $busMessage): BusMessage
     {
         $receivedBusMessage = $this->senderService->receiveReadData($master, $busMessage->getType());
-        $this->masterFormatter->extractSlaveDataFromMessage($receivedBusMessage);
+        $this->masterMapper->extractSlaveDataFromMessage($receivedBusMessage);
 
         if ($busMessage->getSlaveAddress() !== $receivedBusMessage->getSlaveAddress()) {
             throw new ReceiveError(sprintf(
