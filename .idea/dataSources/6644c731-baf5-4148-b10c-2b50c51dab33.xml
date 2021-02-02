@@ -2833,7 +2833,7 @@ second</ColNames>
     </column>
     <column id="699" parent="356" name="raw_data">
       <Position>9</Position>
-      <DataType>varchar(128)|0s</DataType>
+      <DataType>varbinary(128)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
     <column id="700" parent="356" name="direction">
