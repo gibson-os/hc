@@ -31,9 +31,9 @@ class Log extends AbstractModel
     /**
      * @deprecated
      */
-    private string $data;
+    private string $data = '';
 
-    private string $rawData;
+    private string $rawData = '';
 
     private string $direction;
 
