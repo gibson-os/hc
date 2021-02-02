@@ -22,6 +22,9 @@ Ext.define('GibsonOS.module.hc.index.model.Log', {
         name: 'plain',
         type: 'string'
     },{
+        name: 'raw',
+        type: 'string'
+    },{
         name: 'text',
         type: 'string'
     },{

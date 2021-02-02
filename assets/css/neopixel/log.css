@@ -1,0 +1,12 @@
+.hc_log_rendered {
+    margin-top: 10px;
+    line-height: 7px;
+}
+
+.hc_log_rendered table {
+    width: 100%;
+}
+
+.hc_log_rendered * {
+    font-size: 13px;
+}

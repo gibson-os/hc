@@ -4,9 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store;
 
 use DateTime;
-use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Factory\FormatterFactory;
 use GibsonOS\Module\Hc\Model\Log;
@@ -78,8 +76,6 @@ class LogStore extends AbstractDatabaseStore
 
     /**
      * @throws DateTimeError
-     * @throws FileNotFound
-     * @throws Exception
      */
     public function getList(): array
     {
@@ -198,6 +194,7 @@ class LogStore extends AbstractDatabaseStore
                 'text' => $formatter->text($logModel),
                 'rendered' => $formatter->render($logModel),
                 'plain' => $log['data'],
+                'raw' => utf8_encode($log['raw_data']),
                 'added' => (new DateTime($log['added']))->format('Y-m-d H:i:s'),
                 'direction' => $log['direction'] === Log::DIRECTION_INPUT ? 1 : 0,
             ];

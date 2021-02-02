@@ -71,7 +71,7 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
                         returnVal += '<br />';
                     }
 
-                    returnVal += '<div class="hcLogRendered">' + grid.store.getById(value).get('rendered') + '</div>';
+                    returnVal += '<div class="hc_log_rendered">' + grid.store.getById(value).get('rendered') + '</div>';
                 }
 
                 if (!returnVal) {
