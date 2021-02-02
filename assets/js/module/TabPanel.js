@@ -18,7 +18,7 @@ Ext.define('GibsonOS.module.hc.module.TabPanel', {
             gos: {
                 data: {
                     extraParams: {
-                        module: this.gos.data.module.id
+                        moduleId: this.gos.data.module.id
                     }
                 }
             }
