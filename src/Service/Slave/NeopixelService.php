@@ -30,7 +30,7 @@ use Psr\Log\LoggerInterface;
 
 class NeopixelService extends AbstractHcSlave
 {
-    private const COMMAND_SET_LEDS = 0;
+    public const COMMAND_SET_LEDS = 0;
 
     private const COMMAND_LED_COUNTS = 1;
 

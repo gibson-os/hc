@@ -49,15 +49,39 @@ class NeopixelMapper
     {
         $leds = [];
 
-        for ($i = 2; $i < strlen($data);) {
-            $address = $this->transformService->asciiToUnsignedInt(substr($data, 0, 2));
+        for ($i = 0; $i < strlen($data);) {
+            $address = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
+            $i += 2;
+
+            if ($address === self::RANGE_ADDRESS) {
+                $startAddress = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
+                $i += 2;
+                $endAddress = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
+                $i += 2;
+                $led = $this->getLedAsArray($data, $i);
+
+                for ($j = $startAddress; $j <= $endAddress; ++$j) {
+                    $leds[$j] = $led;
+                }
+
+                continue;
+            }
 
             if ($address > self::MAX_PROTOCOL_LEDS) {
+                $groupAddresses = [];
+
                 for ($j = 0; $j < $address - self::MAX_PROTOCOL_LEDS; ++$j) {
-                    $addressFromGroup = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
+                    $groupAddresses[] = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
                     $i += 2;
-                    $leds[$addressFromGroup] = $this->getLedAsArray($data, $i);
                 }
+
+                $led = $this->getLedAsArray($data, $i);
+
+                foreach ($groupAddresses as $groupAddress) {
+                    $leds[$groupAddress] = $led;
+                }
+
+                continue;
             }
 
             $leds[$address] = $this->getLedAsArray($data, $i);
@@ -75,7 +99,7 @@ class NeopixelMapper
             LedAttribute::ATTRIBUTE_KEY_RED => $this->transformService->asciiToUnsignedInt($data, $i++),
             LedAttribute::ATTRIBUTE_KEY_GREEN => $this->transformService->asciiToUnsignedInt($data, $i++),
             LedAttribute::ATTRIBUTE_KEY_BLUE => $this->transformService->asciiToUnsignedInt($data, $i++),
-            LedAttribute::ATTRIBUTE_KEY_FADE_IN => $this->transformService->asciiToUnsignedInt($data, $i++) >> 4,
+            LedAttribute::ATTRIBUTE_KEY_FADE_IN => $this->transformService->asciiToUnsignedInt($data, $i) >> 4,
             LedAttribute::ATTRIBUTE_KEY_BLINK => $this->transformService->asciiToUnsignedInt($data, $i++) & 15,
         ];
     }
