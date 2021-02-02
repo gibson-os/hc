@@ -103,6 +103,7 @@ class LogStore extends AbstractDatabaseStore
             false,
             '`' . $this->getTableName() . '`.`id`, ' .
             '`' . $this->getTableName() . '`.`data`, ' .
+            '`' . $this->getTableName() . '`.`raw_data`, ' .
             '`' . $this->getTableName() . '`.`direction`, ' .
             '`' . $this->getTableName() . '`.`type`, ' .
             '`' . $this->getTableName() . '`.`command`, ' .
@@ -136,6 +137,7 @@ class LogStore extends AbstractDatabaseStore
             $logModel = (new Log())
                 ->setType((int) $log['type'])
                 ->setData($log['data'])
+                ->setRawData($log['raw_data'])
                 ->setId((int) $log['id'])
                 ->setAdded(new DateTime($log['added']))
                 ->setCommand($log['command'] === null ? null : (int) $log['command'])

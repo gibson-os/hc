@@ -18,16 +18,16 @@ class Bme280Formatter extends AbstractFormatter
         switch ($log->getCommand()) {
             case Bme280Service::COMMAND_MEASURE:
                 $config = JsonUtility::decode((string) $log->getModule()->getConfig());
-                $measureData = self::measureData($this->transform->hexToAscii($log->getData()), $config);
+                $measureData = $this->measureData($log->getRawData(), $config);
 
                 return
                     'Temperatur: ' . $measureData['temperature'] . ' °C<br/>' .
                     'Luftdruck: ' . $measureData['pressure'] . ' hPa<br/>' .
                     'Luftfeuchtigkeit: ' . $measureData['humidity'] . ' %';
             case Bme280Service::COMMAND_CONTROL_HUMIDITY:
-                return 'Luftdruck Konfiguration: ' . $this->transform->hexToInt($log->getData(), 0);
+                return 'Luftdruck Konfiguration: ' . $this->transform->asciiToUnsignedInt($log->getRawData(), 0);
             case Bme280Service::COMMAND_CONTROL:
-                return 'Konfiguration: ' . $this->transform->hexToInt($log->getData(), 0);
+                return 'Konfiguration: ' . $this->transform->asciiToUnsignedInt($log->getRawData(), 0);
             case Bme280Service::COMMAND_CALIBRATION1:
                 return 'Kalibrierungdaten 1';
             case Bme280Service::COMMAND_CALIBRATION2:

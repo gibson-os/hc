@@ -28,7 +28,12 @@ class Log extends AbstractModel
 
     private ?int $command = null;
 
+    /**
+     * @deprecated
+     */
     private string $data;
+
+    private string $rawData;
 
     private string $direction;
 
@@ -133,14 +138,32 @@ class Log extends AbstractModel
         return $this;
     }
 
+    /**
+     * @deprecated use getRawData
+     */
     public function getData(): string
     {
         return $this->data;
     }
 
+    /**
+     * @deprecated use sezRawData
+     */
     public function setData(string $data): Log
     {
         $this->data = $data;
+
+        return $this;
+    }
+
+    public function getRawData(): string
+    {
+        return $this->rawData;
+    }
+
+    public function setRawData(string $rawData): Log
+    {
+        $this->rawData = $rawData;
 
         return $this;
     }

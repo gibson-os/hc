@@ -110,7 +110,7 @@ abstract class AbstractSlave extends AbstractService
      */
     private function addLog(Module $slave, int $type, int $command, string $data, string $direction): void
     {
-        $this->logRepository->create($type, $this->transformService->asciiToHex($data), $direction)
+        $this->logRepository->create($type, $data, $direction)
             ->setMaster($slave->getMaster())
             ->setModule($slave)
             ->setSlaveAddress($slave->getAddress())

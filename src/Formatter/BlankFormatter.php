@@ -12,13 +12,13 @@ class BlankFormatter extends AbstractHcFormatter
         $return = '<table><tr><th>Byte</th><th>Hex</th><th>Bin</th><th>Int</th></tr>';
         $byte = 1;
 
-        for ($i = 0; $i < strlen($log->getData()); $i += 2) {
-            $data = substr($log->getData(), $i, 2);
+        for ($i = 0; $i < strlen($log->getRawData()); ++$i) {
+            $data = substr($log->getRawData(), $i, 1);
             $return .= '<tr>';
             $return .= '<td>' . $byte . '</td>';
-            $return .= '<td>' . $data . '</td>';
-            $return .= '<td>' . $this->transform->hexToBin($data) . '</td>';
-            $return .= '<td>' . $this->transform->hexToInt($data) . '</td>';
+            $return .= '<td>' . $this->transform->asciiToHex($data) . '</td>';
+            $return .= '<td>' . $this->transform->asciiToBin($data) . '</td>';
+            $return .= '<td>' . $this->transform->asciiToUnsignedInt($data) . '</td>';
             $return .= '</tr>';
             ++$byte;
         }

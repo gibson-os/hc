@@ -15,7 +15,7 @@ class LogRepository extends AbstractRepository
     {
         return (new Log())
             ->setType($type)
-            ->setData($data)
+            ->setRawData($data)
             ->setDirection($direction)
         ;
     }

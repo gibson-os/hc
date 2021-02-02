@@ -29,10 +29,11 @@ abstract class AbstractFormatter implements FormatterInterface
     public function text(Log $log): ?string
     {
         if ($log->getType() == MasterService::TYPE_HANDSHAKE) {
-            return 'Adresse ' .
-                $this->transform->hexToInt(substr($log->getData(), 0, 2)) .
-                ' gesendet an ' .
-                $this->transform->hexToAscii(substr($log->getData(), 2));
+            return sprintf(
+                'Adresse %d gesendet an %s',
+                $this->transform->asciiToUnsignedInt($log->getRawData(), 0),
+                substr($log->getRawData(), 1)
+            );
         }
         if (
             $log->getType() == MasterService::TYPE_STATUS &&

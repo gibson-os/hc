@@ -18,7 +18,6 @@ use GibsonOS\Module\Hc\Formatter\Bme280Formatter;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Slave\Bme280Service;
-use GibsonOS\Module\Hc\Service\TransformService;
 
 class Bme280Controller extends AbstractController
 {
@@ -53,7 +52,6 @@ class Bme280Controller extends AbstractController
         Bme280Formatter $bme280Formatter,
         ModuleRepository $moduleRepository,
         LogRepository $logRepository,
-        TransformService $transformService,
         int $moduleId
     ): AjaxResponse {
         $this->checkPermission(PermissionService::READ);
@@ -62,7 +60,7 @@ class Bme280Controller extends AbstractController
         $log = $logRepository->getLastEntryByModuleId($moduleId, Bme280Service::COMMAND_MEASURE);
 
         return $this->returnSuccess($bme280Formatter->measureData(
-            $transformService->hexToAscii($log->getData()),
+            $log->getRawData(),
             JsonUtility::decode((string) $slave->getConfig())
         ));
     }
