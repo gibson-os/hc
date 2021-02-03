@@ -52,11 +52,6 @@ class LedService
         self::ATTRIBUTE_KEY_LEFT,
     ];
 
-    private const IGNORE_ATTRIBUTES = [
-        self::ATTRIBUTE_KEY_TOP,
-        self::ATTRIBUTE_KEY_LEFT,
-    ];
-
     private ValueRepository $valueRepository;
 
     private AttributeRepository $attributeRepository;
@@ -157,42 +152,25 @@ class LedService
         return $actualLeds;
     }
 
+    /**
+     * @param Led[] $oldLeds
+     * @param Led[] $newLeds
+     *
+     * @return Led[]
+     */
     public function getChanges(array $oldLeds, array $newLeds): array
     {
-        return array_udiff_assoc($newLeds, $oldLeds, function ($newLed, $oldLed) {
-            return count(array_diff_assoc($newLed, $oldLed));
+        return array_udiff_assoc($newLeds, $oldLeds, static function (Led $newLed, Led $oldLed) {
+            $newLedOnlyColor = $newLed->isOnlyColor();
+            $oldLedOnlyColor = $oldLed->isOnlyColor();
+            $newLed->setOnlyColor(true);
+            $oldLed->setOnlyColor(true);
+            $count = count(array_diff_assoc($newLed->jsonSerialize(), $oldLed->jsonSerialize()));
+            $newLed->setOnlyColor($newLedOnlyColor);
+            $oldLed->setOnlyColor($oldLedOnlyColor);
+
+            return $count;
         });
-    }
-
-    /**
-     * @deprecated
-     *
-     * @param Led[] $changedLeds
-     */
-    public function getChangedLedsWithoutIgnoredAttributes(array $changedLeds): array
-    {
-        $slaveLedsChanges = [];
-
-        foreach ($changedLeds as $id => $changedLed) {
-            $slaveLedChanges = [];
-
-            foreach ($changedLed->jsonSerialize() as $key => $attribute) {
-                if (
-                    in_array($key, self::IGNORE_ATTRIBUTES) ||
-                    !in_array($key, self::ATTRIBUTES)
-                ) {
-                    continue;
-                }
-
-                $slaveLedChanges[$key] = $attribute;
-            }
-
-            if (!empty($slaveLedChanges)) {
-                $slaveLedsChanges[$id] = $slaveLedChanges;
-            }
-        }
-
-        return $slaveLedsChanges;
     }
 
     /**

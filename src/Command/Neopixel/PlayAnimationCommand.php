@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\EnvService;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
@@ -104,7 +105,7 @@ class PlayAnimationCommand extends AbstractCommand
                 }
 
                 $this->mysqlDatabase->openDB($this->envService->getString('MYSQL_DATABASE'));
-                $changedLeds = $this->ledMapper->getLedsByArray($this->getChanges($slave, $newLeds), true, false);
+                $changedLeds = $this->getChanges($slave, $newLeds);
                 $startTime += 1000000;
                 $this->sleepToTime($startTime);
                 $this->writeLeds($slave, $this->neopixelService, $newLeds, $changedLeds);
@@ -133,16 +134,17 @@ class PlayAnimationCommand extends AbstractCommand
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws Exception
+     *
+     * @return Led[]
      */
     private function getChanges(Module $slave, array &$leds): array
     {
         ksort($leds);
 
-        return $this->ledService->getChanges(
-            $this->ledService->getChangedLedsWithoutIgnoredAttributes($this->ledService->getActualState($slave)),
-            $this->ledService->getChangedLedsWithoutIgnoredAttributes($leds)
-        );
+        return $this->ledService->getChanges($this->ledService->getActualState($slave), $leds);
     }
 
     /**

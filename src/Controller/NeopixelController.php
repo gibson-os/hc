@@ -68,7 +68,7 @@ class NeopixelController extends AbstractController
         $this->checkPermission(PermissionService::WRITE);
 
         $slave = $moduleRepository->getById($moduleId);
-        $neopixelService->writeLeds($slave, $ledMapper->getLedsByArray($leds, true, false));
+        $neopixelService->writeLeds($slave, $ledMapper->mapFromArrays($leds, true, false));
 
         return $this->returnSuccess();
     }
@@ -93,7 +93,7 @@ class NeopixelController extends AbstractController
         $this->checkPermission(PermissionService::MANAGE + PermissionService::WRITE);
 
         $slave = $moduleRepository->getById($moduleId);
-        $leds = $ledMapper->getLedsByArray($leds, false, false);
+        $leds = $ledMapper->mapFromArrays($leds, false, false);
         $ledCounts = $ledService->getChannelCounts($slave, $leds);
         $config = JsonUtility::decode($slave->getConfig() ?? '[]');
 

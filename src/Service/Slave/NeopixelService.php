@@ -206,7 +206,7 @@ class NeopixelService extends AbstractHcSlave
      */
     public function writeSetLeds(Module $slave, array $leds): NeopixelService
     {
-        $data = $this->ledMapper->getLedsAsStrings($leds, (int) $slave->getDataBufferSize());
+        $data = $this->ledMapper->mapToStrings($leds, (int) $slave->getDataBufferSize());
 
         foreach ($this->getWriteStrings($slave, $data) as $writeString) {
             $this->write($slave, self::COMMAND_SET_LEDS, $writeString);
@@ -350,7 +350,7 @@ class NeopixelService extends AbstractHcSlave
      */
     public function writeSequenceAddStep(Module $slave, int $runtime, array $leds): NeopixelService
     {
-        $dataStrings = $this->ledMapper->getLedsAsStrings($leds, (int) $slave->getDataBufferSize());
+        $dataStrings = $this->ledMapper->mapToStrings($leds, (int) $slave->getDataBufferSize());
         $writeStrings = $this->getWriteStrings($slave, $dataStrings);
 
         foreach ($writeStrings as $index => $writeString) {
@@ -417,10 +417,7 @@ class NeopixelService extends AbstractHcSlave
      */
     public function writeLeds(Module $slave, array $leds): void
     {
-        $changedSlaveLeds = $this->ledMapper->getLedsByArray($this->ledService->getChanges(
-            $this->ledService->getChangedLedsWithoutIgnoredAttributes($this->ledService->getActualState($slave)),
-            $this->ledService->getChangedLedsWithoutIgnoredAttributes($leds)
-        ), true, false);
+        $changedSlaveLeds = $this->ledService->getChanges($this->ledService->getActualState($slave), $leds);
         $this->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
         $lastChangedIds = $this->ledService->getLastIds($slave, $changedSlaveLeds);
 

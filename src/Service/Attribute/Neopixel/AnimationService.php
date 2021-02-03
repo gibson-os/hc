@@ -96,7 +96,7 @@ class AnimationService
             $values = $this->getValueModels($slave, self::ATTRIBUTE_KEY_STEPS);
 
             foreach ($values as $value) {
-                $steps[$value->getOrder()] = $this->ledMapper->getLedsByArray(
+                $steps[$value->getOrder()] = $this->ledMapper->mapFromArrays(
                     JsonUtility::decode($value->getValue()),
                     true,
                     true

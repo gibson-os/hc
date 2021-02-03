@@ -29,7 +29,7 @@ class LedMapper
      *
      * @return string[]
      */
-    public function getLedsAsStrings(array $leds, int $maxLength): array
+    public function mapToStrings(array $leds, int $maxLength): array
     {
         ksort($leds);
         $colors = $this->getColorsByLeds($leds);
@@ -53,12 +53,12 @@ class LedMapper
      *
      * @return Led[]
      */
-    public function getLedsByArray(array $data, bool $onlyColor, bool $forAnimation): array
+    public function mapFromArrays(array $data, bool $onlyColor, bool $forAnimation): array
     {
         $leds = [];
 
         foreach ($data as $item) {
-            $leds[] = $this->getLedByArray($item, $onlyColor, $forAnimation);
+            $leds[] = $this->mapFromArray($item, $onlyColor, $forAnimation);
         }
 
         return $leds;
@@ -67,7 +67,7 @@ class LedMapper
     /**
      * @param array{red: int, green: int, blue: int, fadeIn: int, blink: int} $data
      */
-    public function getLedByArray(array $data, bool $onlyColor, bool $forAnimation): Led
+    public function mapFromArray(array $data, bool $onlyColor, bool $forAnimation): Led
     {
         $led = (new Led())
             ->setNumber($data[LedService::ATTRIBUTE_KEY_NUMBER] ?? 0)
@@ -91,7 +91,7 @@ class LedMapper
     /**
      * @return Led[]
      */
-    public function getLedsByString(string $data): array
+    public function mapFromString(string $data): array
     {
         $leds = [];
 
