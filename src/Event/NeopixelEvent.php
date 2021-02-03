@@ -175,7 +175,8 @@ class NeopixelEvent extends AbstractHcEvent
         $leds = [];
 
         for ($i = $start; $i <= $end; ++$i) {
-            $leds[$i - 1] = [
+            $leds[] = [
+                'number' => $i - 1,
                 'red' => mt_rand($redFrom, $redTo),
                 'green' => mt_rand($greenFrom, $greenTo),
                 'blue' => mt_rand($blueFrom, $blueTo),
