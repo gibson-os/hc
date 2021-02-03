@@ -53,12 +53,12 @@ class LedMapper
      *
      * @return Led[]
      */
-    public function getLedsByArray(array $data): array
+    public function getLedsByArray(array $data, bool $onlyColor, bool $forAnimation): array
     {
         $leds = [];
 
         foreach ($data as $item) {
-            $leds[] = $this->getLedByArray($item);
+            $leds[] = $this->getLedByArray($item, $onlyColor, $forAnimation);
         }
 
         return $leds;
@@ -67,9 +67,9 @@ class LedMapper
     /**
      * @param array{red: int, green: int, blue: int, fadeIn: int, blink: int} $data
      */
-    public function getLedByArray(array $data): Led
+    public function getLedByArray(array $data, bool $onlyColor, bool $forAnimation): Led
     {
-        return (new Led())
+        $led = (new Led())
             ->setNumber($data[LedService::ATTRIBUTE_KEY_NUMBER] ?? 0)
             ->setChannel($data[LedService::ATTRIBUTE_KEY_CHANNEL] ?? 0)
             ->setRed($data[LedService::ATTRIBUTE_KEY_RED])
@@ -81,7 +81,11 @@ class LedMapper
             ->setLeft($data[LedService::ATTRIBUTE_KEY_LEFT] ?? 0)
             ->setLength($data['length'] ?? 0)
             ->setTime($data['time'] ?? 0)
+            ->setOnlyColor($onlyColor)
+            ->setForAnimation($forAnimation)
         ;
+
+        return $led;
     }
 
     /**

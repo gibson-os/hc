@@ -29,6 +29,10 @@ class Led implements JsonSerializable
 
     private int $time = 0;
 
+    private bool $onlyColor = false;
+
+    private bool $forAnimation = false;
+
     public function getNumber(): int
     {
         return $this->number;
@@ -161,20 +165,52 @@ class Led implements JsonSerializable
         return $this;
     }
 
+    public function isOnlyColor(): bool
+    {
+        return $this->onlyColor;
+    }
+
+    public function setOnlyColor(bool $onlyColor): Led
+    {
+        $this->onlyColor = $onlyColor;
+
+        return $this;
+    }
+
+    public function isForAnimation(): bool
+    {
+        return $this->forAnimation;
+    }
+
+    public function setForAnimation(bool $forAnimation): Led
+    {
+        $this->forAnimation = $forAnimation;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
-        return [
+        $json = [
             'number' => $this->getNumber(),
             'channel' => $this->getChannel(),
-            'top' => $this->getTop(),
-            'left' => $this->getLeft(),
             'red' => $this->getRed(),
             'green' => $this->getGreen(),
             'blue' => $this->getBlue(),
             'fadeIn' => $this->getFadeIn(),
             'blink' => $this->getBlink(),
-            'length' => $this->getLength(),
-            'time' => $this->getTime(),
         ];
+
+        if (!$this->isOnlyColor()) {
+            $json['left'] = $this->getLeft();
+            $json['top'] = $this->getTop();
+        }
+
+        if ($this->isForAnimation()) {
+            $json['length'] = $this->getLength();
+            $json['time'] = $this->getTime();
+        }
+
+        return $json;
     }
 }

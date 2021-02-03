@@ -165,6 +165,8 @@ class LedService
     }
 
     /**
+     * @deprecated
+     *
      * @param Led[] $changedLeds
      */
     public function getChangedLedsWithoutIgnoredAttributes(array $changedLeds): array

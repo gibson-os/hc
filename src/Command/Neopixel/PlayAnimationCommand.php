@@ -104,7 +104,7 @@ class PlayAnimationCommand extends AbstractCommand
                 }
 
                 $this->mysqlDatabase->openDB($this->envService->getString('MYSQL_DATABASE'));
-                $changedLeds = $this->ledMapper->getLedsByArray($this->getChanges($slave, $newLeds));
+                $changedLeds = $this->ledMapper->getLedsByArray($this->getChanges($slave, $newLeds), true, false);
                 $startTime += 1000000;
                 $this->sleepToTime($startTime);
                 $this->writeLeds($slave, $this->neopixelService, $newLeds, $changedLeds);

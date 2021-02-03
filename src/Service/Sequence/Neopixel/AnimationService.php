@@ -145,7 +145,7 @@ class AnimationService extends AbstractService
                 $times[$item['time']] = [];
             }
 
-            $times[$item['time']][] = $this->ledMapper->getLedByArray($item);
+            $times[$item['time']][] = $this->ledMapper->getLedByArray($item, true, true);
         }
 
         ksort($times, SORT_NUMERIC);

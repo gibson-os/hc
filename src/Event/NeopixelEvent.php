@@ -46,7 +46,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     public function writeSetLeds(Module $slave, array $leds): void
     {
-        $this->neopixelService->writeLeds($slave, $this->ledMapper->getLedsByArray($leds));
+        $this->neopixelService->writeLeds($slave, $this->ledMapper->getLedsByArray($leds, true, false));
     }
 
     /**

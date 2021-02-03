@@ -420,7 +420,7 @@ class NeopixelService extends AbstractHcSlave
         $changedSlaveLeds = $this->ledMapper->getLedsByArray($this->ledService->getChanges(
             $this->ledService->getChangedLedsWithoutIgnoredAttributes($this->ledService->getActualState($slave)),
             $this->ledService->getChangedLedsWithoutIgnoredAttributes($leds)
-        ));
+        ), true, false);
         $this->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
         $lastChangedIds = $this->ledService->getLastIds($slave, $changedSlaveLeds);
 

@@ -97,7 +97,9 @@ class AnimationService
 
             foreach ($values as $value) {
                 $steps[$value->getOrder()] = $this->ledMapper->getLedsByArray(
-                    JsonUtility::decode($value->getValue())
+                    JsonUtility::decode($value->getValue()),
+                    true,
+                    true
                 );
             }
 
