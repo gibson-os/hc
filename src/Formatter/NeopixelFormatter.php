@@ -98,6 +98,26 @@ class NeopixelFormatter extends AbstractHcFormatter
         return parent::render($log);
     }
 
+    public function text(Log $log): ?string
+    {
+        if ($log->getCommand() === NeopixelService::COMMAND_CHANNEL_WRITE) {
+            $texts = [];
+            $channel = 1;
+
+            for ($i = 0; $i < strlen($log->getRawData()); $i += 2) {
+                $texts[] =
+                    'Channel ' . $channel++ .
+                    ' bis ' . $this->transform->asciiToUnsignedInt(substr($log->getRawData(), $i, 2)) .
+                    ' gesetzt.'
+                ;
+            }
+
+            return implode('<br>', $texts);
+        }
+
+        return parent::text($log);
+    }
+
     /**
      * @return Led[]
      */
