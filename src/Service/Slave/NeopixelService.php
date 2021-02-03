@@ -16,7 +16,7 @@ use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
-use GibsonOS\Module\Hc\Mapper\NeopixelMapper;
+use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
@@ -59,13 +59,13 @@ class NeopixelService extends AbstractHcSlave
 
     private LedService $ledService;
 
-    private NeopixelMapper $neopixelMapper;
+    private LedMapper $ledMapper;
 
     public function __construct(
         MasterService $masterService,
         TransformService $transformService,
         EventService $eventService,
-        NeopixelMapper $neopixelMapper,
+        LedMapper $ledMapper,
         LedService $ledService,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
@@ -86,7 +86,7 @@ class NeopixelService extends AbstractHcSlave
             $logger
         );
         $this->ledService = $ledService;
-        $this->neopixelMapper = $neopixelMapper;
+        $this->ledMapper = $ledMapper;
     }
 
     /**
@@ -206,7 +206,7 @@ class NeopixelService extends AbstractHcSlave
      */
     public function writeSetLeds(Module $slave, array $leds): NeopixelService
     {
-        $data = $this->neopixelMapper->getLedsAsStrings($leds, (int) $slave->getDataBufferSize());
+        $data = $this->ledMapper->getLedsAsStrings($leds, (int) $slave->getDataBufferSize());
 
         foreach ($this->getWriteStrings($slave, $data) as $writeString) {
             $this->write($slave, self::COMMAND_SET_LEDS, $writeString);
@@ -350,7 +350,7 @@ class NeopixelService extends AbstractHcSlave
      */
     public function writeSequenceAddStep(Module $slave, int $runtime, array $leds): NeopixelService
     {
-        $dataStrings = $this->neopixelMapper->getLedsAsStrings($leds, (int) $slave->getDataBufferSize());
+        $dataStrings = $this->ledMapper->getLedsAsStrings($leds, (int) $slave->getDataBufferSize());
         $writeStrings = $this->getWriteStrings($slave, $dataStrings);
 
         foreach ($writeStrings as $index => $writeString) {
@@ -417,7 +417,7 @@ class NeopixelService extends AbstractHcSlave
      */
     public function writeLeds(Module $slave, array $leds): void
     {
-        $changedSlaveLeds = $this->neopixelMapper->getLedsByArray($this->ledService->getChanges(
+        $changedSlaveLeds = $this->ledMapper->getLedsByArray($this->ledService->getChanges(
             $this->ledService->getChangedLedsWithoutIgnoredAttributes($this->ledService->getActualState($slave)),
             $this->ledService->getChangedLedsWithoutIgnoredAttributes($leds)
         ));

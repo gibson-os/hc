@@ -7,7 +7,7 @@ use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\TransformService;
 
-class NeopixelMapper
+class LedMapper
 {
     public const MAX_PROTOCOL_LEDS = 16384;
 
@@ -67,7 +67,7 @@ class NeopixelMapper
     /**
      * @param array{red: int, green: int, blue: int, fadeIn: int, blink: int} $data
      */
-    private function getLedByArray(array $data): Led
+    public function getLedByArray(array $data): Led
     {
         return (new Led())
             ->setNumber($data[LedService::ATTRIBUTE_KEY_NUMBER] ?? 0)
@@ -79,6 +79,8 @@ class NeopixelMapper
             ->setBlink($data[LedService::ATTRIBUTE_KEY_BLINK])
             ->setTop($data[LedService::ATTRIBUTE_KEY_TOP] ?? 0)
             ->setLeft($data[LedService::ATTRIBUTE_KEY_LEFT] ?? 0)
+            ->setLength($data['length'] ?? 0)
+            ->setTime($data['time'] ?? 0)
         ;
     }
 

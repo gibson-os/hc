@@ -5,7 +5,7 @@ namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
-use GibsonOS\Module\Hc\Mapper\NeopixelMapper;
+use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Service\TransformService;
@@ -15,7 +15,7 @@ class NeopixelFormatter extends AbstractHcFormatter
 {
     private LedStore $ledStore;
 
-    private NeopixelMapper $neopixelMapper;
+    private LedMapper $ledMapper;
 
     /**
      * @var array<int, array<int, Led>>
@@ -27,12 +27,12 @@ class NeopixelFormatter extends AbstractHcFormatter
     public function __construct(
         TransformService $transform,
         LedStore $ledStore,
-        NeopixelMapper $neopixelMapper,
+        LedMapper $ledMapper,
         TwigService $twigService
     ) {
         parent::__construct($transform);
         $this->ledStore = $ledStore;
-        $this->neopixelMapper = $neopixelMapper;
+        $this->ledMapper = $ledMapper;
         $this->twigService = $twigService;
     }
 
@@ -66,7 +66,7 @@ class NeopixelFormatter extends AbstractHcFormatter
     {
         if ($log->getCommand() === NeopixelService::COMMAND_SET_LEDS) {
             $moduleLeds = $this->getLeds($log->getModuleId() ?? 0);
-            $logLeds = $this->neopixelMapper->getLedsByString($this->transform->hexToAscii($log->getData()));
+            $logLeds = $this->ledMapper->getLedsByString($this->transform->hexToAscii($log->getData()));
             $rendered = '';
             $maxTop = 0;
 

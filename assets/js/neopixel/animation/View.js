@@ -51,7 +51,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
                     } else {
                         if (element.fadeIn) {
                             let store = me.getStore();
-                            let ledIndex = store.find('led', element.led, 0, false, false, true);
+                            let ledIndex = store.find('number', element.number, 0, false, false, true);
                             let lastLed = null;
 
                             while (ledIndex > -1) {
@@ -67,7 +67,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
                                     lastLed = ledRecord;
                                 }
 
-                                ledIndex = store.find('led', element.led, ledIndex+1, false, false, true);
+                                ledIndex = store.find('number', element.number, ledIndex+1, false, false, true);
                             }
 
                             let lastLedRed = 0;
@@ -95,7 +95,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
                     }
 
                     div += 'width: ' + ((element.length / 1000) * me.pixelPerSecond) + 'px; ';
-                    div += 'top: ' + ((23 * element.led) + 4) + 'px; ';
+                    div += 'top: ' + ((23 * element.number) + 4) + 'px; ';
                     div += 'left: ' + ((element.time / 1000) * me.pixelPerSecond + 1) + 'px;';
 
                     return div + '">&nbsp;</div>';

@@ -17,7 +17,7 @@ use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
-use GibsonOS\Module\Hc\Mapper\NeopixelMapper;
+use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService;
@@ -60,7 +60,7 @@ class NeopixelController extends AbstractController
      */
     public function showLeds(
         NeopixelService $neopixelService,
-        NeopixelMapper $neopixelMapper,
+        LedMapper $ledMapper,
         ModuleRepository $moduleRepository,
         int $moduleId,
         array $leds = []
@@ -68,7 +68,7 @@ class NeopixelController extends AbstractController
         $this->checkPermission(PermissionService::WRITE);
 
         $slave = $moduleRepository->getById($moduleId);
-        $neopixelService->writeLeds($slave, $neopixelMapper->getLedsByArray($leds));
+        $neopixelService->writeLeds($slave, $ledMapper->getLedsByArray($leds));
 
         return $this->returnSuccess();
     }

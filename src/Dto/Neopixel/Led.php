@@ -25,6 +25,10 @@ class Led implements JsonSerializable
 
     private int $blink = 0;
 
+    private int $length = 0;
+
+    private int $time = 0;
+
     public function getNumber(): int
     {
         return $this->number;
@@ -133,6 +137,30 @@ class Led implements JsonSerializable
         return $this;
     }
 
+    public function getLength(): int
+    {
+        return $this->length;
+    }
+
+    public function setLength(int $length): Led
+    {
+        $this->length = $length;
+
+        return $this;
+    }
+
+    public function getTime(): int
+    {
+        return $this->time;
+    }
+
+    public function setTime(int $time): Led
+    {
+        $this->time = $time;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         return [
@@ -145,6 +173,8 @@ class Led implements JsonSerializable
             'blue' => $this->getBlue(),
             'fadeIn' => $this->getFadeIn(),
             'blink' => $this->getBlink(),
+            'length' => $this->getLength(),
+            'time' => $this->getTime(),
         ];
     }
 }

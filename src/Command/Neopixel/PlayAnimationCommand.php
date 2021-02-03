@@ -14,6 +14,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\EnvService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Exception\WriteException;
+use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
@@ -39,6 +40,8 @@ class PlayAnimationCommand extends AbstractCommand
 
     private EnvService $envService;
 
+    private LedMapper $ledMapper;
+
     public function __construct(
         NeopixelService $neopixelService,
         AnimationAttributeService $animationAttributeService,
@@ -47,6 +50,7 @@ class PlayAnimationCommand extends AbstractCommand
         ModuleRepository $moduleRepository,
         mysqlDatabase $mysqlDatabase,
         EnvService $envService,
+        LedMapper $ledMapper,
         LoggerInterface $logger
     ) {
         $this->neopixelService = $neopixelService;
@@ -56,6 +60,7 @@ class PlayAnimationCommand extends AbstractCommand
         $this->moduleRepository = $moduleRepository;
         $this->mysqlDatabase = $mysqlDatabase;
         $this->envService = $envService;
+        $this->ledMapper = $ledMapper;
 
         $this->setArgument('slaveId', true);
         $this->setArgument('iterations', false);
@@ -95,11 +100,11 @@ class PlayAnimationCommand extends AbstractCommand
                 $newLeds = [];
 
                 foreach ($leds as $led) {
-                    $newLeds[$led['led']] = $led;
+                    $newLeds[$led->getNumber()] = $led;
                 }
 
                 $this->mysqlDatabase->openDB($this->envService->getString('MYSQL_DATABASE'));
-                $changedLeds = $this->getChanges($slave, $newLeds);
+                $changedLeds = $this->ledMapper->getLedsByArray($this->getChanges($slave, $newLeds));
                 $startTime += 1000000;
                 $this->sleepToTime($startTime);
                 $this->writeLeds($slave, $this->neopixelService, $newLeds, $changedLeds);

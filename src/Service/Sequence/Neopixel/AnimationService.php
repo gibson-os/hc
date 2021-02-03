@@ -11,6 +11,8 @@ use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Service\CommandService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Command\Neopixel\PlayAnimationCommand;
+use GibsonOS\Module\Hc\Dto\Neopixel\Led;
+use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
@@ -26,14 +28,18 @@ class AnimationService extends AbstractService
 
     private CommandService $commandService;
 
+    private LedMapper $ledMapper;
+
     public function __construct(
         SequenceRepository $sequenceRepository,
         ElementRepository $elementRepository,
-        CommandService $commandService
+        CommandService $commandService,
+        LedMapper $ledMapper
     ) {
         $this->sequenceRepository = $sequenceRepository;
         $this->elementRepository = $elementRepository;
         $this->commandService = $commandService;
+        $this->ledMapper = $ledMapper;
     }
 
     /**
@@ -139,7 +145,7 @@ class AnimationService extends AbstractService
                 $times[$item['time']] = [];
             }
 
-            $times[$item['time']][] = $item;
+            $times[$item['time']][] = $this->ledMapper->getLedByArray($item);
         }
 
         ksort($times, SORT_NUMERIC);
@@ -147,14 +153,19 @@ class AnimationService extends AbstractService
         return $times;
     }
 
+    /**
+     * @param array<int, Led[]> $timeSteps
+     *
+     * @return int[]
+     */
     public function getRuntimes(array $timeSteps): array
     {
         $lastTime = null;
-        $timeStep = null;
+        $leds = null;
         $runtimes = [];
         ksort($timeSteps, SORT_NUMERIC);
 
-        foreach ($timeSteps as $time => $timeStep) {
+        foreach ($timeSteps as $time => $leds) {
             if ($lastTime !== null) {
                 $runtimes[$lastTime] = ((int) $time) - $lastTime;
             }
@@ -162,12 +173,12 @@ class AnimationService extends AbstractService
             $lastTime = (int) $time;
         }
 
-        if ($lastTime !== null) {
+        if ($lastTime !== null && $leds !== null) {
             $maxLength = 0;
 
-            foreach ($timeStep as $led) {
-                if ($led['length'] > $maxLength) {
-                    $maxLength = $led['length'];
+            foreach ($leds as $led) {
+                if ($led->getLength() > $maxLength) {
+                    $maxLength = $led->getLength();
                 }
             }
 

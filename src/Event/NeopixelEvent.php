@@ -11,7 +11,7 @@ use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Event\Describer\NeopixelDescriber;
 use GibsonOS\Module\Hc\Exception\WriteException;
-use GibsonOS\Module\Hc\Mapper\NeopixelMapper;
+use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
@@ -24,7 +24,7 @@ class NeopixelEvent extends AbstractHcEvent
 
     private ElementRepository $elementRepository;
 
-    private NeopixelMapper $neopixelMapper;
+    private LedMapper $ledMapper;
 
     public function __construct(
         NeopixelDescriber $describer,
@@ -32,12 +32,12 @@ class NeopixelEvent extends AbstractHcEvent
         TypeRepository $typeRepository,
         NeopixelService $neopixelService,
         ElementRepository $elementRepository,
-        NeopixelMapper $neopixelMapper
+        LedMapper $ledMapper
     ) {
         parent::__construct($describer, $serviceManagerService, $typeRepository);
         $this->neopixelService = $neopixelService;
         $this->elementRepository = $elementRepository;
-        $this->neopixelMapper = $neopixelMapper;
+        $this->ledMapper = $ledMapper;
     }
 
     /**
@@ -46,7 +46,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     public function writeSetLeds(Module $slave, array $leds): void
     {
-        $this->neopixelService->writeLeds($slave, $this->neopixelMapper->getLedsByArray($leds));
+        $this->neopixelService->writeLeds($slave, $this->ledMapper->getLedsByArray($leds));
     }
 
     /**

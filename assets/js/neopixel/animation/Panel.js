@@ -27,7 +27,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 Ext.iterate(
                     document.querySelectorAll('#' + animationView.getId() + ' div.selected'),
                     selectedLedDiv => {
-                        let ledIndex = store.find('led', selectedLedDiv.dataset.id, 0, false, false, true);
+                        let ledIndex = store.find('number', selectedLedDiv.dataset.id, 0, false, false, true);
                         let time = 0;
                         let ledRecord;
                         const deactivated = me.down('#hcNeopixelLedColorDeactivated').getValue();
@@ -39,7 +39,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                                 time = ledRecord.get('time') + ledRecord.get('length');
                             }
 
-                            ledIndex = store.find('led', selectedLedDiv.dataset.id, ledIndex + 1, false, false, true);
+                            ledIndex = store.find('number', selectedLedDiv.dataset.id, ledIndex + 1, false, false, true);
                         }
 
                         const red = me.down('#hcNeopixelLedColorRed').getValue();
@@ -69,7 +69,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                         }
 
                         animationView.getStore().add({
-                            led: selectedLedDiv.dataset.id,
+                            number: selectedLedDiv.dataset.id,
                             red: deactivated ? '00' : red,
                             green: deactivated ? '00' : green,
                             blue: deactivated ? '00' : blue,
@@ -93,7 +93,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 store.remove(record);
 
                 Ext.iterate(store.getRange(index), led => {
-                    if (led.get('led') !== record.get('led')) {
+                    if (led.get('number') !== record.get('number')) {
                         return false;
                     }
 
@@ -161,7 +161,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 record.set('length', value);
 
                 Ext.iterate(store.getRange(store.indexOf(records[0]) + 1), led => {
-                    if (led.get('led') !== record.get('led')) {
+                    if (led.get('number') !== record.get('number')) {
                         return false;
                     }
 
@@ -380,11 +380,11 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
                             Ext.iterate(data.data, item => {
                                 if (
-                                    setLeds.indexOf(item.led) === -1 &&
+                                    setLeds.indexOf(item.number) === -1 &&
                                     item.time !== 0
                                 ) {
                                     store.add({
-                                        led: item.led,
+                                        number: item.number,
                                         deactivated: true,
                                         time: 0,
                                         length: item.time
@@ -392,7 +392,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                                 }
 
                                 store.add(item);
-                                setLeds.push(item.led);
+                                setLeds.push(item.number);
                             });
                         }
                     });
@@ -513,7 +513,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
                         window.eachColor(selectedLeds.length, (index, red, green, blue) => {
                             let selectedLedId = selectedLeds[index].dataset.id;
-                            let ledIndex = store.find('led', selectedLedId, 0, false, false, true);
+                            let ledIndex = store.find('number', selectedLedId, 0, false, false, true);
                             let time = 0;
                             let ledRecord = null;
 
@@ -524,11 +524,11 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                                     time = ledRecord.get('time') + ledRecord.get('length');
                                 }
 
-                                ledIndex = store.find('led', selectedLedId, ledIndex + 1, false, false, true);
+                                ledIndex = store.find('number', selectedLedId, ledIndex + 1, false, false, true);
                             }
 
                             store.add({
-                                led: selectedLedId,
+                                number: selectedLedId,
                                 red: red,
                                 green: green,
                                 blue: blue,

@@ -1,7 +1,7 @@
 Ext.define('GibsonOS.module.hc.neopixel.model.Animation', {
     extend: 'GibsonOS.data.Model',
     fields: [{
-        name: 'led',
+        name: 'number',
         type: 'int'
     },{
         name: 'red',

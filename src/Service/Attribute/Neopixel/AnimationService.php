@@ -9,6 +9,8 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Dto\Neopixel\Led;
+use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository as ValueRepository;
@@ -30,12 +32,16 @@ class AnimationService
 
     private AttributeRepository $attributeRepository;
 
+    private LedMapper $ledMapper;
+
     public function __construct(
         AttributeRepository $attributeRepository,
-        ValueRepository $valueRepository
+        ValueRepository $valueRepository,
+        LedMapper $ledMapper
     ) {
         $this->valueRepository = $valueRepository;
         $this->attributeRepository = $attributeRepository;
+        $this->ledMapper = $ledMapper;
     }
 
     /**
@@ -80,6 +86,9 @@ class AnimationService
         }
     }
 
+    /**
+     * @return array<int, Led[]>
+     */
     public function getSteps(Module $slave): array
     {
         try {
@@ -87,7 +96,9 @@ class AnimationService
             $values = $this->getValueModels($slave, self::ATTRIBUTE_KEY_STEPS);
 
             foreach ($values as $value) {
-                $steps[$value->getOrder()] = JsonUtility::decode($value->getValue());
+                $steps[$value->getOrder()] = $this->ledMapper->getLedsByArray(
+                    JsonUtility::decode($value->getValue())
+                );
             }
 
             return $steps;
