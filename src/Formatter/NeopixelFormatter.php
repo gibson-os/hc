@@ -66,7 +66,7 @@ class NeopixelFormatter extends AbstractHcFormatter
     {
         if ($log->getCommand() === NeopixelService::COMMAND_SET_LEDS) {
             $moduleLeds = $this->getLeds($log->getModuleId() ?? 0);
-            $logLeds = $this->ledMapper->mapFromString($this->transform->hexToAscii($log->getData()));
+            $logLeds = $this->ledMapper->mapFromString($log->getRawData());
             $rendered = '';
             $maxTop = 0;
 
