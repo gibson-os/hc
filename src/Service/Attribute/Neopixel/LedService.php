@@ -9,6 +9,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
 use GibsonOS\Module\Hc\Model\Module;
@@ -21,6 +22,8 @@ use Psr\Log\LoggerInterface;
 class LedService
 {
     public const ATTRIBUTE_TYPE = 'led';
+
+    public const ATTRIBUTE_KEY_NUMBER = 'number';
 
     public const ATTRIBUTE_KEY_CHANNEL = 'channel';
 
@@ -76,6 +79,8 @@ class LedService
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws DateTimeError
      * @throws SaveError
      */
@@ -98,6 +103,8 @@ class LedService
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @return int[]
      */
     public function getLastIds(Module $slave, array $leds): array
@@ -129,6 +136,8 @@ class LedService
 
     /**
      * @throws Exception
+     *
+     * @return Led[]
      */
     public function getActualState(Module $slave): array
     {
@@ -136,13 +145,13 @@ class LedService
         $config = JsonUtility::decode($slave->getConfig() ?? '[]');
 
         for ($i = 0; $i < array_sum($config[NeopixelService::CONFIG_COUNTS]); ++$i) {
-            $attributes = [];
+            $led = new Led();
 
             foreach ($this->getById($slave, $i) as $attributeValue) {
-                $attributes[$attributeValue->getAttribute()->getKey()] = $attributeValue->getValue();
+                $led->{'set' . ucfirst($attributeValue->getAttribute()->getKey())}((int) $attributeValue->getValue());
             }
 
-            $actualLeds[$i] = $attributes;
+            $actualLeds[$i] = $led;
         }
 
         return $actualLeds;
@@ -155,6 +164,9 @@ class LedService
         });
     }
 
+    /**
+     * @param Led[] $changedLeds
+     */
     public function getChangedLedsWithoutIgnoredAttributes(array $changedLeds): array
     {
         $slaveLedsChanges = [];
@@ -162,7 +174,7 @@ class LedService
         foreach ($changedLeds as $id => $changedLed) {
             $slaveLedChanges = [];
 
-            foreach ($changedLed as $key => $attribute) {
+            foreach ($changedLed->jsonSerialize() as $key => $attribute) {
                 if (
                     in_array($key, self::IGNORE_ATTRIBUTES) ||
                     !in_array($key, self::ATTRIBUTES)
@@ -185,12 +197,10 @@ class LedService
      * @throws DateTimeError
      * @throws SaveError
      */
-    private function saveLed(Module $slave, int $id, array $led): void
+    private function saveLed(Module $slave, int $id, Led $led): void
     {
-        foreach ($led as $attribute => $value) {
+        foreach ($led->jsonSerialize() as $attribute => $value) {
             if (!in_array($attribute, self::ATTRIBUTES)) {
-                $this->logger->debug(sprintf('LED %d attribute %s not allowed!', $id, $attribute));
-
                 continue;
             }
 
@@ -261,6 +271,8 @@ class LedService
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws DeleteError
      */
     public function deleteUnusedLeds(Module $slave, array $leds)
@@ -282,6 +294,8 @@ class LedService
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws OutOfRangeException
      */
     public function getChannelCounts(Module $slave, array $leds): array
@@ -294,7 +308,7 @@ class LedService
         }
 
         foreach ($leds as $led) {
-            ++$counts[$led[self::ATTRIBUTE_KEY_CHANNEL]];
+            ++$counts[$led->getChannel()];
         }
 
         return $counts;

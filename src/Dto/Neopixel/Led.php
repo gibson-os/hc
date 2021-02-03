@@ -7,9 +7,9 @@ use JsonSerializable;
 
 class Led implements JsonSerializable
 {
-    private int $number;
+    private int $number = 0;
 
-    private int $channel;
+    private int $channel = 0;
 
     private int $top = 0;
 
@@ -24,12 +24,6 @@ class Led implements JsonSerializable
     private int $fadeIn = 0;
 
     private int $blink = 0;
-
-    public function __construct(int $number, int $channel)
-    {
-        $this->number = $number;
-        $this->channel = $channel;
-    }
 
     public function getNumber(): int
     {

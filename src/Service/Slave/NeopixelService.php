@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\BusMessage;
+use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Mapper\NeopixelMapper;
@@ -117,16 +118,12 @@ class NeopixelService extends AbstractHcSlave
                 $top = $this->ledService->getById($slave, $id, LedService::ATTRIBUTE_KEY_TOP);
                 $left = $this->ledService->getById($slave, $id, LedService::ATTRIBUTE_KEY_LEFT);
 
-                $leds[$id] = [
-                    LedService::ATTRIBUTE_KEY_CHANNEL => $channel,
-                    LedService::ATTRIBUTE_KEY_RED => 0,
-                    LedService::ATTRIBUTE_KEY_GREEN => 0,
-                    LedService::ATTRIBUTE_KEY_BLUE => 0,
-                    LedService::ATTRIBUTE_KEY_FADE_IN => 0,
-                    LedService::ATTRIBUTE_KEY_BLINK => 0,
-                    LedService::ATTRIBUTE_KEY_TOP => count($top) === 1 ? (int) $top[0]->getValue() : ((int) $channel * 3),
-                    LedService::ATTRIBUTE_KEY_LEFT => count($left) === 1 ? (int) $left[0]->getValue() : ($i * 3),
-                ];
+                $leds[$id] = (new Led())
+                    ->setNumber($id)
+                    ->setChannel($channel)
+                    ->setTop(count($top) === 1 ? (int) $top[0]->getValue() : ((int) $channel * 3))
+                    ->setLeft(count($left) === 1 ? (int) $left[0]->getValue() : ($i * 3))
+                ;
                 ++$id;
             }
         }
@@ -187,8 +184,7 @@ class NeopixelService extends AbstractHcSlave
 
         $ledStore = new LedStore();
         $ledStore->setModule($existingSlave->getId() ?? 0);
-        $list = $ledStore->getList();
-        $this->writeSetLeds($slave, $list);
+        $this->writeSetLeds($slave, $ledStore->getList());
         $channels = [];
 
         for ($channel = 0; $channel < $config[self::CONFIG_CHANNELS]; ++$channel) {
@@ -202,8 +198,11 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function writeSetLeds(Module $slave, array $leds): NeopixelService
     {
@@ -343,8 +342,11 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function writeSequenceAddStep(Module $slave, int $runtime, array $leds): NeopixelService
     {
@@ -406,6 +408,8 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
@@ -413,10 +417,10 @@ class NeopixelService extends AbstractHcSlave
      */
     public function writeLeds(Module $slave, array $leds): void
     {
-        $changedSlaveLeds = $this->ledService->getChanges(
+        $changedSlaveLeds = $this->neopixelMapper->getLedsByArray($this->ledService->getChanges(
             $this->ledService->getChangedLedsWithoutIgnoredAttributes($this->ledService->getActualState($slave)),
             $this->ledService->getChangedLedsWithoutIgnoredAttributes($leds)
-        );
+        ));
         $this->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
         $lastChangedIds = $this->ledService->getLastIds($slave, $changedSlaveLeds);
 

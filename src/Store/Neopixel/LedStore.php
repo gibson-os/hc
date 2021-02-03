@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store\Neopixel;
 
 use GibsonOS\Core\Store\AbstractDatabaseStore;
+use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService as LedAttribute;
 
@@ -15,7 +16,7 @@ class LedStore extends AbstractDatabaseStore
     }
 
     /**
-     * @return array[]
+     * @return Led[]
      */
     public function getList(): array
     {
@@ -40,13 +41,13 @@ class LedStore extends AbstractDatabaseStore
         $list = [];
 
         foreach ($this->table->connection->fetchObjectList() as $attribute) {
-            if (!isset($list[$attribute->sub_id])) {
-                $list[$attribute->sub_id] = [
-                    'number' => (int) $attribute->sub_id,
-                ];
+            $number = (int) $attribute->sub_id;
+
+            if (!isset($list[$number])) {
+                $list[$number] = (new Led())->setNumber($number);
             }
 
-            $list[$attribute->sub_id][$attribute->key] = (int) $attribute->value;
+            $list[$number]->{'set' . ucfirst($attribute->key)}((int) $attribute->value);
         }
 
         return $list;

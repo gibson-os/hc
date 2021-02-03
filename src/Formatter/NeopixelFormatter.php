@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Core\Service\TwigService;
+use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Mapper\NeopixelMapper;
 use GibsonOS\Module\Hc\Model\Log;
-use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
@@ -17,6 +17,9 @@ class NeopixelFormatter extends AbstractHcFormatter
 
     private NeopixelMapper $neopixelMapper;
 
+    /**
+     * @var array<int, array<int, Led>>
+     */
     private array $leds = [];
 
     private TwigService $twigService;
@@ -63,13 +66,13 @@ class NeopixelFormatter extends AbstractHcFormatter
     {
         if ($log->getCommand() === NeopixelService::COMMAND_SET_LEDS) {
             $moduleLeds = $this->getLeds($log->getModuleId() ?? 0);
-            $logLeds = $this->neopixelMapper->getLedsAsArray($this->transform->hexToAscii($log->getData()));
+            $logLeds = $this->neopixelMapper->getLedsByString($this->transform->hexToAscii($log->getData()));
             $rendered = '';
             $maxTop = 0;
 
             foreach ($moduleLeds as $number => $moduleLed) {
-                if ($moduleLed[LedService::ATTRIBUTE_KEY_TOP] > $maxTop) {
-                    $maxTop = $moduleLed[LedService::ATTRIBUTE_KEY_TOP];
+                if ($moduleLed->getTop() > $maxTop) {
+                    $maxTop = $moduleLed->getTop();
                 }
 
                 $rendered .=
@@ -77,13 +80,13 @@ class NeopixelFormatter extends AbstractHcFormatter
                         'position: absolute;' .
                         'width: 3px;' .
                         'height: 3px;' .
-                        'top: ' . $moduleLed[LedService::ATTRIBUTE_KEY_TOP] . 'px;' .
-                        'left: ' . $moduleLed[LedService::ATTRIBUTE_KEY_LEFT] . 'px;' .
+                        'top: ' . $moduleLed->getTop() . 'px;' .
+                        'left: ' . $moduleLed->getLeft() . 'px;' .
                         (isset($logLeds[$number])
                             ? 'background-color: rgb(' .
-                                $logLeds[$number][LedService::ATTRIBUTE_KEY_RED] . ', ' .
-                                $logLeds[$number][LedService::ATTRIBUTE_KEY_GREEN] . ', ' .
-                                $logLeds[$number][LedService::ATTRIBUTE_KEY_BLUE] . ');'
+                                $logLeds[$number]->getRed() . ', ' .
+                                $logLeds[$number]->getGreen() . ', ' .
+                                $logLeds[$number]->getBlue() . ');'
                             : 'opacity: .5; background-color: #000;') .
                     '"></div>'
                 ;
@@ -95,6 +98,9 @@ class NeopixelFormatter extends AbstractHcFormatter
         return parent::render($log);
     }
 
+    /**
+     * @return Led[]
+     */
     private function getLeds(int $moduleId): array
     {
         if (!isset($this->leds[$moduleId])) {
