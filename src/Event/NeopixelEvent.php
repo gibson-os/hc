@@ -179,7 +179,6 @@ class NeopixelEvent extends AbstractHcEvent
             ;
         }
 
-        $this->writeSetLeds($slave, $leds);
         $this->neopixelService->writeLeds($slave, $leds);
     }
 }
