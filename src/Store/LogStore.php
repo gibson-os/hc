@@ -76,6 +76,8 @@ class LogStore extends AbstractDatabaseStore
 
     /**
      * @throws DateTimeError
+     *
+     * @return Log[]
      */
     public function getList(): array
     {
@@ -93,8 +95,8 @@ class LogStore extends AbstractDatabaseStore
         );
 
         $this->table->setWhere($this->getWhere());
-        $this->table->setOrderBy('`' . $this->getTableName() . '`.`id` DESC');
-        //$this->table->setOrderBy($this->getOrderBy());
+        //$this->table->setOrderBy('`' . $this->getTableName() . '`.`id` DESC');
+        $this->table->setOrderBy($this->getOrderBy());
         $this->table->select(
             false,
             '`' . $this->getTableName() . '`.`id`, ' .
@@ -178,26 +180,16 @@ class LogStore extends AbstractDatabaseStore
                 $logModel->setMaster($master);
 
                 if ($module instanceof Module) {
-                    $logModel->getModule()->setMaster($master);
+                    $module->setMaster($master);
                 }
             }
 
             $formatter = $this->formatterFactory->get($logModel);
-
-            $data[] = [
-                'id' => $log['id'],
-                'master' => $log['master_name'],
-                'module' => $log['name'],
-                'type' => $log['type'],
-                'command' => $formatter->command($logModel),
-                'helper' => $log['helper'],
-                'text' => $formatter->text($logModel),
-                'rendered' => $formatter->render($logModel),
-                'plain' => $log['data'],
-                'raw' => utf8_encode($log['raw_data']),
-                'added' => (new DateTime($log['added']))->format('Y-m-d H:i:s'),
-                'direction' => $log['direction'] === Log::DIRECTION_INPUT ? 1 : 0,
-            ];
+            $logModel
+                ->setText($formatter->text($logModel))
+                ->setRendered($formatter->render($logModel))
+            ;
+            $data[] = $logModel;
         }
 
         return $data;
@@ -215,8 +207,8 @@ class LogStore extends AbstractDatabaseStore
         $this->table->setWhere($this->getWhere());
 
         $traffic = $this->table->selectAggregate(
-            'ROUND((LENGTH(GROUP_CONCAT(`' . $this->getTableName() . '`.`data` SEPARATOR \'\'))/2)+' .
-            '(COUNT(`hc_log`.`id`)*3), 0)'
+            'LENGTH(GROUP_CONCAT(`' . $this->getTableName() . '`.`raw_data` SEPARATOR \'\'))+' .
+            '(COUNT(`hc_log`.`id`)*3)'
         );
 
         if (empty($traffic)) {
@@ -233,8 +225,8 @@ class LogStore extends AbstractDatabaseStore
     {
         return [
             'added' => '`' . $this->getTableName() . '`.`added`',
-            'master' => '`hc_master`.`name`',
-            'module' => '`hc_module`.`name`',
+            //'masterName' => '`hc_master`.`name`',
+            //'moduleName' => '`hc_module`.`name`',
             'direction' => '`' . $this->getTableName() . '`.`direction`',
             'type' => '`' . $this->getTableName() . '`.`type`',
             'command' => '`' . $this->getTableName() . '`.`command`',

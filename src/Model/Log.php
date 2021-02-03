@@ -6,9 +6,10 @@ namespace GibsonOS\Module\Hc\Model;
 use DateTimeInterface;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
+use JsonSerializable;
 use mysqlDatabase;
 
-class Log extends AbstractModel
+class Log extends AbstractModel implements JsonSerializable
 {
     public const DIRECTION_INPUT = 'input';
 
@@ -40,6 +41,12 @@ class Log extends AbstractModel
     private Module $module;
 
     private Master $master;
+
+    /** @var string|null Virtual Field */
+    private ?string $text = null;
+
+    /** @var string|null Virtual Field */
+    private ?string $rendered = null;
 
     public function __construct(mysqlDatabase $database = null)
     {
@@ -183,8 +190,12 @@ class Log extends AbstractModel
     /**
      * @throws DateTimeError
      */
-    public function getModule(): Module
+    public function getModule(): ?Module
     {
+        if ($this->getModuleId() === null) {
+            return null;
+        }
+
         $this->loadForeignRecord($this->module, $this->getModuleId());
 
         return $this->module;
@@ -201,8 +212,12 @@ class Log extends AbstractModel
     /**
      * @throws DateTimeError
      */
-    public function getMaster(): Master
+    public function getMaster(): ?Master
     {
+        if ($this->getMasterId() === null) {
+            return null;
+        }
+
         $this->loadForeignRecord($this->master, $this->getMasterId());
 
         return $this->master;
@@ -214,5 +229,53 @@ class Log extends AbstractModel
         $this->setMasterId($master->getId());
 
         return $this;
+    }
+
+    public function getText(): ?string
+    {
+        return $this->text;
+    }
+
+    public function setText(?string $text): Log
+    {
+        $this->text = $text;
+
+        return $this;
+    }
+
+    public function getRendered(): ?string
+    {
+        return $this->rendered;
+    }
+
+    public function setRendered(?string $rendered): Log
+    {
+        $this->rendered = $rendered;
+
+        return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $module = $this->getModule();
+        $master = $this->getMaster();
+        $added = $this->getAdded();
+
+        return [
+            'id' => $this->getId(),
+            'moduleId' => $this->getModuleId(),
+            'moduleName' => $module === null ? null : $module->getName(),
+            'masterId' => $this->getMasterId(),
+            'masterName' => $master === null ? null : $master->getName(),
+            'added' => $added === null ? null : $added->format('Y-m-d H:i:s'),
+            'slaveAddress' => $this->getSlaveAddress(),
+            'type' => $this->getType(),
+            'command' => $this->getCommand(),
+            'data' => utf8_encode($this->getRawData()),
+            'direction' => $this->getDirection(),
+            'helper' => $module === null ? null : $module->getType()->getHelper(),
+            'text' => $this->getText(),
+            'rendered' => $this->getRendered(),
+        ];
     }
 }

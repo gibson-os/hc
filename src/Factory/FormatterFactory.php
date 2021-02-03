@@ -42,9 +42,15 @@ class FormatterFactory
      */
     private function getModuleFormatter(Log $log): AbstractFormatter
     {
+        $module = $log->getModule();
+
+        if ($module === null) {
+            throw new FactoryError('Log model has no module!');
+        }
+
         $className =
             'GibsonOS\\Module\\Hc\\Formatter\\' .
-            ucfirst($log->getModule()->getType()->getHelper()) . 'Formatter'
+            ucfirst($module->getType()->getHelper()) . 'Formatter'
         ;
 
         /** @var AbstractFormatter $formatter */

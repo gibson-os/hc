@@ -114,9 +114,9 @@ class EthbridgeFormatter extends AbstractFormatter
     private function getIrKey(Log $log, int $protocol, int $address, int $command): array
     {
         $subId = (int) ($protocol . $address . $command);
-
+        $module = $log->getModule();
         $valueModels = $this->valueRepository->getByTypeId(
-            $log->getModule()->getTypeId(),
+            $module === null ? 0 : $module->getTypeId(),
             $subId,
             [],
             EthbridgeConstant::ATTRIBUTE_TYPE_IR_KEY

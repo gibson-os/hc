@@ -28,7 +28,7 @@ class IndexController extends AbstractController
         ?int $moduleId,
         ?array $directions,
         ?array $types,
-        array $sort = [],
+        array $sort = [['property' => 'added', 'direction' => 'DESC']],
         int $limit = 100,
         int $start = 0
     ): AjaxResponse {

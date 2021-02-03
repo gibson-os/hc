@@ -27,7 +27,13 @@ class Bme280Formatter extends AbstractFormatter
     {
         switch ($log->getCommand()) {
             case Bme280Service::COMMAND_MEASURE:
-                $config = JsonUtility::decode((string) $log->getModule()->getConfig());
+                $module = $log->getModule();
+
+                if ($module === null) {
+                    return null;
+                }
+
+                $config = JsonUtility::decode((string) $module->getConfig());
                 $measureData = $this->bme280Mapper->measureData($log->getRawData(), $config);
 
                 return

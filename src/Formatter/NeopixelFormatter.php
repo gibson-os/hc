@@ -53,7 +53,7 @@ class NeopixelFormatter extends AbstractHcFormatter
                         'height: 3px;' .
                         'top: ' . $moduleLed[LedService::ATTRIBUTE_KEY_TOP] . 'px;' .
                         'left: ' . $moduleLed[LedService::ATTRIBUTE_KEY_LEFT] . 'px;' .
-                        ($logLeds[$number]
+                        (isset($logLeds[$number])
                             ? 'background-color: rgb(' .
                                 $logLeds[$number][LedService::ATTRIBUTE_KEY_RED] . ', ' .
                                 $logLeds[$number][LedService::ATTRIBUTE_KEY_GREEN] . ', ' .

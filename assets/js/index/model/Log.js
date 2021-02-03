@@ -4,10 +4,16 @@ Ext.define('GibsonOS.module.hc.index.model.Log', {
         name: 'id',
         type: 'int'
     },{
-        name: 'master',
+        name: 'masterId',
+        type: 'int'
+    },{
+        name: 'masterName',
         type: 'string'
     },{
-        name: 'module',
+        name: 'moduleId',
+        type: 'int'
+    },{
+        name: 'moduleName',
         type: 'string'
     },{
         name: 'direction',
@@ -19,10 +25,7 @@ Ext.define('GibsonOS.module.hc.index.model.Log', {
         name: 'command',
         type: 'string'
     },{
-        name: 'plain',
-        type: 'string'
-    },{
-        name: 'raw',
+        name: 'data',
         type: 'string'
     },{
         name: 'text',

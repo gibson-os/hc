@@ -8,23 +8,25 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
         task: 'index'
     },
     initComponent: function () {
-        var grid = this;
-        var id = Ext.id();
+        const me = this;
+        const id = Ext.id();
 
-        this.id = 'hcIndexLogGrid' + id;
-        this.store = new GibsonOS.module.hc.index.store.Log();
-        this.columns = [{
+        me.id = 'hcIndexLogGrid' + id;
+        me.store = new GibsonOS.module.hc.index.store.Log();
+        me.columns = [{
             header: 'Datum',
             dataIndex: 'added',
             width: 130,
             align: 'right'
         },{
             header: 'Master',
-            dataIndex: 'master',
+            dataIndex: 'masterName',
+            sortable: false,
             width: 150
         },{
             header: 'Modul',
-            dataIndex: 'module',
+            dataIndex: 'moduleName',
+            sortable: false,
             width: 150
         },{
             header: '&nbsp;',
@@ -32,9 +34,9 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
             width: 28,
             renderer: function(value) {
                 if (value === 1) {
-                    return '<img src="' + baseDir + 'img/blank.gif" class="icon_system system_back" />';
+                    return '<img alt="Eingehend" src="' + baseDir + 'img/blank.gif" class="icon_system system_back" />';
                 } else {
-                    return '<img src="' + baseDir + 'img/blank.gif" class="icon_system system_next" />';
+                    return '<img alt="Ausgehend" src="' + baseDir + 'img/blank.gif" class="icon_system system_next" />';
                 }
             }
         },{
@@ -58,67 +60,69 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
         },{
             header: 'Daten',
             dataIndex: 'id',
+            sortable: false,
             flex: 1,
             renderer: function(value) {
-                var returnVal = '';
+                let returnVal = '';
+                const logModel = me.store.getById(value);
 
-                if (grid.store.getById(value).get('text')) {
-                    returnVal = grid.store.getById(value).get('text');
+                if (logModel.get('text')) {
+                    returnVal = logModel.get('text');
                 }
 
-                if (grid.store.getById(value).get('rendered')) {
+                if (logModel.get('rendered')) {
                     if (returnVal) {
                         returnVal += '<br />';
                     }
 
-                    returnVal += '<div class="hc_log_rendered">' + grid.store.getById(value).get('rendered') + '</div>';
+                    returnVal += '<div class="hc_log_rendered">' + logModel.get('rendered') + '</div>';
                 }
 
                 if (!returnVal) {
-                    returnVal = grid.store.getById(value).get('plain');
+                    returnVal = logModel.get('data');
                 }
 
                 return returnVal;
             }
         }];
 
-        var filterDirectionCheckedList = {
+        let filterDirectionCheckedList = {
             input: true,
             output: true
         };
-        var setFilterParamDirection = function(direction, checked) {
+        const setFilterParamDirection = function(direction, checked) {
             filterDirectionCheckedList[direction] = checked;
 
             Ext.iterate(filterDirectionCheckedList, function(direction, checked) {
                 if (checked) {
-                    grid.store.getProxy().setExtraParam('directions[' + direction + ']', direction);
+                    me.store.getProxy().setExtraParam('directions[' + direction + ']', direction);
                 } else {
-                    grid.store.getProxy().setExtraParam('directions[' + direction + ']', null);
+                    me.store.getProxy().setExtraParam('directions[' + direction + ']', null);
                 }
             });
 
-            grid.store.load();
+            me.store.load();
         };
-        var filterTypeCheckedList = {
+        let filterTypeCheckedList = {
             1: true,
             2: true,
             255: true
         };
-        var setFilterParamType = function(type, checked) {
+        const setFilterParamType = function(type, checked) {
             filterTypeCheckedList[type] = checked;
 
             Ext.iterate(filterTypeCheckedList, function(type, checked) {
                 if (checked) {
-                    grid.store.getProxy().setExtraParam('types[' + type + ']', type);
+                    me.store.getProxy().setExtraParam('types[' + type + ']', type);
                 } else {
-                    grid.store.getProxy().setExtraParam('types[' + type + ']', null);
+                    me.store.getProxy().setExtraParam('types[' + type + ']', null);
                 }
             });
 
-            grid.store.load();
+            me.store.load();
         };
 
-        this.dockedItems = [{
+        me.dockedItems = [{
             xtype: 'gosToolbar',
             dock: 'top',
             items: [{
@@ -209,9 +213,9 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
             emptyMsg: 'Keine Einträge vorhanden'
         }];
 
-        this.callParent();
+        me.callParent();
 
-        this.on('itemclick', function(grid, record) {
+        me.on('itemclick', function(grid, record) {
             if (
                 record.get('type') === 255 &&
                 record.get('direction') === 0
