@@ -17,6 +17,8 @@ abstract class AbstractHcFormatter extends AbstractFormatter
                 return 'Type ID';
             case AbstractHcSlave::COMMAND_ADDRESS:
                 return 'Adresse';
+            case AbstractHcSlave::COMMAND_RESTART:
+                return 'Neustarten';
             case AbstractHcSlave::COMMAND_HERTZ:
                 return 'Hertz';
             case AbstractHcSlave::COMMAND_EEPROM_SIZE:
@@ -29,6 +31,8 @@ abstract class AbstractHcFormatter extends AbstractFormatter
                 return 'EEPROM formatiert';
             case AbstractHcSlave::COMMAND_BUFFER_SIZE:
                 return 'Buffer Größe';
+            case AbstractHcSlave::COMMAND_PWM_SPEED:
+                return 'PWM Geschwindigkeit';
             case AbstractHcSlave::COMMAND_LEDS:
                 return 'Vorhandene LEDs';
             case AbstractHcSlave::COMMAND_POWER_LED:
@@ -64,6 +68,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
                 return (string) $this->transform->asciiToUnsignedInt($log->getRawData(), 0);
             case AbstractHcSlave::COMMAND_ADDRESS:
                 return (string) $this->transform->asciiToUnsignedInt($log->getRawData(), 2);
+            case AbstractHcSlave::COMMAND_PWM_SPEED:
             case AbstractHcSlave::COMMAND_HERTZ:
                 $units = ['Hz', 'kHz', 'MHz', 'GHz'];
                 $hertz = $this->transform->asciiToUnsignedInt($log->getRawData());
@@ -72,7 +77,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
                     ++$i;
                 }
 
-                return $hertz . ' ' . $units[$i];
+                return str_replace('.', ',', (string) $hertz) . ' ' . $units[$i];
             case AbstractHcSlave::COMMAND_EEPROM_SIZE:
             case AbstractHcSlave::COMMAND_EEPROM_FREE:
             case AbstractHcSlave::COMMAND_EEPROM_POSITION:

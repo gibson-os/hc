@@ -32,23 +32,23 @@ class NeopixelService extends AbstractHcSlave
 {
     public const COMMAND_SET_LEDS = 0;
 
-    private const COMMAND_LED_COUNTS = 1;
+    public const COMMAND_LED_COUNTS = 1;
 
-    private const COMMAND_CHANNEL_WRITE = 2;
+    public const COMMAND_CHANNEL_WRITE = 2;
 
-    private const COMMAND_SEQUENCE_START = 10;
+    public const COMMAND_SEQUENCE_START = 10;
 
-    private const COMMAND_SEQUENCE_PAUSE = 11;
+    public const COMMAND_SEQUENCE_PAUSE = 11;
 
-    private const COMMAND_SEQUENCE_STOP = 12;
+    public const COMMAND_SEQUENCE_STOP = 12;
 
-    private const COMMAND_SEQUENCE_EEPROM_ADDRESS = 13;
+    public const COMMAND_SEQUENCE_EEPROM_ADDRESS = 13;
 
-    private const COMMAND_SEQUENCE_NEW = 14;
+    public const COMMAND_SEQUENCE_NEW = 14;
 
-    private const COMMAND_SEQUENCE_ADD_STEP = 15;
+    public const COMMAND_SEQUENCE_ADD_STEP = 15;
 
-    private const COMMAND_CONFIGURATION_READ_LENGTH = 3;
+    public const COMMAND_CONFIGURATION_READ_LENGTH = 3;
 
     private const CONFIG_CHANNELS = 'channels';
 

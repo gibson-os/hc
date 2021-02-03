@@ -188,6 +188,7 @@ class LogStore extends AbstractDatabaseStore
             $logModel
                 ->setText($formatter->text($logModel))
                 ->setRendered($formatter->render($logModel))
+                ->setCommandText($formatter->command($logModel))
             ;
             $data[] = $logModel;
         }

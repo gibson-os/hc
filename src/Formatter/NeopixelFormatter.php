@@ -33,6 +33,32 @@ class NeopixelFormatter extends AbstractHcFormatter
         $this->twigService = $twigService;
     }
 
+    public function command(Log $log): ?string
+    {
+        switch ($log->getCommand()) {
+            case NeopixelService::COMMAND_SET_LEDS:
+                return 'LEDs setzen';
+            case NeopixelService::COMMAND_LED_COUNTS:
+                return 'LED Anzahl setzen';
+            case NeopixelService::COMMAND_CHANNEL_WRITE:
+                return 'LEDs anzeigen';
+            case NeopixelService::COMMAND_SEQUENCE_START:
+                return 'Animation starten';
+            case NeopixelService::COMMAND_SEQUENCE_PAUSE:
+                return 'Animation pausieren';
+            case NeopixelService::COMMAND_SEQUENCE_STOP:
+                return 'Animation stoppen';
+            case NeopixelService::COMMAND_SEQUENCE_EEPROM_ADDRESS:
+                return 'Animation EEPROM Adresse';
+            case NeopixelService::COMMAND_SEQUENCE_NEW:
+                return 'Neue Animation';
+            case NeopixelService::COMMAND_SEQUENCE_ADD_STEP:
+                return 'Animations Schritt hinzufügen';
+        }
+
+        return parent::command($log);
+    }
+
     public function render(Log $log): ?string
     {
         if ($log->getCommand() === NeopixelService::COMMAND_SET_LEDS) {

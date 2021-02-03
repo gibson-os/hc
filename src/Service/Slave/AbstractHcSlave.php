@@ -26,125 +26,123 @@ use Psr\Log\LoggerInterface;
 
 abstract class AbstractHcSlave extends AbstractSlave
 {
-    const TYPE = 0;
-
     public const MAX_DEVICE_ID = 65534;
 
     public const COMMAND_DEVICE_ID = 200;
 
-    const COMMAND_DEVICE_ID_READ_LENGTH = 2;
+    private const COMMAND_DEVICE_ID_READ_LENGTH = 2;
 
-    const COMMAND_TYPE = 201;
+    public const COMMAND_TYPE = 201;
 
-    const COMMAND_TYPE_READ_LENGTH = 1;
+    private const COMMAND_TYPE_READ_LENGTH = 1;
 
-    const COMMAND_ADDRESS = 202;
+    public const COMMAND_ADDRESS = 202;
 
-    const COMMAND_RESTART = 209;
+    public const COMMAND_RESTART = 209;
 
-    const COMMAND_CONFIGURATION = 210;
+    public const COMMAND_CONFIGURATION = 210;
 
-    const COMMAND_HERTZ = 211;
+    public const COMMAND_HERTZ = 211;
 
-    const COMMAND_HERTZ_READ_LENGTH = 4;
+    public const COMMAND_HERTZ_READ_LENGTH = 4;
 
-    const COMMAND_EEPROM_SIZE = 212;
+    public const COMMAND_EEPROM_SIZE = 212;
 
-    const COMMAND_EEPROM_SIZE_READ_LENGTH = 2;
+    private const COMMAND_EEPROM_SIZE_READ_LENGTH = 2;
 
-    const COMMAND_EEPROM_FREE = 213;
+    public const COMMAND_EEPROM_FREE = 213;
 
-    const COMMAND_EEPROM_FREE_READ_LENGTH = 2;
+    private const COMMAND_EEPROM_FREE_READ_LENGTH = 2;
 
-    const COMMAND_EEPROM_POSITION = 214;
+    public const COMMAND_EEPROM_POSITION = 214;
 
-    const COMMAND_EEPROM_POSITION_READ_LENGTH = 2;
+    private const COMMAND_EEPROM_POSITION_READ_LENGTH = 2;
 
-    const COMMAND_EEPROM_ERASE = 215;
+    public const COMMAND_EEPROM_ERASE = 215;
 
-    const COMMAND_BUFFER_SIZE = 216;
+    public const COMMAND_BUFFER_SIZE = 216;
 
-    const COMMAND_BUFFER_SIZE_READ_LENGTH = 2;
+    private const COMMAND_BUFFER_SIZE_READ_LENGTH = 2;
 
-    const COMMAND_PWM_SPEED = 217;
+    public const COMMAND_PWM_SPEED = 217;
 
-    const COMMAND_PWM_SPEED_READ_LENGTH = 2;
+    private const COMMAND_PWM_SPEED_READ_LENGTH = 2;
 
-    const COMMAND_LEDS = 220;
+    public const COMMAND_LEDS = 220;
 
-    const COMMAND_LEDS_READ_LENGTH = 1;
+    private const COMMAND_LEDS_READ_LENGTH = 1;
 
-    const COMMAND_POWER_LED = 221;
+    public const COMMAND_POWER_LED = 221;
 
-    const COMMAND_POWER_LED_READ_LENGTH = 1;
+    private const COMMAND_POWER_LED_READ_LENGTH = 1;
 
-    const COMMAND_ERROR_LED = 222;
+    public const COMMAND_ERROR_LED = 222;
 
-    const COMMAND_ERROR_LED_READ_LENGTH = 1;
+    private const COMMAND_ERROR_LED_READ_LENGTH = 1;
 
-    const COMMAND_CONNECT_LED = 223;
+    public const COMMAND_CONNECT_LED = 223;
 
-    const COMMAND_CONNECT_LED_READ_LENGTH = 1;
+    private const COMMAND_CONNECT_LED_READ_LENGTH = 1;
 
-    const COMMAND_TRANSRECEIVE_LED = 224;
+    public const COMMAND_TRANSRECEIVE_LED = 224;
 
-    const COMMAND_TRANSRECEIVE_LED_READ_LENGTH = 1;
+    private const COMMAND_TRANSRECEIVE_LED_READ_LENGTH = 1;
 
-    const COMMAND_TRANSCEIVE_LED = 225;
+    public const COMMAND_TRANSCEIVE_LED = 225;
 
-    const COMMAND_TRANSCEIVE_LED_READ_LENGTH = 1;
+    private const COMMAND_TRANSCEIVE_LED_READ_LENGTH = 1;
 
-    const COMMAND_RECEIVE_LED = 226;
+    public const COMMAND_RECEIVE_LED = 226;
 
-    const COMMAND_RECEIVE_LED_READ_LENGTH = 1;
+    private const COMMAND_RECEIVE_LED_READ_LENGTH = 1;
 
-    const COMMAND_CUSTOM_LED = 227;
+    public const COMMAND_CUSTOM_LED = 227;
 
-    const COMMAND_CUSTOM_LED_READ_LENGTH = 1;
+    private const COMMAND_CUSTOM_LED_READ_LENGTH = 1;
 
-    const COMMAND_RGB_LED = 228;
+    public const COMMAND_RGB_LED = 228;
 
-    const COMMAND_RGB_LED_READ_LENGTH = 9;
+    private const COMMAND_RGB_LED_READ_LENGTH = 9;
 
-    const COMMAND_ALL_LEDS = 229;
+    public const COMMAND_ALL_LEDS = 229;
 
-    const COMMAND_ALL_LEDS_READ_LENGTH = 1;
+    private const COMMAND_ALL_LEDS_READ_LENGTH = 1;
 
-    const COMMAND_STATUS = 250;
+    public const COMMAND_STATUS = 250;
 
-    const COMMAND_DATA_CHANGED = 251;
+    public const COMMAND_DATA_CHANGED = 251;
 
-    const POWER_LED_BIT = 7;
+    private const POWER_LED_BIT = 7;
 
-    const ERROR_LED_BIT = 6;
+    private const ERROR_LED_BIT = 6;
 
-    const CONNECT_LED_BIT = 5;
+    private const CONNECT_LED_BIT = 5;
 
-    const TRANSRECEIVE_LED_BIT = 4;
+    private const TRANSRECEIVE_LED_BIT = 4;
 
-    const TRANSCEIVE_LED_BIT = 3;
+    private const TRANSCEIVE_LED_BIT = 3;
 
-    const RECEIVE_LED_BIT = 2;
+    private const RECEIVE_LED_BIT = 2;
 
-    const CUSTOM_LED_BIT = 1;
+    private const CUSTOM_LED_BIT = 1;
 
-    const RGB_LED_BIT = 0;
+    public const RGB_LED_BIT = 0;
 
-    const POWER_LED_KEY = 'power';
+    public const POWER_LED_KEY = 'power';
 
-    const ERROR_LED_KEY = 'error';
+    public const ERROR_LED_KEY = 'error';
 
-    const CONNECT_LED_KEY = 'connect';
+    public const CONNECT_LED_KEY = 'connect';
 
-    const TRANSRECEIVE_LED_KEY = 'transreceive';
+    public const TRANSRECEIVE_LED_KEY = 'transreceive';
 
-    const TRANSCEIVE_LED_KEY = 'transceive';
+    public const TRANSCEIVE_LED_KEY = 'transceive';
 
-    const RECEIVE_LED_KEY = 'receive';
+    public const RECEIVE_LED_KEY = 'receive';
 
-    const CUSTOM_LED_KEY = 'custom';
+    public const CUSTOM_LED_KEY = 'custom';
 
-    const RGB_LED_KEY = 'rgb';
+    public const RGB_LED_KEY = 'rgb';
 
     protected EventService $eventService;
 

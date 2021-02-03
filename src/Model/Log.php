@@ -48,6 +48,9 @@ class Log extends AbstractModel implements JsonSerializable
     /** @var string|null Virtual Field */
     private ?string $rendered = null;
 
+    /** @var string|null Virtual Field */
+    private ?string $commandText = null;
+
     public function __construct(mysqlDatabase $database = null)
     {
         parent::__construct($database);
@@ -255,6 +258,18 @@ class Log extends AbstractModel implements JsonSerializable
         return $this;
     }
 
+    public function getCommandText(): ?string
+    {
+        return $this->commandText;
+    }
+
+    public function setCommandText(?string $commandText): Log
+    {
+        $this->commandText = $commandText;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         $module = $this->getModule();
@@ -270,7 +285,7 @@ class Log extends AbstractModel implements JsonSerializable
             'added' => $added === null ? null : $added->format('Y-m-d H:i:s'),
             'slaveAddress' => $this->getSlaveAddress(),
             'type' => $this->getType(),
-            'command' => $this->getCommand(),
+            'command' => $this->getCommandText() ?? $this->getCommand(),
             'data' => utf8_encode($this->getRawData()),
             'direction' => $this->getDirection(),
             'helper' => $module === null ? null : $module->getType()->getHelper(),
