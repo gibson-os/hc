@@ -15,6 +15,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\PermissionService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
@@ -24,12 +25,14 @@ use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Store\Neopixel\ImageStore;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
+use JsonException;
 
 class NeopixelController extends AbstractController
 {
     /**
      * @throws DateTimeError
      * @throws GetError
+     * @throws JsonException
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws SelectError
@@ -81,6 +84,7 @@ class NeopixelController extends AbstractController
      * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
+     * @throws JsonException
      */
     public function setLeds(
         NeopixelService $neopixelService,
@@ -199,7 +203,8 @@ class NeopixelController extends AbstractController
                         'Es existiert schon ein Bild unter dem Namen "%s".%sMöchten Sie es überschreiben?',
                         $name,
                         PHP_EOL
-                    )
+                    ),
+                    StatusCode::CONFLICT
                 );
             } catch (SelectError $e) {
                 // New Image
