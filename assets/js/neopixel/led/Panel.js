@@ -166,13 +166,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                         return true;
                     }
 
-                    leds[led.get('number')] = {
-                        red: led.get('red'),
-                        green: led.get('green'),
-                        blue: led.get('blue'),
-                        fadeIn: led.get('fadeIn'),
-                        blink: led.get('blink')
-                    };
+                    leds[led.get('number')] = led.getData();
                 });
 
                 GibsonOS.Ajax.request({

@@ -193,7 +193,6 @@ class Led implements JsonSerializable
     {
         $json = [
             'number' => $this->getNumber(),
-            'channel' => $this->getChannel(),
             'red' => $this->getRed(),
             'green' => $this->getGreen(),
             'blue' => $this->getBlue(),
@@ -202,6 +201,7 @@ class Led implements JsonSerializable
         ];
 
         if (!$this->isOnlyColor()) {
+            $json['channel'] = $this->getChannel();
             $json['left'] = $this->getLeft();
             $json['top'] = $this->getTop();
         }

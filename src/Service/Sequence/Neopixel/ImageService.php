@@ -9,6 +9,7 @@ use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
@@ -38,6 +39,8 @@ class ImageService extends AbstractService
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws DateTimeError
      * @throws DeleteError
      * @throws SaveError

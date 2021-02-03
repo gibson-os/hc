@@ -175,6 +175,7 @@ class NeopixelController extends AbstractController
         ImageService $imageService,
         ImageStore $imageStore,
         ModuleRepository $moduleRepository,
+        LedMapper $ledMapper,
         int $moduleId,
         string $name,
         int $id = null,
@@ -205,7 +206,7 @@ class NeopixelController extends AbstractController
             }
         }
 
-        $image = $imageService->save($slave, $name, $leds, $id);
+        $image = $imageService->save($slave, $name, $ledMapper->mapFromArrays($leds, true, false), $id);
         $imageStore->setSlave($moduleId);
 
         return new AjaxResponse([
