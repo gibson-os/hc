@@ -1,0 +1,27 @@
+.hc_log_rendered {
+    margin-top: 10px;
+    line-height: 7px;
+}
+
+.hc_log_rendered table {
+    width: 100%;
+}
+
+.hc_log_rendered * {
+    font-size: 13px;
+}
+
+.hc_log_rendered .neopixel_led_container {
+    position: relative;
+}
+
+.hc_log_rendered .neopixel_led {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+}
+
+.hc_log_rendered .neopixel_led.disabled {
+    opacity: .5;
+    background: #000;
+}

@@ -66,34 +66,23 @@ class NeopixelFormatter extends AbstractHcFormatter
     public function render(Log $log): ?string
     {
         if ($log->getCommand() === NeopixelService::COMMAND_SET_LEDS) {
-            $moduleLeds = $this->getLeds($log->getModuleId() ?? 0);
-            $logLeds = $this->ledMapper->mapFromString($log->getRawData());
-            $rendered = '';
+            $slaveLeds = $this->getLeds($log->getModuleId() ?? 0);
             $maxTop = 0;
+            $context = [
+                'log' => $log,
+                'slaveLeds' => $slaveLeds,
+                'logLeds' => $this->ledMapper->mapFromString($log->getRawData()),
+            ];
 
-            foreach ($moduleLeds as $number => $moduleLed) {
+            foreach ($slaveLeds as $moduleLed) {
                 if ($moduleLed->getTop() > $maxTop) {
                     $maxTop = $moduleLed->getTop();
                 }
-
-                $rendered .=
-                    '<div style="' .
-                        'position: absolute;' .
-                        'width: 3px;' .
-                        'height: 3px;' .
-                        'top: ' . $moduleLed->getTop() . 'px;' .
-                        'left: ' . $moduleLed->getLeft() . 'px;' .
-                        (isset($logLeds[$number])
-                            ? 'background-color: rgb(' .
-                                $logLeds[$number]->getRed() . ', ' .
-                                $logLeds[$number]->getGreen() . ', ' .
-                                $logLeds[$number]->getBlue() . ');'
-                            : 'opacity: .5; background-color: #000;') .
-                    '"></div>'
-                ;
             }
 
-            return '<div style="position: relative; height: ' . ($maxTop + 6) . 'px;">' . $rendered . '</div>';
+            $context['maxTop'] = $maxTop + 6;
+
+            return $this->twigService->getTwig()->render('@hc/formatter/neopixel.html.twig', $context);
         }
 
         return parent::render($log);
