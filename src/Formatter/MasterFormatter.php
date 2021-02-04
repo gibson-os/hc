@@ -33,4 +33,9 @@ class MasterFormatter implements FormatterInterface
     {
         return null;
     }
+
+    public function explain(Log $log): ?array
+    {
+        return null;
+    }
 }

@@ -45,13 +45,13 @@ class RfmrhinetowerFormatter extends AbstractFormatter
                     case RfmrhinetowerConstant::MODE_SET_CLOCK:
                         return $this->clockLogFormat(mb_substr($data, 2));
                     case RfmrhinetowerConstant::MODE_SHOW_CLOCK:
-                        if ($this->transform->hexToInt($data, 1)) {
+                        if ($this->transformService->hexToInt($data, 1)) {
                             return 'Uhrzeit anzeigen';
                         }
 
                             return 'Uhrzeit nicht anzeigen';
                     case RfmrhinetowerConstant::MODE_PLAY_ANIMATION:
-                        return 'Starte Animation ' . $this->transform->hexToInt($data, 1);
+                        return 'Starte Animation ' . $this->transformService->hexToInt($data, 1);
                 }
         }
 
@@ -116,8 +116,8 @@ class RfmrhinetowerFormatter extends AbstractFormatter
                 }
 
                 $ledList[$prefix . $x][$prefix . $y] = [
-                    'brightness' => $this->transform->hexToInt(mb_substr($data, $i++, 1)),
-                    'blink' => $this->transform->hexToInt(mb_substr($data, $i++, 1)),
+                    'brightness' => $this->transformService->hexToInt(mb_substr($data, $i++, 1)),
+                    'blink' => $this->transformService->hexToInt(mb_substr($data, $i++, 1)),
                 ];
             }
         }
@@ -127,12 +127,12 @@ class RfmrhinetowerFormatter extends AbstractFormatter
 
     private function clockLogFormat(string $data): string
     {
-        $year = ($this->transform->hexToInt($data, 0) << 8) | $this->transform->hexToInt($data, 1);
-        $month = $this->transform->hexToInt($data, 2);
-        $day = $this->transform->hexToInt($data, 3);
-        $hour = $this->transform->hexToInt($data, 4);
-        $minute = $this->transform->hexToInt($data, 5);
-        $second = $this->transform->hexToInt($data, 6);
+        $year = ($this->transformService->hexToInt($data, 0) << 8) | $this->transformService->hexToInt($data, 1);
+        $month = $this->transformService->hexToInt($data, 2);
+        $day = $this->transformService->hexToInt($data, 3);
+        $hour = $this->transformService->hexToInt($data, 4);
+        $minute = $this->transformService->hexToInt($data, 5);
+        $second = $this->transformService->hexToInt($data, 6);
 
         return sprintf('%04u-%02u-%02u', $year, $month + 1, $day + 1) . ' '
             . sprintf('%02u:%02u:%02u', $hour, $minute, $second);

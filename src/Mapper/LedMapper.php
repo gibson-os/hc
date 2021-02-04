@@ -11,7 +11,7 @@ class LedMapper
 {
     public const MAX_PROTOCOL_LEDS = 16384;
 
-    private const RANGE_ADDRESS = 65535;
+    public const RANGE_ADDRESS = 65535;
 
     private const MIN_RANGE_LEDS = 3;
 

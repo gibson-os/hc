@@ -16,9 +16,9 @@ class BlankFormatter extends AbstractHcFormatter
             $data = substr($log->getRawData(), $i, 1);
             $return .= '<tr>';
             $return .= '<td>' . $byte . '</td>';
-            $return .= '<td>' . $this->transform->asciiToHex($data) . '</td>';
-            $return .= '<td>' . $this->transform->asciiToBin($data) . '</td>';
-            $return .= '<td>' . $this->transform->asciiToUnsignedInt($data) . '</td>';
+            $return .= '<td>' . $this->transformService->asciiToHex($data) . '</td>';
+            $return .= '<td>' . $this->transformService->asciiToBin($data) . '</td>';
+            $return .= '<td>' . $this->transformService->asciiToUnsignedInt($data) . '</td>';
             $return .= '</tr>';
             ++$byte;
         }

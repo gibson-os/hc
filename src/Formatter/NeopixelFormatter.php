@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Core\Service\TwigService;
+use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Log;
@@ -25,12 +26,12 @@ class NeopixelFormatter extends AbstractHcFormatter
     private TwigService $twigService;
 
     public function __construct(
-        TransformService $transform,
+        TransformService $transformService,
         LedStore $ledStore,
         LedMapper $ledMapper,
         TwigService $twigService
     ) {
-        parent::__construct($transform);
+        parent::__construct($transformService);
         $this->ledStore = $ledStore;
         $this->ledMapper = $ledMapper;
         $this->twigService = $twigService;
@@ -107,7 +108,7 @@ class NeopixelFormatter extends AbstractHcFormatter
             for ($i = 0; $i < strlen($log->getRawData()); $i += 2) {
                 $texts[] =
                     'Channel ' . $channel++ .
-                    ' bis ' . $this->transform->asciiToUnsignedInt(substr($log->getRawData(), $i, 2)) .
+                    ' bis LED ' . $this->transformService->asciiToUnsignedInt(substr($log->getRawData(), $i, 2)) .
                     ' gesetzt.'
                 ;
             }
@@ -116,6 +117,66 @@ class NeopixelFormatter extends AbstractHcFormatter
         }
 
         return parent::text($log);
+    }
+
+    /**
+     * @return Explain[]|null
+     */
+    public function explain(Log $log): ?array
+    {
+        if ($log->getCommand() === NeopixelService::COMMAND_SET_LEDS) {
+            $explains = [];
+            $data = $log->getRawData();
+
+            for ($i = 0; $i < strlen($data);) {
+                $address = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
+                $explains[] = new Explain(
+                    $i,
+                    $i + 1,
+                    $address === LedMapper::RANGE_ADDRESS ? 'Adressbereich' :
+                        ($address > LedMapper::MAX_PROTOCOL_LEDS ? 'Adressgruppe' : 'Adresse ' . $address)
+                );
+                $i += 2;
+
+                if ($address === LedMapper::RANGE_ADDRESS) {
+                    $startByte = $i;
+                    $endByte = $i + 1;
+                    $startAddress = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
+                    $i += 2;
+                    $endAddress = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
+                    $i += 2;
+                    $explains[] = new Explain(
+                        $startByte,
+                        $endByte,
+                        'Adressbereich von ' . $startAddress . ' bis ' . $endAddress
+                    );
+                    $explains[] = $this->getLedExplain($data, $i);
+
+                    continue;
+                }
+
+                if ($address > LedMapper::MAX_PROTOCOL_LEDS) {
+                    for ($j = 0; $j < $address - LedMapper::MAX_PROTOCOL_LEDS; ++$j) {
+                        $explains[] = new Explain(
+                            $i,
+                            $i + 1,
+                            'Adresse ' . $this->transformService->asciiToUnsignedInt(substr($data, $i, 2))
+                        );
+                        $i += 2;
+                    }
+
+                    $explains[] = $this->getLedExplain($data, $i);
+
+                    continue;
+                }
+
+                $explains[] = $this->getLedExplain($data, $i);
+            }
+
+            return $explains;
+        }
+
+        return parent::explain($log);
     }
 
     /**
@@ -129,5 +190,21 @@ class NeopixelFormatter extends AbstractHcFormatter
         }
 
         return $this->leds[$moduleId];
+    }
+
+    private function getLedExplain(string $data, int &$i): Explain
+    {
+        $startByte = $i;
+        $i += 4;
+
+        return new Explain(
+            $startByte,
+            $i,
+            'Rot: ' . $this->transformService->asciiToUnsignedInt($data, $i) . PHP_EOL .
+            'Grün: ' . $this->transformService->asciiToUnsignedInt($data, $i - 3) . PHP_EOL .
+            'Blau: ' . $this->transformService->asciiToUnsignedInt($data, $i - 2) . PHP_EOL .
+            'Einblenden: ' . ($this->transformService->asciiToUnsignedInt($data, $i - 1) >> 4) . PHP_EOL .
+            'Blinken: ' . ($this->transformService->asciiToUnsignedInt($data, $i - 1) & 15)
+        );
     }
 }

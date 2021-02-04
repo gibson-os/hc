@@ -14,9 +14,9 @@ class Bme280Formatter extends AbstractFormatter
 {
     private Bme280Mapper $bme280Mapper;
 
-    public function __construct(TransformService $transform, Bme280Mapper $bme280Mapper)
+    public function __construct(TransformService $transformService, Bme280Mapper $bme280Mapper)
     {
-        parent::__construct($transform);
+        parent::__construct($transformService);
         $this->bme280Mapper = $bme280Mapper;
     }
 
@@ -41,9 +41,9 @@ class Bme280Formatter extends AbstractFormatter
                     'Luftdruck: ' . $measureData['pressure'] . ' hPa<br/>' .
                     'Luftfeuchtigkeit: ' . $measureData['humidity'] . ' %';
             case Bme280Service::COMMAND_CONTROL_HUMIDITY:
-                return 'Luftdruck Konfiguration: ' . $this->transform->asciiToUnsignedInt($log->getRawData(), 0);
+                return 'Luftdruck Konfiguration: ' . $this->transformService->asciiToUnsignedInt($log->getRawData(), 0);
             case Bme280Service::COMMAND_CONTROL:
-                return 'Konfiguration: ' . $this->transform->asciiToUnsignedInt($log->getRawData(), 0);
+                return 'Konfiguration: ' . $this->transformService->asciiToUnsignedInt($log->getRawData(), 0);
             case Bme280Service::COMMAND_CALIBRATION1:
                 return 'Kalibrierungdaten 1';
             case Bme280Service::COMMAND_CALIBRATION2:

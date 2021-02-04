@@ -18,7 +18,7 @@ class RfmbellFormatter extends AbstractFormatter
         $length = mb_strlen($log->getData()) / 2;
 
         for ($i = 0; $i < $length; ++$i) {
-            $value = $this->transform->hexToInt($log->getData(), $i);
+            $value = $this->transformService->hexToInt($log->getData(), $i);
 
             if ($log->getDirection() === Log::DIRECTION_INPUT) {
                 // Eingang

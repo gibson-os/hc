@@ -63,15 +63,15 @@ abstract class AbstractHcFormatter extends AbstractFormatter
     {
         switch ($log->getCommand()) {
             case AbstractHcSlave::COMMAND_DEVICE_ID:
-                return (string) $this->transform->asciiToUnsignedInt($log->getRawData());
+                return (string) $this->transformService->asciiToUnsignedInt($log->getRawData());
             case AbstractHcSlave::COMMAND_TYPE:
-                return (string) $this->transform->asciiToUnsignedInt($log->getRawData(), 0);
+                return (string) $this->transformService->asciiToUnsignedInt($log->getRawData(), 0);
             case AbstractHcSlave::COMMAND_ADDRESS:
-                return (string) $this->transform->asciiToUnsignedInt($log->getRawData(), 2);
+                return (string) $this->transformService->asciiToUnsignedInt($log->getRawData(), 2);
             case AbstractHcSlave::COMMAND_PWM_SPEED:
             case AbstractHcSlave::COMMAND_HERTZ:
                 $units = ['Hz', 'kHz', 'MHz', 'GHz'];
-                $hertz = $this->transform->asciiToUnsignedInt($log->getRawData());
+                $hertz = $this->transformService->asciiToUnsignedInt($log->getRawData());
 
                 for ($i = 0; $hertz > 1000; $hertz /= 1000) {
                     ++$i;
@@ -82,7 +82,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
             case AbstractHcSlave::COMMAND_EEPROM_FREE:
             case AbstractHcSlave::COMMAND_EEPROM_POSITION:
             case AbstractHcSlave::COMMAND_BUFFER_SIZE:
-                return $this->transform->asciiToUnsignedInt($log->getRawData()) . ' Bytes';
+                return $this->transformService->asciiToUnsignedInt($log->getRawData()) . ' Bytes';
             case AbstractHcSlave::COMMAND_EEPROM_ERASE:
                 return 'formatiert';
         }
