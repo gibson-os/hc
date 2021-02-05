@@ -15,6 +15,25 @@
     margin: 0 2px 0 0;
 }
 
+.hc_log_plain .explain:hover {
+    background: #000;
+    color: #FFF;
+}
+
+.hc_log_plain .explain .title {
+    position: absolute;
+    min-width: 150px;
+    min-height: 30px;
+    background: #000;
+    display: none;
+    margin: 17px 0 0 -3px;
+    z-index: 1;
+}
+
+.hc_log_plain .explain:hover .title {
+    display: block;
+}
+
 .hc_log_rendered {
     margin-top: 10px;
     line-height: 7px;
