@@ -9,6 +9,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Event\Describer\NeopixelDescriber;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
@@ -116,15 +117,6 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws SaveError
-     */
-    public function writeSequenceAddStep(Module $slave, int $runtime, array $leds): void
-    {
-        $this->neopixelService->writeSequenceAddStep($slave, $runtime, $leds);
-    }
-
-    /**
-     * @throws AbstractException
-     * @throws SaveError
      * @throws ReceiveError
      */
     public function readLedCounts(Module $slave): array
@@ -150,7 +142,10 @@ class NeopixelEvent extends AbstractHcEvent
     {
         $elements = $sequence->getElements() ?? [];
         $element = reset($elements);
-        $this->writeSetLeds($slave, JsonUtility::decode($element->getData()));
+        $this->neopixelService->writeLeds(
+            $slave,
+            $this->ledMapper->mapFromArrays(JsonUtility::decode($element->getData()), true, false)
+        );
     }
 
     public function sendAnimation(Module $slave, int $animationId): void
@@ -175,13 +170,15 @@ class NeopixelEvent extends AbstractHcEvent
         $leds = [];
 
         for ($i = $start; $i <= $end; ++$i) {
-            $leds[$i - 1] = [
-                'red' => mt_rand($redFrom, $redTo),
-                'green' => mt_rand($greenFrom, $greenTo),
-                'blue' => mt_rand($blueFrom, $blueTo),
-            ];
+            $leds[] = (new Led())
+                ->setNumber($i - 1)
+                ->setRed(mt_rand($redFrom, $redTo))
+                ->setGreen(mt_rand($greenFrom, $greenTo))
+                ->setBlue(mt_rand($blueFrom, $blueTo))
+                ->setOnlyColor(true)
+            ;
         }
 
-        $this->writeSetLeds($slave, $leds);
+        $this->neopixelService->writeLeds($slave, $leds);
     }
 }

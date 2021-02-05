@@ -25,12 +25,12 @@ class IoFormatter extends AbstractHcFormatter
     private IoMapper $ioMapper;
 
     public function __construct(
-        TransformService $transform,
+        TransformService $transformService,
         ValueRepository $valueRepository,
         LogRepository $logRepository,
         IoMapper $ioMapper
     ) {
-        parent::__construct($transform);
+        parent::__construct($transformService);
         $this->valueRepository = $valueRepository;
         $this->logRepository = $logRepository;
         $this->ioMapper = $ioMapper;
@@ -81,7 +81,7 @@ class IoFormatter extends AbstractHcFormatter
     {
         switch ($log->getCommand()) {
             case IoService::COMMAND_CONFIGURATION:
-                return 'Port Anzahl: ' . $this->transform->asciiToUnsignedInt($log->getRawData());
+                return 'Port Anzahl: ' . $this->transformService->asciiToUnsignedInt($log->getRawData());
             case IoService::COMMAND_DEFRAGMENT_DIRECT_CONNECT:
                 return 'Defragmentieren';
             case IoService::COMMAND_READ_DIRECT_CONNECT:
@@ -89,7 +89,7 @@ class IoFormatter extends AbstractHcFormatter
                     return null;
                 }
 
-                $lastByte = $this->transform->asciiToUnsignedInt($log->getRawData(), 2);
+                $lastByte = $this->transformService->asciiToUnsignedInt($log->getRawData(), 2);
 
                 if ($lastByte === IoService::DIRECT_CONNECT_READ_NOT_SET) {
                     return 'Kein Port gesetzt';
@@ -101,13 +101,13 @@ class IoFormatter extends AbstractHcFormatter
 
                 return null;
             case IoService::COMMAND_DIRECT_CONNECT_STATUS:
-                return $this->transform->asciiToUnsignedInt($log->getRawData(), 0) ? 'Aktiv' : 'Inaktiv';
+                return $this->transformService->asciiToUnsignedInt($log->getRawData(), 0) ? 'Aktiv' : 'Inaktiv';
             case IoService::COMMAND_STATUS_IN_EEPROM:
                 if ($log->getDirection() == Log::DIRECTION_OUTPUT) {
                     return 'Standard gesetzt';
                 }
 
-                if ($this->transform->asciiToUnsignedInt($log->getRawData(), 0)) {
+                if ($this->transformService->asciiToUnsignedInt($log->getRawData(), 0)) {
                     return 'Standard geladen';
                 }
 
@@ -183,7 +183,7 @@ class IoFormatter extends AbstractHcFormatter
 
                 return $return . '</table>';
             case IoService::COMMAND_ADD_DIRECT_CONNECT:
-                $inputPort = $this->transform->asciiToUnsignedInt($log->getRawData(), 0);
+                $inputPort = $this->transformService->asciiToUnsignedInt($log->getRawData(), 0);
                 $inputName = $this->valueRepository->getByTypeId(
                     $module->getTypeId(),
                     $inputPort,
@@ -201,7 +201,7 @@ class IoFormatter extends AbstractHcFormatter
                         $this->getDirectConnectTableRows($log, $inputPort, substr($log->getRawData(), 1)) .
                     '</table>';
             case IoService::COMMAND_SET_DIRECT_CONNECT:
-                $inputPort = $this->transform->asciiToUnsignedInt($log->getRawData(), 0);
+                $inputPort = $this->transformService->asciiToUnsignedInt($log->getRawData(), 0);
                 $inputName = $this->valueRepository->getByTypeId(
                     $module->getTypeId(),
                     $inputPort,
@@ -218,12 +218,12 @@ class IoFormatter extends AbstractHcFormatter
                         '</tr>' .
                         '<tr>' .
                             '<th>Nummer</th>' .
-                            '<td>' . $this->transform->asciiToUnsignedInt($log->getRawData(), 1) . '</td>' .
+                            '<td>' . $this->transformService->asciiToUnsignedInt($log->getRawData(), 1) . '</td>' .
                         '</tr>' .
                     $this->getDirectConnectTableRows($log, $inputPort, substr($log->getRawData(), 2)) .
                     '</table>';
             case IoService::COMMAND_DELETE_DIRECT_CONNECT:
-                $inputPort = $this->transform->asciiToUnsignedInt($log->getRawData(), 0);
+                $inputPort = $this->transformService->asciiToUnsignedInt($log->getRawData(), 0);
                 $inputName = $this->valueRepository->getByTypeId(
                     $module->getTypeId(),
                     $inputPort,
@@ -240,11 +240,11 @@ class IoFormatter extends AbstractHcFormatter
                         '</tr>' .
                         '<tr>' .
                             '<th>Nummer</th>' .
-                            '<td>' . $this->transform->asciiToUnsignedInt($log->getRawData(), 1) . '</td>' .
+                            '<td>' . $this->transformService->asciiToUnsignedInt($log->getRawData(), 1) . '</td>' .
                         '</tr>' .
                     '</table>';
             case IoService::COMMAND_RESET_DIRECT_CONNECT:
-                $inputPort = $this->transform->asciiToUnsignedInt($log->getRawData(), 0);
+                $inputPort = $this->transformService->asciiToUnsignedInt($log->getRawData(), 0);
                 $inputName = $this->valueRepository->getByTypeId(
                     $module->getTypeId(),
                     $inputPort,
@@ -262,7 +262,7 @@ class IoFormatter extends AbstractHcFormatter
                     '</table>';
             case IoService::COMMAND_READ_DIRECT_CONNECT:
                 if ($log->getDirection() === Log::DIRECTION_OUTPUT) {
-                    $this->directConnectReadInputPort = $this->transform->asciiToUnsignedInt($log->getRawData(), 0);
+                    $this->directConnectReadInputPort = $this->transformService->asciiToUnsignedInt($log->getRawData(), 0);
                     $inputName = $this->valueRepository->getByTypeId(
                         $module->getTypeId(),
                         $this->directConnectReadInputPort,
@@ -279,12 +279,12 @@ class IoFormatter extends AbstractHcFormatter
                             '</tr>' .
                             '<tr>' .
                                 '<th>Nummer</th>' .
-                                '<td>' . $this->transform->asciiToUnsignedInt($log->getRawData(), 1) . '</td>' .
+                                '<td>' . $this->transformService->asciiToUnsignedInt($log->getRawData(), 1) . '</td>' .
                             '</tr>' .
                         '</table>';
                 }
 
-                $lastByte = $this->transform->asciiToUnsignedInt($log->getRawData(), 2);
+                $lastByte = $this->transformService->asciiToUnsignedInt($log->getRawData(), 2);
 
                 if ($lastByte == IoService::DIRECT_CONNECT_READ_NOT_SET) {
                     return null;

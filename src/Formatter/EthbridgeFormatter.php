@@ -22,12 +22,12 @@ class EthbridgeFormatter extends AbstractFormatter
     private ValueRepository $valueRepository;
 
     public function __construct(
-        TransformService $transform,
+        TransformService $transformService,
         ModuleSettingService $moduleSetting,
         ValueRepository $valueRepository
     ) {
-        parent::__construct($transform);
-        $this->transform = $transform;
+        parent::__construct($transformService);
+        $this->transformService = $transformService;
         $this->moduleSetting = $moduleSetting;
         $this->valueRepository = $valueRepository;
     }
@@ -48,7 +48,7 @@ class EthbridgeFormatter extends AbstractFormatter
             case MasterService::TYPE_STATUS:
                 return 'Status';
             case MasterService::TYPE_DATA:
-                switch ($this->transform->hexToInt($data, 0)) {
+                switch ($this->transformService->hexToInt($data, 0)) {
                     case EthbridgeConstant::DATA_TYPE_IR:
                         $irProtocols = $this->moduleSetting->getByRegistry('ethbridgeIrProtocols');
 
@@ -97,14 +97,14 @@ class EthbridgeFormatter extends AbstractFormatter
     {
         $data = $log->getData();
 
-        if ($this->transform->hexToInt($data, 0) !== EthbridgeConstant::DATA_TYPE_IR) {
+        if ($this->transformService->hexToInt($data, 0) !== EthbridgeConstant::DATA_TYPE_IR) {
             return null;
         }
 
         return [
-            'protocol' => $this->transform->hexToInt($data, 1),
-            'address' => $this->transform->hexToInt(substr($data, 4, 4)),
-            'command' => $this->transform->hexToInt(substr($data, 8, 4)),
+            'protocol' => $this->transformService->hexToInt($data, 1),
+            'address' => $this->transformService->hexToInt(substr($data, 4, 4)),
+            'command' => $this->transformService->hexToInt(substr($data, 8, 4)),
         ];
     }
 

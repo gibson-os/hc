@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Model;
 use DateTimeInterface;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use JsonSerializable;
 use mysqlDatabase;
 
@@ -50,6 +51,9 @@ class Log extends AbstractModel implements JsonSerializable
 
     /** @var string|null Virtual Field */
     private ?string $commandText = null;
+
+    /** @var Explain[]|null Virtual Field */
+    private ?array $explains = null;
 
     public function __construct(mysqlDatabase $database = null)
     {
@@ -270,6 +274,22 @@ class Log extends AbstractModel implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @return Explain[]|null
+     */
+    public function getExplains(): ?array
+    {
+        return $this->explains;
+    }
+
+    /**
+     * @param Explain[]|null $explains
+     */
+    public function setExplains(?array $explains): void
+    {
+        $this->explains = $explains;
+    }
+
     public function jsonSerialize(): array
     {
         $module = $this->getModule();
@@ -291,6 +311,7 @@ class Log extends AbstractModel implements JsonSerializable
             'helper' => $module === null ? null : $module->getType()->getHelper(),
             'text' => $this->getText(),
             'rendered' => $this->getRendered(),
+            'explains' => $this->getExplains(),
         ];
     }
 }

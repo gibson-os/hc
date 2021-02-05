@@ -9,11 +9,11 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 abstract class AbstractFormatter implements FormatterInterface
 {
-    protected TransformService $transform;
+    protected TransformService $transformService;
 
-    public function __construct(TransformService $transform)
+    public function __construct(TransformService $transformService)
     {
-        $this->transform = $transform;
+        $this->transformService = $transformService;
     }
 
     public function command(Log $log): ?string
@@ -31,7 +31,7 @@ abstract class AbstractFormatter implements FormatterInterface
         if ($log->getType() == MasterService::TYPE_HANDSHAKE) {
             return sprintf(
                 'Adresse %d gesendet an %s',
-                $this->transform->asciiToUnsignedInt($log->getRawData(), 0),
+                $this->transformService->asciiToUnsignedInt($log->getRawData(), 0),
                 substr($log->getRawData(), 1)
             );
         }
@@ -42,6 +42,11 @@ abstract class AbstractFormatter implements FormatterInterface
             return 'Status abfragen';
         }
 
+        return null;
+    }
+
+    public function explain(Log $log): ?array
+    {
         return null;
     }
 

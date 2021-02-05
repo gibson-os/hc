@@ -22,8 +22,8 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
                 return parent::text($log);
             }
 
-            $sequenceActive = $this->transform->hexToInt($data, 0);
-            $sequenceId = $this->transform->hexToInt(mb_substr($data, 2));
+            $sequenceActive = $this->transformService->hexToInt($data, 0);
+            $sequenceId = $this->transformService->hexToInt(mb_substr($data, 2));
 
             return 'Sequenz ' . $sequenceId . ($sequenceActive ? ' aktiv' : ' gestoppt');
         }
@@ -33,7 +33,7 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
 
             switch (mb_substr($data, 0, 2)) {
                 case Rfmrgbpanel5x5Constant::SEQUENCE_START_BYTE:
-                    return 'Übertragung von Sequenz ' . $this->transform->hexToInt($data) . ' starten';
+                    return 'Übertragung von Sequenz ' . $this->transformService->hexToInt($data) . ' starten';
                 case Rfmrgbpanel5x5Constant::SEQUENCE_RUN_BYTE:
                     switch (mb_substr($data, 2, 2)) {
                         case Rfmrgbpanel5x5Constant::SEQUENCE_PLAY_BYTE:
@@ -45,7 +45,7 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
                     }
                     // no break
                 default:
-                    return 'Sequenz Step ' . $this->transform->hexToInt($data, 0);
+                    return 'Sequenz Step ' . $this->transformService->hexToInt($data, 0);
             }
         }
 
@@ -119,7 +119,7 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
         } else {
             // 3 Bytes pro LED 1=Adresse; 2=Effekt|Red 3=Green|Blue
             for ($i = 2; $i < mb_strlen($data); $i += 6) {
-                $address = $this->transform->hexToInt(mb_substr($data, $i, 2));
+                $address = $this->transformService->hexToInt(mb_substr($data, $i, 2));
 
                 if ($address > Rfmrgbpanel5x5Constant::LED_COUNT) { // compressed
                     $ledCount = $address - Rfmrgbpanel5x5Constant::LED_COUNT;
@@ -128,7 +128,7 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
 
                     for ($j = 0; $j < $ledCount; ++$j) {
                         $i += 2;
-                        $ledList['l' . $this->transform->hexToInt(mb_substr($data, $i, 2))] = [
+                        $ledList['l' . $this->transformService->hexToInt(mb_substr($data, $i, 2))] = [
                             'effect' => $effect,
                             'color' => $color,
                         ];
