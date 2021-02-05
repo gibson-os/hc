@@ -3,11 +3,11 @@
 {% block render %}
     <div class="neopixel_led_container" style="height: {{ maxTop }}px;">
     {% for key, slaveLed in slaveLeds %}
-        <div class="neopixel_led{% if logLeds[key-1] is not defined %} disabled{% endif %}" style="
+        <div class="neopixel_led{% if logLeds[key] is not defined %} disabled{% endif %}" style="
             top: {{ slaveLed.top }}px;
             left: {{ slaveLed.left }}px;
-            {% if logLeds[key-1] is defined %}
-                {% set logLed = logLeds[key-1] %}
+            {% if logLeds[key] is defined %}
+                {% set logLed = logLeds[key] %}
                 background: rgb({{ logLed.red }}, {{ logLed.green }}, {{ logLed.blue }});
             {% endif %}
         "></div>
