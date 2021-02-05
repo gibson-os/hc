@@ -82,7 +82,15 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
                     returnVal = logModel.get('data');
                 }
 
-                return returnVal;
+                returnVal += '<div class="hc_log_plain">';
+
+                for (let i = 0; i < logModel.get('data').length; i++) {
+                    let hex = Number(logModel.get('data').charCodeAt(i)).toString(16).toUpperCase();
+
+                    returnVal += '<span class="explain">' + (hex.length === 1 ? '0' + hex : hex) + '</span>';
+                }
+
+                return returnVal + '</div>';
             }
         }];
 
