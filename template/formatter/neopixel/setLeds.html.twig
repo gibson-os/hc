@@ -1,11 +1,13 @@
+{% block command %}LEDs setzen{% endblock command %}
+
 {% block render %}
     <div class="neopixel_led_container" style="height: {{ maxTop }}px;">
-    {% for slaveLed in slaveLeds %}
-        <div class="neopixel_led{% if logLeds[loop.index-1] is not defined %} disabled{% endif %}" style="
+    {% for key, slaveLed in slaveLeds %}
+        <div class="neopixel_led{% if logLeds[key-1] is not defined %} disabled{% endif %}" style="
             top: {{ slaveLed.top }}px;
             left: {{ slaveLed.left }}px;
-            {% if logLeds[loop.index-1] is defined %}
-                {% set logLed = logLeds[loop.index-1] %}
+            {% if logLeds[key-1] is defined %}
+                {% set logLed = logLeds[key-1] %}
                 background: rgb({{ logLed.red }}, {{ logLed.green }}, {{ logLed.blue }});
             {% endif %}
         "></div>

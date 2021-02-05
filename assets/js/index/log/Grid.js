@@ -89,13 +89,13 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
                     hex = (hex.length === 1 ? '0' + hex : hex);
 
                     if (logModel.get('explains') === null) {
-                        returnVal += '<span class="explain"><div class="title">Als Zahl: ' + Number(logModel.get('data').charCodeAt(i)) + '</div>' + hex + '</span>';
+                        returnVal += '<span class="explain white"><div class="title">Als Zahl: ' + Number(logModel.get('data').charCodeAt(i)) + '</div>' + hex + '</span>';
                     } else {
                         let isEndByte = false;
 
                         Ext.iterate(logModel.get('explains'), (explain) => {
                             if (explain.startByte === i) {
-                                returnVal += '<span class="explain"><div class="title">' + explain.description + '</div>';
+                                returnVal += '<span class="explain ' + explain.color + '"><div class="title">' + explain.description + '</div>';
                             }
 
                             if (explain.endByte === i) {

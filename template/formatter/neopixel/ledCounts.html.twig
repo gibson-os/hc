@@ -1,0 +1,11 @@
+{% block command %}LED Anzahl setzen{% endblock command %}
+
+{% block text %}
+    {% for channel, ledLength in channels %}
+        Channel {{ channel }} hat {{ ledLength }} LEDs.{% if loop.last == false %}<br />{% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block explain %}
+    Channel {{ channel }} LEDs: {{ ledLength }}
+{% endblock %}

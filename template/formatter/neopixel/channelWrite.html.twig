@@ -1,0 +1,11 @@
+{% block command %}LEDs anzeigen{% endblock command %}
+
+{% block text %}
+    {% for channel, ledLength in channels %}
+        Channel {{ channel }} bis LED {{ ledLength }} gesetzt.{% if loop.last == false %}<br />{% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block explain %}
+    Channel {{ channel }} bis LED: {{ ledLength }}
+{% endblock %}

@@ -1,3 +1,93 @@
+.hc_log_plain {
+    margin-top: 4px;
+}
+
+.hc_log_plain .explain {
+    margin: 0 2px;
+    padding: 2px 3px;
+    border-radius: 5px;
+    text-align: center;
+    display: inline-block;
+    font-family: "Courier New", serif;
+    line-height: 12px;
+    box-sizing: content-box;
+    border: 1px solid #000;
+}
+
+.hc_log_plain .explain:first-child {
+    margin: 0 2px 0 0;
+}
+
+.hc_log_plain .explain.white {
+    background: #FFF;
+    color: #000;
+}
+
+.hc_log_plain .explain.white:hover {
+    background: #000;
+    color: #FFF;
+}
+
+.hc_log_plain .explain.black {
+    background: #000;
+    color: #FFF;
+}
+
+.hc_log_plain .explain.black:hover {
+    background: #FFF;
+    color: #000;
+}
+
+.hc_log_plain .explain.red {
+    background: #F00;
+    border-color: #F00;
+    color: #FFF;
+}
+
+.hc_log_plain .explain.red:hover {
+    background: #800;
+    color: #FFF;
+}
+
+.hc_log_plain .explain.green {
+    background: #0F0;
+    border-color: #0F0;
+    color: #000;
+}
+
+.hc_log_plain .explain.green:hover {
+    background: #080;
+    color: #FFF;
+}
+
+.hc_log_plain .explain.blue {
+    background: #00F;
+    border-color: #00F;
+    color: #FFF;
+}
+
+.hc_log_plain .explain.blue:hover {
+    background: #008;
+    color: #FFF;
+}
+
+.hc_log_plain .explain .title {
+    position: absolute;
+    border: 1px solid #000;
+    border-radius: 5px;
+    background: #FFF;
+    display: none;
+    margin: 17px 0 0 -3px;
+    z-index: 1;
+    color: #000;
+    text-align: left;
+    padding: 2px 3px;
+}
+
+.hc_log_plain .explain:hover .title {
+    display: block;
+}
+
 .hc_log_rendered {
     margin-top: 10px;
     line-height: 7px;
@@ -9,19 +99,4 @@
 
 .hc_log_rendered * {
     font-size: 13px;
-}
-
-.hc_log_rendered .neopixel_led_container {
-    position: relative;
-}
-
-.hc_log_rendered .neopixel_led {
-    position: absolute;
-    width: 3px;
-    height: 3px;
-}
-
-.hc_log_rendered .neopixel_led.disabled {
-    opacity: .5;
-    background: #000;
 }
