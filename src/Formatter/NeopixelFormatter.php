@@ -11,6 +11,8 @@ use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
+use Throwable;
+use Twig\TemplateWrapper;
 
 class NeopixelFormatter extends AbstractHcFormatter
 {
@@ -81,8 +83,9 @@ class NeopixelFormatter extends AbstractHcFormatter
             }
 
             $context['maxTop'] = $maxTop + 6;
+            $template = $this->twigService->getTwig()->load('@hc/formatter/neopixel/setLeds.html.twig');
 
-            return $this->twigService->getTwig()->render('@hc/formatter/neopixel.html.twig', $context);
+            return $template->renderBlock('render', $context);
         }
 
         return parent::render($log);
@@ -114,6 +117,7 @@ class NeopixelFormatter extends AbstractHcFormatter
     public function explain(Log $log): ?array
     {
         if ($log->getCommand() === NeopixelService::COMMAND_SET_LEDS) {
+            $template = $this->twigService->getTwig()->load('@hc/formatter/neopixel/setLeds.html.twig');
             $explains = [];
             $data = $log->getRawData();
 
@@ -122,8 +126,7 @@ class NeopixelFormatter extends AbstractHcFormatter
                 $explains[] = new Explain(
                     $i,
                     $i + 1,
-                    $address === LedMapper::RANGE_ADDRESS ? 'Adressbereich' :
-                        ($address > LedMapper::MAX_PROTOCOL_LEDS ? 'Adressgruppe' : 'Adresse ' . $address)
+                    $template->renderBlock('explain', ['part' => 'address', 'address' => $address])
                 );
                 $i += 2;
 
@@ -133,13 +136,18 @@ class NeopixelFormatter extends AbstractHcFormatter
                     $startAddress = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
                     $i += 2;
                     $endAddress = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
-                    $i += 2;
                     $explains[] = new Explain(
                         $startByte,
                         $endByte,
-                        'Adressbereich von ' . $startAddress . ' bis ' . $endAddress
+                        $template->renderBlock('explain', ['part' => 'rangeAddress', 'from' => $startAddress])
                     );
-                    $explains[] = $this->getLedExplain($data, $i);
+                    $explains[] = new Explain(
+                        $endByte + 1,
+                        $i + 1,
+                        $template->renderBlock('explain', ['part' => 'rangeAddress', 'to' => $endAddress])
+                    );
+                    $i += 2;
+                    $explains = array_merge($explains, $this->getLedExplains($data, $i, $template));
 
                     continue;
                 }
@@ -154,12 +162,12 @@ class NeopixelFormatter extends AbstractHcFormatter
                         $i += 2;
                     }
 
-                    $explains[] = $this->getLedExplain($data, $i);
+                    $explains = array_merge($explains, $this->getLedExplains($data, $i, $template));
 
                     continue;
                 }
 
-                $explains[] = $this->getLedExplain($data, $i);
+                $explains = array_merge($explains, $this->getLedExplains($data, $i, $template));
             }
 
             return $explains;
@@ -181,19 +189,31 @@ class NeopixelFormatter extends AbstractHcFormatter
         return $this->leds[$moduleId];
     }
 
-    private function getLedExplain(string $data, int &$i): Explain
+    /**
+     * @throws Throwable
+     *
+     * @return Explain[]
+     */
+    private function getLedExplains(string $data, int &$i, TemplateWrapper $template): array
     {
-        $startByte = $i;
-        $i += 4;
-
-        return new Explain(
-            $startByte,
-            $i,
-            'Rot: ' . $this->transformService->asciiToUnsignedInt($data, $i) . PHP_EOL .
-            'Grün: ' . $this->transformService->asciiToUnsignedInt($data, $i - 3) . PHP_EOL .
-            'Blau: ' . $this->transformService->asciiToUnsignedInt($data, $i - 2) . PHP_EOL .
-            'Einblenden: ' . ($this->transformService->asciiToUnsignedInt($data, $i - 1) >> 4) . PHP_EOL .
-            'Blinken: ' . ($this->transformService->asciiToUnsignedInt($data, $i - 1) & 15)
-        );
+        return [
+            (new Explain($i, $i, $template->renderBlock('explain', [
+                'part' => 'red',
+                'red' => $this->transformService->asciiToUnsignedInt($data, $i++),
+            ])))->setColor(Explain::COLOR_RED),
+            (new Explain($i, $i, $template->renderBlock('explain', [
+                'part' => 'green',
+                'green' => $this->transformService->asciiToUnsignedInt($data, $i++),
+            ])))->setColor(Explain::COLOR_GREEN),
+            (new Explain($i, $i, $template->renderBlock('explain', [
+                'part' => 'blue',
+                'blue' => $this->transformService->asciiToUnsignedInt($data, $i++),
+            ])))->setColor(Explain::COLOR_BLUE),
+            (new Explain($i, $i, $template->renderBlock('explain', [
+                'part' => 'effect',
+                'fadeIn' => $this->transformService->asciiToUnsignedInt($data, $i) >> 4,
+                'blink' => ($this->transformService->asciiToUnsignedInt($data, $i++) & 15),
+            ])))->setColor(Explain::COLOR_BLACK),
+        ];
     }
 }

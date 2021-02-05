@@ -7,17 +7,35 @@ use JsonSerializable;
 
 class Explain implements JsonSerializable
 {
+    public const COLOR_WHITE = 'white';
+
+    public const COLOR_RED = 'red';
+
+    public const COLOR_GREEN = 'green';
+
+    public const COLOR_BLUE = 'blue';
+
+    public const COLOR_YELLOW = 'blue';
+
+    public const COLOR_MAGENTA = 'magenta';
+
+    public const COLOR_CYAN = 'cyan';
+
+    public const COLOR_BLACK = 'black';
+
     private int $startByte;
 
     private int $endByte;
 
-    private string $declaration;
+    private string $description;
 
-    public function __construct(int $startByte, int $endByte, string $declaration)
+    private string $color = self::COLOR_WHITE;
+
+    public function __construct(int $startByte, int $endByte, string $description)
     {
         $this->startByte = $startByte;
         $this->endByte = $endByte;
-        $this->declaration = $declaration;
+        $this->description = $description;
     }
 
     public function getStartByte(): int
@@ -40,14 +58,26 @@ class Explain implements JsonSerializable
         $this->endByte = $endByte;
     }
 
-    public function getDeclaration(): string
+    public function getDescription(): string
     {
-        return $this->declaration;
+        return $this->description;
     }
 
-    public function setDeclaration(string $declaration): void
+    public function setDescription(string $description): void
     {
-        $this->declaration = $declaration;
+        $this->description = $description;
+    }
+
+    public function getColor(): string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $color): Explain
+    {
+        $this->color = $color;
+
+        return $this;
     }
 
     public function jsonSerialize(): array
@@ -55,7 +85,8 @@ class Explain implements JsonSerializable
         return [
             'startByte' => $this->getStartByte(),
             'endByte' => $this->getEndByte(),
-            'declaration' => $this->getDeclaration(),
+            'description' => $this->getDescription(),
+            'color' => $this->getColor(),
         ];
     }
 }

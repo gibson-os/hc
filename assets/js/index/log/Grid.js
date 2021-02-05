@@ -86,8 +86,35 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
 
                 for (let i = 0; i < logModel.get('data').length; i++) {
                     let hex = Number(logModel.get('data').charCodeAt(i)).toString(16).toUpperCase();
+                    hex = (hex.length === 1 ? '0' + hex : hex);
 
-                    returnVal += '<span class="explain"><div class="title"></div>' + (hex.length === 1 ? '0' + hex : hex) + '</span>';
+                    if (logModel.get('explains') === null) {
+                        returnVal += '<span class="explain"><div class="title">Als Zahl: ' + Number(logModel.get('data').charCodeAt(i)) + '</div>' + hex + '</span>';
+                    } else {
+                        let isEndByte = false;
+
+                        Ext.iterate(logModel.get('explains'), (explain) => {
+                            if (explain.startByte === i) {
+                                returnVal += '<span class="explain"><div class="title">' + explain.description + '</div>';
+                            }
+
+                            if (explain.endByte === i) {
+                                isEndByte = true;
+                                return false;
+                            }
+
+                            if (explain.endByte > i) {
+                                return false;
+                            }
+                        });
+
+                        returnVal += hex;
+
+                        if (isEndByte) {
+                            isEndByte = false;
+                            returnVal += '</span>';
+                        }
+                    }
                 }
 
                 return returnVal + '</div>';

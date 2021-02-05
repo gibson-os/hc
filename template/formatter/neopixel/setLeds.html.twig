@@ -1,0 +1,30 @@
+{% block render %}
+    <div class="neopixel_led_container" style="height: {{ maxTop }}px;">
+    {% for slaveLed in slaveLeds %}
+        <div class="neopixel_led{% if logLeds[loop.index-1] is not defined %} disabled{% endif %}" style="
+            top: {{ slaveLed.top }}px;
+            left: {{ slaveLed.left }}px;
+            {% if logLeds[loop.index-1] is defined %}
+                {% set logLed = logLeds[loop.index-1] %}
+                background: rgb({{ logLed.red }}, {{ logLed.green }}, {{ logLed.blue }});
+            {% endif %}
+        "></div>
+    {% endfor %}
+    </div>
+{% endblock render %}
+
+{% block explain %}
+    {% if part == 'address' %}
+        {% if address == constant('GibsonOS\\Module\\Hc\\Mapper\\LedMapper::RANGE_ADDRESS') %}Adressbereich
+        {% elseif address > constant('GibsonOS\\Module\\Hc\\Mapper\\LedMapper::MAX_PROTOCOL_LEDS') %}Adressgruppe
+        {% else %}Adresse: {{ address }}
+        {% endif %}
+    {% elseif part == 'rangeAddress' %}Addressbereich {% if from is defined %}von: {{ from }}{% else %}bis: {{ to }}{% endif %}
+    {% elseif part == 'red' %}Rot: {{ red }}
+    {% elseif part == 'green' %}Grün: {{ green }}
+    {% elseif part == 'blue' %}Blau: {{ blue }}
+    {% elseif part == 'effect' %}
+        Einblenden: {{ fadeIn }}<br />
+        Blinken: {{ blink }}
+    {% endif %}
+{% endblock explain %}

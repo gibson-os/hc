@@ -5,7 +5,7 @@
     margin: 0 2px;
     padding: 2px;
     border: 1px solid #000;
-    border-radius: 2px;
+    border-radius: 5px;
     min-width: 19px;
     text-align: center;
     display: inline-block;
@@ -22,12 +22,15 @@
 
 .hc_log_plain .explain .title {
     position: absolute;
-    min-width: 150px;
-    min-height: 30px;
-    background: #000;
+    border: 1px solid #000;
+    border-radius: 5px;
+    background: #FFF;
     display: none;
     margin: 17px 0 0 -3px;
     z-index: 1;
+    color: #000;
+    text-align: left;
+    padding: 2px;
 }
 
 .hc_log_plain .explain:hover .title {

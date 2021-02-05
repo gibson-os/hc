@@ -34,6 +34,9 @@ Ext.define('GibsonOS.module.hc.index.model.Log', {
         name: 'rendered',
         type: 'string'
     },{
+        name: 'explains',
+        type: 'array'
+    },{
         name: 'added',
         type: 'string'
     }]
