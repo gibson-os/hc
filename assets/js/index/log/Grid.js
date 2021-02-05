@@ -83,6 +83,7 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
                 }
 
                 returnVal += '<div class="hc_log_plain">';
+                let isBetween = false;
 
                 for (let i = 0; i < logModel.get('data').length; i++) {
                     let hex = Number(logModel.get('data').charCodeAt(i)).toString(16).toUpperCase();
@@ -95,6 +96,7 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
 
                         Ext.iterate(logModel.get('explains'), (explain) => {
                             if (explain.startByte === i) {
+                                isBetween = true;
                                 returnVal += '<span class="explain ' + explain.color + '"><div class="title">' + explain.description + '</div>';
                             }
 
@@ -107,19 +109,18 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
                             if (explain.endByte > i) {
                                 return false;
                             }
-
-                            if (explain.startByte < i) {
-                                isEndByte = true;
-                                returnVal += '<span class="explain white"><div class="title">Als Zahl: ' + Number(logModel.get('data').charCodeAt(i)) + '</div>';
-
-                                return false;
-                            }
                         });
+
+                        if (!isBetween) {
+                            isEndByte = true;
+                            returnVal += '<span class="explain white"><div class="title">Als Zahl: ' + Number(logModel.get('data').charCodeAt(i)) + '</div>';
+                        }
 
                         returnVal += hex;
 
-                        if (isEndByte || !isBetween) {
+                        if (isEndByte) {
                             isEndByte = false;
+                            isBetween = false;
                             returnVal += '</span>';
                         }
                     }
