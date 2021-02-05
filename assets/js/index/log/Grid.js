@@ -100,17 +100,24 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
 
                             if (explain.endByte === i) {
                                 isEndByte = true;
+
                                 return false;
                             }
 
                             if (explain.endByte > i) {
                                 return false;
                             }
+
+                            if (explain.startByte < i) {
+                                returnVal += '<span class="explain white"><div class="title">Als Zahl: ' + Number(logModel.get('data').charCodeAt(i)) + '</div>' + hex + '</span>';
+
+                                return false;
+                            }
                         });
 
                         returnVal += hex;
 
-                        if (isEndByte) {
+                        if (isEndByte || !isBetween) {
                             isEndByte = false;
                             returnVal += '</span>';
                         }
