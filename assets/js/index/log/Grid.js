@@ -109,7 +109,8 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
                             }
 
                             if (explain.startByte < i) {
-                                returnVal += '<span class="explain white"><div class="title">Als Zahl: ' + Number(logModel.get('data').charCodeAt(i)) + '</div>' + hex + '</span>';
+                                isEndByte = true;
+                                returnVal += '<span class="explain white"><div class="title">Als Zahl: ' + Number(logModel.get('data').charCodeAt(i)) + '</div>';
 
                                 return false;
                             }
