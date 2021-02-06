@@ -149,75 +149,7 @@ class NeopixelFormatter extends AbstractHcFormatter
 
         switch ($command) {
             case NeopixelService::COMMAND_SET_LEDS:
-                for ($i = 0; $i < strlen($data);) {
-                    $address = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
-                    $explains[] = new Explain(
-                        $i,
-                        $i + 1,
-                        $this->renderBlock(
-                            $command,
-                            'explain',
-                            ['part' => 'address', 'address' => $address]
-                        ) ?? ''
-                    );
-                    $i += 2;
-
-                    if ($address === LedMapper::RANGE_ADDRESS) {
-                        $startByte = $i;
-                        $endByte = $i + 1;
-                        $startAddress = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
-                        $i += 2;
-                        $endAddress = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
-                        $explains[] = new Explain(
-                            $startByte,
-                            $endByte,
-                            $this->renderBlock(
-                                $command,
-                                'explain',
-                                ['part' => 'rangeAddress', 'from' => $startAddress]
-                            ) ?? ''
-                        );
-                        $explains[] = new Explain(
-                            $endByte + 1,
-                            $i + 1,
-                            $this->renderBlock(
-                                $command,
-                                'explain',
-                                ['part' => 'rangeAddress', 'to' => $endAddress]
-                            ) ?? ''
-                        );
-                        $i += 2;
-                        $explains = array_merge($explains, $this->getLedExplains($data, $i, $command));
-
-                        break;
-                    }
-
-                    if ($address > LedMapper::MAX_PROTOCOL_LEDS) {
-                        for ($j = 0; $j < $address - LedMapper::MAX_PROTOCOL_LEDS; ++$j) {
-                            $explains[] = new Explain(
-                                $i,
-                                $i + 1,
-                                $this->renderBlock(
-                                    $command,
-                                    'explain',
-                                    [
-                                        'part' => 'address',
-                                        'address' => $this->transformService->asciiToUnsignedInt(substr($data, $i, 2)),
-                                    ]
-                                ) ?? ''
-                            );
-                            $i += 2;
-                        }
-
-                        $explains = array_merge($explains, $this->getLedExplains($data, $i, $command));
-
-                        break;
-                    }
-
-                    $explains = array_merge($explains, $this->getLedExplains($data, $i, $command));
-                }
-
-                return $explains;
+                return $this->explainSetLeds($data, $command);
             case NeopixelService::COMMAND_LED_COUNTS:
             case NeopixelService::COMMAND_CHANNEL_WRITE:
                 $channel = 1;
@@ -302,5 +234,85 @@ class NeopixelFormatter extends AbstractHcFormatter
         } catch (RuntimeError $e) {
             return null;
         }
+    }
+
+    /**
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws Throwable
+     */
+    private function explainSetLeds(string $data, int $command): array
+    {
+        $explains = [];
+
+        for ($i = 0; $i < strlen($data);) {
+            $address = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
+            $explains[] = new Explain(
+                $i,
+                $i + 1,
+                $this->renderBlock(
+                    $command,
+                    'explain',
+                    ['part' => 'address', 'address' => $address]
+                ) ?? ''
+            );
+            $i += 2;
+
+            if ($address === LedMapper::RANGE_ADDRESS) {
+                $startByte = $i;
+                $endByte = $i + 1;
+                $startAddress = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
+                $i += 2;
+                $endAddress = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
+                $explains[] = new Explain(
+                    $startByte,
+                    $endByte,
+                    $this->renderBlock(
+                        $command,
+                        'explain',
+                        ['part' => 'rangeAddress', 'from' => $startAddress]
+                    ) ?? ''
+                );
+                $explains[] = new Explain(
+                    $endByte + 1,
+                    $i + 1,
+                    $this->renderBlock(
+                        $command,
+                        'explain',
+                        ['part' => 'rangeAddress', 'to' => $endAddress]
+                    ) ?? ''
+                );
+                $i += 2;
+                $explains = array_merge($explains, $this->getLedExplains($data, $i, $command));
+
+                continue;
+            }
+
+            if ($address > LedMapper::MAX_PROTOCOL_LEDS) {
+                for ($j = 0; $j < $address - LedMapper::MAX_PROTOCOL_LEDS; ++$j) {
+                    $explains[] = new Explain(
+                        $i,
+                        $i + 1,
+                        $this->renderBlock(
+                            $command,
+                            'explain',
+                            [
+                                'part' => 'address',
+                                'address' => $this->transformService->asciiToUnsignedInt(substr($data, $i, 2)),
+                            ]
+                        ) ?? ''
+                    );
+                    $i += 2;
+                }
+
+                $explains = array_merge($explains, $this->getLedExplains($data, $i, $command));
+
+                continue;
+            }
+
+            $explains = array_merge($explains, $this->getLedExplains($data, $i, $command));
+        }
+
+        return $explains;
     }
 }
