@@ -13,10 +13,16 @@ use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use Twig\TemplateWrapper;
 use Twig\TwigFilter;
 
 abstract class AbstractHcFormatter extends AbstractFormatter
 {
+    /**
+     * @var TemplateWrapper[]
+     */
+    private array $loadedTemplates = [];
+
     protected TwigService $twigService;
 
     public function __construct(TransformService $transformService, TwigService $twigService)
@@ -120,14 +126,21 @@ abstract class AbstractHcFormatter extends AbstractFormatter
      */
     protected function renderBlock(int $command, string $blockName, array $context = []): ?string
     {
-        try {
-            $templates = $this->getTemplates();
+        $templates = $this->getTemplates();
 
-            return isset($templates[$command])
-                ? $this->twigService->getTwig()
-                    ->load('@hc/formatter/' . $templates[$command] . '.html.twig')
-                    ->renderBlock($blockName, $context)
-                : null;
+        if (!isset($templates[$command])) {
+            return null;
+        }
+
+        $template = $templates[$command];
+
+        try {
+            if (!isset($this->loadedTemplates[$template])) {
+                $this->loadedTemplates[$template] = $this->twigService->getTwig()
+                    ->load('@hc/formatter/' . $template . '.html.twig');
+            }
+
+            return $this->loadedTemplates[$template]->renderBlock($blockName, $context);
         } catch (RuntimeError $e) {
             return null;
         }
