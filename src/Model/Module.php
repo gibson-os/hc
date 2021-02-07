@@ -137,11 +137,6 @@ class Module extends AbstractModel implements JsonSerializable
         return $this->bufferSize;
     }
 
-    public function getDataBufferSize(): ?int
-    {
-        return $this->bufferSize - 2;
-    }
-
     public function setBufferSize(?int $bufferSize): Module
     {
         $this->bufferSize = $bufferSize;

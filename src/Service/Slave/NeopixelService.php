@@ -206,7 +206,7 @@ class NeopixelService extends AbstractHcSlave
      */
     public function writeSetLeds(Module $slave, array $leds): NeopixelService
     {
-        $data = $this->ledMapper->mapToStrings($leds, (int) $slave->getDataBufferSize());
+        $data = $this->ledMapper->mapToStrings($leds, (int) $slave->getBufferSize());
 
         foreach ($this->getWriteStrings($slave, $data) as $writeString) {
             $this->write($slave, self::COMMAND_SET_LEDS, $writeString);
@@ -350,7 +350,7 @@ class NeopixelService extends AbstractHcSlave
      */
     public function writeSequenceAddStep(Module $slave, int $runtime, array $leds): NeopixelService
     {
-        $dataStrings = $this->ledMapper->mapToStrings($leds, (int) $slave->getDataBufferSize());
+        $dataStrings = $this->ledMapper->mapToStrings($leds, (int) $slave->getBufferSize());
         $writeStrings = $this->getWriteStrings($slave, $dataStrings);
 
         foreach ($writeStrings as $index => $writeString) {
@@ -454,21 +454,21 @@ class NeopixelService extends AbstractHcSlave
     private function getWriteStrings(Module $slave, array $data): array
     {
         $writeStrings = [];
-        $bufferSize = $slave->getDataBufferSize();
+        $bufferSize = $slave->getBufferSize();
 
         while (!empty($data)) {
             $dataString = '';
 
             foreach ($data as $key => $string) {
-                if (strlen($string) + 2 > $bufferSize) {
+                if (strlen($string) > $bufferSize) {
                     throw new WriteException(sprintf(
                         'Write string has a length of %d. Max allowed length is %d',
-                        strlen($string) + 2,
+                        strlen($string),
                         $bufferSize ?? 0
                     ));
                 }
 
-                if (strlen($dataString) + strlen($string) + 2 > $bufferSize) {
+                if (strlen($dataString) + strlen($string) > $bufferSize) {
                     continue;
                 }
 
