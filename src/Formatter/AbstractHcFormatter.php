@@ -6,6 +6,8 @@ namespace GibsonOS\Module\Hc\Formatter;
 use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Model\Log;
+use GibsonOS\Module\Hc\Model\Type;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\TransformService;
 use LogicException;
@@ -23,12 +25,23 @@ abstract class AbstractHcFormatter extends AbstractFormatter
      */
     private array $loadedTemplates = [];
 
+    /**
+     * @var Type[]
+     */
+    private array $loadedTypes = [];
+
     protected TwigService $twigService;
 
-    public function __construct(TransformService $transformService, TwigService $twigService)
-    {
+    private TypeRepository $typeRepository;
+
+    public function __construct(
+        TransformService $transformService,
+        TwigService $twigService,
+        TypeRepository $typeRepository
+    ) {
         parent::__construct($transformService);
         $this->twigService = $twigService;
+        $this->typeRepository = $typeRepository;
 
         try {
             $this->twigService->getTwig()->addFilter(new TwigFilter(
@@ -78,9 +91,22 @@ abstract class AbstractHcFormatter extends AbstractFormatter
             return parent::text($log);
         }
 
-        return $this->renderBlock($command, 'text', ['data' => $log->getRawData()]) ??
-            parent::text($log)
-        ;
+        $context = ['data' => $log->getRawData()];
+
+        switch ($command) {
+            case AbstractHcSlave::COMMAND_TYPE:
+                $typeId = $this->transformService->asciiToUnsignedInt($log->getRawData());
+
+                if (!isset($this->loadedTypes[$typeId])) {
+                    $this->loadedTypes[$typeId] = $this->typeRepository->getById($typeId);
+                }
+
+                $context['type'] = $this->loadedTypes[$typeId];
+
+                break;
+        }
+
+        return $this->renderBlock($command, 'text', $context) ?? parent::text($log);
     }
 
     /**

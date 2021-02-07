@@ -1,5 +1,5 @@
 {% block command %}Type{% endblock %}
 
-{% block text %}{{ data|asciiToUnsignedInt(0) }}{% endblock %}
+{% block text %}{{ type.name }} (#{{ type.id }}){% endblock %}
 
-{% block explain %}{{ block('command') }}: {{ block('text') }}{% endblock %}
+{% block explain %}Type ID: {{ data|asciiToUnsignedInt(0) }}{% endblock %}

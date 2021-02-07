@@ -8,6 +8,7 @@ use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Log;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
@@ -29,10 +30,11 @@ class NeopixelFormatter extends AbstractHcFormatter
     public function __construct(
         TransformService $transformService,
         TwigService $twigService,
+        TypeRepository $typeRepository,
         LedStore $ledStore,
         LedMapper $ledMapper
     ) {
-        parent::__construct($transformService, $twigService);
+        parent::__construct($transformService, $twigService, $typeRepository);
         $this->ledStore = $ledStore;
         $this->ledMapper = $ledMapper;
     }

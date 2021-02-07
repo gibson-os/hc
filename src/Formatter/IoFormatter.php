@@ -11,6 +11,7 @@ use GibsonOS\Module\Hc\Mapper\IoMapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
@@ -28,11 +29,12 @@ class IoFormatter extends AbstractHcFormatter
     public function __construct(
         TransformService $transformService,
         TwigService $twigService,
+        TypeRepository $typeRepository,
         ValueRepository $valueRepository,
         LogRepository $logRepository,
         IoMapper $ioMapper
     ) {
-        parent::__construct($transformService, $twigService);
+        parent::__construct($transformService, $twigService, $typeRepository);
         $this->valueRepository = $valueRepository;
         $this->logRepository = $logRepository;
         $this->ioMapper = $ioMapper;
