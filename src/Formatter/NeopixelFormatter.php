@@ -96,10 +96,10 @@ class NeopixelFormatter extends AbstractHcFormatter
 
                 $context['channels'] = $channels;
 
-                break;
+                return $this->renderBlock($command, 'text', $context);
         }
 
-        return $this->renderBlock($command, 'text', $context) ?? parent::text($log);
+        return parent::text($log);
     }
 
     /**
