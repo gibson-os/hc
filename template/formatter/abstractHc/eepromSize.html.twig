@@ -1,3 +1,5 @@
 {% block command %}EEPROM Größe{% endblock %}
 
 {% block text %}{{ data|asciiToUnsignedInt }} Bytes{% endblock %}
+
+{% block explain %}{{ block('command') }}: {{ block('text') }}{% endblock %}

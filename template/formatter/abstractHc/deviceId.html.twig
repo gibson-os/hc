@@ -1,3 +1,5 @@
 {% block command %}Device ID{% endblock %}
 
 {% block text %}{{ data|asciiToUnsignedInt }}{% endblock %}
+
+{% block explain %}{{ block('command') }}: {{ block('text') }}{% endblock %}

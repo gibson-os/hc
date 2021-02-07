@@ -1,3 +1,5 @@
 {% block command %}Adresse{% endblock %}
 
 {% block text %}{{ data|asciiToUnsignedInt(2) }}{% endblock %}
+
+{% block explain %}{{ block('command') }}: {{ block('text') }}{% endblock %}

@@ -111,13 +111,14 @@ class NeopixelFormatter extends AbstractHcFormatter
      */
     public function explain(Log $log): ?array
     {
-        $explains = [];
-        $data = $log->getRawData();
         $command = $log->getCommand();
 
         if ($command === null) {
             return parent::explain($log);
         }
+
+        $explains = [];
+        $data = $log->getRawData();
 
         switch ($command) {
             case NeopixelService::COMMAND_SET_LEDS:

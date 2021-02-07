@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Core\Service\TwigService;
+use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\TransformService;
@@ -74,6 +75,39 @@ abstract class AbstractHcFormatter extends AbstractFormatter
         return $this->renderBlock($command, 'text', $context) ??
             parent::text($log)
         ;
+    }
+
+    /**
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws Throwable
+     *
+     * @return Explain[]|null
+     */
+    public function explain(Log $log): ?array
+    {
+        $command = $log->getCommand();
+
+        if ($command === null) {
+            return parent::explain($log);
+        }
+
+        $context = ['data' => $log->getRawData()];
+
+        switch ($command) {
+            case AbstractHcSlave::COMMAND_ADDRESS:
+            case AbstractHcSlave::COMMAND_BUFFER_SIZE:
+            case AbstractHcSlave::COMMAND_EEPROM_ERASE:
+            case AbstractHcSlave::COMMAND_TYPE:
+                return [new Explain(0, 0, $this->renderBlock($command, 'explain', $context) ?? '')];
+            case AbstractHcSlave::COMMAND_DEVICE_ID:
+            case AbstractHcSlave::COMMAND_EEPROM_FREE:
+            case AbstractHcSlave::COMMAND_EEPROM_POSITION:
+            case AbstractHcSlave::COMMAND_EEPROM_SIZE:
+                return [new Explain(0, 1, $this->renderBlock($command, 'explain', $context) ?? '')];
+        }
+
+        return parent::explain($log);
     }
 
     /**
