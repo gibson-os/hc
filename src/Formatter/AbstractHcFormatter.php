@@ -23,7 +23,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
         $this->twigService = $twigService;
         $this->twigService->getTwig()->addFilter(new TwigFilter(
             'asciiToUnsignedInt',
-            static fn (string $ascii, int $byte = null) => $this->transformService->asciiToUnsignedInt($ascii, $byte)
+            [$this->transformService, 'asciiToUnsignedInt']
         ));
     }
 
