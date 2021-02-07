@@ -35,7 +35,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
             return null;
         }
 
-        return $this->renderBlock($command, 'command');
+        return $this->renderBlock($command, 'command') ?? parent::command($log);
     }
 
     public function text(Log $log): ?string
