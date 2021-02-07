@@ -7,6 +7,8 @@ use GibsonOS\Core\Service\AbstractService;
 
 class TransformService extends AbstractService
 {
+    private const HERTZ_UNITS = ['Hz', 'kHz', 'MHz', 'GHz'];
+
     public function asciiToHex(string $asciiString): string
     {
         $return = '';
@@ -121,5 +123,14 @@ class TransformService extends AbstractService
         }
 
         return (int) $integer;
+    }
+
+    public function transformHertz(int $hertz): string
+    {
+        for ($i = 0; $hertz > 1000; $hertz /= 1000) {
+            ++$i;
+        }
+
+        return str_replace('.', ',', (string) $hertz) . ' ' . self::HERTZ_UNITS[$i];
     }
 }

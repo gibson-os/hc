@@ -1,1 +1,5 @@
 {% block command %}Hertz{% endblock %}
+
+{% block text %}{{ data|asciiToUnsignedInt|transformHertz }}{% endblock %}
+
+{% block explain %}{{ block('command') }}: {{ block('text') }}{% endblock %}

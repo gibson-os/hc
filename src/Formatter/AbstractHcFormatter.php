@@ -32,6 +32,15 @@ abstract class AbstractHcFormatter extends AbstractFormatter
         } catch (LogicException $e) {
             // do nothing
         }
+
+        try {
+            $this->twigService->getTwig()->addFilter(new TwigFilter(
+                'transformHertz',
+                [$this->transformService, 'transformHertz']
+            ));
+        } catch (LogicException $e) {
+            // do nothing
+        }
     }
 
     /**
@@ -63,22 +72,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
             return parent::text($log);
         }
 
-        $context = ['data' => $log->getRawData()];
-
-        switch ($command) {
-            case AbstractHcSlave::COMMAND_PWM_SPEED:
-            case AbstractHcSlave::COMMAND_HERTZ:
-                $units = ['Hz', 'kHz', 'MHz', 'GHz'];
-                $hertz = $this->transformService->asciiToUnsignedInt($log->getRawData());
-
-                for ($i = 0; $hertz > 1000; $hertz /= 1000) {
-                    ++$i;
-                }
-
-                return str_replace('.', ',', (string) $hertz) . ' ' . $units[$i];
-        }
-
-        return $this->renderBlock($command, 'text', $context) ??
+        return $this->renderBlock($command, 'text', ['data' => $log->getRawData()]) ??
             parent::text($log)
         ;
     }
@@ -111,6 +105,9 @@ abstract class AbstractHcFormatter extends AbstractFormatter
             case AbstractHcSlave::COMMAND_EEPROM_POSITION:
             case AbstractHcSlave::COMMAND_EEPROM_SIZE:
                 return [new Explain(0, 1, $this->renderBlock($command, 'explain', $context) ?? '')];
+            case AbstractHcSlave::COMMAND_PWM_SPEED:
+            case AbstractHcSlave::COMMAND_HERTZ:
+            return [new Explain(0, 3, $this->renderBlock($command, 'explain', $context) ?? '')];
         }
 
         return parent::explain($log);
