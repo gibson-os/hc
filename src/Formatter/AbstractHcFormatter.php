@@ -11,6 +11,7 @@ use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use Twig\TwigFilter;
 
 abstract class AbstractHcFormatter extends AbstractFormatter
 {
@@ -20,6 +21,10 @@ abstract class AbstractHcFormatter extends AbstractFormatter
     {
         parent::__construct($transformService);
         $this->twigService = $twigService;
+        $this->twigService->getTwig()->addFilter(new TwigFilter(
+            'asciiToUnsignedInt',
+            static fn (string $ascii, int $byte = null) => $this->transformService->asciiToUnsignedInt($ascii, $byte)
+        ));
     }
 
     /**
@@ -38,15 +43,22 @@ abstract class AbstractHcFormatter extends AbstractFormatter
         return $this->renderBlock($command, 'command') ?? parent::command($log);
     }
 
+    /**
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws Throwable
+     */
     public function text(Log $log): ?string
     {
-        switch ($log->getCommand()) {
-            case AbstractHcSlave::COMMAND_DEVICE_ID:
-                return (string) $this->transformService->asciiToUnsignedInt($log->getRawData());
-            case AbstractHcSlave::COMMAND_TYPE:
-                return (string) $this->transformService->asciiToUnsignedInt($log->getRawData(), 0);
-            case AbstractHcSlave::COMMAND_ADDRESS:
-                return (string) $this->transformService->asciiToUnsignedInt($log->getRawData(), 2);
+        $command = $log->getCommand();
+
+        if ($command === null) {
+            return parent::text($log);
+        }
+
+        $context = ['data' => $log->getRawData()];
+
+        switch ($command) {
             case AbstractHcSlave::COMMAND_PWM_SPEED:
             case AbstractHcSlave::COMMAND_HERTZ:
                 $units = ['Hz', 'kHz', 'MHz', 'GHz'];
@@ -57,16 +69,11 @@ abstract class AbstractHcFormatter extends AbstractFormatter
                 }
 
                 return str_replace('.', ',', (string) $hertz) . ' ' . $units[$i];
-            case AbstractHcSlave::COMMAND_EEPROM_SIZE:
-            case AbstractHcSlave::COMMAND_EEPROM_FREE:
-            case AbstractHcSlave::COMMAND_EEPROM_POSITION:
-            case AbstractHcSlave::COMMAND_BUFFER_SIZE:
-                return $this->transformService->asciiToUnsignedInt($log->getRawData()) . ' Bytes';
-            case AbstractHcSlave::COMMAND_EEPROM_ERASE:
-                return 'formatiert';
         }
 
-        return parent::text($log);
+        return $this->renderBlock($command, 'text', $context) ??
+            parent::text($log)
+        ;
     }
 
     /**
