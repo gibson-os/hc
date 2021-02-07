@@ -272,7 +272,7 @@ class NeopixelFormatter extends AbstractHcFormatter
 
     protected function getTemplates(): array
     {
-        return array_merge([
+        return parent::getTemplates() + [
             NeopixelService::COMMAND_SET_LEDS => 'neopixel/setLeds',
             NeopixelService::COMMAND_LED_COUNTS => 'neopixel/ledCounts',
             NeopixelService::COMMAND_CHANNEL_WRITE => 'neopixel/channelWrite',
@@ -282,6 +282,6 @@ class NeopixelFormatter extends AbstractHcFormatter
             NeopixelService::COMMAND_SEQUENCE_EEPROM_ADDRESS => 'neopixel/sequenceEepromAddress',
             NeopixelService::COMMAND_SEQUENCE_NEW => 'neopixel/sequenceNew',
             NeopixelService::COMMAND_SEQUENCE_ADD_STEP => 'neopixel/sequenceAddStep',
-        ], parent::getTemplates());
+        ];
     }
 }
