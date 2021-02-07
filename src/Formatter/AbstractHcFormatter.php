@@ -8,6 +8,7 @@ use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\TransformService;
+use LogicException;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -22,10 +23,15 @@ abstract class AbstractHcFormatter extends AbstractFormatter
     {
         parent::__construct($transformService);
         $this->twigService = $twigService;
-        $this->twigService->getTwig()->addFilter(new TwigFilter(
-            'asciiToUnsignedInt',
-            [$this->transformService, 'asciiToUnsignedInt']
-        ));
+
+        try {
+            $this->twigService->getTwig()->addFilter(new TwigFilter(
+                'asciiToUnsignedInt',
+                [$this->transformService, 'asciiToUnsignedInt']
+            ));
+        } catch (LogicException $e) {
+            // do nothing
+        }
     }
 
     /**
