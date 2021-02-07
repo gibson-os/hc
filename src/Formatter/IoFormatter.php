@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Formatter;
 use Exception;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Module\Hc\Mapper\IoMapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
@@ -26,11 +27,12 @@ class IoFormatter extends AbstractHcFormatter
 
     public function __construct(
         TransformService $transformService,
+        TwigService $twigService,
         ValueRepository $valueRepository,
         LogRepository $logRepository,
         IoMapper $ioMapper
     ) {
-        parent::__construct($transformService);
+        parent::__construct($transformService, $twigService);
         $this->valueRepository = $valueRepository;
         $this->logRepository = $logRepository;
         $this->ioMapper = $ioMapper;

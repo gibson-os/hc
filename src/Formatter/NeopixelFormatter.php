@@ -13,7 +13,6 @@ use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
 use Throwable;
 use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 class NeopixelFormatter extends AbstractHcFormatter
@@ -27,46 +26,15 @@ class NeopixelFormatter extends AbstractHcFormatter
      */
     private array $leds = [];
 
-    private TwigService $twigService;
-
-    private const TEMPLATES = [
-        NeopixelService::COMMAND_SET_LEDS => 'setLeds',
-        NeopixelService::COMMAND_LED_COUNTS => 'ledCounts',
-        NeopixelService::COMMAND_CHANNEL_WRITE => 'channelWrite',
-        NeopixelService::COMMAND_SEQUENCE_START => 'sequenceStart',
-        NeopixelService::COMMAND_SEQUENCE_PAUSE => 'sequencePause',
-        NeopixelService::COMMAND_SEQUENCE_STOP => 'sequenceStop',
-        NeopixelService::COMMAND_SEQUENCE_EEPROM_ADDRESS => 'sequenceEepromAddress',
-        NeopixelService::COMMAND_SEQUENCE_NEW => 'sequenceNew',
-        NeopixelService::COMMAND_SEQUENCE_ADD_STEP => 'sequenceAddStep',
-    ];
-
     public function __construct(
         TransformService $transformService,
+        TwigService $twigService,
         LedStore $ledStore,
-        LedMapper $ledMapper,
-        TwigService $twigService
+        LedMapper $ledMapper
     ) {
-        parent::__construct($transformService);
+        parent::__construct($transformService, $twigService);
         $this->ledStore = $ledStore;
         $this->ledMapper = $ledMapper;
-        $this->twigService = $twigService;
-    }
-
-    /**
-     * @throws LoaderError
-     * @throws SyntaxError
-     * @throws Throwable
-     */
-    public function command(Log $log): ?string
-    {
-        $command = $log->getCommand();
-
-        if ($command === null) {
-            return parent::command($log);
-        }
-
-        return $this->renderBlock($command, 'command') ?? parent::command($log);
     }
 
     /**
@@ -223,24 +191,6 @@ class NeopixelFormatter extends AbstractHcFormatter
     }
 
     /**
-     * @throws Throwable
-     * @throws LoaderError
-     * @throws SyntaxError
-     */
-    private function renderBlock(int $command, string $blockName, array $context = []): ?string
-    {
-        try {
-            return isset(self::TEMPLATES[$command])
-                ? $this->twigService->getTwig()
-                    ->load('@hc/formatter/neopixel/' . self::TEMPLATES[$command] . '.html.twig')
-                    ->renderBlock($blockName, $context)
-                : null;
-        } catch (RuntimeError $e) {
-            return null;
-        }
-    }
-
-    /**
      * @throws LoaderError
      * @throws SyntaxError
      * @throws Throwable
@@ -318,5 +268,20 @@ class NeopixelFormatter extends AbstractHcFormatter
         }
 
         return $explains;
+    }
+
+    protected function getTemplates(): array
+    {
+        return array_merge([
+            NeopixelService::COMMAND_SET_LEDS => 'neopixel/setLeds',
+            NeopixelService::COMMAND_LED_COUNTS => 'neopixel/ledCounts',
+            NeopixelService::COMMAND_CHANNEL_WRITE => 'neopixel/channelWrite',
+            NeopixelService::COMMAND_SEQUENCE_START => 'neopixel/sequenceStart',
+            NeopixelService::COMMAND_SEQUENCE_PAUSE => 'neopixel/sequencePause',
+            NeopixelService::COMMAND_SEQUENCE_STOP => 'neopixel/sequenceStop',
+            NeopixelService::COMMAND_SEQUENCE_EEPROM_ADDRESS => 'neopixel/sequenceEepromAddress',
+            NeopixelService::COMMAND_SEQUENCE_NEW => 'neopixel/sequenceNew',
+            NeopixelService::COMMAND_SEQUENCE_ADD_STEP => 'neopixel/sequenceAddStep',
+        ], parent::getTemplates());
     }
 }
