@@ -146,12 +146,13 @@ class NeopixelFormatter extends AbstractHcFormatter
                         $this->renderBlock(
                             $command,
                             AbstractHcFormatter::BLOCK_EXPLAIN,
-                            ['startTime' => str_replace(
-                                '.',
-                                ',',
-                                (string) ($this->transformService->asciiToUnsignedInt(substr($data, 0, 2))
-                                / ($module->getPwmSpeed() ?? 1))
-                            ),
+                            [
+                                'runtime' => str_replace(
+                                    '.',
+                                    ',',
+                                    (string) ($this->transformService->asciiToUnsignedInt(substr($data, 0, 2))
+                                    / ($module->getPwmSpeed() ?? 1))
+                                ),
                             ]
                         ) ?? ''
                     )] +
