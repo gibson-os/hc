@@ -136,6 +136,9 @@ class AnimationService extends AbstractService
         ]);
     }
 
+    /**
+     * @return array<int, Led[]>
+     */
     public function transformToTimeSteps(array $items): array
     {
         $times = [];
