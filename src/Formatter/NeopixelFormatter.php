@@ -139,7 +139,7 @@ class NeopixelFormatter extends AbstractHcFormatter
                     return null;
                 }
 
-                return
+                return array_merge(
                     [new Explain(
                         0,
                         1,
@@ -155,9 +155,9 @@ class NeopixelFormatter extends AbstractHcFormatter
                                 ),
                             ]
                         ) ?? ''
-                    )] +
+                    )],
                     $this->explainSetLeds($data, 2)
-                ;
+                );
             case NeopixelService::COMMAND_SET_LEDS:
                 return $this->explainSetLeds($data);
             case NeopixelService::COMMAND_LED_COUNTS:
