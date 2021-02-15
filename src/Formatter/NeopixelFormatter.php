@@ -53,21 +53,30 @@ class NeopixelFormatter extends AbstractHcFormatter
         }
 
         $context = [];
+        $data = $log->getRawData();
 
-        if ($command === NeopixelService::COMMAND_SET_LEDS) {
-            $slaveLeds = $this->getLeds($log->getModuleId() ?? 0);
-            $context = [
-                'slaveLeds' => $slaveLeds,
-                'logLeds' => $this->ledMapper->mapFromString($log->getRawData()),
-                'maxTop' => (
-                    empty($slaveLeds)
-                    ? 0
-                    : max(array_map(static fn (Led $slaveLed) => $slaveLed->getTop(), $slaveLeds))
-                ) + 6,
-            ];
+        switch ($command) {
+            case NeopixelService::COMMAND_SEQUENCE_ADD_STEP:
+                $command = NeopixelService::COMMAND_SET_LEDS;
+                $data = substr($data, 2);
+                // no break
+            case NeopixelService::COMMAND_SET_LEDS:
+                $slaveLeds = $this->getLeds($log->getModuleId() ?? 0);
+
+                $context = [
+                    'slaveLeds' => $slaveLeds,
+                    'logLeds' => $this->ledMapper->mapFromString($data),
+                    'maxTop' => (
+                        empty($slaveLeds)
+                            ? 0
+                            : max(array_map(static fn (Led $slaveLed) => $slaveLed->getTop(), $slaveLeds))
+                    ) + 6,
+                ];
+
+                break;
         }
 
-        return $this->renderBlock($command, 'render', $context) ?? parent::render($log);
+        return $this->renderBlock($command, AbstractHcFormatter::BLOCK_RENDER, $context) ?? parent::render($log);
     }
 
     /**
@@ -98,7 +107,7 @@ class NeopixelFormatter extends AbstractHcFormatter
 
                 $context['channels'] = $channels;
 
-                return $this->renderBlock($command, 'text', $context);
+                return $this->renderBlock($command, AbstractHcFormatter::BLOCK_TEXT, $context);
         }
 
         return parent::text($log);
@@ -123,8 +132,33 @@ class NeopixelFormatter extends AbstractHcFormatter
         $data = $log->getRawData();
 
         switch ($command) {
+            case NeopixelService::COMMAND_SEQUENCE_ADD_STEP:
+                $module = $log->getModule();
+
+                if ($module === null) {
+                    return null;
+                }
+
+                return
+                    [new Explain(
+                        0,
+                        1,
+                        $this->renderBlock(
+                            $command,
+                            AbstractHcFormatter::BLOCK_EXPLAIN,
+                            ['startTime' => str_replace(
+                                '.',
+                                ',',
+                                (string) ($this->transformService->asciiToUnsignedInt(substr($data, 0, 2))
+                                / ($module->getPwmSpeed() ?? 1))
+                            ),
+                            ]
+                        ) ?? ''
+                    )] +
+                    $this->explainSetLeds($data, 2)
+                ;
             case NeopixelService::COMMAND_SET_LEDS:
-                return $this->explainSetLeds($data, $command);
+                return $this->explainSetLeds($data);
             case NeopixelService::COMMAND_LED_COUNTS:
             case NeopixelService::COMMAND_CHANNEL_WRITE:
                 $channel = 1;
@@ -135,7 +169,7 @@ class NeopixelFormatter extends AbstractHcFormatter
                         $i + 1,
                         $this->renderBlock(
                             $command,
-                            'explain',
+                            AbstractHcFormatter::BLOCK_EXPLAIN,
                             [
                                 'channel' => $channel++,
                                 'ledLength' => $this->transformService->asciiToUnsignedInt(substr($log->getRawData(), $i, 2)),
@@ -170,22 +204,22 @@ class NeopixelFormatter extends AbstractHcFormatter
      *
      * @return Explain[]
      */
-    private function getLedExplains(string $data, int &$i, int $command): array
+    private function getLedExplains(string $data, int &$i): array
     {
         return [
-            (new Explain($i, $i, $this->renderBlock($command, 'explain', [
+            (new Explain($i, $i, $this->renderBlock(NeopixelService::COMMAND_SET_LEDS, AbstractHcFormatter::BLOCK_EXPLAIN, [
                 'part' => 'red',
                 'red' => $this->transformService->asciiToUnsignedInt($data, $i++),
             ]) ?? ''))->setColor(Explain::COLOR_RED),
-            (new Explain($i, $i, $this->renderBlock($command, 'explain', [
+            (new Explain($i, $i, $this->renderBlock(NeopixelService::COMMAND_SET_LEDS, AbstractHcFormatter::BLOCK_EXPLAIN, [
                 'part' => 'green',
                 'green' => $this->transformService->asciiToUnsignedInt($data, $i++),
             ]) ?? ''))->setColor(Explain::COLOR_GREEN),
-            (new Explain($i, $i, $this->renderBlock($command, 'explain', [
+            (new Explain($i, $i, $this->renderBlock(NeopixelService::COMMAND_SET_LEDS, AbstractHcFormatter::BLOCK_EXPLAIN, [
                 'part' => 'blue',
                 'blue' => $this->transformService->asciiToUnsignedInt($data, $i++),
             ]) ?? ''))->setColor(Explain::COLOR_BLUE),
-            (new Explain($i, $i, $this->renderBlock($command, 'explain', [
+            (new Explain($i, $i, $this->renderBlock(NeopixelService::COMMAND_SET_LEDS, AbstractHcFormatter::BLOCK_EXPLAIN, [
                 'part' => 'effect',
                 'fadeIn' => $this->transformService->asciiToUnsignedInt($data, $i) >> 4,
                 'blink' => ($this->transformService->asciiToUnsignedInt($data, $i++) & 15),
@@ -198,18 +232,18 @@ class NeopixelFormatter extends AbstractHcFormatter
      * @throws SyntaxError
      * @throws Throwable
      */
-    private function explainSetLeds(string $data, int $command): array
+    private function explainSetLeds(string $data, int $offset = 0): array
     {
         $explains = [];
 
-        for ($i = 0; $i < strlen($data);) {
+        for ($i = $offset; $i < strlen($data);) {
             $address = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
             $explains[] = new Explain(
                 $i,
                 $i + 1,
                 $this->renderBlock(
-                    $command,
-                    'explain',
+                    NeopixelService::COMMAND_SET_LEDS,
+                    AbstractHcFormatter::BLOCK_EXPLAIN,
                     ['part' => 'address', 'address' => $address]
                 ) ?? ''
             );
@@ -225,8 +259,8 @@ class NeopixelFormatter extends AbstractHcFormatter
                     $startByte,
                     $endByte,
                     $this->renderBlock(
-                        $command,
-                        'explain',
+                        NeopixelService::COMMAND_SET_LEDS,
+                        AbstractHcFormatter::BLOCK_EXPLAIN,
                         ['part' => 'rangeAddress', 'from' => $startAddress]
                     ) ?? ''
                 );
@@ -234,13 +268,13 @@ class NeopixelFormatter extends AbstractHcFormatter
                     $endByte + 1,
                     $i + 1,
                     $this->renderBlock(
-                        $command,
-                        'explain',
+                        NeopixelService::COMMAND_SET_LEDS,
+                        AbstractHcFormatter::BLOCK_EXPLAIN,
                         ['part' => 'rangeAddress', 'to' => $endAddress]
                     ) ?? ''
                 );
                 $i += 2;
-                $explains = array_merge($explains, $this->getLedExplains($data, $i, $command));
+                $explains = array_merge($explains, $this->getLedExplains($data, $i));
 
                 continue;
             }
@@ -251,8 +285,8 @@ class NeopixelFormatter extends AbstractHcFormatter
                         $i,
                         $i + 1,
                         $this->renderBlock(
-                            $command,
-                            'explain',
+                            NeopixelService::COMMAND_SET_LEDS,
+                            AbstractHcFormatter::BLOCK_EXPLAIN,
                             [
                                 'part' => 'address',
                                 'address' => $this->transformService->asciiToUnsignedInt(substr($data, $i, 2)),
@@ -262,12 +296,12 @@ class NeopixelFormatter extends AbstractHcFormatter
                     $i += 2;
                 }
 
-                $explains = array_merge($explains, $this->getLedExplains($data, $i, $command));
+                $explains = array_merge($explains, $this->getLedExplains($data, $i));
 
                 continue;
             }
 
-            $explains = array_merge($explains, $this->getLedExplains($data, $i, $command));
+            $explains = array_merge($explains, $this->getLedExplains($data, $i));
         }
 
         return $explains;

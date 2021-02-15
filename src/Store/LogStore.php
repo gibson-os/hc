@@ -116,6 +116,7 @@ class LogStore extends AbstractDatabaseStore
             '`hc_module`.`device_id`, ' .
             '`hc_module`.`config`, ' .
             '`hc_module`.`hertz`, ' .
+            '`hc_module`.`pwm_speed`, ' .
             '`hc_module`.`address`, ' .
             '`hc_module`.`ip`, ' .
             '`hc_module`.`offline`, ' .
@@ -152,6 +153,7 @@ class LogStore extends AbstractDatabaseStore
                     ->setDeviceId((int) $log['device_id'])
                     ->setConfig($log['config'])
                     ->setHertz((int) $log['hertz'])
+                    ->setPwmSpeed((int) $log['pwm_speed'])
                     ->setAddress((int) $log['address'])
                     ->setIp((int) $log['ip'])
                     ->setOffline((bool) $log['offline'])

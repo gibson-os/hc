@@ -20,6 +20,14 @@ use Twig\TwigFilter;
 
 abstract class AbstractHcFormatter extends AbstractFormatter
 {
+    protected const BLOCK_TEXT = 'text';
+
+    protected const BLOCK_COMMAND = 'command';
+
+    protected const BLOCK_RENDER = 'render';
+
+    protected const BLOCK_EXPLAIN = 'explain';
+
     /**
      * @var TemplateWrapper[]
      */
@@ -75,7 +83,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
             return null;
         }
 
-        return $this->renderBlock($command, 'command') ?? parent::command($log);
+        return $this->renderBlock($command, self::BLOCK_COMMAND) ?? parent::command($log);
     }
 
     /**
@@ -106,7 +114,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
                 break;
         }
 
-        return $this->renderBlock($command, 'text', $context) ?? parent::text($log);
+        return $this->renderBlock($command, self::BLOCK_TEXT, $context) ?? parent::text($log);
     }
 
     /**
@@ -131,15 +139,15 @@ abstract class AbstractHcFormatter extends AbstractFormatter
             case AbstractHcSlave::COMMAND_BUFFER_SIZE:
             case AbstractHcSlave::COMMAND_EEPROM_ERASE:
             case AbstractHcSlave::COMMAND_TYPE:
-                return [new Explain(0, 0, $this->renderBlock($command, 'explain', $context) ?? '')];
+                return [new Explain(0, 0, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? '')];
             case AbstractHcSlave::COMMAND_DEVICE_ID:
             case AbstractHcSlave::COMMAND_EEPROM_FREE:
             case AbstractHcSlave::COMMAND_EEPROM_POSITION:
             case AbstractHcSlave::COMMAND_EEPROM_SIZE:
-                return [new Explain(0, 1, $this->renderBlock($command, 'explain', $context) ?? '')];
+                return [new Explain(0, 1, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? '')];
             case AbstractHcSlave::COMMAND_PWM_SPEED:
             case AbstractHcSlave::COMMAND_HERTZ:
-            return [new Explain(0, 3, $this->renderBlock($command, 'explain', $context) ?? '')];
+            return [new Explain(0, 3, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? '')];
         }
 
         return parent::explain($log);
