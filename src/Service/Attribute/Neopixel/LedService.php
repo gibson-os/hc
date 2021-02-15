@@ -140,7 +140,7 @@ class LedService
         $config = JsonUtility::decode($slave->getConfig() ?? '[]');
 
         for ($i = 0; $i < array_sum($config[NeopixelService::CONFIG_COUNTS]); ++$i) {
-            $led = new Led();
+            $led = (new Led())->setNumber($i);
 
             foreach ($this->getById($slave, $i) as $attributeValue) {
                 $led->{'set' . ucfirst($attributeValue->getAttribute()->getKey())}((int) $attributeValue->getValue());
