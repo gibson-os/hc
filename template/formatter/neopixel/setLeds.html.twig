@@ -10,7 +10,7 @@
                 {% set logLed = logLeds[key] %}
                 background: rgb({{ logLed.red }}, {{ logLed.green }}, {{ logLed.blue }});
             {% endif %}
-        "></div>
+        " title="{{ key+1 }}{% if logLeds[key] is defined %}: #{{ logLed.red|dechex|upper }}{{ logLed.green|dechex|upper }}{{ logLed.blue|dechex|upper }}{% endif %}"></div>
     {% endfor %}
     </div>
 {% endblock render %}
@@ -19,7 +19,7 @@
     {% if part == 'address' %}
         {% if address == constant('GibsonOS\\Module\\Hc\\Mapper\\LedMapper::RANGE_ADDRESS') %}Adressbereich
         {% elseif address > constant('GibsonOS\\Module\\Hc\\Mapper\\LedMapper::MAX_PROTOCOL_LEDS') %}Adressgruppe
-        {% else %}Adresse: {{ address }}
+        {% else %}Nummer: {{ address+1 }}
         {% endif %}
     {% elseif part == 'rangeAddress' %}Addressbereich {% if from is defined %}von: {{ from }}{% else %}bis: {{ to }}{% endif %}
     {% elseif part == 'red' %}Rot: {{ red }}

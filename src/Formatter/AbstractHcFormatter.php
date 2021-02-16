@@ -68,6 +68,15 @@ abstract class AbstractHcFormatter extends AbstractFormatter
         } catch (LogicException $e) {
             // do nothing
         }
+
+        try {
+            $this->twigService->getTwig()->addFilter(new TwigFilter(
+                'dechex',
+                'dechex'
+            ));
+        } catch (LogicException $e) {
+            // do nothing
+        }
     }
 
     /**
