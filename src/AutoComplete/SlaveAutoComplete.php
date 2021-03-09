@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\AutoComplete;
 
 use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
+use GibsonOS\Core\Exception\AutoCompleteException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\ModelInterface;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 
 class SlaveAutoComplete implements AutoCompleteInterface
@@ -33,7 +35,7 @@ class SlaveAutoComplete implements AutoCompleteInterface
      * @throws DateTimeError
      * @throws SelectError
      */
-    public function getById($id, array $parameters = []): ModelInterface
+    public function getById($id, array $parameters = []): Module
     {
         return $this->moduleRepository->getById($id);
     }
@@ -46,5 +48,17 @@ class SlaveAutoComplete implements AutoCompleteInterface
     public function getParameters(): array
     {
         return [];
+    }
+
+    /**
+     * @throws AutoCompleteException
+     */
+    public function getIdFromModel(ModelInterface $model): int
+    {
+        if (!$model instanceof Module) {
+            throw new AutoCompleteException(sprintf('Model is not instance of %s', Module::class));
+        }
+
+        return $model->getId() ?? 0;
     }
 }

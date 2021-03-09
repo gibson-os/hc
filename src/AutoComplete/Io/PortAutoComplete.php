@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\AutoComplete\Io;
 
 use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
+use GibsonOS\Core\Exception\AutoCompleteException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -88,5 +89,17 @@ class PortAutoComplete implements AutoCompleteInterface
     private function getSlave(array $parameters): Module
     {
         return $this->moduleRepository->getById((int) $parameters['moduleId']);
+    }
+
+    /**
+     * @throws AutoCompleteException
+     */
+    public function getIdFromModel(ModelInterface $model): int
+    {
+        if (!$model instanceof Module) {
+            throw new AutoCompleteException(sprintf('Model is not instance of %s', Module::class));
+        }
+
+        return $model->getId() ?? 0;
     }
 }
