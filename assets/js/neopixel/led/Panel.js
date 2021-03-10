@@ -1,5 +1,5 @@
 Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
-    extend: 'GibsonOS.core.component.Panel',
+    extend: 'GibsonOS.module.core.component.Panel',
     alias: ['widget.gosModuleHcNeopixelLedPanel'],
     layout: 'border',
     enableContextMenu: true,

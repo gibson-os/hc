@@ -1,5 +1,5 @@
 Ext.define('GibsonOS.module.hc.neopixel.led.View', {
-    extend: 'GibsonOS.core.component.view.View',
+    extend: 'GibsonOS.module.core.component.view.View',
     alias: ['widget.gosModuleHcNeopixelLedView'],
     itemSelector: 'div.hcNeopixelLed',
     selectedItemCls: 'hcNeopixelLedSelected',

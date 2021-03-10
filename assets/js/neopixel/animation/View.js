@@ -1,5 +1,5 @@
 Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
-    extend: 'GibsonOS.core.component.view.View',
+    extend: 'GibsonOS.module.core.component.view.View',
     alias: ['widget.gosModuleHcNeopixelAnimationView'],
     itemSelector: 'div.hcNeopixelAnimationViewElement',
     selectedItemCls: 'hcNeopixelAnimationViewElementSelected',

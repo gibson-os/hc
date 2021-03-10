@@ -1,5 +1,5 @@
 Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
-    extend: 'GibsonOS.core.component.Panel',
+    extend: 'GibsonOS.module.core.component.Panel',
     alias: ['widget.gosModuleHcNeopixelAnimationPanel'],
     layout: 'border',
     enableContextMenu: true,

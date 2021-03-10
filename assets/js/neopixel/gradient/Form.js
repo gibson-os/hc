@@ -1,5 +1,5 @@
 Ext.define('GibsonOS.module.hc.neopixel.gradient.Form', {
-    extend: 'GibsonOS.core.component.form.Panel',
+    extend: 'GibsonOS.module.core.component.form.Panel',
     alias: ['widget.gosModuleHcNeopixelGradientForm'],
     initComponent() {
         let me = this;
