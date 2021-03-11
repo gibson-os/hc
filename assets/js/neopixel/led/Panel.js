@@ -39,7 +39,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         me.deleteFunction = records => {
             Ext.MessageBox.confirm(
                 'Wirklich löschen?',
-                'Möchtest du die ' + (records.length === 1 ? 'LED' : records.length + ' LEDs ') + ' wirklich löschen ?', buttonId => {
+                'Möchtest du die ' + (records.length === 1 ? 'LED' : records.length + ' LEDs ') + ' wirklich löschen?', buttonId => {
                     if (buttonId === 'no') {
                         return false;
                     }
