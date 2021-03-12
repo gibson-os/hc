@@ -276,13 +276,13 @@ class IoService extends AbstractHcSlave
     public function readPort(Module $slave, int $number): array
     {
         $eventData = ['slave' => $slave, 'number' => $number];
-        $this->eventService->fire(IoDescriber::BEFORE_READ_PORT, $eventData);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_READ_PORT, $eventData);
 
         $port = $this->ioMapper->getPortAsArray($this->read($slave, $number, self::COMMAND_PORT_LENGTH));
         $this->updatePortAttributes($slave, $number, $port);
 
         $eventData = array_merge($eventData, $port);
-        $this->eventService->fire(IoDescriber::AFTER_READ_PORT, $eventData);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_READ_PORT, $eventData);
 
         return $port;
     }
@@ -297,9 +297,9 @@ class IoService extends AbstractHcSlave
         $eventData['slave'] = $slave;
         $eventData['number'] = $number;
 
-        $this->eventService->fire(IoDescriber::BEFORE_WRITE_PORT, $eventData);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_WRITE_PORT, $eventData);
         $this->write($slave, $number, $this->ioMapper->getPortAsString($data));
-        $this->eventService->fire(IoDescriber::AFTER_WRITE_PORT, $eventData);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_WRITE_PORT, $eventData);
     }
 
     /**
@@ -309,7 +309,7 @@ class IoService extends AbstractHcSlave
      */
     public function readPortsFromEeprom(Module $slave): void
     {
-        $this->eventService->fire(IoDescriber::BEFORE_READ_PORTS_FROM_EEPROM, ['slave' => $slave]);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_READ_PORTS_FROM_EEPROM, ['slave' => $slave]);
 
         if (empty($this->transformService->asciiToUnsignedInt($this->read(
             $slave,
@@ -319,7 +319,7 @@ class IoService extends AbstractHcSlave
             throw new ReceiveError('Kein Status im EEPROM vorhanden!');
         }
 
-        $this->eventService->fire(IoDescriber::AFTER_READ_PORTS_FROM_EEPROM, ['slave' => $slave]);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_READ_PORTS_FROM_EEPROM, ['slave' => $slave]);
     }
 
     /**
@@ -328,9 +328,9 @@ class IoService extends AbstractHcSlave
      */
     public function writePortsToEeprom(Module $slave): void
     {
-        $this->eventService->fire(IoDescriber::BEFORE_WRITE_PORTS_TO_EEPROM, ['slave' => $slave]);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_WRITE_PORTS_TO_EEPROM, ['slave' => $slave]);
         $this->write($slave, self::COMMAND_STATUS_IN_EEPROM, 'a');
-        $this->eventService->fire(IoDescriber::AFTER_WRITE_PORTS_TO_EEPROM, ['slave' => $slave]);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_WRITE_PORTS_TO_EEPROM, ['slave' => $slave]);
     }
 
     /**
@@ -502,14 +502,14 @@ class IoService extends AbstractHcSlave
      */
     private function readPorts(Module $slave): array
     {
-        $this->eventService->fire(IoDescriber::BEFORE_READ_PORTS, ['slave' => $slave]);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_READ_PORTS, ['slave' => $slave]);
 
         $config = (int) $slave->getConfig();
         $length = ($config) * self::PORT_BYTE_LENGTH;
         $data = $this->read($slave, self::COMMAND_STATUS, $length);
         $ports = $this->ioMapper->getPortsAsArray($data, $config);
 
-        $this->eventService->fire(IoDescriber::AFTER_READ_PORTS, ['slave' => $slave]);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_READ_PORTS, ['slave' => $slave]);
 
         return $ports;
     }
@@ -592,8 +592,9 @@ class IoService extends AbstractHcSlave
             $eventData['slave'] = $this;
 
             if ($changed) {
-                $this->eventService->fire(IoDescriber::BEFORE_SAVE_DIRECT_CONNECT, $eventData);
+                $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_SAVE_DIRECT_CONNECT, $eventData);
                 $this->eventService->fire(
+                    $this->getEventDescriberClassName(),
                     $new ? IoDescriber::BEFORE_ADD_DIRECT_CONNECT : IoDescriber::BEFORE_SET_DIRECT_CONNECT,
                     $eventData
                 );
@@ -620,8 +621,9 @@ class IoService extends AbstractHcSlave
             throw $exception;
         }
 
-        $this->eventService->fire(IoDescriber::AFTER_SAVE_DIRECT_CONNECT, $eventData);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_SAVE_DIRECT_CONNECT, $eventData);
         $this->eventService->fire(
+            $this->getEventDescriberClassName(),
             $new ? IoDescriber::AFTER_ADD_DIRECT_CONNECT : IoDescriber::AFTER_SET_DIRECT_CONNECT,
             $eventData
         );
@@ -637,7 +639,7 @@ class IoService extends AbstractHcSlave
      */
     public function readDirectConnect(Module $slave, int $port, int $order): array
     {
-        $this->eventService->fire(IoDescriber::BEFORE_READ_DIRECT_CONNECT, [
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_READ_DIRECT_CONNECT, [
             'slave' => $slave,
             'port' => $port,
             'order' => $order,
@@ -687,7 +689,7 @@ class IoService extends AbstractHcSlave
         $eventData['slave'] = $slave;
         $eventData['port'] = $port;
         $eventData['order'] = $order;
-        $this->eventService->fire(IoDescriber::AFTER_READ_DIRECT_CONNECT, $eventData);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_READ_DIRECT_CONNECT, $eventData);
 
         return $directConnect;
     }
@@ -729,7 +731,7 @@ class IoService extends AbstractHcSlave
      */
     public function deleteDirectConnect(Module $slave, int $port, int $order): void
     {
-        $this->eventService->fire(IoDescriber::BEFORE_DELETE_DIRECT_CONNECT, [
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_DELETE_DIRECT_CONNECT, [
             'slave' => $slave,
             'port' => $port,
             'order' => $order,
@@ -762,7 +764,7 @@ class IoService extends AbstractHcSlave
             throw $exception;
         }
 
-        $this->eventService->fire(IoDescriber::AFTER_DELETE_DIRECT_CONNECT, [
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_DELETE_DIRECT_CONNECT, [
             'slave' => $slave,
             'port' => $port,
             'order' => $order,
@@ -776,7 +778,7 @@ class IoService extends AbstractHcSlave
      */
     public function resetDirectConnect(Module $slave, int $port, bool $databaseOnly = false): void
     {
-        $this->eventService->fire(IoDescriber::BEFORE_RESET_DIRECT_CONNECT, [
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_RESET_DIRECT_CONNECT, [
             'slave' => $slave,
             'port' => $port,
             'databaseOnly' => $databaseOnly,
@@ -801,7 +803,7 @@ class IoService extends AbstractHcSlave
             throw $exception;
         }
 
-        $this->eventService->fire(IoDescriber::AFTER_RESET_DIRECT_CONNECT, [
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_RESET_DIRECT_CONNECT, [
             'slave' => $slave,
             'port' => $port,
             'databaseOnly' => $databaseOnly,
@@ -816,9 +818,9 @@ class IoService extends AbstractHcSlave
      */
     public function defragmentDirectConnect(Module $slave): void
     {
-        $this->eventService->fire(IoDescriber::BEFORE_DEFRAGMENT_DIRECT_CONNECT, ['slave' => $slave]);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_DEFRAGMENT_DIRECT_CONNECT, ['slave' => $slave]);
         $this->write($slave, self::COMMAND_DEFRAGMENT_DIRECT_CONNECT, 'a');
-        $this->eventService->fire(IoDescriber::AFTER_DEFRAGMENT_DIRECT_CONNECT, ['slave' => $slave]);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_DEFRAGMENT_DIRECT_CONNECT, ['slave' => $slave]);
     }
 
     /**
@@ -827,9 +829,9 @@ class IoService extends AbstractHcSlave
      */
     public function activateDirectConnect(Module $slave, bool $active = true): void
     {
-        $this->eventService->fire(IoDescriber::BEFORE_ACTIVATE_DIRECT_CONNECT, ['slave' => $slave, 'active' => $active]);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_ACTIVATE_DIRECT_CONNECT, ['slave' => $slave, 'active' => $active]);
         $this->write($slave, self::COMMAND_DIRECT_CONNECT_STATUS, chr($active ? 1 : 0));
-        $this->eventService->fire(IoDescriber::AFTER_ACTIVATE_DIRECT_CONNECT, ['slave' => $slave, 'active' => $active]);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_ACTIVATE_DIRECT_CONNECT, ['slave' => $slave, 'active' => $active]);
     }
 
     /**
@@ -839,7 +841,7 @@ class IoService extends AbstractHcSlave
      */
     public function isDirectConnectActive(Module $slave): bool
     {
-        $this->eventService->fire(IoDescriber::BEFORE_IS_DIRECT_CONNECT_ACTIVE, ['slave' => $slave]);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_IS_DIRECT_CONNECT_ACTIVE, ['slave' => $slave]);
 
         $active = $this->transformService->asciiToUnsignedInt($this->read(
             $slave,
@@ -847,8 +849,13 @@ class IoService extends AbstractHcSlave
             self::COMMAND_DIRECT_CONNECT_STATUS_READ_LENGTH
         )) ? true : false;
 
-        $this->eventService->fire(IoDescriber::AFTER_IS_DIRECT_CONNECT_ACTIVE, ['slave' => $slave, 'active' => $active]);
+        $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_IS_DIRECT_CONNECT_ACTIVE, ['slave' => $slave, 'active' => $active]);
 
         return $active;
+    }
+
+    protected function getEventDescriberClassName(): string
+    {
+        return IoDescriber::class;
     }
 }

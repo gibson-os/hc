@@ -14,6 +14,7 @@ use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
+use GibsonOS\Module\Hc\Event\Describer\NeopixelDescriber;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
@@ -497,5 +498,10 @@ class NeopixelService extends AbstractHcSlave
         ];
 
         return $config;
+    }
+
+    protected function getEventDescriberClassName(): string
+    {
+        return NeopixelDescriber::class;
     }
 }
