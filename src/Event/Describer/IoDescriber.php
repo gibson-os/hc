@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Event\Describer;
 
 use GibsonOS\Core\Dto\Event\Describer\Method;
-use GibsonOS\Core\Dto\Event\Describer\Parameter\AutoCompleteParameter;
-use GibsonOS\Core\Dto\Event\Describer\Parameter\BoolParameter;
-use GibsonOS\Core\Dto\Event\Describer\Parameter\IntParameter;
-use GibsonOS\Core\Dto\Event\Describer\Parameter\OptionParameter;
-use GibsonOS\Core\Dto\Event\Describer\Parameter\StringParameter;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
+use GibsonOS\Core\Dto\Parameter\AutoCompleteParameter;
+use GibsonOS\Core\Dto\Parameter\BoolParameter;
+use GibsonOS\Core\Dto\Parameter\IntParameter;
+use GibsonOS\Core\Dto\Parameter\OptionParameter;
+use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\AutoComplete\Io\PortAutoComplete;

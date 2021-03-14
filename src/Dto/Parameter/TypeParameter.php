@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Dto\Event\Describer\Parameter;
+namespace GibsonOS\Module\Hc\Dto\Parameter;
 
-use GibsonOS\Core\Dto\Event\Describer\Parameter\AbstractParameter;
+use GibsonOS\Core\Dto\Parameter\AbstractParameter;
 
 // @todo AutoComplete Parameter
 class TypeParameter extends AbstractParameter

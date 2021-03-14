@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Dto\Event\Describer\Parameter;
+namespace GibsonOS\Module\Hc\Dto\Parameter;
 
-use GibsonOS\Core\Dto\Event\Describer\Parameter\AutoCompleteParameter;
+use GibsonOS\Core\Dto\Parameter\AutoCompleteParameter;
 use GibsonOS\Module\Hc\AutoComplete\SlaveAutoComplete;
 use GibsonOS\Module\Hc\Model\Type;
 
