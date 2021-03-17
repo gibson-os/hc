@@ -6,10 +6,11 @@ namespace GibsonOS\Module\Hc\Model;
 use DateTimeInterface;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Sequence\Element;
 use JsonSerializable;
 
-class Sequence extends AbstractModel implements JsonSerializable
+class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     private ?int $id = null;
 
@@ -219,5 +220,10 @@ class Sequence extends AbstractModel implements JsonSerializable
             'moduleId' => $this->getModuleId(),
             'type' => $this->getType(),
         ];
+    }
+
+    public function getAutoCompleteId(): int
+    {
+        return $this->getId() ?? 0;
     }
 }

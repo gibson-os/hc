@@ -6,10 +6,11 @@ namespace GibsonOS\Module\Hc\Model;
 use DateTimeInterface;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use JsonSerializable;
 use mysqlDatabase;
 
-class Module extends AbstractModel implements JsonSerializable
+class Module extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     const MAX_ADDRESS = 119;
 
@@ -292,5 +293,10 @@ class Module extends AbstractModel implements JsonSerializable
             'offline' => $this->isOffline(),
             'settings' => $this->getType()->getUiSettings(),
         ];
+    }
+
+    public function getAutoCompleteId(): int
+    {
+        return $this->getId() ?? 0;
     }
 }

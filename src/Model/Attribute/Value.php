@@ -5,10 +5,11 @@ namespace GibsonOS\Module\Hc\Model\Attribute;
 
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Attribute;
 use mysqlDatabase;
 
-class Value extends AbstractModel
+class Value extends AbstractModel implements AutoCompleteModelInterface
 {
     private int $attributeId;
 
@@ -82,5 +83,10 @@ class Value extends AbstractModel
         $this->setAttributeId((int) $attribute->getId());
 
         return $this;
+    }
+
+    public function getAutoCompleteId(): int
+    {
+        return $this->getAttributeId();
     }
 }

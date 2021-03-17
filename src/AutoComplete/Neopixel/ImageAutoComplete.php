@@ -4,10 +4,8 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\AutoComplete\Neopixel;
 
 use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
-use GibsonOS\Core\Exception\AutoCompleteException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Model\ModelInterface;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\SequenceRepository;
@@ -56,17 +54,5 @@ class ImageAutoComplete implements AutoCompleteInterface
     public function getParameters(): array
     {
         return [];
-    }
-
-    /**
-     * @throws AutoCompleteException
-     */
-    public function getIdFromModel(ModelInterface $model): int
-    {
-        if (!$model instanceof Sequence) {
-            throw new AutoCompleteException(sprintf('Model is not instance of %s', Sequence::class));
-        }
-
-        return $model->getId() ?? 0;
     }
 }
