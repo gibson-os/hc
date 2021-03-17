@@ -77,11 +77,6 @@ class PortAutoComplete implements AutoCompleteInterface
         return 'GibsonOS.module.hc.io.model.Port';
     }
 
-    public function getParameters(): array
-    {
-        return [];
-    }
-
     /**
      * @throws DateTimeError
      * @throws SelectError
