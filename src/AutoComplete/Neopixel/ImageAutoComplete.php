@@ -37,13 +37,11 @@ class ImageAutoComplete implements AutoCompleteInterface
     }
 
     /**
-     * @param int $id
-     *
      * @throws SelectError
      */
-    public function getById($id, array $parameters): Sequence
+    public function getById(string $id, array $parameters): Sequence
     {
-        return $this->sequenceRepository->getById($id);
+        return $this->sequenceRepository->getById((int) $id);
     }
 
     public function getModel(): string

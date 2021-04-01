@@ -28,14 +28,12 @@ class SlaveAutoComplete implements AutoCompleteInterface
     }
 
     /**
-     * @param int $id
-     *
      * @throws DateTimeError
      * @throws SelectError
      */
-    public function getById($id, array $parameters = []): Module
+    public function getById(string $id, array $parameters = []): Module
     {
-        return $this->moduleRepository->getById($id);
+        return $this->moduleRepository->getById((int) $id);
     }
 
     public function getModel(): string
