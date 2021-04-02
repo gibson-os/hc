@@ -1,6 +1,7 @@
 Ext.define('GibsonOS.module.hc.neopixel.color.Panel', {
     extend: 'GibsonOS.module.core.component.form.Panel',
     alias: ['widget.gosModuleHcNeopixelColorPanel'],
+    enableToolbar: true,
     initComponent: function () {
         let me = this;
 
