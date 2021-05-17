@@ -281,7 +281,7 @@ class IoDescriber extends AbstractHcDescriber
                 ]),
             'isDirectConnectActive' => (new Method('Ist DirectConnect aktiv'))
                 ->setParameters(['slave' => $this->slaveParameter])
-                ->setReturns([new BoolParameter('Aktiv')]),
+                ->setReturns(['value' => new BoolParameter('Aktiv')]),
             'setPort' => (new Method('Port setzen'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
