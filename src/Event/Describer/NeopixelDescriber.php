@@ -141,8 +141,6 @@ class NeopixelDescriber extends AbstractHcDescriber
                 ->setParameters([
                     'slave' => $this->slaveParameter,
                     'ledRanges' => new StringParameter('LEDs'),
-                    'end' => (new IntParameter('End LED'))
-                        ->setRange(1, LedMapper::MAX_PROTOCOL_LEDS + 1),
                     'red' => (new IntParameter('Rot'))
                         ->setRange(0, 255),
                     'green' => (new IntParameter('Grün'))
