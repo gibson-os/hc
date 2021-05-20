@@ -16,6 +16,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository as ValueRepository;
 use GibsonOS\Module\Hc\Repository\AttributeRepository as AttributeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
+use JsonException;
 use OutOfRangeException;
 use Psr\Log\LoggerInterface;
 
@@ -100,14 +101,16 @@ class LedService
     /**
      * @param Led[] $leds
      *
+     * @throws JsonException
+     *
      * @return int[]
      */
-    public function getLastIds(array $leds): array
+    public function getLastIds(Module $slave, array $leds): array
     {
         $lastIds = [];
 
         foreach ($leds as $led) {
-            $lastIds[$led->getChannel()] = $led->getNumber();
+            $lastIds[$this->setLedChannel($slave, $led)] = $led->getNumber();
         }
 
         return $lastIds;
@@ -310,5 +313,24 @@ class LedService
             self::ATTRIBUTE_TYPE,
             $key
         );
+    }
+
+    /**
+     * @throws JsonException
+     */
+    private function setLedChannel(Module $slave, Led $led): int
+    {
+        $config = JsonUtility::decode((string) $slave->getConfig());
+        $channelEndId = 0;
+
+        foreach ($config['counts'] as $channel => $count) {
+            $channelEndId += $count;
+
+            if ($led->getNumber() < $channelEndId) {
+                return $channel;
+            }
+        }
+
+        throw new OutOfRangeException('LED ' . $led->getNumber() . ' liegt in keinem Channel');
     }
 }

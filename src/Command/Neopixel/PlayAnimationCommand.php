@@ -156,7 +156,7 @@ class PlayAnimationCommand extends AbstractCommand
 
         $neopixelService->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
         $this->ledService->saveLeds($slave, $changedSlaveLeds);
-        $lastChangedIds = $this->ledService->getLastIds($changedSlaveLeds);
+        $lastChangedIds = $this->ledService->getLastIds($slave, $changedSlaveLeds);
 
         if (empty($lastChangedIds)) {
             $lastChangedIds = array_map(function ($count) {
