@@ -85,8 +85,8 @@ class LedService
         $this->attributeRepository->startTransaction();
 
         try {
-            foreach ($leds as $id => $led) {
-                $this->saveLed($slave, $id, $led);
+            foreach ($leds as $led) {
+                $this->saveLed($slave, $led);
             }
         } catch (SaveError $exception) {
             $this->attributeRepository->rollback();
@@ -102,12 +102,12 @@ class LedService
      *
      * @return int[]
      */
-    public function getLastIds(Module $slave, array $leds): array
+    public function getLastIds(array $leds): array
     {
         $lastIds = [];
 
-        foreach (array_keys($leds) as $id) {
-            $lastIds[$this->getChannelById($slave, $id)] = $id;
+        foreach ($leds as $led) {
+            $lastIds[$led->getChannel()] = $led->getNumber();
         }
 
         return $lastIds;
@@ -118,7 +118,7 @@ class LedService
         $config = JsonUtility::decode((string) $slave->getConfig());
         $channelEndId = 0;
 
-        foreach ($config['counts'] as $channel => $count) {
+        foreach ($config['counts'] as $count) {
             if ($id < $channelEndId + $count) {
                 return (int) ($id - $channelEndId);
             }
@@ -177,7 +177,7 @@ class LedService
      * @throws DateTimeError
      * @throws SaveError
      */
-    private function saveLed(Module $slave, int $id, Led $led): void
+    private function saveLed(Module $slave, Led $led): void
     {
         foreach ($led->jsonSerialize() as $attribute => $value) {
             if (!in_array($attribute, self::ATTRIBUTES)) {
@@ -186,13 +186,13 @@ class LedService
 
             $this->logger->debug(sprintf(
                 'Set LED %d attribute %s with value %s!',
-                $id,
+                $led->getNumber(),
                 $attribute,
                 (string) $value
             ));
 
             (new ValueModel())
-                ->setAttribute($this->getLedAttribute($slave, $id, $attribute))
+                ->setAttribute($this->getLedAttribute($slave, $led->getNumber(), $attribute))
                 ->setOrder(0)
                 ->setValue((string) (
                     ($attribute === self::ATTRIBUTE_KEY_LEFT || $attribute === self::ATTRIBUTE_KEY_TOP) && $value < 0
@@ -257,17 +257,19 @@ class LedService
      */
     public function deleteUnusedLeds(Module $slave, array $leds)
     {
-        if (count($leds)) {
-            ksort($leds);
-            $leds = array_keys($leds);
-            $id = end($leds);
-        } else {
-            $id = -1;
+        $number = -1;
+
+        foreach ($leds as $led) {
+            if ($number > $led->getNumber()) {
+                continue;
+            }
+
+            $number = $led->getNumber();
         }
 
         $this->attributeRepository->deleteWithBiggerSubIds(
             $slave,
-            (int) $id,
+            $number,
             null,
             self::ATTRIBUTE_TYPE
         );
@@ -308,21 +310,5 @@ class LedService
             self::ATTRIBUTE_TYPE,
             $key
         );
-    }
-
-    private function getChannelById(Module $slave, int $id): int
-    {
-        $config = JsonUtility::decode((string) $slave->getConfig());
-        $channelEndId = 0;
-
-        foreach ($config['counts'] as $channel => $count) {
-            $channelEndId += $count;
-
-            if ($id < $channelEndId) {
-                return $channel;
-            }
-        }
-
-        throw new OutOfRangeException('LED ' . $id . ' liegt in keinem Channel');
     }
 }

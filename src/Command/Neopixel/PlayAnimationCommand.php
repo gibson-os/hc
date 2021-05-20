@@ -15,7 +15,6 @@ use GibsonOS\Core\Service\EnvService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Exception\WriteException;
-use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
@@ -41,8 +40,6 @@ class PlayAnimationCommand extends AbstractCommand
 
     private EnvService $envService;
 
-    private LedMapper $ledMapper;
-
     public function __construct(
         NeopixelService $neopixelService,
         AnimationAttributeService $animationAttributeService,
@@ -51,7 +48,6 @@ class PlayAnimationCommand extends AbstractCommand
         ModuleRepository $moduleRepository,
         mysqlDatabase $mysqlDatabase,
         EnvService $envService,
-        LedMapper $ledMapper,
         LoggerInterface $logger
     ) {
         $this->neopixelService = $neopixelService;
@@ -61,7 +57,6 @@ class PlayAnimationCommand extends AbstractCommand
         $this->moduleRepository = $moduleRepository;
         $this->mysqlDatabase = $mysqlDatabase;
         $this->envService = $envService;
-        $this->ledMapper = $ledMapper;
 
         $this->setArgument('slaveId', true);
         $this->setArgument('iterations', false);
@@ -161,7 +156,7 @@ class PlayAnimationCommand extends AbstractCommand
 
         $neopixelService->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
         $this->ledService->saveLeds($slave, $changedSlaveLeds);
-        $lastChangedIds = $this->ledService->getLastIds($slave, $changedSlaveLeds);
+        $lastChangedIds = $this->ledService->getLastIds($changedSlaveLeds);
 
         if (empty($lastChangedIds)) {
             $lastChangedIds = array_map(function ($count) {
