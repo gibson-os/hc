@@ -7,6 +7,7 @@ use GibsonOS\Core\Dto\Event\Describer\Method;
 use GibsonOS\Core\Dto\Event\Describer\Trigger;
 use GibsonOS\Core\Dto\Parameter\AutoCompleteParameter;
 use GibsonOS\Core\Dto\Parameter\IntParameter;
+use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\AutoComplete\Neopixel\ImageAutoComplete;
@@ -139,8 +140,7 @@ class NeopixelDescriber extends AbstractHcDescriber
             'sendColor' => (new Method('Farbe setzen'))
                 ->setParameters([
                     'slave' => $this->slaveParameter,
-                    'start' => (new IntParameter('Start LED'))
-                        ->setRange(1, LedMapper::MAX_PROTOCOL_LEDS + 1),
+                    'ledRanges' => new StringParameter('LEDs'),
                     'end' => (new IntParameter('End LED'))
                         ->setRange(1, LedMapper::MAX_PROTOCOL_LEDS + 1),
                     'red' => (new IntParameter('Rot'))

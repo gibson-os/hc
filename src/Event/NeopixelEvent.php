@@ -177,13 +177,13 @@ class NeopixelEvent extends AbstractHcEvent
         $this->neopixelService->writeLeds($slave, $leds);
     }
 
-    public function sendColor(Module $slave, int $start, int $end, int $red, int $green, int $blue): void
+    public function sendColor(Module $slave, string $ledRanges, int $red, int $green, int $blue): void
     {
         $leds = [];
 
-        for ($i = $start; $i <= $end; ++$i) {
+        foreach ($this->getLedNumbers($ledRanges) as $ledNumber) {
             $leds[] = (new Led())
-                ->setNumber($i - 1)
+                ->setNumber($ledNumber)
                 ->setRed($red)
                 ->setGreen($green)
                 ->setBlue($blue)
@@ -192,5 +192,28 @@ class NeopixelEvent extends AbstractHcEvent
         }
 
         $this->neopixelService->writeLeds($slave, $leds);
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function getLedNumbers(string $leds): array
+    {
+        $ledRanges = explode(',', $leds);
+        $numbers = [];
+
+        foreach ($ledRanges as $ledRange) {
+            $ledRange = explode('-', $ledRange);
+
+            if (count($ledRange) === 1) {
+                $ledRange[1] = $ledRange[0];
+            }
+
+            for ($i = (int) $ledRange[0]; $i <= (int) $ledRange[1]; ++$i) {
+                $numbers[$i] = $i;
+            }
+        }
+
+        return $numbers;
     }
 }
