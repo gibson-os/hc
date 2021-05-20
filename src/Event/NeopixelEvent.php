@@ -15,15 +15,12 @@ use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
-use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 
 class NeopixelEvent extends AbstractHcEvent
 {
     private NeopixelService $neopixelService;
-
-    private ElementRepository $elementRepository;
 
     private LedMapper $ledMapper;
 
@@ -32,12 +29,10 @@ class NeopixelEvent extends AbstractHcEvent
         ServiceManagerService $serviceManagerService,
         TypeRepository $typeRepository,
         NeopixelService $neopixelService,
-        ElementRepository $elementRepository,
         LedMapper $ledMapper
     ) {
         parent::__construct($describer, $serviceManagerService, $typeRepository);
         $this->neopixelService = $neopixelService;
-        $this->elementRepository = $elementRepository;
         $this->ledMapper = $ledMapper;
     }
 
@@ -175,6 +170,23 @@ class NeopixelEvent extends AbstractHcEvent
                 ->setRed(mt_rand($redFrom, $redTo))
                 ->setGreen(mt_rand($greenFrom, $greenTo))
                 ->setBlue(mt_rand($blueFrom, $blueTo))
+                ->setOnlyColor(true)
+            ;
+        }
+
+        $this->neopixelService->writeLeds($slave, $leds);
+    }
+
+    public function sendColor(Module $slave, int $start, int $end, int $red, int $green, int $blue): void
+    {
+        $leds = [];
+
+        for ($i = $start; $i <= $end; ++$i) {
+            $leds[] = (new Led())
+                ->setNumber($i - 1)
+                ->setRed($red)
+                ->setGreen($green)
+                ->setBlue($blue)
                 ->setOnlyColor(true)
             ;
         }

@@ -136,6 +136,20 @@ class NeopixelDescriber extends AbstractHcDescriber
                     'blueTo' => (new IntParameter('Blau bis'))
                         ->setRange(0, 255),
                 ]),
+            'sendColor' => (new Method('Farbe setzen'))
+                ->setParameters([
+                    'slave' => $this->slaveParameter,
+                    'start' => (new IntParameter('Start LED'))
+                        ->setRange(1, LedMapper::MAX_PROTOCOL_LEDS + 1),
+                    'end' => (new IntParameter('End LED'))
+                        ->setRange(1, LedMapper::MAX_PROTOCOL_LEDS + 1),
+                    'red' => (new IntParameter('Rot'))
+                        ->setRange(0, 255),
+                    'green' => (new IntParameter('Grün'))
+                        ->setRange(0, 255),
+                    'blue' => (new IntParameter('Blau'))
+                        ->setRange(0, 255),
+                ]),
         ]);
     }
 
