@@ -17,6 +17,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
+use Psr\Log\LoggerInterface;
 
 class NeopixelEvent extends AbstractHcEvent
 {
@@ -28,10 +29,11 @@ class NeopixelEvent extends AbstractHcEvent
         NeopixelDescriber $describer,
         ServiceManagerService $serviceManagerService,
         TypeRepository $typeRepository,
+        LoggerInterface $logger,
         NeopixelService $neopixelService,
         LedMapper $ledMapper
     ) {
-        parent::__construct($describer, $serviceManagerService, $typeRepository);
+        parent::__construct($describer, $serviceManagerService, $typeRepository, $logger);
         $this->neopixelService = $neopixelService;
         $this->ledMapper = $ledMapper;
     }
@@ -165,11 +167,15 @@ class NeopixelEvent extends AbstractHcEvent
         $leds = [];
 
         for ($i = $start; $i <= $end; ++$i) {
+            $red = mt_rand($redFrom, $redTo);
+            $green = mt_rand($greenFrom, $greenTo);
+            $blue = mt_rand($blueFrom, $blueTo);
+            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $i - 1, $red, $green, $blue));
             $leds[] = (new Led())
                 ->setNumber($i - 1)
-                ->setRed(mt_rand($redFrom, $redTo))
-                ->setGreen(mt_rand($greenFrom, $greenTo))
-                ->setBlue(mt_rand($blueFrom, $blueTo))
+                ->setRed($red)
+                ->setGreen($green)
+                ->setBlue($blue)
                 ->setOnlyColor(true)
             ;
         }
@@ -177,11 +183,17 @@ class NeopixelEvent extends AbstractHcEvent
         $this->neopixelService->writeLeds($slave, $leds);
     }
 
+    /**
+     * @throws AbstractException
+     * @throws DateTimeError
+     * @throws SaveError
+     */
     public function sendColor(Module $slave, string $ledRanges, int $red, int $green, int $blue): void
     {
         $leds = [];
 
         foreach ($this->getLedNumbers($ledRanges) as $ledNumber) {
+            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $red, $green, $blue));
             $leds[] = (new Led())
                 ->setNumber($ledNumber)
                 ->setRed($red)
@@ -199,6 +211,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     private function getLedNumbers(string $leds): array
     {
+        $this->logger->debug(sprintf('Get LED Numbers from %s', $leds));
         $ledRanges = explode(',', $leds);
         $numbers = [];
 
@@ -210,7 +223,8 @@ class NeopixelEvent extends AbstractHcEvent
             }
 
             for ($i = (int) $ledRange[0]; $i <= (int) $ledRange[1]; ++$i) {
-                $numbers[$i] = $i;
+                $number = $i - 1;
+                $numbers[$number] = $number;
             }
         }
 

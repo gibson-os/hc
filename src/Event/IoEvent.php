@@ -11,6 +11,7 @@ use GibsonOS\Module\Hc\Event\Describer\IoDescriber;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
+use Psr\Log\LoggerInterface;
 
 class IoEvent extends AbstractHcEvent
 {
@@ -20,9 +21,10 @@ class IoEvent extends AbstractHcEvent
         IoDescriber $describer,
         ServiceManagerService $serviceManagerService,
         TypeRepository $typeRepository,
+        LoggerInterface $logger,
         IoService $ioService
     ) {
-        parent::__construct($describer, $serviceManagerService, $typeRepository);
+        parent::__construct($describer, $serviceManagerService, $typeRepository, $logger);
         $this->ioService = $ioService;
     }
 

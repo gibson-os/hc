@@ -14,18 +14,23 @@ use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractHcEvent extends AbstractEvent
 {
     private TypeRepository $typeRepository;
 
+    protected LoggerInterface $logger;
+
     public function __construct(
         DescriberInterface $describer,
         ServiceManagerService $serviceManagerService,
-        TypeRepository $typeRepository
+        TypeRepository $typeRepository,
+        LoggerInterface $logger
     ) {
         parent::__construct($describer, $serviceManagerService);
         $this->typeRepository = $typeRepository;
+        $this->logger = $logger;
     }
 
     /**
