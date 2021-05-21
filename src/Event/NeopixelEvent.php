@@ -228,6 +228,8 @@ class NeopixelEvent extends AbstractHcEvent
             }
         }
 
+        ksort($numbers);
+
         return $numbers;
     }
 }
