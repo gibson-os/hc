@@ -327,6 +327,8 @@ class LedService
             $channelEndId += $count;
 
             if ($led->getNumber() < $channelEndId) {
+                $led->setChannel($channel);
+
                 return $channel;
             }
         }
