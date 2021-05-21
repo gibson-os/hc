@@ -171,7 +171,7 @@ class NeopixelEvent extends AbstractHcEvent
             $green = mt_rand($greenFrom, $greenTo);
             $blue = mt_rand($blueFrom, $blueTo);
             $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $i - 1, $red, $green, $blue));
-            $leds[] = (new Led())
+            $leds[$i - 1] = (new Led())
                 ->setNumber($i - 1)
                 ->setRed($red)
                 ->setGreen($green)
@@ -194,7 +194,7 @@ class NeopixelEvent extends AbstractHcEvent
 
         foreach ($this->getLedNumbers($ledRanges) as $ledNumber) {
             $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $red, $green, $blue));
-            $leds[] = (new Led())
+            $leds[$ledNumber] = (new Led())
                 ->setNumber($ledNumber)
                 ->setRed($red)
                 ->setGreen($green)
