@@ -5,7 +5,6 @@ namespace GibsonOS\Module\Hc\Controller;
 
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\LoginRequired;
 use GibsonOS\Core\Exception\PermissionDenied;
@@ -17,7 +16,6 @@ class IndexController extends AbstractController
 {
     /**
      * @throws DateTimeError
-     * @throws FileNotFound
      * @throws GetError
      * @throws LoginRequired
      * @throws PermissionDenied
