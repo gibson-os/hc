@@ -1,5 +1,5 @@
 Ext.define('GibsonOS.module.hc.index.module.Grid', {
-    extend: 'GibsonOS.grid.Panel',
+    extend: 'GibsonOS.module.core.component.grid.Panel',
     alias: ['widget.gosModuleHcIndexModuleGrid'],
     itemId: 'hcIndexModuleGrid',
     viewConfig: {
@@ -47,7 +47,29 @@ Ext.define('GibsonOS.module.hc.index.module.Grid', {
         let me = this;
 
         me.store = new GibsonOS.module.hc.index.store.Module({gos: me.gos});
-        me.columns = [{
+        // me.dockedItems = [{
+        //     xtype: 'gosToolbarPaging',
+        //     itemId: 'hcIndexModulePaging',
+        //     store: this.store,
+        //     displayMsg: 'Module {0} - {1} von {2}',
+        //     emptyMsg: 'Keine Module vorhanden'
+        // }];
+
+        me.callParent(arguments);
+    },
+    enterFunction(module) {
+        hcModuleView(module.getData());
+    },
+    addFunction() {
+        const addWindow = new GibsonOS.module.hc.module.add.Window({
+            masterId: 0
+        }).show();
+        addWindow.down('form').getForm().on('actioncomplete', () => {
+            me.getStore().load();
+        })
+    },
+    getColumns() {
+        return [{
             header: 'Name',
             dataIndex: 'name',
             flex: 1
@@ -71,18 +93,5 @@ Ext.define('GibsonOS.module.hc.index.module.Grid', {
             width: 130,
             align: 'right'
         }];
-        me.dockedItems = [{
-            xtype: 'gosToolbarPaging',
-            itemId: 'hcIndexModulePaging',
-            store: this.store,
-            displayMsg: 'Module {0} - {1} von {2}',
-            emptyMsg: 'Keine Module vorhanden'
-        }];
-
-        me.callParent(arguments);
-
-        me.on('itemdblclick', function(grid, record) {
-            hcModuleView(record.getData());
-        });
     }
 });

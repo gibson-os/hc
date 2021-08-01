@@ -1,5 +1,5 @@
 Ext.define('GibsonOS.module.hc.index.master.Grid', {
-    extend: 'GibsonOS.grid.Panel',
+    extend: 'GibsonOS.module.core.component.grid.Panel',
     alias: ['widget.gosModuleHcIndexMasterGrid'],
     itemId: 'hcIndexMasterGrid',
     viewConfig: {
@@ -47,7 +47,21 @@ Ext.define('GibsonOS.module.hc.index.master.Grid', {
         let me = this;
 
         me.store = new GibsonOS.module.hc.index.store.Master();
-        me.columns = [{
+        // me.dockedItems = [{
+        //     xtype: 'gosToolbarPaging',
+        //     itemId: 'hcIndexModulePaging',
+        //     store: this.store,
+        //     displayMsg: 'Module {0} - {1} von {2}',
+        //     emptyMsg: 'Keine Master vorhanden'
+        // }];
+
+        me.callParent(arguments);
+    },
+    enterFunction(master) {
+        new GibsonOS.module.hc.master.App({gos: {data: {master: master.getData()}}});
+    },
+    getColumns() {
+        return [{
             header: 'Name',
             dataIndex: 'name',
             flex: 1
@@ -55,33 +69,20 @@ Ext.define('GibsonOS.module.hc.index.master.Grid', {
             header: 'Protokoll',
             dataIndex: 'protocol',
             width: 100
-        }, {
+        },{
             header: 'Adresse',
             dataIndex: 'address',
             width: 100
-        }, {
+        },{
             header: 'Hinzugefügt',
             dataIndex: 'added',
             width: 130,
             align: 'right'
-        }, {
+        },{
             header: 'Letztes Update',
             dataIndex: 'modified',
             width: 130,
             align: 'right'
         }];
-        me.dockedItems = [{
-            xtype: 'gosToolbarPaging',
-            itemId: 'hcIndexModulePaging',
-            store: this.store,
-            displayMsg: 'Module {0} - {1} von {2}',
-            emptyMsg: 'Keine Master vorhanden'
-        }];
-
-        me.callParent(arguments);
-
-        me.on('itemdblclick', function(grid, record) {
-            new GibsonOS.module.hc.master.App({gos: {data: {master: record.getData()}}});
-        });
     }
 });

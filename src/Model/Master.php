@@ -5,8 +5,9 @@ namespace GibsonOS\Module\Hc\Model;
 
 use DateTimeInterface;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Model\AutoCompleteModelInterface as AutoCompleteModelInterfaceAlias;
 
-class Master extends AbstractModel
+class Master extends AbstractModel implements AutoCompleteModelInterfaceAlias
 {
     const PROTOCOL_UDP = 'udp';
 
@@ -111,5 +112,10 @@ class Master extends AbstractModel
         $this->modified = $modified;
 
         return $this;
+    }
+
+    public function getAutoCompleteId(): int
+    {
+        return (int) $this->getId();
     }
 }

@@ -21,27 +21,7 @@ Ext.define('GibsonOS.module.hc.master.App', {
                         masterId: me.gos.data.master.id
                     }
                 }
-            },
-            tbar: [{
-                iconCls: 'icon_system system_refresh',
-                handler: function() {
-                    me.setLoading(true);
-
-                    GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/master/scanBus',
-                        params: {
-                            masterId: me.gos.data.master.id
-                        },
-                        success: function() {
-                            me.down('gosModuleHcIndexModuleGrid').getStore().load();
-                            me.setLoading(false);
-                        },
-                        failure: function() {
-                            me.setLoading(false);
-                        }
-                    });
-                }
-            }]
+            }
         }];
 
         me.callParent(arguments);

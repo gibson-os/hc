@@ -4,13 +4,14 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
 
 /**
  * Class Type.
  *
  * @package GibsonOS\Module\Hc\Model
  */
-class Type extends AbstractModel
+class Type extends AbstractModel implements AutoCompleteModelInterface
 {
     private ?int $id = null;
 
@@ -113,5 +114,10 @@ class Type extends AbstractModel
         $this->uiSettings = $uiSettings;
 
         return $this;
+    }
+
+    public function getAutoCompleteId(): int
+    {
+        return (int) $this->getId();
     }
 }
