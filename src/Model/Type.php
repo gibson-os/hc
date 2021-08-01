@@ -5,13 +5,14 @@ namespace GibsonOS\Module\Hc\Model;
 
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
+use JsonSerializable;
 
 /**
  * Class Type.
  *
  * @package GibsonOS\Module\Hc\Model
  */
-class Type extends AbstractModel implements AutoCompleteModelInterface
+class Type extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     private ?int $id = null;
 
@@ -119,5 +120,14 @@ class Type extends AbstractModel implements AutoCompleteModelInterface
     public function getAutoCompleteId(): int
     {
         return (int) $this->getId();
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'helper' => $this->getHelper(),
+        ];
     }
 }

@@ -17,5 +17,9 @@ Ext.define('GibsonOS.module.hc.module.add.Window', {
         }];
 
         me.callParent();
+
+        me.down('form').getForm().on('actioncomplete', () => {
+            me.close();
+        });
     }
 });

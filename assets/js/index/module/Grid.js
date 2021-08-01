@@ -61,12 +61,16 @@ Ext.define('GibsonOS.module.hc.index.module.Grid', {
         hcModuleView(module.getData());
     },
     addFunction() {
+        const me = this;
         const addWindow = new GibsonOS.module.hc.module.add.Window({
             masterId: 0
         }).show();
-        addWindow.down('form').getForm().on('actioncomplete', () => {
+        const form = addWindow.down('form').getForm();
+
+        form.on('actioncomplete', () => {
             me.getStore().load();
-        })
+        });
+        form.findField('masterId').setValue(me.gos.data.extraParams.masterId);
     },
     getColumns() {
         return [{

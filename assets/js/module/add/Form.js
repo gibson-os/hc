@@ -7,24 +7,22 @@ Ext.define('GibsonOS.module.add..Form', {
     },
     initComponent() {
         const me = this;
-        me.items = [];
-
-        if (!me.masterId) {
-            me.items.push({
-                xtype: 'gosModuleCoreParameterTypeAutoComplete',
-                fieldLabel: 'Master',
-                name: 'masterId',
-                parameterObject: {
-                    config: {
-                        model: 'GibsonOS.module.hc.index.model.Master',
-                        autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\TypeAutoComplete',
-                        parameters: {}
-                    }
+        me.items = [{
+            xtype: 'gosFormTextfield',
+            fieldLabel: 'Name',
+            name: 'name'
+        },{
+            xtype: 'gosModuleCoreParameterTypeAutoComplete',
+            fieldLabel: 'Master',
+            name: 'masterId',
+            parameterObject: {
+                config: {
+                    model: 'GibsonOS.module.hc.index.model.Master',
+                    autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\MasterAutoComplete',
+                    parameters: {}
                 }
-            });
-        }
-
-        me.items.push({
+            }
+        },{
             xtype: 'gosFormNumberfield',
             fieldLabel: 'Adresse',
             name: 'address',
@@ -34,7 +32,7 @@ Ext.define('GibsonOS.module.add..Form', {
         },{
             xtype: 'gosModuleCoreParameterTypeAutoComplete',
             fieldLabel: 'Typ',
-            name: 'type',
+            name: 'typeId',
             parameterObject: {
                 config: {
                     model: 'GibsonOS.module.hc.index.model.Type',
@@ -42,7 +40,13 @@ Ext.define('GibsonOS.module.add..Form', {
                     parameters: {}
                 }
             }
-        });
+        },{
+            xtype: 'gosFormCheckbox',
+            fieldLabel: 'Handshake ausführen',
+            name: 'withHandshake',
+            inputValue: true,
+            uncheckedValue: false,
+        }];
 
         me.buttons = [{
             text: 'Speichern',

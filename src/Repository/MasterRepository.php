@@ -13,6 +13,10 @@ use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type\DefaultAddress;
 
+/**
+ * @psalm-suppress MoreSpecificReturnType
+ * @psalm-suppress LessSpecificReturnStatement
+ */
 class MasterRepository extends AbstractRepository
 {
     private const MIN_PORT = 42001;
@@ -26,24 +30,7 @@ class MasterRepository extends AbstractRepository
      */
     public function getByProtocol(string $protocol): array
     {
-        $table = self::getTable(Master::getTableName())
-            ->setWhere('`protocol`=?')
-            ->addWhereParameter($protocol)
-        ;
-
-        $models = [];
-
-        if (!$table->selectPrepared()) {
-            return $models;
-        }
-
-        do {
-            $model = new Master();
-            $model->loadFromMysqlTable($table);
-            $models[] = $model;
-        } while ($table->next());
-
-        return $models;
+        return $this->fetchAll('`protocol`=?', [$protocol], Master::class);
     }
 
     /**
@@ -52,21 +39,11 @@ class MasterRepository extends AbstractRepository
      */
     public function getById(int $id): Master
     {
-        $table = self::getTable(Master::getTableName())
-            ->setWhere('`id`=?')
-            ->addWhereParameter($id)
-            ->setLimit(1)
-        ;
+        $model = $this->fetchOne('`id`=?', [$id], Master::class);
 
-        if (!$table->selectPrepared()) {
-            $exception = new SelectError('Master unter der ID ' . $id . ' existiert nicht!');
-            $exception->setTable($table);
-
-            throw $exception;
+        if (!$model instanceof Master) {
+            throw new SelectError();
         }
-
-        $model = new Master();
-        $model->loadFromMysqlTable($table);
 
         return $model;
     }
@@ -77,21 +54,15 @@ class MasterRepository extends AbstractRepository
      */
     public function getByAddress(string $address, string $protocol): Master
     {
-        $table = self::getTable(Master::getTableName())
-            ->setWhere('`protocol`=? AND `address`=?')
-            ->setWhereParameters([$protocol, $address])
-            ->setLimit(1)
-        ;
+        $model = $this->fetchOne(
+            '`protocol`=? AND `address`=?',
+            [$protocol, $address],
+            Master::class
+        );
 
-        if (!$table->selectPrepared()) {
-            $exception = new SelectError('Master unter der Adresse ' . $address . ' existiert nicht!');
-            $exception->setTable($table);
-
-            throw $exception;
+        if (!$model instanceof Master) {
+            throw new SelectError();
         }
-
-        $model = new Master();
-        $model->loadFromMysqlTable($table);
 
         return $model;
     }
@@ -102,21 +73,15 @@ class MasterRepository extends AbstractRepository
      */
     public function getByName(string $name, string $protocol): Master
     {
-        $table = self::getTable(Master::getTableName())
-            ->setWhere('`protocol`=? AND `name`=?')
-            ->setWhereParameters([$protocol, $name])
-            ->setLimit(1)
-        ;
+        $model = $this->fetchOne(
+            '`protocol`=? AND `name`=?',
+            [$protocol, $name],
+            Master::class
+        );
 
-        if (!$table->selectPrepared()) {
-            $exception = new SelectError('Master unter dem Name ' . $name . ' existiert nicht!');
-            $exception->setTable($table);
-
-            throw $exception;
+        if (!$model instanceof Master) {
+            throw new SelectError();
         }
-
-        $model = new Master();
-        $model->loadFromMysqlTable($table);
 
         return $model;
     }
@@ -175,6 +140,30 @@ class MasterRepository extends AbstractRepository
         }
 
         return $address;
+    }
+
+    /**
+     * @throws SelectError
+     * @throws DateTimeError
+     *
+     * @return Master[]
+     */
+    public function findByName(string $name, bool $getHcSlaves = null, string $network = null): array
+    {
+        $where = '`name` LIKE ?';
+        $parameters = [$name . '%'];
+
+        if ($getHcSlaves !== null) {
+            $where .= ' AND `is_hc_slave`=?';
+            $parameters[] = $getHcSlaves ? 1 : 0;
+        }
+
+        if ($network !== null) {
+            $where .= ' AND `network`=?';
+            $parameters[] = $network;
+        }
+
+        return $this->fetchAll($where, $parameters, Master::class);
     }
 
     private function findFreePort(): int

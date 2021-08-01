@@ -6,7 +6,7 @@ namespace GibsonOS\Module\Hc\AutoComplete;
 use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Module\Hc\Model\Type;
+use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 
 class MasterAutoComplete implements AutoCompleteInterface
@@ -31,7 +31,7 @@ class MasterAutoComplete implements AutoCompleteInterface
      * @throws DateTimeError
      * @throws SelectError
      */
-    public function getById(string $id, array $parameters = []): Type
+    public function getById(string $id, array $parameters = []): Master
     {
         return $this->masterRepository->getById((int) $id);
     }

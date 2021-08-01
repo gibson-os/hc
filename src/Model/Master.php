@@ -5,9 +5,10 @@ namespace GibsonOS\Module\Hc\Model;
 
 use DateTimeInterface;
 use GibsonOS\Core\Model\AbstractModel;
-use GibsonOS\Core\Model\AutoCompleteModelInterface as AutoCompleteModelInterfaceAlias;
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
+use JsonSerializable;
 
-class Master extends AbstractModel implements AutoCompleteModelInterfaceAlias
+class Master extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     const PROTOCOL_UDP = 'udp';
 
@@ -117,5 +118,17 @@ class Master extends AbstractModel implements AutoCompleteModelInterfaceAlias
     public function getAutoCompleteId(): int
     {
         return (int) $this->getId();
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'protocol' => $this->getProtocol(),
+            'address' => $this->getAddress(),
+            'added' => $this->getAdded()->format('Y-m-d H:i:s'),
+            'modified' => $this->getModified()->format('Y-m-d H:i:s'),
+        ];
     }
 }
