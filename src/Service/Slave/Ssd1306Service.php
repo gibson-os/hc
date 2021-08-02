@@ -20,15 +20,33 @@ class Ssd1306Service extends AbstractSlave
 
     private const COMMAND_DISPLAY_OFF = 174;
 
-    private const COMMAND_SET_MEMORY_ADDRESSING_MODE = 20;
+    private const COMMAND_ENTIRE_DISPLAY_ON = 165;
 
-    private const COMMAND_SET_LOWER_COLUMN_START = 0;
+    private const COMMAND_ENTIRE_DISPLAY_OFF = 164;
 
-    private const COMMAND_SET_HIGHER_COLUMN_START = 16;
+    private const COMMAND_MEMORY_ADDRESSING_MODE = 20;
 
-    private const COMMAND_SET_START_LINE_START = 40;
+    private const COMMAND_LOWER_COLUMN_START = 0;
 
-    private const COMMAND_SET_CONTRAST_CONTROL = 129;
+    private const COMMAND_HIGHER_COLUMN_START = 16;
+
+    private const COMMAND_START_LINE_START = 40;
+
+    private const COMMAND_CONTRAST_CONTROL = 129;
+
+    private const COMMAND_MULTIPLEX_RATIO = 168;
+
+    private const COMMAND_DISPLAY_OFFSET = 211;
+
+    private const COMMAND_DISPLAY_CLOCK_DIVIDE = 213;
+
+    private const COMMAND_PRE_CHARGE_PERIOD = 217;
+
+    private const COMMAND_COM_PINS_HARDWARE_CONFIGURATION = 218;
+
+    private const COMMAND_VCOMH_DESELECT_LEVEL = 219;
+
+    private const COMMAND_CHARGE_PUMP_SETTING = 141;
 
     private const MAX_PAGE = 7;
 
@@ -57,8 +75,55 @@ class Ssd1306Service extends AbstractSlave
         self::ADDRESSING_MODE_PAGE,
     ];
 
+    public const DISPLAY_MODE_NORMAL = 166;
+
+    public const DISPLAY_MODE_INVERSE = 167;
+
+    private const DISPLAY_MODES = [
+        self::DISPLAY_MODE_NORMAL,
+        self::DISPLAY_MODE_INVERSE,
+    ];
+
+    public const DESELECT_LEVEL_0_65 = 0;
+
+    public const DESELECT_LEVEL_0_77 = 32;
+
+    public const DESELECT_LEVEL_0_83 = 48;
+
+    private const DESELECT_LEVELS = [
+        self::DESELECT_LEVEL_0_65,
+        self::DESELECT_LEVEL_0_77,
+        self::DESELECT_LEVEL_0_83
+    ];
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     * @throws WriteException
+     */
     public function handshake(Module $slave): Module
     {
+        $this
+            ->setDisplayOff($slave)
+            ->setMemoryAddressingMode($slave, self::ADDRESSING_MODE_HORIZONTAL)
+            ->setPageStart($slave)
+            ->setComOutputScanDirection($slave, self::COM_OUTPUT_SCAN_DIRECTION_REMAPPED)
+            ->setLowColumnAddress($slave)
+            ->setHighColumnAddress($slave)
+            ->setStartLineAddress($slave)
+            ->setContrastControl($slave, 63)
+            ->setSegmentReMap($slave, true)
+            ->setDisplayMode($slave, self::DISPLAY_MODE_NORMAL)
+            ->setMultiplexRatio($slave)
+            ->setEntireDisplayOff($slave)
+            ->setDisplayOffset($slave)
+            ->setDisplayClockDivide($slave, 240)
+            ->setPreChargePeriod($slave, 22)
+            ->setComPinsHardwareConfiguration($slave, true, false)
+            ->setVcomhDeselectLevel($slave, self::DESELECT_LEVEL_0_77)
+            ->setChargePumpSetting($slave, true)
+        ;
+
         return $slave;
     }
 
@@ -147,6 +212,28 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     */
+    public function setEntireDisplayOn(Module $slave): Ssd1306Service
+    {
+        $this->sendCommand($slave, self::COMMAND_ENTIRE_DISPLAY_ON);
+
+        return $this;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     */
+    public function setEntireDisplayOff(Module $slave): Ssd1306Service
+    {
+        $this->sendCommand($slave, self::COMMAND_ENTIRE_DISPLAY_OFF);
+
+        return $this;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
      * @throws WriteException
      */
     public function setMemoryAddressingMode(Module $slave, int $addressingMode): Ssd1306Service
@@ -159,7 +246,7 @@ class Ssd1306Service extends AbstractSlave
             ));
         }
 
-        $this->sendCommand($slave, self::COMMAND_SET_MEMORY_ADDRESSING_MODE, chr($addressingMode));
+        $this->sendCommand($slave, self::COMMAND_MEMORY_ADDRESSING_MODE, chr($addressingMode));
 
         return $this;
     }
@@ -190,7 +277,7 @@ class Ssd1306Service extends AbstractSlave
      */
     public function setLowColumnAddress(Module $slave, int $lowColumnAddress = 0): Ssd1306Service
     {
-        $this->sendCommand($slave, self::COMMAND_SET_LOWER_COLUMN_START + $lowColumnAddress);
+        $this->sendCommand($slave, self::COMMAND_LOWER_COLUMN_START + $lowColumnAddress);
 
         return $this;
     }
@@ -201,7 +288,7 @@ class Ssd1306Service extends AbstractSlave
      */
     public function setHighColumnAddress(Module $slave, int $highColumnAddress = 0): Ssd1306Service
     {
-        $this->sendCommand($slave, self::COMMAND_SET_HIGHER_COLUMN_START + $highColumnAddress);
+        $this->sendCommand($slave, self::COMMAND_HIGHER_COLUMN_START + $highColumnAddress);
 
         return $this;
     }
@@ -212,7 +299,7 @@ class Ssd1306Service extends AbstractSlave
      */
     public function setStartLineAddress(Module $slave, int $startLineAddress = 0): Ssd1306Service
     {
-        $this->sendCommand($slave, self::COMMAND_SET_START_LINE_START + $startLineAddress);
+        $this->sendCommand($slave, self::COMMAND_START_LINE_START + $startLineAddress);
 
         return $this;
     }
@@ -223,7 +310,139 @@ class Ssd1306Service extends AbstractSlave
      */
     public function setContrastControl(Module $slave, int $contrast = 0): Ssd1306Service
     {
-        $this->sendCommand($slave, self::COMMAND_SET_CONTRAST_CONTROL, chr($contrast));
+        $this->sendCommand($slave, self::COMMAND_CONTRAST_CONTROL, chr($contrast));
+
+        return $this;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     * @throws WriteException
+     */
+    public function setDisplayMode(Module $slave, int $displayMode): Ssd1306Service
+    {
+        if (!in_array($displayMode, self::DISPLAY_MODES)) {
+            throw new WriteException(sprintf(
+                'Display mode %d not allowed. Possible: %s',
+                $displayMode,
+                implode(', ', self::DISPLAY_MODES)
+            ));
+        }
+
+        $this->sendCommand($slave, $displayMode);
+
+        return $this;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     */
+    public function setDisplayOffset(Module $slave, int $offset = 0): Ssd1306Service
+    {
+        $this->sendCommand($slave, self::COMMAND_DISPLAY_OFFSET, chr($offset));
+
+        return $this;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     */
+    public function setDisplayClockDivide(Module $slave, int $clockDivide = 0): Ssd1306Service
+    {
+        $this->sendCommand($slave, self::COMMAND_DISPLAY_CLOCK_DIVIDE, chr($clockDivide));
+
+        return $this;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     */
+    public function setPreChargePeriod(Module $slave, int $preChargePeriod = 0): Ssd1306Service
+    {
+        $this->sendCommand($slave, self::COMMAND_PRE_CHARGE_PERIOD, chr($preChargePeriod));
+
+        return $this;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     */
+    public function setSegmentReMap(Module $slave, bool $mappedToAddress127): Ssd1306Service
+    {
+        $this->sendCommand($slave, 160 + (int) $mappedToAddress127);
+
+        return $this;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     */
+    public function setComPinsHardwareConfiguration(
+        Module $slave,
+        bool $alternativeConfiguration,
+        bool $leftRightRemap
+    ): Ssd1306Service {
+        $data = 2;
+        $data |= ((int) $alternativeConfiguration) << 4;
+        $data |= ((int) $leftRightRemap) << 5;
+
+        $this->sendCommand($slave, self::COMMAND_COM_PINS_HARDWARE_CONFIGURATION, chr($data));
+
+        return $this;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     * @throws WriteException
+     */
+    public function setVcomhDeselectLevel(Module $slave, int $deselectLevel = 0): Ssd1306Service
+    {
+        if (!in_array($deselectLevel, self::DESELECT_LEVELS)) {
+            throw new WriteException(sprintf(
+                'Vcomh deselect level %d not allowed. Possible: %s',
+                $deselectLevel,
+                implode(', ', self::DESELECT_LEVELS)
+            ));
+        }
+
+        $this->sendCommand($slave, self::COMMAND_VCOMH_DESELECT_LEVEL, chr($deselectLevel));
+
+        return $this;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     */
+    public function setChargePumpSetting(Module $slave, bool $enableChargePump): Ssd1306Service
+    {
+        $this->sendCommand(
+            $slave,
+            self::COMMAND_CHARGE_PUMP_SETTING,
+            chr((16 + (int) $enableChargePump) << 2)
+        );
+
+        if ($enableChargePump) {
+            $this->setDisplayOn($slave);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     */
+    private function setMultiplexRatio(Module $slave): Ssd1306Service
+    {
+        $this->sendCommand($slave, self::COMMAND_MULTIPLEX_RATIO, chr(63));
 
         return $this;
     }

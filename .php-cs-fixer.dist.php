@@ -1,11 +1,9 @@
 <?php
-return PhpCsFixer\Config::create()
+declare(strict_types=1);
+
+return (new PhpCsFixer\Config())
     ->setRiskyAllowed(true)
     ->setRules([
-        '@PHP56Migration' => true,
-        '@PHPUnit60Migration:risky' => false,
-        '@Symfony' => true,
-        '@Symfony:risky' => false,
         'align_multiline_comment' => true,
         'array_syntax' => ['syntax' => 'short'],
         'blank_line_before_statement' => true,
@@ -16,10 +14,9 @@ return PhpCsFixer\Config::create()
         'heredoc_to_nowdoc' => true,
         'is_null' => true,
         'list_syntax' => ['syntax' => 'long'],
-        'method_argument_space' => ['ensure_fully_multiline' => true],
-        'no_extra_consecutive_blank_lines' => ['tokens' => ['break', 'continue', 'extra', 'return', 'throw', 'use', 'parenthesis_brace_block', 'square_brace_block', 'curly_brace_block']],
+        'method_argument_space' => ['on_multiline' => 'ensure_fully_multiline'],
         'no_null_property_initialization' => true,
-        'no_short_echo_tag' => true,
+        'echo_tag_syntax' => true,
         'no_superfluous_elseif' => true,
         'no_unneeded_curly_braces' => true,
         'no_unneeded_final_method' => true,
