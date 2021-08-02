@@ -309,6 +309,15 @@ abstract class AbstractHcSlave extends AbstractSlave
             $data .= 'a';
         }
 
+        $this->writeRaw($slave, $command, $data);
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws SaveError
+     */
+    public function writeRaw(Module $slave, int $command, string $data = ''): void
+    {
         parent::write($slave, $command, $data);
     }
 

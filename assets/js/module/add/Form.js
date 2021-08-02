@@ -8,7 +8,7 @@ Ext.define('GibsonOS.module.add..Form', {
     initComponent() {
         const me = this;
         me.items = [{
-            xtype: 'gosFormTextfield',
+            xtype: 'gosCoreComponentFormFieldTextField',
             fieldLabel: 'Name',
             name: 'name'
         },{
@@ -23,7 +23,7 @@ Ext.define('GibsonOS.module.add..Form', {
                 }
             }
         },{
-            xtype: 'gosFormNumberfield',
+            xtype: 'gosCoreComponentFormFieldNumberField',
             fieldLabel: 'Adresse',
             name: 'address',
             allowBlank: false,
@@ -41,11 +41,9 @@ Ext.define('GibsonOS.module.add..Form', {
                 }
             }
         },{
-            xtype: 'gosFormCheckbox',
+            xtype: 'gosCoreComponentFormFieldCheckbox',
             fieldLabel: 'Handshake ausführen',
             name: 'withHandshake',
-            inputValue: true,
-            uncheckedValue: false,
         }];
 
         me.buttons = [{

@@ -81,7 +81,8 @@ class BlankController extends AbstractController
         int $moduleId,
         int $command,
         string $dataFormat,
-        string $data
+        string $data,
+        bool $isHcData
     ): AjaxResponse {
         $this->checkPermission(PermissionService::WRITE);
 
@@ -100,7 +101,12 @@ class BlankController extends AbstractController
         }
 
         $slave = $moduleRepository->getById($moduleId);
-        $blankService->write($slave, $command, $data);
+
+        if ($isHcData) {
+            $blankService->write($slave, $command, $data);
+        } else {
+            $blankService->writeRaw($slave, $command, $data);
+        }
 
         return $this->returnSuccess($transformService->asciiToBin($data));
     }

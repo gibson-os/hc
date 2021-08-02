@@ -9,10 +9,14 @@ Ext.define('GibsonOS.module.hc.blank.write.Form', {
         },{
             xtype: 'gosModuleHcBlankElementDataFormat'
         },{
-            xtype: 'gosFormTextfield',
+            xtype: 'gosCoreComponentFormFieldTextField',
             name: 'data',
             allowBlank: false,
             fieldLabel: 'Daten'
+        },{
+            xtype: 'gosCoreComponentFormFieldCheckbox',
+            name: 'isHcData',
+            fieldLabel: 'HC Daten',
         }];
 
         me.buttons = [{

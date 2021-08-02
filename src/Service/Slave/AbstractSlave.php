@@ -61,7 +61,7 @@ abstract class AbstractSlave extends AbstractService
         ;
         $this->masterService->send($slave->getMaster(), $busMessage);
         $this->masterService->receiveReceiveReturn($slave->getMaster(), $busMessage);
-        $this->addLog($slave, MasterService::TYPE_DATA, $command, $data, Log::DIRECTION_OUTPUT);
+        $this->addLog($slave, $command, $data, Log::DIRECTION_OUTPUT);
     }
 
     /**
@@ -95,7 +95,6 @@ abstract class AbstractSlave extends AbstractService
         ));
         $this->addLog(
             $slave,
-            MasterService::TYPE_DATA,
             $command,
             $receivedBusMessage->getData() ?? '',
             Log::DIRECTION_INPUT
@@ -108,13 +107,14 @@ abstract class AbstractSlave extends AbstractService
      * @throws DateTimeError
      * @throws SaveError
      */
-    private function addLog(Module $slave, int $type, int $command, string $data, string $direction): void
+    private function addLog(Module $slave, int $command, string $data, string $direction): void
     {
-        $this->logRepository->create($type, $data, $direction)
+        $this->logRepository->create(MasterService::TYPE_DATA, $data, $direction)
             ->setMaster($slave->getMaster())
             ->setModule($slave)
             ->setSlaveAddress($slave->getAddress())
             ->setCommand($command)
-            ->save();
+            ->save()
+        ;
     }
 }
