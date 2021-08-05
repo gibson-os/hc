@@ -52,8 +52,6 @@ class Ssd1306Service extends AbstractSlave
 
     private const MAX_COLUMN = 127;
 
-    private const MAX_COLUMN_BYTES = (self::MAX_COLUMN + 1) / 8;
-
     public const COM_OUTPUT_SCAN_DIRECTION_NORMAL = 192;
 
     public const COM_OUTPUT_SCAN_DIRECTION_REMAPPED = 200;
@@ -132,19 +130,10 @@ class Ssd1306Service extends AbstractSlave
      *
      * @throws AbstractException
      * @throws SaveError
-     * @throws WriteException
      */
     public function sendData(Module $slave, array $data): Ssd1306Service
     {
         foreach ($data as $row) {
-            if (count($row) > self::MAX_COLUMN_BYTES) {
-                throw new WriteException(sprintf(
-                    'Row data to large. %d Bytes allowed. %d Bytes tried to send',
-                    self::MAX_COLUMN_BYTES,
-                    count($row)
-                ));
-            }
-
             $this->write(
                 $slave,
                 self::COMMAND_DATA,

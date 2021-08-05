@@ -1,0 +1,27 @@
+.hcSsd1306View {
+    background-color: #dfe8f6;
+    padding-top: 30px;
+}
+
+.hcSsd1306Page {
+    clear: left;
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+}
+
+.hcSsd1306Column {
+    width: fit-content;
+    float: left;
+}
+
+.hcSsd1306Pixel {
+    width: 5px;
+    height: 5px;
+    background-color: #000;
+    margin: 0 1px 1px 0;
+}
+
+.hcSsd1306Pixel.on {
+    background-color: #FFF;
+}
