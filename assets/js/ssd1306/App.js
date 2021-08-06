@@ -9,8 +9,9 @@ Ext.define('GibsonOS.module.hc.ssd1306.App', {
         const me = this;
 
         me.items = [{
-            xtype: 'gosModuleHcSsd1306View',
-            title: 'Display'
+            xtype: 'gosModuleHcSsd1306Panel',
+            title: 'Display',
+            hcModuleId: me.gos.data.module.id
         }];
 
         me.callParent();

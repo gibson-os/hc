@@ -16,12 +16,18 @@
 }
 
 .hcSsd1306Pixel {
-    width: 5px;
-    height: 5px;
-    background-color: #000;
-    margin: 0 1px 1px 0;
+    padding: 0 1px 1px 0;
 }
 
-.hcSsd1306Pixel.on {
+.hcSsd1306Pixel div {
+    width: 5px;
+    height: 5px;
+}
+
+.hcSsd1306PixelOff {
+    background-color: #000;
+}
+
+.hcSsd1306PixelOn {
     background-color: #FFF;
 }
