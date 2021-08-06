@@ -53,7 +53,7 @@ class Ssd1306Service extends AbstractSlave
 
     public const MAX_COLUMN = 127;
 
-    public const MAX_BIT = 127;
+    public const MAX_BIT = 7;
 
     public const COM_OUTPUT_SCAN_DIRECTION_NORMAL = 192;
 
@@ -452,19 +452,16 @@ class Ssd1306Service extends AbstractSlave
                     $columnData |= ((int) $pixel->isOn()) << $pixel->getBit();
                 }
 
-                errlog($columnData);
                 $data .= chr($columnData);
 
                 if (strlen($data) === 32) {
                     $this->write($slave, self::COMMAND_DATA, $data);
-                    errlog($data);
                     $data = '';
                 }
             }
 
             if (strlen($data) > 0) {
                 $this->write($slave, self::COMMAND_DATA, $data);
-                errlog($data);
             }
         }
 
