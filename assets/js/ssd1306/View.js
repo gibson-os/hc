@@ -100,5 +100,12 @@ Ext.define('GibsonOS.module.hc.ssd1306.View', {
             lastEnteredId = id;
             lastEnteredRecord = record;
         });
+        me.on('itemmouseleave', function (view, record) {
+            if (lastEnteredId === null) {
+                return;
+            }
+
+            record.set('on', setOn);
+        });
     }
 });

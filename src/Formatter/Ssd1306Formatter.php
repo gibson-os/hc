@@ -5,5 +5,4 @@ namespace GibsonOS\Module\Hc\Formatter;
 
 class Ssd1306Formatter extends AbstractFormatter
 {
-
 }

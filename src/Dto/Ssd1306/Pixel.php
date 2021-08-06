@@ -25,9 +25,11 @@ class Pixel implements \JsonSerializable
         return $this->page;
     }
     
-    public function setPage(int $page): void
+    public function setPage(int $page): Pixel
     {
         $this->page = $page;
+
+        return $this;
     }
     
     public function getColumn(): int
@@ -35,9 +37,11 @@ class Pixel implements \JsonSerializable
         return $this->column;
     }
     
-    public function setColumn(int $column): void
+    public function setColumn(int $column): Pixel
     {
         $this->column = $column;
+
+        return $this;
     }
     
     public function getBit(): int
@@ -45,9 +49,11 @@ class Pixel implements \JsonSerializable
         return $this->bit;
     }
     
-    public function setBit(int $bit): void
+    public function setBit(int $bit): Pixel
     {
         $this->bit = $bit;
+
+        return $this;
     }
     
     public function isOn(): bool
@@ -55,9 +61,11 @@ class Pixel implements \JsonSerializable
         return $this->on;
     }
     
-    public function setOn(bool $on): void
+    public function setOn(bool $on): Pixel
     {
         $this->on = $on;
+
+        return $this;
     }
 
     public function jsonSerialize(): array

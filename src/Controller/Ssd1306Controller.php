@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\PermissionDenied;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\PermissionService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Module\Hc\Mapper\Ssd1306\PixelMapper;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Slave\Ssd1306Service;
 use GibsonOS\Module\Hc\Store\Ssd1306\PixelStore;
@@ -32,18 +33,24 @@ class Ssd1306Controller extends AbstractController
     }
 
     /**
+     * @throws DateTimeError
      * @throws LoginRequired
      * @throws PermissionDenied
+     * @throws SelectError
      */
     public function change(
         ModuleRepository $moduleRepository,
         Ssd1306Service $ssd1306Service,
+        PixelMapper $pixelMapper,
         int $moduleId,
         array $data
     ): AjaxResponse {
         $this->checkPermission(PermissionService::WRITE);
 
-        $slave = $moduleRepository->getById($moduleId);
+        $ssd1306Service->writePixels(
+            $moduleRepository->getById($moduleId),
+            $pixelMapper->completePixels($pixelMapper->mapFromDataArray($data))
+        );
 
         return $this->returnSuccess();
     }

@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Service\Slave;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
+use GibsonOS\Module\Hc\Dto\Ssd1306\Pixel;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
 
@@ -48,9 +49,11 @@ class Ssd1306Service extends AbstractSlave
 
     private const COMMAND_CHARGE_PUMP_SETTING = 141;
 
-    private const MAX_PAGE = 7;
+    public const MAX_PAGE = 7;
 
-    private const MAX_COLUMN = 127;
+    public const MAX_COLUMN = 127;
+
+    public const MAX_BIT = 127;
 
     public const COM_OUTPUT_SCAN_DIRECTION_NORMAL = 192;
 
@@ -420,6 +423,49 @@ class Ssd1306Service extends AbstractSlave
 
         if ($enableChargePump) {
             $this->setDisplayOn($slave);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array<int, array<int, array<int, Pixel>>> $pixels
+     * @throws AbstractException
+     * @throws SaveError
+     * @throws WriteException
+     */
+    public function writePixels(Module $slave, array $pixels): Ssd1306Service
+    {
+        ksort($pixels);
+        $data = '';
+
+        $this->setPageStart($slave, 0, 0);
+
+        foreach ($pixels as $page) {
+            ksort($page);
+
+            foreach ($page as $column) {
+                ksort($column);
+                $columnData = 0;
+
+                foreach ($column as $pixel) {
+                    $columnData |= ((int) $pixel->isOn()) << $pixel->getBit();
+                }
+
+                errlog($columnData);
+                $data .= chr($columnData);
+
+                if (strlen($data) === 32) {
+                    $this->write($slave, self::COMMAND_DATA, $data);
+                    errlog($data);
+                    $data = '';
+                }
+            }
+
+            if (strlen($data) > 0) {
+                $this->write($slave, self::COMMAND_DATA, $data);
+                errlog($data);
+            }
         }
 
         return $this;

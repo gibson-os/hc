@@ -16,7 +16,7 @@ class LedStore extends AbstractDatabaseStore
     }
 
     /**
-     * @return Led[]
+     * @return array<int, Led>
      */
     public function getList(): array
     {
