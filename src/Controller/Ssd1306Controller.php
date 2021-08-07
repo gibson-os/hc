@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\PermissionDenied;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\PermissionService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\Ssd1306\PixelMapper;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Slave\Ssd1306Service;
@@ -33,10 +34,13 @@ class Ssd1306Controller extends AbstractController
     }
 
     /**
+     * @throws AbstractException
      * @throws DateTimeError
      * @throws LoginRequired
      * @throws PermissionDenied
+     * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
     public function change(
         ModuleRepository $moduleRepository,
