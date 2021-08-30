@@ -15,7 +15,7 @@ class Ssd1306Service extends AbstractSlave
 
     private const COMMAND_DATA = 64;
 
-    private const COMMAND_PAGE_START = 11;
+    private const COMMAND_PAGE_START = 176;
 
     private const COMMAND_DISPLAY_ON = 175;
 
@@ -25,13 +25,13 @@ class Ssd1306Service extends AbstractSlave
 
     private const COMMAND_ENTIRE_DISPLAY_OFF = 164;
 
-    private const COMMAND_MEMORY_ADDRESSING_MODE = 20;
+    private const COMMAND_MEMORY_ADDRESSING_MODE = 32;
 
     private const COMMAND_LOWER_COLUMN_START = 0;
 
     private const COMMAND_HIGHER_COLUMN_START = 16;
 
-    private const COMMAND_START_LINE_START = 40;
+    private const COMMAND_START_LINE_START = 64;
 
     private const COMMAND_CONTRAST_CONTROL = 129;
 
@@ -106,7 +106,7 @@ class Ssd1306Service extends AbstractSlave
     {
         $this
             ->setDisplayOff($slave)
-            ->setMemoryAddressingMode($slave, self::ADDRESSING_MODE_HORIZONTAL)
+            ->setMemoryAddressingMode($slave, self::ADDRESSING_MODE_PAGE)
             ->setPageStart($slave)
             ->setComOutputScanDirection($slave, self::COM_OUTPUT_SCAN_DIRECTION_REMAPPED)
             ->setLowColumnAddress($slave)
@@ -119,7 +119,7 @@ class Ssd1306Service extends AbstractSlave
             ->setEntireDisplayOff($slave)
             ->setDisplayOffset($slave)
             ->setDisplayClockDivide($slave, 240)
-            ->setPreChargePeriod($slave, 22)
+            ->setPreChargePeriod($slave, 34)
             ->setComPinsHardwareConfiguration($slave, true, false)
             ->setVcomhDeselectLevel($slave, self::DESELECT_LEVEL_0_77)
             ->setChargePumpSetting($slave, true)
@@ -152,7 +152,7 @@ class Ssd1306Service extends AbstractSlave
      * @throws SaveError
      * @throws WriteException
      */
-    public function setPageStart(Module $slave, int $page = 0, int $column = 0): Ssd1306Service
+    public function setPageStart(Module $slave, int $page = 0, int $column = null): Ssd1306Service
     {
         if ($page > self::MAX_PAGE) {
             throw new WriteException(sprintf(
@@ -162,7 +162,7 @@ class Ssd1306Service extends AbstractSlave
             ));
         }
 
-        if ($column > self::MAX_COLUMN) {
+        if ($column !== null && $column > self::MAX_COLUMN) {
             throw new WriteException(sprintf(
                 'Column %d is to big. Max %d allowed.',
                 $column,
@@ -173,7 +173,7 @@ class Ssd1306Service extends AbstractSlave
         $this->sendCommand(
             $slave,
             self::COMMAND_PAGE_START + $page,
-            chr(33) . chr($column) . chr(127)
+            $column === null ? '' : chr(33) . chr($column) . chr(127)
         );
 
         return $this;
@@ -418,7 +418,7 @@ class Ssd1306Service extends AbstractSlave
         $this->sendCommand(
             $slave,
             self::COMMAND_CHARGE_PUMP_SETTING,
-            chr((16 + (int) $enableChargePump) << 2)
+            chr((16 + (int) $enableChargePump) << 3)
         );
 
         if ($enableChargePump) {
@@ -454,7 +454,7 @@ class Ssd1306Service extends AbstractSlave
 
                 $data .= chr($columnData);
 
-                if (strlen($data) === 32) {
+                if (strlen($data) === self::MAX_DATA_LENGTH) {
                     $this->write($slave, self::COMMAND_DATA, $data);
                     $data = '';
                 }

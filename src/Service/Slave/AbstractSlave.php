@@ -18,6 +18,8 @@ use Psr\Log\LoggerInterface;
 
 abstract class AbstractSlave extends AbstractService
 {
+    protected const MAX_DATA_LENGTH = 32;
+
     protected MasterService $masterService;
 
     protected TransformService $transformService;

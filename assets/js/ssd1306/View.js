@@ -55,7 +55,8 @@ Ext.define('GibsonOS.module.hc.ssd1306.View', {
             lastEnteredRecord = null;
             let data = {};
 
-            Ext.iterate(view.getStore().getModifiedRecords(), function (record) {
+            // Ext.iterate(view.getStore().getModifiedRecords(), function (record) {
+            Ext.iterate(view.getStore().getRange(), function (record) {
                 const page = record.get('page');
                 const column = record.get('column');
 
