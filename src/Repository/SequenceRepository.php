@@ -15,27 +15,18 @@ use stdClass;
 class SequenceRepository extends AbstractRepository
 {
     /**
+     * @throws DateTimeError
      * @throws SelectError
      */
     public function getById(int $id): Sequence
     {
-        $table = $this
-            ->getTable(Sequence::getTableName())
-            ->setWhere('`id`=?')
-            ->addWhereParameter($id)
-        ;
+        $model = $this->fetchOne('`id`=?', [$id], Sequence::class);
 
-        if (!$table->selectPrepared(false)) {
+        if (!$model instanceof Sequence) {
             throw new SelectError();
         }
 
-        $record = $table->connection->fetchObject();
-
-        if (!$record instanceof stdClass) {
-            throw new SelectError();
-        }
-
-        return $this->getModel($record);
+        return $model;
     }
 
     /**
@@ -44,30 +35,21 @@ class SequenceRepository extends AbstractRepository
      */
     public function getByName(Module $module, string $name, int $type = null): Sequence
     {
-        $table = $this
-            ->getTable(Sequence::getTableName())
-            ->setWhereParameters([$name, $module->getType()->getId(), $module->getId()])
-        ;
         $where = '`name`=? AND `type_id`=? AND (`module_id`=? OR `module_id` IS NULL)';
+        $parameters = [$name, $module->getType()->getId(), $module->getId()];
 
         if ($type !== null) {
             $where .= ' AND `type`=?';
-            $table->addWhereParameter($type);
+            $parameters[] = $type;
         }
 
-        $table->setWhere($where);
+        $model = $this->fetchOne($where, $parameters, Sequence::class);
 
-        if (!$table->selectPrepared(false)) {
+        if (!$model instanceof Sequence) {
             throw new SelectError();
         }
 
-        $sequence = $table->connection->fetchObject();
-
-        if (!$sequence instanceof stdClass) {
-            throw new SelectError();
-        }
-
-        return $this->getModel($sequence);
+        return $model;
     }
 
     /**
@@ -78,24 +60,15 @@ class SequenceRepository extends AbstractRepository
      */
     public function findByName(Module $module, string $name, int $type = null): array
     {
-        $table = $this
-            ->getTable(Sequence::getTableName())
-            ->setWhereParameters([$this->getRegexString($name), $module->getType()->getId(), $module->getId()])
-        ;
         $where = '`name` REGEXP ? AND `type_id`=? AND (`module_id`=? OR `module_id` IS NULL)';
+        $parameters = [$this->getRegexString($name), $module->getType()->getId(), $module->getId()];
 
         if ($type !== null) {
             $where .= ' AND `type`=?';
-            $table->addWhereParameter($type);
+            $parameters[] = $type;
         }
 
-        $table->setWhere($where);
-
-        if (!$table->selectPrepared(false)) {
-            throw new SelectError();
-        }
-
-        return $this->getModels($table);
+        return $this->fetchAll($where, $parameters, Sequence::class);
     }
 
     /**
@@ -106,68 +79,33 @@ class SequenceRepository extends AbstractRepository
      */
     public function getByModule(Module $module, int $type = null): array
     {
-        $table = $this->getTable(Sequence::getTableName());
-        $where =
-            '`module_id`=' . $this->escape((string) $module->getId()) . ' AND ' .
-            '`type_id`=' . $this->escape((string) $module->getType()->getId())
-        ;
+        $where = '`module_id`=? AND `type_id`=?';
+        $parameters = [$module->getId(), $module->getType()->getId()];
 
         if ($type !== null) {
-            $where .= ' AND `type`=' . $this->escape((string) $type);
+            $where .= ' AND `type`=?';
+            $parameters[] = $type;
         }
 
-        $table->setWhere($where);
-
-        if (!$table->select(false)) {
-            throw new SelectError();
-        }
-
-        return $this->getModels($table);
+        return $this->fetchAll($where, $parameters, Sequence::class);
     }
 
     /**
+     * @throws DateTimeError
      * @throws SelectError
+     *
+     * @return Sequence[]
      */
     public function getByType(Type $typeModel, int $type = null): array
     {
-        $table = $this->getTable(Sequence::getTableName());
-        $where = '`type_id`=' . $this->escape((string) $typeModel->getId());
+        $where = '`type_id`=?';
+        $parameters = [$typeModel->getId()];
 
         if ($type !== null) {
-            $where .= ' AND `type`=' . $this->escape((string) $type);
+            $where .= ' AND `type`=?';
+            $parameters[] = $type;
         }
 
-        $table->setWhere($where);
-
-        if (!$table->select(false)) {
-            throw new SelectError();
-        }
-
-        return $this->getModels($table);
-    }
-
-    /**
-     * @return Sequence[]
-     */
-    private function getModels(mysqlTable $table): array
-    {
-        $models = [];
-
-        foreach ($table->connection->fetchObjectList() as $sequence) {
-            $models[] = $this->getModel($sequence);
-        }
-
-        return $models;
-    }
-
-    private function getModel(stdClass $sequence): Sequence
-    {
-        return (new Sequence())
-            ->setId((int) $sequence->id)
-            ->setName($sequence->name)
-            ->setTypeId((int) $sequence->type_id ?: null)
-            ->setModuleId((int) $sequence->module_id ?: null)
-            ->setType((int) $sequence->type ?: null)
-        ;
+        return $this->fetchAll($where, $parameters, Sequence::class);
     }
 }
