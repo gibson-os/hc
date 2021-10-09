@@ -12,15 +12,9 @@ use Psr\Log\LoggerInterface;
 
 class CopyLogDataToRawCommand extends AbstractCommand
 {
-    private mysqlDatabase $mysqlDatabase;
-
-    private TransformService $transformService;
-
-    public function __construct(LoggerInterface $logger, mysqlDatabase $mysqlDatabase, TransformService $transformService)
+    public function __construct(LoggerInterface $logger, private mysqlDatabase $mysqlDatabase, private TransformService $transformService)
     {
         parent::__construct($logger);
-        $this->mysqlDatabase = $mysqlDatabase;
-        $this->transformService = $transformService;
     }
 
     protected function run(): int

@@ -21,21 +21,15 @@ use Psr\Log\LoggerInterface;
 
 class NeopixelEvent extends AbstractHcEvent
 {
-    private NeopixelService $neopixelService;
-
-    private LedMapper $ledMapper;
-
     public function __construct(
         NeopixelDescriber $describer,
         ServiceManagerService $serviceManagerService,
         TypeRepository $typeRepository,
         LoggerInterface $logger,
-        NeopixelService $neopixelService,
-        LedMapper $ledMapper
+        private NeopixelService $neopixelService,
+        private LedMapper $ledMapper
     ) {
         parent::__construct($describer, $serviceManagerService, $typeRepository, $logger);
-        $this->neopixelService = $neopixelService;
-        $this->ledMapper = $ledMapper;
     }
 
     /**

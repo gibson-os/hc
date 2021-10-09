@@ -16,28 +16,8 @@ use Psr\Log\LoggerInterface;
 
 class SenderService extends AbstractService
 {
-    private MasterMapper $masterMapper;
-
-    private TransformService $transformService;
-
-    private MasterRepository $masterRepository;
-
-    private ProtocolFactory $protocolFactory;
-
-    private LoggerInterface $logger;
-
-    public function __construct(
-        MasterMapper $masterMapper,
-        TransformService $transformService,
-        MasterRepository $masterRepository,
-        ProtocolFactory $protocolFactory,
-        LoggerInterface $logger
-    ) {
-        $this->masterMapper = $masterMapper;
-        $this->transformService = $transformService;
-        $this->masterRepository = $masterRepository;
-        $this->protocolFactory = $protocolFactory;
-        $this->logger = $logger;
+    public function __construct(private MasterMapper $masterMapper, private TransformService $transformService, private MasterRepository $masterRepository, private ProtocolFactory $protocolFactory, private LoggerInterface $logger)
+    {
     }
 
     /**

@@ -21,17 +21,27 @@ class PixelMapper
      */
     public function mapFromDataArray(array $data): array
     {
+        $newData = [];
+
         foreach ($data as $page => $columns) {
+            if (!isset($newData[$page])) {
+                $newData[$page] = [];
+            }
+
             foreach ($columns as $column => $bits) {
+                if (!isset($newData[$page][$column])) {
+                    $newData[$page][$column] = [];
+                }
+
                 foreach ($bits as $bit => $on) {
-                    $data[$page][$column][$bit] = (new Pixel($page, $column, $bit))
+                    $newData[$page][$column][$bit] = (new Pixel($page, $column, $bit))
                         ->setOn($on)
                     ;
                 }
             }
         }
 
-        return $data;
+        return $newData;
     }
 
     /**

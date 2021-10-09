@@ -124,7 +124,7 @@ class NeopixelAnimationController extends AbstractController
                         $name
                     )
                 );
-            } catch (SelectError $e) {
+            } catch (SelectError) {
                 // New Animation
             }
         }

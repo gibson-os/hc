@@ -10,11 +10,8 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 class BusMessageMapper
 {
-    private TransformService $transformService;
-
-    public function __construct(TransformService $transformService)
+    public function __construct(private TransformService $transformService)
     {
-        $this->transformService = $transformService;
     }
 
     public function mapToUdpMessage(BusMessage $busMessage): UdpMessage

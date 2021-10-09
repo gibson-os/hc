@@ -28,20 +28,8 @@ class AnimationService
 
     private const ATTRIBUTE_KEY_TRANSMITTED = 'transmitted';
 
-    private ValueRepository $valueRepository;
-
-    private AttributeRepository $attributeRepository;
-
-    private LedMapper $ledMapper;
-
-    public function __construct(
-        AttributeRepository $attributeRepository,
-        ValueRepository $valueRepository,
-        LedMapper $ledMapper
-    ) {
-        $this->valueRepository = $valueRepository;
-        $this->attributeRepository = $attributeRepository;
-        $this->ledMapper = $ledMapper;
+    public function __construct(private AttributeRepository $attributeRepository, private ValueRepository $valueRepository, private LedMapper $ledMapper)
+    {
     }
 
     /**
@@ -53,7 +41,7 @@ class AnimationService
             $value = $this->getValueModel($slave, self::ATTRIBUTE_KEY_PID)->getValue();
 
             return $value === '' ? null : (int) $value;
-        } catch (SelectError $e) {
+        } catch (SelectError) {
             return null;
         }
     }
@@ -67,7 +55,7 @@ class AnimationService
             $value = $this->getValueModel($slave, self::ATTRIBUTE_KEY_TRANSMITTED)->getValue();
 
             return $value === 'true';
-        } catch (SelectError $e) {
+        } catch (SelectError) {
             return false;
         }
     }
@@ -81,7 +69,7 @@ class AnimationService
             $value = $this->getValueModel($slave, self::ATTRIBUTE_KEY_STARTED)->getValue();
 
             return $value === '' ? false : (bool) $value;
-        } catch (SelectError $e) {
+        } catch (SelectError) {
             return false;
         }
     }
@@ -104,7 +92,7 @@ class AnimationService
             }
 
             return $steps;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -206,7 +194,7 @@ class AnimationService
                 $key,
                 self::ATTRIBUTE_TYPE
             )[0];
-        } catch (SelectError $e) {
+        } catch (SelectError) {
             return $this->newAttribute($slave, $key);
         }
     }

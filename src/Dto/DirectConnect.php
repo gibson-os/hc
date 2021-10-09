@@ -8,8 +8,6 @@ use GibsonOS\Module\Hc\Dto\DirectConnect\Trigger;
 
 class DirectConnect
 {
-    private int $id;
-
     /**
      * @var Step[]
      */
@@ -20,9 +18,8 @@ class DirectConnect
      */
     private array $triggers = [];
 
-    public function __construct(int $id)
+    public function __construct(private int $id)
     {
-        $this->id = $id;
     }
 
     public function getId(): int

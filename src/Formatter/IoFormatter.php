@@ -20,24 +20,15 @@ class IoFormatter extends AbstractHcFormatter
 {
     private ?int $directConnectReadInputPort = null;
 
-    private ValueRepository $valueRepository;
-
-    private LogRepository $logRepository;
-
-    private IoMapper $ioMapper;
-
     public function __construct(
         TransformService $transformService,
         TwigService $twigService,
         TypeRepository $typeRepository,
-        ValueRepository $valueRepository,
-        LogRepository $logRepository,
-        IoMapper $ioMapper
+        private ValueRepository $valueRepository,
+        private LogRepository $logRepository,
+        private IoMapper $ioMapper
     ) {
         parent::__construct($transformService, $twigService, $typeRepository);
-        $this->valueRepository = $valueRepository;
-        $this->logRepository = $logRepository;
-        $this->ioMapper = $ioMapper;
     }
 
     /**
@@ -370,7 +361,7 @@ class IoFormatter extends AbstractHcFormatter
                 $log->getType(),
                 $log->getDirection()
             )->getRawData();
-        } catch (SelectError $e) {
+        } catch (SelectError) {
             return $ports;
         }
 

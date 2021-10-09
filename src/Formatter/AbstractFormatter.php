@@ -9,11 +9,8 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 abstract class AbstractFormatter implements FormatterInterface
 {
-    protected TransformService $transformService;
-
-    public function __construct(TransformService $transformService)
+    public function __construct(protected TransformService $transformService)
     {
-        $this->transformService = $transformService;
     }
 
     public function command(Log $log): ?string

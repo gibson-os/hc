@@ -45,52 +45,8 @@ class MasterService extends AbstractService
 
     public const TYPE_DATA = 255;
 
-    private SenderService $senderService;
-
-    private EventService $eventService;
-
-    private TransformService $transformService;
-
-    private ModuleRepository $moduleRepository;
-
-    private TypeRepository $typeRepository;
-
-    private SlaveFactory $slaveFactory;
-
-    private LogRepository $logRepository;
-
-    private MasterMapper $masterMapper;
-
-    private LoggerInterface $logger;
-
-    private MasterRepository $masterRepository;
-
-    private DateTimeService $dateTimeService;
-
-    public function __construct(
-        SenderService $senderService,
-        EventService $eventService,
-        TransformService $transformService,
-        SlaveFactory $slaveFactory,
-        MasterMapper $masterMapper,
-        LogRepository $logRepository,
-        ModuleRepository $moduleRepository,
-        TypeRepository $typeRepository,
-        LoggerInterface $logger,
-        MasterRepository $masterRepository,
-        DateTimeService $dateTimeService
-    ) {
-        $this->senderService = $senderService;
-        $this->eventService = $eventService;
-        $this->transformService = $transformService;
-        $this->slaveFactory = $slaveFactory;
-        $this->logRepository = $logRepository;
-        $this->moduleRepository = $moduleRepository;
-        $this->typeRepository = $typeRepository;
-        $this->masterMapper = $masterMapper;
-        $this->logger = $logger;
-        $this->masterRepository = $masterRepository;
-        $this->dateTimeService = $dateTimeService;
+    public function __construct(private SenderService $senderService, private EventService $eventService, private TransformService $transformService, private SlaveFactory $slaveFactory, private MasterMapper $masterMapper, private LogRepository $logRepository, private ModuleRepository $moduleRepository, private TypeRepository $typeRepository, private LoggerInterface $logger, private MasterRepository $masterRepository, private DateTimeService $dateTimeService)
+    {
     }
 
     /**
@@ -184,7 +140,7 @@ class MasterService extends AbstractService
                 ->setModified($this->dateTimeService->get())
                 ->save()
             ;
-        } catch (SelectError $exception) {
+        } catch (SelectError) {
             $master = $this->masterRepository->add($data, $protocolName, $busMessage->getMasterAddress());
         }
 
@@ -253,7 +209,7 @@ class MasterService extends AbstractService
     {
         try {
             $slave = $this->moduleRepository->getByAddress($address, (int) $master->getId());
-        } catch (SelectError $exception) {
+        } catch (SelectError) {
             $this->logger->debug(sprintf(
                 'Add new slave with address %d on master address %s',
                 $address,
@@ -268,7 +224,7 @@ class MasterService extends AbstractService
 
             try {
                 $slave->setType($this->typeRepository->getByDefaultAddress($address));
-            } catch (SelectError $e) {
+            } catch (SelectError) {
                 $slave->setType($this->typeRepository->getByHelperName('blank'));
             }
         }

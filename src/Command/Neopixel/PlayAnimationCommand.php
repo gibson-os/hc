@@ -26,38 +26,16 @@ use Psr\Log\LoggerInterface;
 
 class PlayAnimationCommand extends AbstractCommand
 {
-    private NeopixelService $neopixelService;
-
-    private AnimationAttributeService $animationAttributeService;
-
-    private AnimationSequenceService $animationSequenceService;
-
-    private LedService $ledService;
-
-    private ModuleRepository$moduleRepository;
-
-    private mysqlDatabase $mysqlDatabase;
-
-    private EnvService $envService;
-
     public function __construct(
-        NeopixelService $neopixelService,
-        AnimationAttributeService $animationAttributeService,
-        AnimationSequenceService $animationSequenceService,
-        LedService $ledService,
-        ModuleRepository $moduleRepository,
-        mysqlDatabase $mysqlDatabase,
-        EnvService $envService,
+        private NeopixelService $neopixelService,
+        private AnimationAttributeService $animationAttributeService,
+        private AnimationSequenceService $animationSequenceService,
+        private LedService $ledService,
+        private ModuleRepository $moduleRepository,
+        private mysqlDatabase $mysqlDatabase,
+        private EnvService $envService,
         LoggerInterface $logger
     ) {
-        $this->neopixelService = $neopixelService;
-        $this->animationAttributeService = $animationAttributeService;
-        $this->animationSequenceService = $animationSequenceService;
-        $this->ledService = $ledService;
-        $this->moduleRepository = $moduleRepository;
-        $this->mysqlDatabase = $mysqlDatabase;
-        $this->envService = $envService;
-
         $this->setArgument('slaveId', true);
         $this->setArgument('iterations', false);
 

@@ -7,16 +7,13 @@ use GibsonOS\Module\Hc\Dto\BusMessage;
 
 class Trigger
 {
-    private BusMessage $busMessage;
-
     /**
      * @var int[]
      */
     private array $equalBytes = [];
 
-    public function __construct(BusMessage $busMessage)
+    public function __construct(private BusMessage $busMessage)
     {
-        $this->busMessage = $busMessage;
     }
 
     public function getBusMessage(): BusMessage

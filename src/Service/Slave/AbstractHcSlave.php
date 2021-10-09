@@ -144,16 +144,6 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     public const RGB_LED_KEY = 'rgb';
 
-    protected EventService $eventService;
-
-    private ModuleRepository $moduleRepository;
-
-    private TypeRepository $typeRepository;
-
-    private MasterRepository $masterRepository;
-
-    private SlaveFactory $slaveFactory;
-
     abstract public function slaveHandshake(Module $slave): Module;
 
     abstract public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module;
@@ -165,20 +155,15 @@ abstract class AbstractHcSlave extends AbstractSlave
     public function __construct(
         MasterService $masterService,
         TransformService $transformService,
-        EventService $eventService,
-        ModuleRepository $moduleRepository,
-        TypeRepository $typeRepository,
-        MasterRepository $masterRepository,
+        protected EventService $eventService,
+        private ModuleRepository $moduleRepository,
+        private TypeRepository $typeRepository,
+        private MasterRepository $masterRepository,
         LogRepository $logRepository,
-        SlaveFactory $slaveFactory,
+        private SlaveFactory $slaveFactory,
         LoggerInterface $logger
     ) {
         parent::__construct($masterService, $transformService, $logRepository, $logger);
-        $this->eventService = $eventService;
-        $this->moduleRepository = $moduleRepository;
-        $this->typeRepository = $typeRepository;
-        $this->masterRepository = $masterRepository;
-        $this->slaveFactory = $slaveFactory;
     }
 
     /**
@@ -216,7 +201,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             try {
                 $slave = $this->moduleRepository->getByDeviceId($deviceId);
                 $slave = $this->handshakeExistingSlave($slave);
-            } catch (SelectError $e) {
+            } catch (SelectError) {
                 $slave->setDeviceId($deviceId);
                 $slave = $this->handshakeNewSlave($slave);
             }
@@ -272,7 +257,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         try {
             $this->typeRepository->getByDefaultAddress($slave->getAddress() ?? 0);
             $this->writeAddress($slave, $this->masterRepository->getNextFreeAddress((int) $slave->getMaster()->getId()));
-        } catch (SelectError $e) {
+        } catch (SelectError) {
             // Given address is allowed
         }
 

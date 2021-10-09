@@ -13,10 +13,6 @@ use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type\DefaultAddress;
 
-/**
- * @psalm-suppress MoreSpecificReturnType
- * @psalm-suppress LessSpecificReturnStatement
- */
 class MasterRepository extends AbstractRepository
 {
     private const MIN_PORT = 42001;

@@ -53,25 +53,13 @@ class LedService
         self::ATTRIBUTE_KEY_LEFT,
     ];
 
-    private ValueRepository $valueRepository;
-
-    private AttributeRepository $attributeRepository;
-
     /**
      * @var Attribute[][]
      */
     private array $ledsAttributes = [];
 
-    private LoggerInterface $logger;
-
-    public function __construct(
-        AttributeRepository $attributeRepository,
-        ValueRepository $valueRepository,
-        LoggerInterface $logger
-    ) {
-        $this->valueRepository = $valueRepository;
-        $this->attributeRepository = $attributeRepository;
-        $this->logger = $logger;
+    public function __construct(private AttributeRepository $attributeRepository, private ValueRepository $valueRepository, private LoggerInterface $logger)
+    {
     }
 
     /**
@@ -226,7 +214,7 @@ class LedService
             foreach ($this->attributeRepository->getByModule($slave, $id, null, self::ATTRIBUTE_TYPE) as $attribute) {
                 $this->ledsAttributes[$id][$attribute->getKey()] = $attribute;
             }
-        } catch (SelectError $e) {
+        } catch (SelectError) {
             // No Attributes
         }
 

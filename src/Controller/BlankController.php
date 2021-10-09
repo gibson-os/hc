@@ -26,12 +26,9 @@ class BlankController extends AbstractController
     private const DATA_FORMAT_INT = 'int';
 
     /**
-     * @throws AbstractException
      * @throws DateTimeError
      * @throws LoginRequired
      * @throws PermissionDenied
-     * @throws ReceiveError
-     * @throws SaveError
      * @throws SelectError
      */
     public function read(
@@ -47,21 +44,11 @@ class BlankController extends AbstractController
 
         $slave = $moduleRepository->getById($moduleId);
         $data = $blankService->read($slave, $command, $length);
-
-        switch ($dataFormat) {
-            case self::DATA_FORMAT_HEX:
-                $data = $transformService->asciiToHex($data);
-
-                break;
-            case self::DATA_FORMAT_BIN:
-                $data = $transformService->asciiToBin($data);
-
-                break;
-            case self::DATA_FORMAT_INT:
-                $data = $transformService->asciiToUnsignedInt($data);
-
-                break;
-        }
+        $data = match ($dataFormat) {
+            self::DATA_FORMAT_HEX => $transformService->asciiToHex($data),
+            self::DATA_FORMAT_BIN => $transformService->asciiToBin($data),
+            self::DATA_FORMAT_INT => $transformService->asciiToUnsignedInt($data),
+        };
 
         return $this->returnSuccess($data);
     }

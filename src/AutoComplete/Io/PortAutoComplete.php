@@ -14,14 +14,8 @@ use GibsonOS\Module\Hc\Service\Slave\IoService;
 
 class PortAutoComplete implements AutoCompleteInterface
 {
-    private ModuleRepository $moduleRepository;
-
-    private ValueRepository $valueRepository;
-
-    public function __construct(ModuleRepository $moduleRepository, ValueRepository $valueRepository)
+    public function __construct(private ModuleRepository $moduleRepository, private ValueRepository $valueRepository)
     {
-        $this->moduleRepository = $moduleRepository;
-        $this->valueRepository = $valueRepository;
     }
 
     /**
@@ -42,7 +36,7 @@ class PortAutoComplete implements AutoCompleteInterface
                 null,
                 IoService::ATTRIBUTE_TYPE_PORT
             );
-        } catch (SelectError $e) {
+        } catch (SelectError) {
             $ports = [];
         }
 

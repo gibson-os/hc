@@ -11,11 +11,8 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 
 class SlaveAutoComplete implements AutoCompleteInterface
 {
-    private ModuleRepository $moduleRepository;
-
-    public function __construct(ModuleRepository $moduleRepository)
+    public function __construct(private ModuleRepository $moduleRepository)
     {
-        $this->moduleRepository = $moduleRepository;
     }
 
     /**

@@ -58,16 +58,12 @@ class NeopixelService extends AbstractHcSlave
 
     public const CONFIG_COUNTS = 'counts';
 
-    private LedService $ledService;
-
-    private LedMapper $ledMapper;
-
     public function __construct(
         MasterService $masterService,
         TransformService $transformService,
         EventService $eventService,
-        LedMapper $ledMapper,
-        LedService $ledService,
+        private LedMapper $ledMapper,
+        private LedService $ledService,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
@@ -86,8 +82,6 @@ class NeopixelService extends AbstractHcSlave
             $slaveFactory,
             $logger
         );
-        $this->ledService = $ledService;
-        $this->ledMapper = $ledMapper;
     }
 
     /**

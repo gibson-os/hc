@@ -18,10 +18,6 @@ use Twig\Error\SyntaxError;
 
 class NeopixelFormatter extends AbstractHcFormatter
 {
-    private LedStore $ledStore;
-
-    private LedMapper $ledMapper;
-
     /**
      * @var array<int, array<int, Led>>
      */
@@ -31,12 +27,10 @@ class NeopixelFormatter extends AbstractHcFormatter
         TransformService $transformService,
         TwigService $twigService,
         TypeRepository $typeRepository,
-        LedStore $ledStore,
-        LedMapper $ledMapper
+        private LedStore $ledStore,
+        private LedMapper $ledMapper
     ) {
         parent::__construct($transformService, $twigService, $typeRepository);
-        $this->ledStore = $ledStore;
-        $this->ledMapper = $ledMapper;
     }
 
     /**

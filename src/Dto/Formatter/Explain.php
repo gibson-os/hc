@@ -23,19 +23,10 @@ class Explain implements JsonSerializable
 
     public const COLOR_BLACK = 'black';
 
-    private int $startByte;
-
-    private int $endByte;
-
-    private string $description;
-
     private string $color = self::COLOR_WHITE;
 
-    public function __construct(int $startByte, int $endByte, string $description)
+    public function __construct(private int $startByte, private int $endByte, private string $description)
     {
-        $this->startByte = $startByte;
-        $this->endByte = $endByte;
-        $this->description = $description;
     }
 
     public function getStartByte(): int

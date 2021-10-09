@@ -19,14 +19,8 @@ class ImageService extends AbstractService
 {
     public const SEQUENCE_TYPE = 0;
 
-    private SequenceRepository $sequenceRepository;
-
-    private ElementRepository $elementRepository;
-
-    public function __construct(SequenceRepository $sequenceRepository, ElementRepository $elementRepository)
+    public function __construct(private SequenceRepository $sequenceRepository, private ElementRepository $elementRepository)
     {
-        $this->sequenceRepository = $sequenceRepository;
-        $this->elementRepository = $elementRepository;
     }
 
     /**

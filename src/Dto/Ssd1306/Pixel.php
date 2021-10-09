@@ -5,19 +5,10 @@ namespace GibsonOS\Module\Hc\Dto\Ssd1306;
 
 class Pixel implements \JsonSerializable
 {
-    private int $page;
-
-    private int $column;
-
-    private int $bit;
-
     private bool $on = false;
 
-    public function __construct(int $page, int $column, int $bit)
+    public function __construct(private int $page, private int $column, private int $bit)
     {
-        $this->page = $page;
-        $this->column = $column;
-        $this->bit = $bit;
     }
     
     public function getPage(): int

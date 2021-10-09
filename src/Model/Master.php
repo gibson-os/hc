@@ -122,13 +122,16 @@ class Master extends AbstractModel implements JsonSerializable, AutoCompleteMode
 
     public function jsonSerialize(): array
     {
+        $added = $this->getAdded();
+        $modified = $this->getModified();
+
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
             'protocol' => $this->getProtocol(),
             'address' => $this->getAddress(),
-            'added' => $this->getAdded()->format('Y-m-d H:i:s'),
-            'modified' => $this->getModified()->format('Y-m-d H:i:s'),
+            'added' => $added?->format('Y-m-d H:i:s'),
+            'modified' => $modified?->format('Y-m-d H:i:s'),
         ];
     }
 }

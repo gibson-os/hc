@@ -20,26 +20,10 @@ abstract class AbstractSlave extends AbstractService
 {
     protected const MAX_DATA_LENGTH = 32;
 
-    protected MasterService $masterService;
-
-    protected TransformService $transformService;
-
-    private LogRepository $logRepository;
-
-    protected LoggerInterface $logger;
-
     abstract public function handshake(Module $slave): Module;
 
-    public function __construct(
-        MasterService $masterService,
-        TransformService $transformService,
-        LogRepository $logRepository,
-        LoggerInterface $logger
-    ) {
-        $this->masterService = $masterService;
-        $this->transformService = $transformService;
-        $this->logRepository = $logRepository;
-        $this->logger = $logger;
+    public function __construct(protected MasterService $masterService, protected TransformService $transformService, private LogRepository $logRepository, protected LoggerInterface $logger)
+    {
     }
 
     /**

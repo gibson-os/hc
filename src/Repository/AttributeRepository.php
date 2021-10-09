@@ -120,9 +120,6 @@ class AttributeRepository extends AbstractRepository
     }
 
     /**
-     * @param int    $subId
-     * @param string $key
-     * @param string $type
      *
      * @throws DeleteError
      */

@@ -7,14 +7,8 @@ use GibsonOS\Module\Hc\Dto\BusMessage;
 
 class Step
 {
-    private int $runtime;
-
-    private BusMessage $busMessage;
-
-    public function __construct(int $runtime, BusMessage $busMessage)
+    public function __construct(private int $runtime, private BusMessage $busMessage)
     {
-        $this->runtime = $runtime;
-        $this->busMessage = $busMessage;
     }
 
     public function getRuntime(): int

@@ -52,7 +52,7 @@ class TypeController extends AbstractController
         } elseif (!empty($name)) {
             try {
                 $types = $typeRepository->findByName($name, $onlyHcSlave, $network);
-            } catch (SelectError $e) {
+            } catch (SelectError) {
                 // No type found
             }
         }

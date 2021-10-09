@@ -9,14 +9,8 @@ use Psr\Log\LoggerInterface;
 
 class MasterFormatter implements FormatterInterface
 {
-    private TransformService $transformService;
-
-    private LoggerInterface $logger;
-
-    public function __construct(TransformService $transform, LoggerInterface $logger)
+    public function __construct(private TransformService $transformService, private LoggerInterface $logger)
     {
-        $this->transformService = $transform;
-        $this->logger = $logger;
     }
 
     public function render(Log $log): ?string

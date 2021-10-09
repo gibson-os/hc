@@ -22,24 +22,8 @@ class AnimationService extends AbstractService
 {
     public const SEQUENCE_TYPE = 1;
 
-    private SequenceRepository $sequenceRepository;
-
-    private ElementRepository $elementRepository;
-
-    private CommandService $commandService;
-
-    private LedMapper $ledMapper;
-
-    public function __construct(
-        SequenceRepository $sequenceRepository,
-        ElementRepository $elementRepository,
-        CommandService $commandService,
-        LedMapper $ledMapper
-    ) {
-        $this->sequenceRepository = $sequenceRepository;
-        $this->elementRepository = $elementRepository;
-        $this->commandService = $commandService;
-        $this->ledMapper = $ledMapper;
+    public function __construct(private SequenceRepository $sequenceRepository, private ElementRepository $elementRepository, private CommandService $commandService, private LedMapper $ledMapper)
+    {
     }
 
     /**

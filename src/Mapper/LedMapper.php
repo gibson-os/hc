@@ -17,11 +17,8 @@ class LedMapper
 
     private const MIN_GROUP_LEDS = 2;
 
-    private TransformService $transformService;
-
-    public function __construct(TransformService $transformService)
+    public function __construct(private TransformService $transformService)
     {
-        $this->transformService = $transformService;
     }
 
     /**

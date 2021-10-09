@@ -17,11 +17,8 @@ class ModuleRepository extends AbstractRepository
 {
     private const MAX_GENERATE_DEVICE_ID_RETRY = 10;
 
-    private LoggerInterface $logger;
-
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
     public function create(string $name, Type $type): Module

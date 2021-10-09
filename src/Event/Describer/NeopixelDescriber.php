@@ -18,8 +18,6 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 
 class NeopixelDescriber extends AbstractHcDescriber
 {
-    private ImageAutoComplete $imageAutoComplete;
-
     /**
      * @throws DateTimeError
      * @throws SelectError
@@ -27,11 +25,10 @@ class NeopixelDescriber extends AbstractHcDescriber
     public function __construct(
         TypeRepository $typeRepository,
         SlaveAutoComplete $slaveAutoComplete,
-        ImageAutoComplete $imageAutoComplete
+        private ImageAutoComplete $imageAutoComplete
     ) {
         parent::__construct($typeRepository, $slaveAutoComplete);
         $this->slaveParameter->setSlaveType($this->typeRepository->getByHelperName('neopixel'));
-        $this->imageAutoComplete = $imageAutoComplete;
     }
 
     public function getTitle(): string

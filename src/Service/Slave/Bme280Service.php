@@ -44,17 +44,14 @@ class Bme280Service extends AbstractSlave
 
     const MODE = 1;
 
-    private Bme280Mapper $bme280Mapper;
-
     public function __construct(
         MasterService $masterService,
         TransformService $transformService,
         LogRepository $logRepository,
-        Bme280Mapper $bme280Mapper,
+        private Bme280Mapper $bme280Mapper,
         LoggerInterface $logger
     ) {
         parent::__construct($masterService, $transformService, $logRepository, $logger);
-        $this->bme280Mapper = $bme280Mapper;
     }
 
     /**

@@ -52,7 +52,7 @@ class SlaveController extends AbstractController
                 $address,
                 $slave->getName()
             ));
-        } catch (SelectError $exception) {
+        } catch (SelectError) {
             $slave = (new Module())
                 ->setName($name)
                 ->setAddress($address)

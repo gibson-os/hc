@@ -15,12 +15,9 @@ use mysqlDatabase;
 
 class LogStore extends AbstractDatabaseStore
 {
-    private FormatterFactory $formatterFactory;
-
-    public function __construct(FormatterFactory $formatterFactory, mysqlDatabase $database = null)
+    public function __construct(private FormatterFactory $formatterFactory, mysqlDatabase $database = null)
     {
         parent::__construct($database);
-        $this->formatterFactory = $formatterFactory;
     }
 
     protected function getTableName(): string

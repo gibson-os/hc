@@ -11,11 +11,8 @@ use GibsonOS\Module\Hc\Repository\MasterRepository;
 
 class MasterAutoComplete implements AutoCompleteInterface
 {
-    private MasterRepository $masterRepository;
-
-    public function __construct(MasterRepository $masterRepository)
+    public function __construct(private MasterRepository $masterRepository)
     {
-        $this->masterRepository = $masterRepository;
     }
 
     /**

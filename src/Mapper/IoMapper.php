@@ -8,11 +8,8 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 class IoMapper
 {
-    private TransformService $transformService;
-
-    public function __construct(TransformService $transformService)
+    public function __construct(private TransformService $transformService)
     {
-        $this->transformService = $transformService;
     }
 
     public function getPortAsArray(string $data): array

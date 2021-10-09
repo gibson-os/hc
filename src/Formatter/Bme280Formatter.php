@@ -12,12 +12,9 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 class Bme280Formatter extends AbstractFormatter
 {
-    private Bme280Mapper $bme280Mapper;
-
-    public function __construct(TransformService $transformService, Bme280Mapper $bme280Mapper)
+    public function __construct(TransformService $transformService, private Bme280Mapper $bme280Mapper)
     {
         parent::__construct($transformService);
-        $this->bme280Mapper = $bme280Mapper;
     }
 
     /**

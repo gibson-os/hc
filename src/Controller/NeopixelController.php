@@ -206,7 +206,7 @@ class NeopixelController extends AbstractController
                     ),
                     StatusCode::CONFLICT
                 );
-            } catch (SelectError $e) {
+            } catch (SelectError) {
                 // New Image
             }
         }

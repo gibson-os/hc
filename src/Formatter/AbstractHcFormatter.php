@@ -38,25 +38,19 @@ abstract class AbstractHcFormatter extends AbstractFormatter
      */
     private array $loadedTypes = [];
 
-    protected TwigService $twigService;
-
-    private TypeRepository $typeRepository;
-
     public function __construct(
         TransformService $transformService,
-        TwigService $twigService,
-        TypeRepository $typeRepository
+        protected TwigService $twigService,
+        private TypeRepository $typeRepository
     ) {
         parent::__construct($transformService);
-        $this->twigService = $twigService;
-        $this->typeRepository = $typeRepository;
 
         try {
             $this->twigService->getTwig()->addFilter(new TwigFilter(
                 'asciiToUnsignedInt',
                 [$this->transformService, 'asciiToUnsignedInt']
             ));
-        } catch (LogicException $e) {
+        } catch (LogicException) {
             // do nothing
         }
 
@@ -65,7 +59,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
                 'transformHertz',
                 [$this->transformService, 'transformHertz']
             ));
-        } catch (LogicException $e) {
+        } catch (LogicException) {
             // do nothing
         }
 
@@ -74,7 +68,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
                 'dechex',
                 'dechex'
             ));
-        } catch (LogicException $e) {
+        } catch (LogicException) {
             // do nothing
         }
     }
@@ -143,23 +137,12 @@ abstract class AbstractHcFormatter extends AbstractFormatter
 
         $context = ['data' => $log->getRawData()];
 
-        switch ($command) {
-            case AbstractHcSlave::COMMAND_ADDRESS:
-            case AbstractHcSlave::COMMAND_BUFFER_SIZE:
-            case AbstractHcSlave::COMMAND_EEPROM_ERASE:
-            case AbstractHcSlave::COMMAND_TYPE:
-                return [new Explain(0, 0, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? '')];
-            case AbstractHcSlave::COMMAND_DEVICE_ID:
-            case AbstractHcSlave::COMMAND_EEPROM_FREE:
-            case AbstractHcSlave::COMMAND_EEPROM_POSITION:
-            case AbstractHcSlave::COMMAND_EEPROM_SIZE:
-                return [new Explain(0, 1, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? '')];
-            case AbstractHcSlave::COMMAND_PWM_SPEED:
-            case AbstractHcSlave::COMMAND_HERTZ:
-            return [new Explain(0, 3, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? '')];
-        }
-
-        return parent::explain($log);
+        return match ($command) {
+            AbstractHcSlave::COMMAND_ADDRESS, AbstractHcSlave::COMMAND_BUFFER_SIZE, AbstractHcSlave::COMMAND_EEPROM_ERASE, AbstractHcSlave::COMMAND_TYPE => [new Explain(0, 0, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? '')],
+            AbstractHcSlave::COMMAND_DEVICE_ID, AbstractHcSlave::COMMAND_EEPROM_FREE, AbstractHcSlave::COMMAND_EEPROM_POSITION, AbstractHcSlave::COMMAND_EEPROM_SIZE => [new Explain(0, 1, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? '')],
+            AbstractHcSlave::COMMAND_PWM_SPEED, AbstractHcSlave::COMMAND_HERTZ => [new Explain(0, 3, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? '')],
+            default => parent::explain($log),
+        };
     }
 
     /**
@@ -184,7 +167,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
             }
 
             return $this->loadedTemplates[$template]->renderBlock($blockName, $context);
-        } catch (RuntimeError $e) {
+        } catch (RuntimeError) {
             return null;
         }
     }

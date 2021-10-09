@@ -15,17 +15,14 @@ use Psr\Log\LoggerInterface;
 
 class IoEvent extends AbstractHcEvent
 {
-    private IoService $ioService;
-
     public function __construct(
         IoDescriber $describer,
         ServiceManagerService $serviceManagerService,
         TypeRepository $typeRepository,
         LoggerInterface $logger,
-        IoService $ioService
+        private IoService $ioService
     ) {
         parent::__construct($describer, $serviceManagerService, $typeRepository, $logger);
-        $this->ioService = $ioService;
     }
 
     /**

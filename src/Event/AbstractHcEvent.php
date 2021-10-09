@@ -18,19 +18,13 @@ use Psr\Log\LoggerInterface;
 
 abstract class AbstractHcEvent extends AbstractEvent
 {
-    private TypeRepository $typeRepository;
-
-    protected LoggerInterface $logger;
-
     public function __construct(
         DescriberInterface $describer,
         ServiceManagerService $serviceManagerService,
-        TypeRepository $typeRepository,
-        LoggerInterface $logger
+        private TypeRepository $typeRepository,
+        protected LoggerInterface $logger
     ) {
         parent::__construct($describer, $serviceManagerService);
-        $this->typeRepository = $typeRepository;
-        $this->logger = $logger;
     }
 
     /**

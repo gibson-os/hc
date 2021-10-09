@@ -13,14 +13,8 @@ use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService as ImageService;
 
 class ImageAutoComplete implements AutoCompleteInterface
 {
-    private ModuleRepository $moduleRepository;
-
-    private SequenceRepository $sequenceRepository;
-
-    public function __construct(ModuleRepository $moduleRepository, SequenceRepository $sequenceRepository)
+    public function __construct(private ModuleRepository $moduleRepository, private SequenceRepository $sequenceRepository)
     {
-        $this->moduleRepository = $moduleRepository;
-        $this->sequenceRepository = $sequenceRepository;
     }
 
     /**

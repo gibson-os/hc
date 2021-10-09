@@ -95,8 +95,6 @@ class ValueRepository extends AbstractRepository
 
     /**
      * @param int[]|null $moduleIds
-     * @param string     $key
-     * @param string     $order
      *
      * @throws DeleteError
      * @throws SelectError

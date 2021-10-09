@@ -35,7 +35,6 @@ class PixelStore extends AbstractDatabaseStore
 
         return $this;
     }
-
     
     public function getList(): iterable
     {

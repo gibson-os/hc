@@ -121,12 +121,9 @@ abstract class AbstractHcDescriber implements DescriberInterface
 
     protected SlaveParameter $slaveParameter;
 
-    protected TypeRepository $typeRepository;
-
-    public function __construct(TypeRepository $typeRepository, SlaveAutoComplete $slaveAutoComplete)
+    public function __construct(protected TypeRepository $typeRepository, SlaveAutoComplete $slaveAutoComplete)
     {
         $this->slaveParameter = new SlaveParameter($slaveAutoComplete);
-        $this->typeRepository = $typeRepository;
     }
 
     public function getTitle(): string

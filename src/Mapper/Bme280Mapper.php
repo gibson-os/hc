@@ -7,11 +7,8 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 class Bme280Mapper
 {
-    private TransformService $transformService;
-
-    public function __construct(TransformService $transformService)
+    public function __construct(private TransformService $transformService)
     {
-        $this->transformService = $transformService;
     }
 
     public function measureData(string $data, array $calibration): array

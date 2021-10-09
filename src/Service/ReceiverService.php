@@ -17,28 +17,8 @@ use Psr\Log\LoggerInterface;
 
 class ReceiverService extends AbstractService
 {
-    private TransformService $transformService;
-
-    private MasterService $masterService;
-
-    private MasterMapper $masterMapper;
-
-    private MasterRepository $masterRepository;
-
-    private LoggerInterface $logger;
-
-    public function __construct(
-        TransformService $transformService,
-        MasterService $masterService,
-        MasterMapper $masterMapper,
-        MasterRepository $masterRepository,
-        LoggerInterface $logger
-    ) {
-        $this->transformService = $transformService;
-        $this->masterService = $masterService;
-        $this->masterMapper = $masterMapper;
-        $this->masterRepository = $masterRepository;
-        $this->logger = $logger;
+    public function __construct(private TransformService $transformService, private MasterService $masterService, private MasterMapper $masterMapper, private MasterRepository $masterRepository, private LoggerInterface $logger)
+    {
     }
 
     /**

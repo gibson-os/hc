@@ -19,30 +19,14 @@ class UdpServerCommand extends AbstractCommand
 {
     private const LOCK_NAME = 'hcUdpServer';
 
-    private UdpService $protocol;
-
-    private ReceiverService $receiverService;
-
-    private EnvService $envService;
-
-    private mysqlDatabase $mysqlDatabase;
-
-    private LockService $lockService;
-
     public function __construct(
-        UdpService $protocol,
-        ReceiverService $receiverService,
-        EnvService $envService,
-        mysqlDatabase $mysqlDatabase,
-        LockService $lockService,
+        private UdpService $protocol,
+        private ReceiverService $receiverService,
+        private EnvService $envService,
+        private mysqlDatabase $mysqlDatabase,
+        private LockService $lockService,
         LoggerInterface $logger
     ) {
-        $this->protocol = $protocol;
-        $this->receiverService = $receiverService;
-        $this->envService = $envService;
-        $this->mysqlDatabase = $mysqlDatabase;
-        $this->lockService = $lockService;
-
         $this->setArgument('bindIp', false);
         $this->setOption('force');
 
@@ -61,7 +45,7 @@ class UdpServerCommand extends AbstractCommand
             } else {
                 $this->lockService->lock(self::LOCK_NAME);
             }
-        } catch (LockError $e) {
+        } catch (LockError) {
             $this->logger->info('Server already runs!');
 
             return 1;

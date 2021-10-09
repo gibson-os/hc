@@ -27,14 +27,8 @@ class DirectConnectService extends AbstractService
 
     private const TYPE_SEQUENCE_PAUSE = 112;
 
-    private MasterService $masterService;
-
-    private BusMessageMapper $busMessageMapper;
-
-    public function __construct(MasterService $masterService, BusMessageMapper $busMessageMapper)
+    public function __construct(private MasterService $masterService, private BusMessageMapper $busMessageMapper)
     {
-        $this->masterService = $masterService;
-        $this->busMessageMapper = $busMessageMapper;
     }
 
     /**

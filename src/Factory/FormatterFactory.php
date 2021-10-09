@@ -14,11 +14,8 @@ use GibsonOS\Module\Hc\Model\Log;
 
 class FormatterFactory
 {
-    private ServiceManagerService $serviceManagerService;
-
-    public function __construct(ServiceManagerService $serviceManagerService)
+    public function __construct(private ServiceManagerService $serviceManagerService)
     {
-        $this->serviceManagerService = $serviceManagerService;
     }
 
     /**

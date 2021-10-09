@@ -5,10 +5,6 @@ namespace GibsonOS\Module\Hc\Dto;
 
 class BusMessage
 {
-    private string $masterAddress;
-
-    private int $type;
-
     private ?int $slaveAddress = null;
 
     private ?int $command = null;
@@ -21,10 +17,8 @@ class BusMessage
 
     private ?int $checksum = null;
 
-    public function __construct(string $masterAddress, int $type)
+    public function __construct(private string $masterAddress, private int $type)
     {
-        $this->masterAddress = $masterAddress;
-        $this->type = $type;
     }
 
     public function getMasterAddress(): string

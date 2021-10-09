@@ -11,11 +11,8 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 
 class TypeAutoComplete implements AutoCompleteInterface
 {
-    private TypeRepository $typeRepository;
-
-    public function __construct(TypeRepository $typeRepository)
+    public function __construct(private TypeRepository $typeRepository)
     {
-        $this->typeRepository = $typeRepository;
     }
 
     /**

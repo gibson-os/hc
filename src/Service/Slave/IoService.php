@@ -104,24 +104,18 @@ class IoService extends AbstractHcSlave
 
     const DIRECT_CONNECT_READ_RETRY = 5;
 
-    private IoMapper $ioMapper;
-
-    private AttributeRepository $attributeRepository;
-
-    private ValueRepository $valueRepository;
-
     public function __construct(
         MasterService $masterService,
         TransformService $transformService,
         EventService $eventService,
-        IoMapper $ioMapper,
+        private IoMapper $ioMapper,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
         LogRepository $logRepository,
         SlaveFactory $slaveFactory,
-        AttributeRepository $attributeRepository,
-        ValueRepository $valueRepository,
+        private AttributeRepository $attributeRepository,
+        private ValueRepository $valueRepository,
         LoggerInterface $logger
     ) {
         parent::__construct(
@@ -135,9 +129,6 @@ class IoService extends AbstractHcSlave
             $slaveFactory,
             $logger
         );
-        $this->ioMapper = $ioMapper;
-        $this->attributeRepository = $attributeRepository;
-        $this->valueRepository = $valueRepository;
     }
 
     /**
@@ -709,7 +700,7 @@ class IoService extends AbstractHcSlave
                     $key,
                     self::ATTRIBUTE_TYPE_DIRECT_CONNECT
                 )[0];
-            } catch (SelectError $e) {
+            } catch (SelectError) {
                 $attribute = (new AttributeModel())
                     ->setModule($slave)
                     ->setType(self::ATTRIBUTE_TYPE_DIRECT_CONNECT)

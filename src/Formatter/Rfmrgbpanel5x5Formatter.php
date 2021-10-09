@@ -31,22 +31,15 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
         if (mb_substr($data, 0, 2) == Rfmrgbpanel5x5Constant::SEQUENCE_BYTE) {
             $data = mb_substr($data, 2);
 
-            switch (mb_substr($data, 0, 2)) {
-                case Rfmrgbpanel5x5Constant::SEQUENCE_START_BYTE:
-                    return 'Übertragung von Sequenz ' . $this->transformService->hexToInt($data) . ' starten';
-                case Rfmrgbpanel5x5Constant::SEQUENCE_RUN_BYTE:
-                    switch (mb_substr($data, 2, 2)) {
-                        case Rfmrgbpanel5x5Constant::SEQUENCE_PLAY_BYTE:
-                            return 'Sequenz starten';
-                        case Rfmrgbpanel5x5Constant::SEQUENCE_PAUSE_BYTE:
-                            return 'Sequenz pausieren';
-                        default:
-                            return 'Sequenz stoppen';
-                    }
-                    // no break
-                default:
-                    return 'Sequenz Step ' . $this->transformService->hexToInt($data, 0);
-            }
+            return match (mb_substr($data, 0, 2)) {
+                Rfmrgbpanel5x5Constant::SEQUENCE_START_BYTE => 'Übertragung von Sequenz ' . $this->transformService->hexToInt($data) . ' starten',
+                Rfmrgbpanel5x5Constant::SEQUENCE_RUN_BYTE => match (mb_substr($data, 2, 2)) {
+                    Rfmrgbpanel5x5Constant::SEQUENCE_PLAY_BYTE => 'Sequenz starten',
+                    Rfmrgbpanel5x5Constant::SEQUENCE_PAUSE_BYTE => 'Sequenz pausieren',
+                    default => 'Sequenz stoppen',
+                },
+                default => 'Sequenz Step ' . $this->transformService->hexToInt($data, 0),
+            };
         }
 
         return parent::text($log);
@@ -63,11 +56,9 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
         if (mb_substr($data, 0, 2) == Rfmrgbpanel5x5Constant::SEQUENCE_BYTE) {
             $data = mb_substr($data, 2);
 
-            switch (mb_substr($data, 0, 2)) {
-                case Rfmrgbpanel5x5Constant::SEQUENCE_START_BYTE:
-                case Rfmrgbpanel5x5Constant::SEQUENCE_RUN_BYTE:
-                    return parent::render($log);
-            }
+            return match (mb_substr($data, 0, 2)) {
+                Rfmrgbpanel5x5Constant::SEQUENCE_START_BYTE, Rfmrgbpanel5x5Constant::SEQUENCE_RUN_BYTE => parent::render($log),
+            };
 
             $data = mb_substr($data, 4);
         }
