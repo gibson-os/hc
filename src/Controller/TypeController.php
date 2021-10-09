@@ -39,15 +39,15 @@ class TypeController extends AbstractController
      */
     public function autoComplete(
         TypeRepository $typeRepository,
-        int $id = null,
-        string $name = null,
+        int $id = 0,
+        string $name = '',
         string $network = null,
         bool $onlyHcSlave = false
     ): AjaxResponse {
         $this->checkPermission(PermissionService::READ);
         $types = [];
 
-        if ($id !== null) {
+        if ($id > 0) {
             $types = [$typeRepository->getById($id)];
         } elseif (!empty($name)) {
             try {
