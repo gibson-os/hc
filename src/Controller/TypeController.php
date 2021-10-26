@@ -39,8 +39,8 @@ class TypeController extends AbstractController
      */
     public function autoComplete(
         TypeRepository $typeRepository,
-        int $id = 0,
-        string $name = '',
+        int $id = null,
+        string $name = null,
         string $network = null,
         bool $onlyHcSlave = false
     ): AjaxResponse {
