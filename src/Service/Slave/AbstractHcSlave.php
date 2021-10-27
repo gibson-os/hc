@@ -210,7 +210,13 @@ abstract class AbstractHcSlave extends AbstractSlave
         }
 
         $slave->setMaster($master);
-        $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_SLAVE_IS_HC))
+
+        $this->logger->debug(sprintf(
+            'Slave address %d on master address %s has input check',
+            $slave->getAddress() ?? 0,
+            $slave->getMaster()->getAddress()
+        ));
+        $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_SLAVE_HAS_INPUT_CHECK))
             ->setSlaveAddress($slave->getAddress())
             ->setPort($slave->getMaster()->getSendPort())
         ;

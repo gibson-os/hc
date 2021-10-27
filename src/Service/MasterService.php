@@ -39,7 +39,7 @@ class MasterService extends AbstractService
 
     private const TYPE_NEW_SLAVE = 3;
 
-    public const TYPE_SLAVE_IS_HC = 4;
+    public const TYPE_SLAVE_HAS_INPUT_CHECK = 4;
 
     private const TYPE_SCAN_BUS = 5;
 
