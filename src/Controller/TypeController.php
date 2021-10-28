@@ -66,6 +66,7 @@ class TypeController extends AbstractController
                 'helper' => $type->getHelper(),
                 'network' => $type->getNetwork(),
                 'isHcSlave' => $type->getIsHcSlave(),
+                'hasInput' => $type->getHasInput(),
             ];
         }
 

@@ -216,12 +216,15 @@ abstract class AbstractHcSlave extends AbstractSlave
             $slave->getAddress() ?? 0,
             $slave->getMaster()->getAddress()
         ));
-        $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_SLAVE_HAS_INPUT_CHECK))
-            ->setSlaveAddress($slave->getAddress())
-            ->setPort($slave->getMaster()->getSendPort())
-        ;
-        $this->masterService->send($slave->getMaster(), $busMessage);
-        $this->masterService->receiveReceiveReturn($slave->getMaster(), $busMessage);
+
+        if ($slave->getType()->getHasInput()) {
+            $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_SLAVE_HAS_INPUT_CHECK))
+                ->setSlaveAddress($slave->getAddress())
+                ->setPort($slave->getMaster()->getSendPort())
+            ;
+            $this->masterService->send($slave->getMaster(), $busMessage);
+            $this->masterService->receiveReceiveReturn($slave->getMaster(), $busMessage);
+        }
 
         $slave
             ->setHertz($this->readHertz($slave))

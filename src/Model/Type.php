@@ -26,6 +26,8 @@ class Type extends AbstractModel implements JsonSerializable, AutoCompleteModelI
 
     private bool $isHcSlave;
 
+    private bool $hasInput;
+
     private ?string $uiSettings = null;
 
     public static function getTableName(): string
@@ -101,6 +103,18 @@ class Type extends AbstractModel implements JsonSerializable, AutoCompleteModelI
     public function setIsHcSlave(bool $isHcSlave): Type
     {
         $this->isHcSlave = $isHcSlave;
+
+        return $this;
+    }
+
+    public function getHasInput(): bool
+    {
+        return $this->hasInput;
+    }
+
+    public function setHasInput(bool $hasInput): Type
+    {
+        $this->hasInput = $hasInput;
 
         return $this;
     }
