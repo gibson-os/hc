@@ -224,7 +224,7 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
                 iconCls: 'icon_system system_update',
                 disabled: true,
                 requiredPermission: {
-                    action: 'logsend',
+                    action: 'logSend',
                     permission: GibsonOS.Permission.WRITE
                 },
                 handler: function() {
@@ -235,7 +235,7 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
                     record = record[0];
 
                     GibsonOS.Ajax.request({
-                        url             : baseDir + 'hc/index/logsend',
+                        url             : baseDir + 'hc/index/logSend',
                         params          : {
                             id              : record.get('id')
                         },

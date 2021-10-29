@@ -24,6 +24,20 @@ class LogRepository extends AbstractRepository
      * @throws DateTimeError
      * @throws SelectError
      */
+    public function getById(int $id): Log
+    {
+        $model = $this->fetchOne('`id`=?', [$id], Log::class);
+
+        if (!$model instanceof Log) {
+            throw new SelectError();
+        }
+
+        return $model;
+    }
+
+    /**
+     * @throws SelectError
+     */
     public function getLastEntryByModuleId(
         int $moduleId,
         int $command = null,
@@ -52,7 +66,6 @@ class LogRepository extends AbstractRepository
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getLastEntryByMasterId(
@@ -109,7 +122,6 @@ class LogRepository extends AbstractRepository
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getPreviewEntryByModuleId(

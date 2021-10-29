@@ -45,7 +45,19 @@ class MasterService extends AbstractService
 
     public const TYPE_DATA = 255;
 
-    public function __construct(private SenderService $senderService, private EventService $eventService, private TransformService $transformService, private SlaveFactory $slaveFactory, private MasterMapper $masterMapper, private LogRepository $logRepository, private ModuleRepository $moduleRepository, private TypeRepository $typeRepository, private LoggerInterface $logger, private MasterRepository $masterRepository, private DateTimeService $dateTimeService)
+    public function __construct(
+        private SenderService $senderService,
+        private EventService $eventService,
+        private TransformService $transformService,
+        private SlaveFactory $slaveFactory,
+        private MasterMapper $masterMapper,
+        private LogRepository $logRepository,
+        private ModuleRepository $moduleRepository,
+        private TypeRepository $typeRepository,
+        private LoggerInterface $logger,
+        private MasterRepository $masterRepository,
+        private DateTimeService $dateTimeService
+    )
     {
     }
 
