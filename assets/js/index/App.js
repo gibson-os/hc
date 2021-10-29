@@ -20,61 +20,7 @@ Ext.define('GibsonOS.module.hc.index.App', {
                 title: 'Master'
             },{
                 xtype: 'gosModuleHcIndexModuleGrid',
-                title: 'Module',
-                tbar: [{
-                    text: 'Hinzufügen',
-                    menu: [{
-                        text: 'Gruppe',
-                        requiredPermission: {
-                            task: 'group',
-                            action: 'save',
-                            permission: GibsonOS.Permission.WRITE + GibsonOS.Permission.MANAGE
-                        },
-                        handler: function () {
-                            new GibsonOS.module.hc.group.Window();
-                        }
-                    }],
-                },{
-                    iconCls: 'icon_system system_delete',
-                    itemId: 'hcIndexModuleDeleteButton',
-                    requiredPermission: {
-                        task: 'module',
-                        action: 'delete',
-                        permission: GibsonOS.Permission.DELETE + GibsonOS.Permission.MANAGE
-                    },
-                    disabled: true,
-                    handler: function() {
-                        let button = this;
-                        let grid = me.down('gosModuleHcIndexModuleGrid');
-                        let record = grid.getSelectionModel().getSelection()[0];
-
-                        GibsonOS.MessageBox.show({
-                            title: 'Modul löschen?',
-                            msg: 'Möchten Sie das Modul ' + record.get('name') + ' wirklich löchen?',
-                            type: GibsonOS.MessageBox.type.QUESTION,
-                            buttons: [{
-                                text: 'Ja',
-                                handler: function() {
-                                    grid.setLoading(true);
-
-                                    GibsonOS.Ajax.request({
-                                        url: baseDir + 'hc/module/delete',
-                                        params: {
-                                            id: record.get('id')
-                                        },
-                                        success: function() {
-                                            button.disable();
-                                            grid.getStore().remove(record);
-                                            grid.setLoading(false);
-                                        }
-                                    });
-                                }
-                            },{
-                                text: 'Nein'
-                            }]
-                        });
-                    }
-                }]
+                title: 'Module'
             },{
                 xtype: 'gosModuleHcIndexTypeGrid',
                 title: 'Modul Typen'
@@ -106,15 +52,5 @@ Ext.define('GibsonOS.module.hc.index.App', {
         }];
 
         me.callParent(arguments);
-
-        me.down('gosModuleHcIndexModuleGrid').getSelectionModel().on('selectionchange', function(selectionModel, records) {
-            let deleteButton = me.down('#hcIndexModuleDeleteButton');
-
-            if (records.length) {
-                deleteButton.enable();
-            } else {
-                deleteButton.enable();
-            }
-        });
     }
 });

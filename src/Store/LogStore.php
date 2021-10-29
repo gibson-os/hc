@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Store;
 
 use DateTime;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Factory\FormatterFactory;
 use GibsonOS\Module\Hc\Model\Log;
@@ -15,7 +16,11 @@ use mysqlDatabase;
 
 class LogStore extends AbstractDatabaseStore
 {
-    public function __construct(private FormatterFactory $formatterFactory, mysqlDatabase $database = null)
+    public function __construct(
+        private FormatterFactory $formatterFactory,
+        private DateTimeService $dateTimeService,
+        mysqlDatabase $database = null
+    )
     {
         parent::__construct($database);
     }
@@ -132,12 +137,12 @@ class LogStore extends AbstractDatabaseStore
         foreach ($this->table->connection->fetchAssocList() as $log) {
             $logModel = (new Log())
                 ->setType((int) $log['type'])
-                ->setData($log['data'])
-                ->setRawData($log['raw_data'])
+                ->setData((string) $log['data'])
+                ->setRawData((string) $log['raw_data'])
                 ->setId((int) $log['id'])
-                ->setAdded(new DateTime($log['added']))
+                ->setAdded($this->dateTimeService->get((string) $log['added']))
                 ->setCommand($log['command'] === null ? null : (int) $log['command'])
-                ->setDirection($log['direction'])
+                ->setDirection((string) $log['direction'])
                 ->setSlaveAddress((int) $log['address'])
             ;
 
@@ -146,24 +151,32 @@ class LogStore extends AbstractDatabaseStore
             if ($log['module_id']) {
                 $module = (new Module())
                     ->setId((int) $log['module_id'])
-                    ->setName($log['name'])
+                    ->setName((string) $log['name'])
                     ->setDeviceId((int) $log['device_id'])
-                    ->setConfig($log['config'])
+                    ->setConfig($log['config'] === null ? null : (string) $log['config'])
                     ->setHertz((int) $log['hertz'])
                     ->setPwmSpeed((int) $log['pwm_speed'])
                     ->setAddress((int) $log['address'])
                     ->setIp((int) $log['ip'])
                     ->setOffline((bool) $log['offline'])
-                    ->setAdded(empty($log['module_added']) ? null : new DateTime($log['module_added']))
-                    ->setModified(new DateTime(empty($log['module_modified']) ? 'now' : $log['module_modified']))
+                    ->setAdded(
+                        empty($log['module_added'])
+                            ? null
+                            : $this->dateTimeService->get((string) $log['module_added'])
+                    )
+                    ->setModified(
+                        $this->dateTimeService->get(empty($log['module_modified'])
+                            ? 'now'
+                            : (string) $log['module_modified'])
+                    )
                     ->setType(
                         (new Type())
                             ->setId((int) $log['type_id'])
-                            ->setName($log['type_name'])
+                            ->setName((string) $log['type_name'])
                             ->setHertz((int) $log['type_hertz'])
                             ->setNetwork((int) $log['network'])
-                            ->setUiSettings($log['ui_settings'])
-                            ->setHelper($log['helper'])
+                            ->setUiSettings($log['ui_settings'] === null ? null : (string) $log['ui_settings'])
+                            ->setHelper((string) $log['helper'])
                     )
                 ;
                 $logModel->setModule($module);
@@ -172,9 +185,9 @@ class LogStore extends AbstractDatabaseStore
             if ($log['master_id']) {
                 $master = (new Master())
                     ->setId((int) $log['master_id'])
-                    ->setName($log['master_name'])
-                    ->setProtocol($log['master_protocol'])
-                    ->setAddress($log['master_address'])
+                    ->setName((string) $log['master_name'])
+                    ->setProtocol((string) $log['master_protocol'])
+                    ->setAddress((string) $log['master_address'])
                 ;
                 $logModel->setMaster($master);
 

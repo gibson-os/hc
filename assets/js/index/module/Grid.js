@@ -72,6 +72,40 @@ Ext.define('GibsonOS.module.hc.index.module.Grid', {
         });
         form.findField('masterId').setValue(me.gos.data.extraParams.masterId);
     },
+    deleteFunction(records) {
+        const me = this;
+        const grid = me.down('gosModuleHcIndexModuleGrid');
+        let message = 'Möchten Sie die ' + records.length + ' Module wirklich löchen?';
+
+        if (records.length === 1) {
+            message = 'Möchten Sie das Modul ' + records[0].get('name') + ' wirklich löchen?';
+        }
+
+        GibsonOS.MessageBox.show({
+            title: 'Modul löschen?',
+            msg: message,
+            type: GibsonOS.MessageBox.type.QUESTION,
+            buttons: [{
+                text: 'Ja',
+                handler: function() {
+                    grid.setLoading(true);
+
+                    GibsonOS.Ajax.request({
+                        url: baseDir + 'hc/slave/delete',
+                        params: {
+                            id: record.get('id')
+                        },
+                        success: function() {
+                            grid.getStore().remove(record);
+                            grid.setLoading(false);
+                        }
+                    });
+                }
+            },{
+                text: 'Nein'
+            }]
+        });
+    },
     getColumns() {
         return [{
             header: 'Name',

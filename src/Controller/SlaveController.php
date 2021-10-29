@@ -6,9 +6,11 @@ namespace GibsonOS\Module\Hc\Controller;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\LoginRequired;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\PermissionDenied;
+use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\PermissionService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
@@ -17,6 +19,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
+use GibsonOS\Module\Hc\Store\SlaveStore;
 
 class SlaveController extends AbstractController
 {
@@ -67,5 +70,40 @@ class SlaveController extends AbstractController
 
             return $this->returnSuccess($slave);
         }
+    }
+
+    /**
+     * @throws LoginRequired
+     * @throws PermissionDenied
+     * @throws GetError
+     */
+    public function index(
+        SlaveStore $slaveStore,
+        int $limit = 100,
+        int $start = 0,
+        array $sort = [],
+        int $masterId = null
+    ): AjaxResponse {
+        $this->checkPermission(PermissionService::READ);
+
+        $slaveStore->setLimit($limit, $start);
+        $slaveStore->setSortByExt($sort);
+        $slaveStore->setMasterId($masterId);
+
+        return $this->returnSuccess($slaveStore->getList(), $slaveStore->getCount());
+    }
+
+    /**
+     * @throws LoginRequired
+     * @throws PermissionDenied
+     * @throws DeleteError
+     */
+    public function delete(ModuleRepository $moduleRepository, array $ids): AjaxResponse
+    {
+        $this->checkPermission(PermissionService::DELETE + PermissionService::MANAGE);
+
+        $moduleRepository->deleteByIds($ids);
+
+        return $this->returnSuccess();
     }
 }

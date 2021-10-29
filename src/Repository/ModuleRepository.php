@@ -203,17 +203,22 @@ class ModuleRepository extends AbstractRepository
     }
 
     /**
+     * @param int[] $ids
+     *
      * @throws DeleteError
      */
-    public function deleteById(int $id)
+    public function deleteByIds(array $ids)
     {
-        $this->logger->debug(sprintf('Delete slave by id %s', $id));
+        $this->logger->debug(sprintf('Delete slave by IDs %s', implode(', ', $ids)));
 
         $table = self::getTable(Module::getTableName());
-        $table->setWhere('`id`=' . $id);
+        $table
+            ->setWhere('`id` IN (' . $table->getParametersString($ids) . ')')
+            ->setWhereParameters($ids)
+        ;
 
         if (!$table->delete()) {
-            $exception = new DeleteError('Modul konnten nicht gelöscht werden!');
+            $exception = new DeleteError(sprintf('Slaves %s could not be deleted', implode(', ', $ids)));
             $exception->setTable($table);
 
             throw $exception;

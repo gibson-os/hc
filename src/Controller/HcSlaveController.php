@@ -93,12 +93,12 @@ class HcSlaveController extends AbstractController
                         $slave->setType($existingSlave->getType());
                         $slaveService = $this->getSlaveService($serviceManagerService, $slave);
                         $slaveService->onOverwriteExistingSlave($slave, $existingSlave);
-                        $moduleRepository->deleteById((int) $slave->getId());
+                        $moduleRepository->deleteByIds([(int) $slave->getId()]);
                         $slave->setId((int) $existingSlave->getId());
                         $typeId = $slave->getTypeId();
                     // @todo log umschreiben?
                     } elseif ($deleteSlave) {
-                        $moduleRepository->deleteById((int) $existingSlave->getId());
+                        $moduleRepository->deleteByIds([(int) $existingSlave->getId()]);
                     } else {
                         $exception = new SetError('Device ID ' . $deviceId . ' ist schon in benutzung!');
                         $exception->setType(AbstractException::QUESTION);
