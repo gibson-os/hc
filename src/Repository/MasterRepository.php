@@ -19,6 +19,8 @@ class MasterRepository extends AbstractRepository
 
     private const MAX_PORT = 42999;
 
+    private const FIRST_SLAVE_ADDRESS = 8;
+
     /**
      * @throws DateTimeError
      *
@@ -122,7 +124,7 @@ class MasterRepository extends AbstractRepository
         }
 
         $reservedAddresses = $table->connection->fetchResultList();
-        $address = 3;
+        $address = self::FIRST_SLAVE_ADDRESS;
 
         while (in_array($address, $reservedAddresses)) {
             ++$address;
