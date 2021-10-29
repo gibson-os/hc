@@ -209,7 +209,7 @@ class ModuleRepository extends AbstractRepository
      */
     public function deleteByIds(array $ids)
     {
-        $this->logger->debug(sprintf('Delete slave by IDs %s', implode(', ', $ids)));
+        $this->logger->debug(sprintf('Delete slaves by IDs %s', implode(', ', $ids)));
 
         $table = self::getTable(Module::getTableName());
         $table
@@ -217,7 +217,7 @@ class ModuleRepository extends AbstractRepository
             ->setWhereParameters($ids)
         ;
 
-        if (!$table->delete()) {
+        if (!$table->deletePrepared()) {
             $exception = new DeleteError(sprintf('Slaves %s could not be deleted', implode(', ', $ids)));
             $exception->setTable($table);
 

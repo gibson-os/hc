@@ -12,6 +12,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\PermissionDenied;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Service\PermissionService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
@@ -36,6 +37,7 @@ class SlaveController extends AbstractController
         MasterRepository $masterRepository,
         TypeRepository $typeRepository,
         SlaveFactory $slaveFactory,
+        DateTimeService $dateTimeService,
         string $name,
         int $address,
         int $masterId,
@@ -60,7 +62,9 @@ class SlaveController extends AbstractController
                 ->setName($name)
                 ->setAddress($address)
                 ->setMaster($master)
-                ->setType($type);
+                ->setType($type)
+                ->setAdded($dateTimeService->get())
+            ;
             $slave->save();
 
             if ($withHandshake) {
@@ -94,6 +98,8 @@ class SlaveController extends AbstractController
     }
 
     /**
+     * @param int[] $ids
+     *
      * @throws LoginRequired
      * @throws PermissionDenied
      * @throws DeleteError

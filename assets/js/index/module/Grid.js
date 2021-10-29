@@ -2,6 +2,7 @@ Ext.define('GibsonOS.module.hc.index.module.Grid', {
     extend: 'GibsonOS.module.core.component.grid.Panel',
     alias: ['widget.gosModuleHcIndexModuleGrid'],
     itemId: 'hcIndexModuleGrid',
+    multiSelect: true,
     viewConfig: {
         getRowClass: function (record) {
             if (record.get('offline')) {
@@ -74,7 +75,6 @@ Ext.define('GibsonOS.module.hc.index.module.Grid', {
     },
     deleteFunction(records) {
         const me = this;
-        const grid = me.down('gosModuleHcIndexModuleGrid');
         let message = 'Möchten Sie die ' + records.length + ' Module wirklich löchen?';
 
         if (records.length === 1) {
@@ -82,22 +82,29 @@ Ext.define('GibsonOS.module.hc.index.module.Grid', {
         }
 
         GibsonOS.MessageBox.show({
-            title: 'Modul löschen?',
+            title: 'Module löschen?',
             msg: message,
             type: GibsonOS.MessageBox.type.QUESTION,
             buttons: [{
                 text: 'Ja',
                 handler: function() {
-                    grid.setLoading(true);
+                    me.setLoading(true);
+                    let ids = [];
+
+                    Ext.iterate(records, (record) => {
+                        ids.push(record.get('id'));
+                    });
 
                     GibsonOS.Ajax.request({
                         url: baseDir + 'hc/slave/delete',
                         params: {
-                            id: record.get('id')
+                            'ids[]': ids
                         },
                         success: function() {
-                            grid.getStore().remove(record);
-                            grid.setLoading(false);
+                            me.getStore().remove(records);
+                        },
+                        callback() {
+                            me.setLoading(false);
                         }
                     });
                 }
