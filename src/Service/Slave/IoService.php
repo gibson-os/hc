@@ -178,8 +178,8 @@ class IoService extends AbstractHcSlave
                     $this->attributeRepository->addByModule(
                         $slave,
                         [
-                            0 => 'Zu',
-                            1 => 'Offen',
+                            0 => $port[self::ATTRIBUTE_PORT_KEY_DIRECTION] === self::DIRECTION_INPUT ? 'Zu' : 'Aus',
+                            1 => $port[self::ATTRIBUTE_PORT_KEY_DIRECTION] === self::DIRECTION_INPUT ? 'Offen' : 'An',
                         ],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_VALUE_NAMES,
