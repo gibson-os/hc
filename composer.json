@@ -2,8 +2,8 @@
   "name": "gibson-os/hc",
   "require": {
     "php": " ^8.0",
-    "mdo/mdo": "dev-feature/php8.0",
-    "gibson-os/core": "dev-feature/php8.0",
+    "mdo/mdo": "dev-master",
+    "gibson-os/core": "dev-master",
     "ext-mbstring": "*",
     "ext-json": "*"
   },

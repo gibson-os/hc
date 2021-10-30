@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0e58fec136d64d538c4e93caf8b49cb3",
+    "content-hash": "754a15f0e3fff570575d58e58167f32c",
     "packages": [
         {
             "name": "gibson-os/core",
-            "version": "dev-feature/php8.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "d7d064d1462608cff9f4ef91edb0684979596949"
+                "reference": "53bc03fcfdefb68816d1c5d606d74d618bffb41a"
             },
             "require": {
                 "ext-curl": "*",
@@ -24,7 +24,7 @@
                 "ext-sockets": "*",
                 "ext-sqlite3": "*",
                 "ext-zip": "*",
-                "mdo/mdo": "dev-feature/php8.0",
+                "mdo/mdo": "dev-master",
                 "php": " ^8.0",
                 "twig/twig": "^3.0"
             },
@@ -40,6 +40,7 @@
                 "rector/rector": "^0.11.57",
                 "vimeo/psalm": "^4.0"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -80,15 +81,15 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2021-10-29T13:31:04+00:00"
+            "time": "2021-10-30T07:32:01+00:00"
         },
         {
             "name": "mdo/mdo",
-            "version": "dev-feature/php8.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/mdo.git",
-                "reference": "8b6f70b7cd6ab061a6b4bf416dc430d64e79b5b3"
+                "reference": "953e31a4e5b5400cbbedf801d54167f6e08af14e"
             },
             "require": {
                 "ext-mbstring": "*",
@@ -105,6 +106,7 @@
                 "rector/rector": "^0.11.57",
                 "vimeo/psalm": "^4.0"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -143,7 +145,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2021-10-29T13:29:10+00:00"
+            "time": "2021-10-30T07:28:45+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
