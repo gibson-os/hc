@@ -20,31 +20,7 @@ class ElementRepository extends AbstractRepository
      */
     public function getBySequence(int $sequenceId): array
     {
-        $table = $this->getTable(Element::getTableName())
-            ->setWhere('`sequence_id`=?')
-            ->addWhereParameter($sequenceId)
-        ;
-
-        $select = $table->select();
-
-        if ($select === false) {
-            throw (new SelectError())->setTable($table);
-        }
-
-        if ($select === 0) {
-            return [];
-        }
-
-        $models = [];
-
-        do {
-            $model = new Element();
-            $model->loadFromMysqlTable($table);
-
-            $models[] = $model;
-        } while ($table->next());
-
-        return $models;
+        return $this->fetchAll('`sequence_id`=?', [$sequenceId]);
     }
 
     /**

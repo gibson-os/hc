@@ -18,6 +18,7 @@ class AttributeRepository extends AbstractRepository
     /**
      * @throws SelectError
      * @throws Exception
+     * @throws DateTimeError
      *
      * @return AttributeModel[]
      */
@@ -27,48 +28,30 @@ class AttributeRepository extends AbstractRepository
         string $key = null,
         string $type = null
     ): array {
-        $table = self::getTable(AttributeModel::getTableName())
-            ->setWhereParameters([$module->getTypeId(), $module->getId()])
-        ;
-
         $where = '`type_id`=? AND `module_id`=?';
+        $parameters = [$module->getTypeId(), $module->getId()];
 
         if ($subId !== null) {
             $where .= ' AND `sub_id`=?';
-            $table->addWhereParameter($subId);
+            $parameters[] = $subId;
         }
 
         if ($key !== null) {
             $where .= ' AND `key`=?';
-            $table->addWhereParameter($key);
+            $parameters[] = $key;
         }
 
         if ($type !== null) {
             $where .= ' AND `type`=?';
-            $table->addWhereParameter($type);
+            $parameters[] = $type;
         }
 
-        $table->setWhere($where);
-
-        if (!$table->selectPrepared()) {
-            throw new SelectError();
-        }
-
-        $models = [];
-
-        do {
-            $model = new AttributeModel();
-            $model->loadFromMysqlTable($table);
-            $models[] = $model;
-        } while ($table->next());
-
-        return $models;
+        return $this->fetchAll($where, $parameters, AttributeModel::class);
     }
 
     /**
      * @param string[] $values
      *
-     * @throws DateTimeError
      * @throws SaveError
      */
     public function addByModule(
@@ -131,26 +114,27 @@ class AttributeRepository extends AbstractRepository
     ) {
         $table = self::getTable(AttributeModel::getTableName());
 
-        $where =
-            '`type_id`=' . self::escape((string) $module->getTypeId()) . ' AND ' .
-            '`module_id`=' . self::escape((string) $module->getId())
-        ;
+        $where = '`type_id`=? AND `module_id`=?';
+        $table->setWhereParameters([$module->getTypeId(), $module->getId()]);
 
-        if (null !== $subId) {
-            $where .= ' AND `sub_id`>' . self::escape((string) $subId);
+        if ($subId !== null) {
+            $where .= ' AND `sub_id`>?';
+            $table->addWhereParameter($subId);
         }
 
-        if (null !== $key) {
-            $where .= ' AND `key`=' . self::escape($key);
+        if ($key !== null) {
+            $where .= ' AND `key`=?';
+            $table->addWhereParameter($key);
         }
 
-        if (null !== $type) {
-            $where .= ' AND `type`=' . self::escape($type);
+        if ($type !== null) {
+            $where .= ' AND `type`=?';
+            $table->addWhereParameter($type);
         }
 
         $table->setWhere($where);
 
-        if (!$table->delete()) {
+        if (!$table->deletePrepared()) {
             throw new DeleteError();
         }
     }
