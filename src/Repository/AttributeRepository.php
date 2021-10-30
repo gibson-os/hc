@@ -77,7 +77,7 @@ class AttributeRepository extends AbstractRepository
         int $subId = null,
         string $key = '',
         string $type = null
-    ) {
+    ): void {
         $attribute = (new AttributeModel())
             ->setModule($module)
             ->setType($type)

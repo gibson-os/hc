@@ -44,30 +44,17 @@ class ModuleRepository extends AbstractRepository
         $tableName = Module::getTableName();
         $table = self::getTable($tableName);
 
-        $where = '`name` LIKE \'' . self::escapeWithoutQuotes($name) . '%\'';
+        $where = '`name` LIKE ?';
+        $parameters = [$name . '%'];
 
         if ($typeId !== null) {
             $where .= ' AND `type_id`=' . $typeId;
+            $parameters[] = $typeId;
         }
 
         $table->setWhere($where);
 
-        if (!$table->select()) {
-            $exception = new SelectError('Keine Module mit dem Namen ' . $name . '* vorhanden!');
-            $exception->setTable($table);
-
-            throw $exception;
-        }
-
-        $models = [];
-
-        do {
-            $model = new Module();
-            $model->loadFromMysqlTable($table);
-            $models[] = $model;
-        } while ($table->next());
-
-        return $models;
+        return $this->fetchAll($where, $parameters, Module::class);
     }
 
     /**
@@ -79,22 +66,7 @@ class ModuleRepository extends AbstractRepository
     {
         $this->logger->debug(sprintf('Get slaves by master id %d', $masterId));
 
-        $table = self::getTable(Module::getTableName());
-        $table->setWhere('`master_id`=' . $masterId);
-
-        $models = [];
-
-        if (!$table->select()) {
-            return $models;
-        }
-
-        do {
-            $model = new Module();
-            $model->loadFromMysqlTable($table);
-            $models[] = $model;
-        } while ($table->next());
-
-        return $models;
+        return $this->fetchAll('`master_id`=?', [$masterId], Module::class);
     }
 
     /**
@@ -105,19 +77,11 @@ class ModuleRepository extends AbstractRepository
     {
         $this->logger->debug(sprintf('Get slave by device ID %d', $deviceId));
 
-        $table = self::getTable(Module::getTableName());
-        $table->setWhere('`device_id`=' . $deviceId);
-        $table->setLimit(1);
+        $model = $this->fetchOne('`device_id`=?', [$deviceId], Module::class);
 
-        if (!$table->select()) {
-            $exception = new SelectError('Kein Modul unter der Device ID ' . $deviceId . ' bekannt!');
-            $exception->setTable($table);
-
-            throw $exception;
+        if (!$model instanceof Module) {
+            throw new SelectError('Kein Modul unter der Device ID ' . $deviceId . ' bekannt!');
         }
-
-        $model = new Module();
-        $model->loadFromMysqlTable($table);
 
         return $model;
     }
@@ -130,19 +94,11 @@ class ModuleRepository extends AbstractRepository
     {
         $this->logger->debug(sprintf('Get slave by id %s', $id));
 
-        $table = self::getTable(Module::getTableName());
-        $table->setWhere('`id`=' . $id);
-        $table->setLimit(1);
+        $model = $this->fetchOne('`id`=?', [$id], Module::class);
 
-        if (!$table->select()) {
-            $exception = new SelectError('Kein Modul unter der ID ' . $id . ' bekannt!');
-            $exception->setTable($table);
-
-            throw $exception;
+        if (!$model instanceof Module) {
+            throw new SelectError('Kein Modul unter der ID ' . $id . ' bekannt!');
         }
-
-        $model = new Module();
-        $model->loadFromMysqlTable($table);
 
         return $model;
     }
@@ -155,22 +111,15 @@ class ModuleRepository extends AbstractRepository
     {
         $this->logger->debug(sprintf('Get slave by address %d and master id %d', $address, $masterId));
 
-        $table = self::getTable(Module::getTableName());
-        $table->setWhere(
-            '`address`=' . $address . ' AND ' .
-            '`master_id`=' . $masterId
+        $model = $this->fetchOne(
+            '`address`=? AND `master_id`=?',
+            [$address, $masterId],
+            Module::class
         );
-        $table->setLimit(1);
 
-        if (!$table->select()) {
-            $exception = new SelectError('Kein Modul unter der Adresse ' . $address . ' bekannt!');
-            $exception->setTable($table);
-
-            throw $exception;
+        if (!$model instanceof Module) {
+            throw new SelectError('Kein Modul unter der Adresse ' . $address . ' bekannt!');
         }
-
-        $model = new Module();
-        $model->loadFromMysqlTable($table);
 
         return $model;
     }

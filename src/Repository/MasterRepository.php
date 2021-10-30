@@ -22,8 +22,8 @@ class MasterRepository extends AbstractRepository
     private const FIRST_SLAVE_ADDRESS = 8;
 
     /**
+     * @throws SelectError
      * @throws DateTimeError
-     *
      * @return Master[]
      */
     public function getByProtocol(string $protocol): array
@@ -146,22 +146,9 @@ class MasterRepository extends AbstractRepository
      *
      * @return Master[]
      */
-    public function findByName(string $name, bool $getHcSlaves = null, string $network = null): array
+    public function findByName(string $name): array
     {
-        $where = '`name` LIKE ?';
-        $parameters = [$name . '%'];
-
-        if ($getHcSlaves !== null) {
-            $where .= ' AND `is_hc_slave`=?';
-            $parameters[] = $getHcSlaves ? 1 : 0;
-        }
-
-        if ($network !== null) {
-            $where .= ' AND `network`=?';
-            $parameters[] = $network;
-        }
-
-        return $this->fetchAll($where, $parameters, Master::class);
+        return $this->fetchAll('`name` LIKE ?', [$name . '%'], Master::class);
     }
 
     private function findFreePort(): int

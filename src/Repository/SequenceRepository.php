@@ -9,8 +9,6 @@ use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Model\Type;
-use mysqlTable;
-use stdClass;
 
 class SequenceRepository extends AbstractRepository
 {
