@@ -213,7 +213,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
             editor: {
                 xtype: 'numberfield',
                 minValue: 0,
-                maxValue: 31
+                maxValue: 7
             }
         }];
 
