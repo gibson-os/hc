@@ -12,6 +12,7 @@ use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
 use GibsonOS\Module\Hc\Model\Module as ModuleModel;
+use mysqlTable;
 
 class ValueRepository extends AbstractRepository
 {
@@ -30,26 +31,32 @@ class ValueRepository extends AbstractRepository
         string $key = null,
         string $order = null
     ): array {
-        $where = '`hc_attribute`.`type_id`=' . $this->escape((string) $typeId);
-        $where .= $this->getModuleIdWhere($moduleIds);
-        $where .= $this->getTypeWhere($type);
-        $where .= $this->getSubIdWhere($subId);
+        $separator = '#_#^#_#';
+        $table = $this->getTable(AttributeModel::getTableName());
+        $table->setWhereParameters([$separator, $separator, $typeId]);
+        $where =
+            '`hc_attribute`.`type_id`=?' .
+            $this->getModuleIdsWhere($table, $moduleIds) .
+            $this->getTypeWhere($table, $type) .
+            $this->getSubIdWhere($table, $subId)
+        ;
 
         if (!empty($key)) {
-            $where .= ' AND `hc_attribute`.`key`=' . $this->escape($key);
+            $where .= ' AND `hc_attribute`.`key`=?';
+            $table->addWhereParameter($key);
         }
 
         if (!empty($order)) {
-            $where .= ' AND `hc_attribute_value`.`order`=' . $this->escape($order);
+            $where .= ' AND `hc_attribute_value`.`order`=?';
+            $table->addWhereParameter($order);
         }
 
-        $separator = '#_#^#_#';
-
-        $table = $this->getTable(AttributeModel::getTableName());
-        $table->setWhere($where);
-        $table->appendJoin('`hc_attribute_value`', '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`');
-        $table->setGroupBy('`hc_attribute`.`id`');
-        $table->setOrderBy('`hc_attribute`.`id`, `hc_attribute_value`.`order`');
+        $table
+            ->setWhere($where)
+            ->appendJoin('`hc_attribute_value`', '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`')
+            ->setGroupBy('`hc_attribute`.`id`')
+            ->setOrderBy('`hc_attribute`.`id`, `hc_attribute_value`.`order`')
+        ;
 
         $select =
             '`hc_attribute`.`id`, ' .
@@ -59,10 +66,10 @@ class ValueRepository extends AbstractRepository
             '`hc_attribute`.`key`, ' .
             '`hc_attribute`.`type`, ' .
             '`hc_attribute`.`added`, ' .
-            'GROUP_CONCAT(`value` SEPARATOR ' . $this->escape($separator) . ') AS `values`, ' .
-            'GROUP_CONCAT(`order` SEPARATOR ' . $this->escape($separator) . ') AS `orders`';
+            'GROUP_CONCAT(`value` SEPARATOR ?) AS `values`, ' .
+            'GROUP_CONCAT(`order` SEPARATOR ?) AS `orders`';
 
-        if (!$table->select(false, $select)) {
+        if (!$table->selectPrepared(false, $select)) {
             return [];
         }
 
@@ -107,20 +114,22 @@ class ValueRepository extends AbstractRepository
         string $key = null,
         string $order = null
     ): void {
+        $table = $this->getTable(AttributeModel::getTableName());
+        $table->setWhereParameters([$subId, $typeId]);
         $where =
-            '`sub_id`=' . $this->escape((string) $subId) . ' AND ' .
-            '`type_id`=' . $this->escape((string) $typeId);
-        $where .= $this->getModuleIdWhere($moduleIds);
-        $where .= $this->getTypeWhere($type);
+            '`sub_id`=? AND `type_id`=?' .
+            $this->getModuleIdsWhere($table, $moduleIds) .
+            $this->getTypeWhere($table, $type)
+        ;
 
         if (!empty($key)) {
-            $where .= ' AND `key`=' . $this->escape($key);
+            $where .= ' AND `key`=?';
+            $table->addWhereParameter($key);
         }
 
-        $table = $this->getTable(AttributeModel::getTableName());
         $table->setWhere($where);
 
-        if (!$table->select(false, '`id`')) {
+        if (!$table->selectPrepared(false, '`id`')) {
             $exception = new SelectError();
             $exception->setTable($table);
 
@@ -134,15 +143,17 @@ class ValueRepository extends AbstractRepository
         }
 
         $valueTable = $this->getTable(ValueModel::getTableName());
-        $where = '`attribute_id` IN (' . $this->implode($ids) . ')';
+        $valueTable->setWhereParameters($ids);
+        $where = '`attribute_id` IN (' . $valueTable->getParametersString($ids) . ')';
 
         if (!empty($order)) {
-            $where .= ' AND `order`=' . $this->escape($order);
+            $where .= ' AND `order`=?';
+            $table->addWhereParameter($order);
         }
 
         $valueTable->setWhere($where);
 
-        if (!$valueTable->delete()) {
+        if (!$valueTable->deletePrepared()) {
             $exception = new DeleteError('Werte konnten nicht gelöscht werden!');
             $exception->setTable($table);
 
@@ -162,18 +173,18 @@ class ValueRepository extends AbstractRepository
         array $keys = null,
         string $type = null
     ): void {
-        $where =
-            '`type_id`=' . $module->getTypeId() . ' AND ' .
-            '`module_id`=' . $module->getId()
-        ;
-        $where .= $this->getTypeWhere($type);
-        $where .= $this->getSubIdWhere($subId);
-        $where .= $this->getKeysWhere($keys);
-
         $table = $this->getTable(AttributeModel::getTableName());
-        $table->setWhere($where);
+        $table
+            ->setWhereParameters([$module->getTypeId(), $module->getId()])
+            ->setWhere(
+                '`type_id`=? AND `module_id`=?' .
+                $this->getTypeWhere($table, $type) .
+                $this->getSubIdWhere($table, $subId) .
+                $this->getKeysWhere($table, $keys)
+            )
+        ;
 
-        if (!$table->select(false, '`id`')) {
+        if (!$table->selectPrepared(false, '`id`')) {
             $exception = new SelectError();
             $exception->setTable($table);
 
@@ -187,11 +198,12 @@ class ValueRepository extends AbstractRepository
         }
 
         $valueTable = $this->getTable(ValueModel::getTableName());
-        $where = '`attribute_id` IN (' . $this->implode($ids) . ')';
+        $valueTable
+            ->setWhereParameters($ids)
+            ->setWhere('`attribute_id` IN (' . $table->getParametersString($ids) . ')')
+        ;
 
-        $valueTable->setWhere($where);
-
-        if (!$valueTable->delete()) {
+        if (!$valueTable->deletePrepared()) {
             $exception = new DeleteError('Werte konnten nicht gelöscht werden!');
             $exception->setTable($table);
 
@@ -211,20 +223,26 @@ class ValueRepository extends AbstractRepository
         int $subId = null,
         string $key = null
     ): void {
-        $where = '`hc_attribute`.`type_id`=' . $this->escape((string) $typeId);
-        $where .= $this->getModuleIdWhere($moduleIds);
-        $where .= $this->getTypeWhere($type);
-        $where .= $this->getSubIdWhere($subId);
-        $where .= $this->getKeysWhere([$key]);
-
         $attributeTable = $this->getTable(AttributeModel::getTableName());
-        $attributeTable->setWhere($where);
+        $attributeTable
+            ->addWhereParameter($typeId)
+            ->setWhere(
+                '`hc_attribute`.`type_id`=?' .
+                $this->getModuleIdsWhere($attributeTable, $moduleIds) .
+                $this->getTypeWhere($attributeTable, $type) .
+                $this->getSubIdWhere($attributeTable, $subId) .
+                $this->getKeysWhere($attributeTable, [$key])
+            )
+        ;
 
         $table = $this->getTable(ValueModel::getTableName());
-        $table->setWhere(
-            '`order`>=' . $this->escape((string) $startOrder) . ' AND ' .
-            '`attribute_id` IN (' . mb_substr($attributeTable->getSelect('`id`'), 0, -1) . ')'
-        );
+        $table
+            ->setWhereParameters(array_merge([$startOrder], $attributeTable->getWhereParameters()))
+            ->setWhere(
+                '`order`>=? AND ' .
+                '`attribute_id` IN (' . mb_substr($attributeTable->getSelect('`id`'), 0, -1) . ')'
+            )
+        ;
 
         if (!$table->update('`order`=`order`+' . $updateOrder)) {
             $exception = new UpdateError();
@@ -246,25 +264,28 @@ class ValueRepository extends AbstractRepository
         int $subId = null,
         ?string $type = ''
     ): array {
-        $where =
-            '`value`.`value` REGEXP \'' . $this->getRegexString($value) . '\' AND ' .
-            '`hc_attribute`.`type_id`=' . $this->escape((string) $typeId);
-        $where .= $this->getModuleIdWhere($moduleIds);
-        $where .= $this->getSubIdWhere($subId);
-        $where .= $this->getTypeWhere($type);
-        $where .= $this->getKeysWhere($keys);
 
         $table = $this->getTable(AttributeModel::getTableName());
-        $table->setWhere($where);
-        $table->appendJoin('`hc_attribute_value` AS `value`', '`hc_attribute`.`id`=`value`.`attribute_id`');
-        $table->appendJoin(
-            '`hc_attribute` AS `attribute`',
-            'IF(`hc_attribute`.`sub_id` IS NULL, `hc_attribute`.`sub_id` IS NULL, `hc_attribute`.`sub_id`=`attribute`.`sub_id`) AND ' .
-            '`hc_attribute`.`type_id`=`attribute`.`type_id` AND ' .
-            'IF(`hc_attribute`.`type` IS NULL, `hc_attribute`.`type` IS NULL, `hc_attribute`.`type`=`attribute`.`type`) AND ' .
-            'IF(`hc_attribute`.`module_id` IS NULL, `hc_attribute`.`module_id` IS NULL, `hc_attribute`.`module_id`=`attribute`.`module_id`)'
-        );
-        $table->appendJoin('`hc_attribute_value` AS `values`', '`attribute`.`id`=`values`.`attribute_id`');
+        $table
+            ->setWhereParameters([$this->getRegexString($value), $typeId])
+            ->setWhere(
+                '`value`.`value` REGEXP ? AND ' .
+                '`hc_attribute`.`type_id`=?' .
+                $this->getModuleIdsWhere($table, $moduleIds) .
+                $this->getSubIdWhere($table, $subId) .
+                $this->getTypeWhere($table, $type) .
+                $this->getKeysWhere($table, $keys)
+            )
+            ->appendJoin('`hc_attribute_value` AS `value`', '`hc_attribute`.`id`=`value`.`attribute_id`')
+            ->appendJoin(
+                '`hc_attribute` AS `attribute`',
+                'IF(`hc_attribute`.`sub_id` IS NULL, `hc_attribute`.`sub_id` IS NULL, `hc_attribute`.`sub_id`=`attribute`.`sub_id`) AND ' .
+                '`hc_attribute`.`type_id`=`attribute`.`type_id` AND ' .
+                'IF(`hc_attribute`.`type` IS NULL, `hc_attribute`.`type` IS NULL, `hc_attribute`.`type`=`attribute`.`type`) AND ' .
+                'IF(`hc_attribute`.`module_id` IS NULL, `hc_attribute`.`module_id` IS NULL, `hc_attribute`.`module_id`=`attribute`.`module_id`)'
+            )
+            ->appendJoin('`hc_attribute_value` AS `values`', '`attribute`.`id`=`values`.`attribute_id`')
+        ;
 
         if (!$table->select(false, 'DISTINCT `attribute`.*, `values`.`value`, `values`.`order`')) {
             $exception = new SelectError('Keine Attribute gefunden!');
@@ -304,16 +325,17 @@ class ValueRepository extends AbstractRepository
      */
     public function countByKey(string $key, int $typeId, ?array $moduleIds = [], ?string $type = ''): array
     {
-        $where =
-            '`hc_attribute`.`key`=' . $this->escape($key) . ' AND ' .
-            '`hc_attribute`.`type_id`=' . $this->escape((string) $typeId);
-        $where .= $this->getModuleIdWhere($moduleIds);
-        $where .= $this->getTypeWhere($type);
-
         $table = $this->getTable(AttributeModel::getTableName());
-        $table->setWhere($where);
-        $table->appendJoin('`hc_attribute_value` AS `value`', '`hc_attribute`.`id`=`value`.`attribute_id`');
-        $table->setGroupBy('`value`.`value`');
+        $table
+            ->setWhereParameters([$key, $typeId])
+            ->setWhere(
+                '`hc_attribute`.`key`=? AND `hc_attribute`.`type_id`=?' .
+                $this->getModuleIdsWhere($table, $moduleIds) .
+                $this->getTypeWhere($table, $type)
+            )
+            ->appendJoin('`hc_attribute_value` AS `value`', '`hc_attribute`.`id`=`value`.`attribute_id`')
+            ->setGroupBy('`value`.`value`')
+        ;
 
         if (!$table->select(false, '`value`.`value`, COUNT(DISTINCT `hc_attribute`.`id`) AS `count`')) {
             return [];
@@ -328,47 +350,62 @@ class ValueRepository extends AbstractRepository
         return $counts;
     }
 
-    private function getModuleIdWhere(?array $moduleId, string $table = 'hc_attribute'): string
+    /**
+     * @param int[]|null $moduleIds
+     */
+    private function getModuleIdsWhere(mysqlTable $table, ?array $moduleIds, string $tableName = 'hc_attribute'): string
     {
-        if ($moduleId === null) {
-            return ' AND `' . $table . '`.`module_id` IS NULL';
+        if ($moduleIds === null) {
+            return ' AND `' . $tableName . '`.`module_id` IS NULL';
         }
 
-        if (empty($moduleId)) {
+        if (empty($moduleIds)) {
             return '';
         }
 
-        return ' AND `' . $table . '`.`module_id` IN (' . $this->implode($moduleId) . ')';
+        array_walk($moduleIds, function (int $moduleId) use ($table) {
+            $table->addWhereParameter($moduleId);
+        });
+
+        return ' AND `' . $tableName . '`.`module_id` IN (' . $table->getParametersString($moduleIds) . ')';
     }
 
-    private function getTypeWhere(?string $type, string $table = 'hc_attribute'): string
+    private function getTypeWhere(mysqlTable $table, ?string $type, string $tableName = 'hc_attribute'): string
     {
         if ($type === null) {
-            return ' AND `' . $table . '`.`type` IS NULL';
+            return ' AND `' . $tableName . '`.`type` IS NULL';
         }
 
         if (empty($type)) {
             return '';
         }
 
-        return ' AND `' . $table . '`.`type`=' . $this->escape($type);
+        $table->addWhereParameter($type);
+
+        return ' AND `' . $tableName . '`.`type`=?';
     }
 
-    private function getKeysWhere(?array $keys, string $table = 'hc_attribute'): string
+    private function getKeysWhere(mysqlTable $table, ?array $keys, string $tableName = 'hc_attribute'): string
     {
         if (empty($keys)) {
             return '';
         }
 
-        return ' AND `' . $table . '`.`key` IN (' . $this->implode($keys) . ')';
+        array_walk($keys, function (string $key) use ($table) {
+            $table->addWhereParameter($key);
+        });
+
+        return ' AND `' . $tableName . '`.`module_id` IN (' . $table->getParametersString($keys) . ')';
     }
 
-    private function getSubIdWhere(?int $subId, string $table = 'hc_attribute'): string
+    private function getSubIdWhere(mysqlTable $table, ?int $subId, string $tableName = 'hc_attribute'): string
     {
         if ($subId === null) {
-            return ' AND `' . $table . '`.`sub_id` IS NULL';
+            return ' AND `' . $tableName . '`.`sub_id` IS NULL';
         }
 
-        return ' AND `' . $table . '`.`sub_id`=' . $this->escape((string) $subId);
+        $table->addWhereParameter($subId);
+
+        return ' AND `' . $tableName . '`.`sub_id`=?';
     }
 }
