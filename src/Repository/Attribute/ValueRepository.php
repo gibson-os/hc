@@ -33,7 +33,7 @@ class ValueRepository extends AbstractRepository
     ): array {
         $separator = '#_#^#_#';
         $table = $this->getTable(AttributeModel::getTableName());
-        $table->setWhereParameters([$separator, $separator, $typeId]);
+        $table->addWhereParameter($typeId);
         $where =
             '`hc_attribute`.`type_id`=?' .
             $this->getModuleIdsWhere($table, $moduleIds) .
@@ -66,8 +66,8 @@ class ValueRepository extends AbstractRepository
             '`hc_attribute`.`key`, ' .
             '`hc_attribute`.`type`, ' .
             '`hc_attribute`.`added`, ' .
-            'GROUP_CONCAT(`value` SEPARATOR ?) AS `values`, ' .
-            'GROUP_CONCAT(`order` SEPARATOR ?) AS `orders`';
+            'GROUP_CONCAT(`value` SEPARATOR "' . $separator . '") AS `values`, ' .
+            'GROUP_CONCAT(`order` SEPARATOR "' . $separator . '") AS `orders`';
 
         if (!$table->selectPrepared(false, $select)) {
             return [];
