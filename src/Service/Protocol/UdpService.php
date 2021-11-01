@@ -17,9 +17,9 @@ use Psr\Log\LoggerInterface;
 
 class UdpService extends AbstractService implements ProtocolInterface
 {
-    const RECEIVE_PORT = 42000;
+    public const RECEIVE_PORT = 42000;
 
-    const START_PORT = 43000;
+    public const START_PORT = 43000;
 
     private ?CoreUdpService $udpReceiveService = null;
 

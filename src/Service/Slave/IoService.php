@@ -30,79 +30,79 @@ use Throwable;
 
 class IoService extends AbstractHcSlave
 {
-    const COMMAND_PORT_LENGTH = 2;
+    public const COMMAND_PORT_LENGTH = 2;
 
-    const COMMAND_ADD_DIRECT_CONNECT = 129;
+    public const COMMAND_ADD_DIRECT_CONNECT = 129;
 
-    const COMMAND_SET_DIRECT_CONNECT = 130;
+    public const COMMAND_SET_DIRECT_CONNECT = 130;
 
-    const COMMAND_DELETE_DIRECT_CONNECT = 131;
+    public const COMMAND_DELETE_DIRECT_CONNECT = 131;
 
-    const COMMAND_RESET_DIRECT_CONNECT = 132;
+    public const COMMAND_RESET_DIRECT_CONNECT = 132;
 
-    const COMMAND_READ_DIRECT_CONNECT = 133;
+    public const COMMAND_READ_DIRECT_CONNECT = 133;
 
-    const COMMAND_READ_DIRECT_CONNECT_READ_LENGTH = 3;
+    public const COMMAND_READ_DIRECT_CONNECT_READ_LENGTH = 3;
 
-    const COMMAND_DEFRAGMENT_DIRECT_CONNECT = 134;
+    public const COMMAND_DEFRAGMENT_DIRECT_CONNECT = 134;
 
-    const COMMAND_STATUS_IN_EEPROM = 135;
+    public const COMMAND_STATUS_IN_EEPROM = 135;
 
-    const COMMAND_STATUS_IN_EEPROM_LENGTH = 1;
+    public const COMMAND_STATUS_IN_EEPROM_LENGTH = 1;
 
-    const COMMAND_DIRECT_CONNECT_STATUS = 136;
+    public const COMMAND_DIRECT_CONNECT_STATUS = 136;
 
-    const COMMAND_DIRECT_CONNECT_STATUS_READ_LENGTH = 1;
+    public const COMMAND_DIRECT_CONNECT_STATUS_READ_LENGTH = 1;
 
-    const COMMAND_CONFIGURATION_READ_LENGTH = 1;
+    public const COMMAND_CONFIGURATION_READ_LENGTH = 1;
 
-    const PORT_BYTE_LENGTH = 2;
+    public const PORT_BYTE_LENGTH = 2;
 
-    const DIRECTION_INPUT = 0;
+    public const DIRECTION_INPUT = 0;
 
-    const DIRECTION_OUTPUT = 1;
+    public const DIRECTION_OUTPUT = 1;
 
-    const ATTRIBUTE_TYPE_PORT = 'port';
+    public const ATTRIBUTE_TYPE_PORT = 'port';
 
-    const ATTRIBUTE_PORT_KEY_NAME = 'name';
+    public const ATTRIBUTE_PORT_KEY_NAME = 'name';
 
-    const ATTRIBUTE_PORT_KEY_DIRECTION = 'direction';
+    public const ATTRIBUTE_PORT_KEY_DIRECTION = 'direction';
 
-    const ATTRIBUTE_PORT_KEY_PULL_UP = 'pullUp';
+    public const ATTRIBUTE_PORT_KEY_PULL_UP = 'pullUp';
 
-    const ATTRIBUTE_PORT_KEY_PWM = 'pwm';
+    public const ATTRIBUTE_PORT_KEY_PWM = 'pwm';
 
-    const ATTRIBUTE_PORT_KEY_BLINK = 'blink';
+    public const ATTRIBUTE_PORT_KEY_BLINK = 'blink';
 
-    const ATTRIBUTE_PORT_KEY_DELAY = 'delay';
+    public const ATTRIBUTE_PORT_KEY_DELAY = 'delay';
 
-    const ATTRIBUTE_PORT_KEY_VALUE = 'value';
+    public const ATTRIBUTE_PORT_KEY_VALUE = 'value';
 
-    const ATTRIBUTE_PORT_KEY_FADE_IN = 'fade';
+    public const ATTRIBUTE_PORT_KEY_FADE_IN = 'fade';
 
-    const ATTRIBUTE_PORT_KEY_VALUE_NAMES = 'valueName';
+    public const ATTRIBUTE_PORT_KEY_VALUE_NAMES = 'valueName';
 
-    const ATTRIBUTE_TYPE_DIRECT_CONNECT = 'directConnect';
+    public const ATTRIBUTE_TYPE_DIRECT_CONNECT = 'directConnect';
 
-    const ATTRIBUTE_DIRECT_CONNECT_KEY_INPUT_PORT_VALUE = 'inputPortValue';
+    public const ATTRIBUTE_DIRECT_CONNECT_KEY_INPUT_PORT_VALUE = 'inputPortValue';
 
-    const ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT = 'outputPort';
+    public const ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT = 'outputPort';
 
-    const ATTRIBUTE_DIRECT_CONNECT_KEY_PWM = 'pwm';
+    public const ATTRIBUTE_DIRECT_CONNECT_KEY_PWM = 'pwm';
 
-    const ATTRIBUTE_DIRECT_CONNECT_KEY_BLINK = 'blink';
+    public const ATTRIBUTE_DIRECT_CONNECT_KEY_BLINK = 'blink';
 
-    const ATTRIBUTE_DIRECT_CONNECT_KEY_FADE_IN = 'fadeIn';
+    public const ATTRIBUTE_DIRECT_CONNECT_KEY_FADE_IN = 'fadeIn';
 
-    const ATTRIBUTE_DIRECT_CONNECT_KEY_VALUE = 'value';
+    public const ATTRIBUTE_DIRECT_CONNECT_KEY_VALUE = 'value';
 
-    const ATTRIBUTE_DIRECT_CONNECT_KEY_ADD_OR_SUB = 'addOrSub';
+    public const ATTRIBUTE_DIRECT_CONNECT_KEY_ADD_OR_SUB = 'addOrSub';
 
-    const DIRECT_CONNECT_READ_NOT_SET = 127;
+    public const DIRECT_CONNECT_READ_NOT_SET = 127;
 
-    const DIRECT_CONNECT_READ_NOT_EXIST = 255;
+    public const DIRECT_CONNECT_READ_NOT_EXIST = 255;
 
-    const DIRECT_CONNECT_READ_RETRY = 5;
+    public const DIRECT_CONNECT_READ_RETRY = 5;
 
     public function __construct(
         MasterService $masterService,

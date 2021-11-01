@@ -264,7 +264,6 @@ class ValueRepository extends AbstractRepository
         int $subId = null,
         ?string $type = ''
     ): array {
-
         $table = $this->getTable(AttributeModel::getTableName());
         $table
             ->setWhereParameters([$this->getRegexString($value), $typeId])

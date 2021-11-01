@@ -16,33 +16,33 @@ use Psr\Log\LoggerInterface;
 
 class Bme280Service extends AbstractSlave
 {
-    const COMMAND_CALIBRATION1 = 136;
+    public const COMMAND_CALIBRATION1 = 136;
 
-    const COMMAND_CALIBRATION1_READ_LENGTH = 24;
+    public const COMMAND_CALIBRATION1_READ_LENGTH = 24;
 
-    const COMMAND_CALIBRATION2 = 161;
+    public const COMMAND_CALIBRATION2 = 161;
 
-    const COMMAND_CALIBRATION2_READ_LENGTH = 1;
+    public const COMMAND_CALIBRATION2_READ_LENGTH = 1;
 
-    const COMMAND_CALIBRATION3 = 225;
+    public const COMMAND_CALIBRATION3 = 225;
 
-    const COMMAND_CALIBRATION3_READ_LENGTH = 7;
+    public const COMMAND_CALIBRATION3_READ_LENGTH = 7;
 
-    const COMMAND_CONTROL_HUMIDITY = 242;
+    public const COMMAND_CONTROL_HUMIDITY = 242;
 
-    const COMMAND_CONTROL = 244;
+    public const COMMAND_CONTROL = 244;
 
-    const COMMAND_MEASURE = 247;
+    public const COMMAND_MEASURE = 247;
 
-    const COMMAND_MEASURE_READ_LENGTH = 8;
+    public const COMMAND_MEASURE_READ_LENGTH = 8;
 
-    const OVERSAMPLE_HUMIDITY = 2;
+    public const OVERSAMPLE_HUMIDITY = 2;
 
-    const OVERSAMPLE_TEMPERATURE = 2;
+    public const OVERSAMPLE_TEMPERATURE = 2;
 
-    const OVERSAMPLE_PRESSURE = 2;
+    public const OVERSAMPLE_PRESSURE = 2;
 
-    const MODE = 1;
+    public const MODE = 1;
 
     public function __construct(
         MasterService $masterService,

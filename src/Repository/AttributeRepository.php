@@ -19,6 +19,7 @@ class AttributeRepository extends AbstractRepository
 {
     /**
      * @throws SelectError
+     *
      * @return Attribute[]
      */
     public function getByModule(
@@ -80,7 +81,6 @@ class AttributeRepository extends AbstractRepository
 
     public function countByModule(Module $module, string $type = null, int $subId = null): int
     {
-
         $where = '`module_id`=? AND `type_id`=?';
         $parameters = [$module->getId(), $module->getTypeId()];
 
@@ -95,7 +95,7 @@ class AttributeRepository extends AbstractRepository
         }
 
         $count = $this->getAggregate('COUNT(`id`)', $where, $parameters, Attribute::class);
-        
+
         return empty($count) ? 0 : (int) $count[0];
     }
 

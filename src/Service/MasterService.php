@@ -57,8 +57,7 @@ class MasterService extends AbstractService
         private LoggerInterface $logger,
         private MasterRepository $masterRepository,
         private DateTimeService $dateTimeService
-    )
-    {
+    ) {
     }
 
     /**

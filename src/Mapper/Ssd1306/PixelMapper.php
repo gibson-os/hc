@@ -17,6 +17,7 @@ class PixelMapper
 
     /**
      * @param array<int, array<int, array<int, bool>>> $data
+     *
      * @return array<int, array<int, array<int, Pixel>>>
      */
     public function mapFromDataArray(array $data): array
@@ -46,19 +47,20 @@ class PixelMapper
 
     /**
      * @param array<int, array<int, array<int, Pixel>>> $data
+     *
      * @return array<int, array<int, array<int, Pixel>>>
      */
     public function completePixels(array $data): array
     {
         $list = [];
 
-        for ($page = 0; $page <= Ssd1306Service::MAX_PAGE; $page++) {
+        for ($page = 0; $page <= Ssd1306Service::MAX_PAGE; ++$page) {
             $list[$page] = [];
 
-            for ($column = 0; $column <= Ssd1306Service::MAX_COLUMN; $column++) {
+            for ($column = 0; $column <= Ssd1306Service::MAX_COLUMN; ++$column) {
                 $list[$page][$column] = [];
 
-                for ($bit = 0; $bit <= Ssd1306Service::MAX_BIT; $bit++) {
+                for ($bit = 0; $bit <= Ssd1306Service::MAX_BIT; ++$bit) {
                     $list[$page][$column][$bit] =
                         $data[$page][$column][$bit] ??
                         new Pixel($page, $column, $bit)

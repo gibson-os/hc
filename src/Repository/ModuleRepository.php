@@ -14,7 +14,7 @@ use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use Psr\Log\LoggerInterface;
 
 /**
- * @method Module fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
+ * @method Module   fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
  * @method Module[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null, string $orderBy = null)
  */
 class ModuleRepository extends AbstractRepository

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store;
 
-use DateTime;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
@@ -20,8 +19,7 @@ class LogStore extends AbstractDatabaseStore
         private FormatterFactory $formatterFactory,
         private DateTimeService $dateTimeService,
         mysqlDatabase $database = null
-    )
-    {
+    ) {
         parent::__construct($database);
     }
 

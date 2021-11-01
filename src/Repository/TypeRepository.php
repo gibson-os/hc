@@ -10,9 +10,9 @@ use GibsonOS\Module\Hc\Model\Type;
 use mysqlTable;
 
 /**
- * @method Type fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
+ * @method Type   fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
  * @method Type[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null, string $orderBy = null)
- * @method Type getModel(mysqlTable $table, string $abstractModelClassName)
+ * @method Type   getModel(mysqlTable $table, string $abstractModelClassName)
  */
 class TypeRepository extends AbstractRepository
 {

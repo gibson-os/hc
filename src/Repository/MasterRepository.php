@@ -14,7 +14,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type\DefaultAddress;
 
 /**
- * @method Master fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
+ * @method Master   fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
  * @method Master[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null, string $orderBy = null)
  */
 class MasterRepository extends AbstractRepository

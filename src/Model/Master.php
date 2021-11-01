@@ -10,7 +10,7 @@ use JsonSerializable;
 
 class Master extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
-    const PROTOCOL_UDP = 'udp';
+    public const PROTOCOL_UDP = 'udp';
 
     private ?int $id = null;
 

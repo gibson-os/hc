@@ -4,6 +4,7 @@ declare(strict_types=1);
 return (new PhpCsFixer\Config())
     ->setRiskyAllowed(true)
     ->setRules([
+        '@Symfony' => true,
         'align_multiline_comment' => true,
         'array_syntax' => ['syntax' => 'short'],
         'blank_line_before_statement' => true,
@@ -40,9 +41,7 @@ return (new PhpCsFixer\Config())
         'class_attributes_separation' => true,
         'declare_strict_types' => true,
         'blank_line_after_opening_tag' => false,
-        'no_superfluous_phpdoc_tags' => true,
-        'no_empty_phpdoc' => true,
-        'no_extra_blank_lines' => false,
+        'no_extra_blank_lines' => true,
         'single_line_throw' => false,
     ])
     ->setFinder(

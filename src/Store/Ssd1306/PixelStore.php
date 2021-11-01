@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Store\Ssd1306;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Dto\Ssd1306\Pixel;
 use GibsonOS\Module\Hc\Model\Attribute;
-use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
 
 class PixelStore extends AbstractDatabaseStore
 {
@@ -35,14 +34,14 @@ class PixelStore extends AbstractDatabaseStore
 
         return $this;
     }
-    
+
     public function getList(): iterable
     {
         $list = [];
 
-        for ($page = 0; $page < 8; $page++) {
-            for ($column = 0; $column < 128; $column++) {
-                for ($bit = 0; $bit < 8; $bit++) {
+        for ($page = 0; $page < 8; ++$page) {
+            for ($column = 0; $column < 128; ++$column) {
+                for ($bit = 0; $bit < 8; ++$bit) {
                     $list[] = new Pixel($page, $column, $bit);
                 }
             }

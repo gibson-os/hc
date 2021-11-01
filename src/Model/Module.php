@@ -12,7 +12,7 @@ use mysqlDatabase;
 
 class Module extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
-    const MAX_ADDRESS = 119;
+    public const MAX_ADDRESS = 119;
 
     private ?int $id = null;
 

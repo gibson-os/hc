@@ -94,7 +94,7 @@ class Ssd1306Service extends AbstractSlave
     private const DESELECT_LEVELS = [
         self::DESELECT_LEVEL_0_65,
         self::DESELECT_LEVEL_0_77,
-        self::DESELECT_LEVEL_0_83
+        self::DESELECT_LEVEL_0_83,
     ];
 
     /**
@@ -430,6 +430,7 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @param array<int, array<int, array<int, Pixel>>> $pixels
+     *
      * @throws AbstractException
      * @throws SaveError
      * @throws WriteException
