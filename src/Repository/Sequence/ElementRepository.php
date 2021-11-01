@@ -11,7 +11,7 @@ use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Model\Sequence\Element;
 
 /**
- * @method Element[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null)
+ * @method Element[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null, string $orderBy = null)
  */
 class ElementRepository extends AbstractRepository
 {

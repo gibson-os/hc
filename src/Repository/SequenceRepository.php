@@ -13,7 +13,7 @@ use GibsonOS\Module\Hc\Model\Type;
 
 /**
  * @method Sequence fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
- * @method Sequence[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null)
+ * @method Sequence[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null, string $orderBy = null)
  */
 class SequenceRepository extends AbstractRepository
 {
