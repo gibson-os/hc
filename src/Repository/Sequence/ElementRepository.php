@@ -3,24 +3,26 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository\Sequence;
 
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Model\Sequence\Element;
 
+/**
+ * @method Element[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null)
+ */
 class ElementRepository extends AbstractRepository
 {
     /**
      * @throws SelectError
-     * @throws DateTimeError
      *
      * @return Element[]
      */
     public function getBySequence(int $sequenceId): array
     {
-        return $this->fetchAll('`sequence_id`=?', [$sequenceId]);
+        return $this->fetchAll('`sequence_id`=?', [$sequenceId], Element::class);
     }
 
     /**

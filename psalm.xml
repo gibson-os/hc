@@ -13,16 +13,4 @@
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
-    <issueHandlers>
-        <LessSpecificReturnStatement>
-            <errorLevel type="suppress">
-                <directory name="src/Repository" />
-            </errorLevel>
-        </LessSpecificReturnStatement>
-        <MoreSpecificReturnType>
-            <errorLevel type="suppress">
-                <directory name="src/Repository" />
-            </errorLevel>
-        </MoreSpecificReturnType>
-    </issueHandlers>
 </psalm>

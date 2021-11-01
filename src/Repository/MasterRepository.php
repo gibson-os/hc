@@ -5,14 +5,18 @@ namespace GibsonOS\Module\Hc\Repository;
 
 use DateTime;
 use Exception;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type\DefaultAddress;
 
+/**
+ * @method Master fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
+ * @method Master[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null)
+ */
 class MasterRepository extends AbstractRepository
 {
     private const MIN_PORT = 42001;
@@ -23,7 +27,7 @@ class MasterRepository extends AbstractRepository
 
     /**
      * @throws SelectError
-     * @throws DateTimeError
+     *
      * @return Master[]
      */
     public function getByProtocol(string $protocol): array
@@ -32,56 +36,27 @@ class MasterRepository extends AbstractRepository
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getById(int $id): Master
     {
-        $model = $this->fetchOne('`id`=?', [$id], Master::class);
-
-        if (!$model instanceof Master) {
-            throw new SelectError();
-        }
-
-        return $model;
+        return $this->fetchOne('`id`=?', [$id], Master::class);
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getByAddress(string $address, string $protocol): Master
     {
-        $model = $this->fetchOne(
-            '`protocol`=? AND `address`=?',
-            [$protocol, $address],
-            Master::class
-        );
-
-        if (!$model instanceof Master) {
-            throw new SelectError();
-        }
-
-        return $model;
+        return $this->fetchOne('`protocol`=? AND `address`=?', [$protocol, $address], Master::class);
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getByName(string $name, string $protocol): Master
     {
-        $model = $this->fetchOne(
-            '`protocol`=? AND `name`=?',
-            [$protocol, $name],
-            Master::class
-        );
-
-        if (!$model instanceof Master) {
-            throw new SelectError();
-        }
-
-        return $model;
+        return $this->fetchOne('`protocol`=? AND `name`=?', [$protocol, $name], Master::class);
     }
 
     /**
@@ -106,8 +81,10 @@ class MasterRepository extends AbstractRepository
      */
     public function getNextFreeAddress(int $masterId): int
     {
-        $table = $this->getTable(Module::getTableName());
-        $table->setWhere('`master_id`=' . $masterId);
+        $table = $this->getTable(Module::getTableName())
+            ->setWhere('`master_id`=?')
+            ->addWhereParameter($masterId)
+        ;
 
         $typeDefaultAddressTable = $this->getTable(DefaultAddress::getTableName());
         $typeDefaultAddressTable->setSelectString('`address`');
@@ -142,7 +119,6 @@ class MasterRepository extends AbstractRepository
 
     /**
      * @throws SelectError
-     * @throws DateTimeError
      *
      * @return Master[]
      */
@@ -160,7 +136,7 @@ class MasterRepository extends AbstractRepository
             ->addWhereParameter($port)
         ;
 
-        if ($table->select(false)) {
+        if ($table->selectPrepared(false)) {
             return $this->findFreePort();
         }
 

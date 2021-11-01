@@ -5,26 +5,24 @@ namespace GibsonOS\Module\Hc\Repository;
 
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Model\Type;
 
+/**
+ * @method Sequence fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
+ * @method Sequence[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null)
+ */
 class SequenceRepository extends AbstractRepository
 {
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getById(int $id): Sequence
     {
-        $model = $this->fetchOne('`id`=?', [$id], Sequence::class);
-
-        if (!$model instanceof Sequence) {
-            throw new SelectError();
-        }
-
-        return $model;
+        return $this->fetchOne('`id`=?', [$id], Sequence::class);
     }
 
     /**
@@ -41,20 +39,14 @@ class SequenceRepository extends AbstractRepository
             $parameters[] = $type;
         }
 
-        $model = $this->fetchOne($where, $parameters, Sequence::class);
-
-        if (!$model instanceof Sequence) {
-            throw new SelectError();
-        }
-
-        return $model;
+        return $this->fetchOne($where, $parameters, Sequence::class);
     }
 
     /**
-     * @throws SelectError
      * @throws DateTimeError
-     *
+     * @throws SelectError
      * @return Sequence[]
+     *
      */
     public function findByName(Module $module, string $name, int $type = null): array
     {
@@ -70,10 +62,10 @@ class SequenceRepository extends AbstractRepository
     }
 
     /**
-     * @throws SelectError
      * @throws DateTimeError
-     *
+     * @throws SelectError
      * @return Sequence[]
+     *
      */
     public function getByModule(Module $module, int $type = null): array
     {
@@ -89,7 +81,6 @@ class SequenceRepository extends AbstractRepository
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      *
      * @return Sequence[]

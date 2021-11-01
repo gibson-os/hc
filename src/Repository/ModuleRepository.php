@@ -3,16 +3,20 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @method Module fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
+ * @method Module[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null)
+ */
 class ModuleRepository extends AbstractRepository
 {
     private const MAX_GENERATE_DEVICE_ID_RETRY = 10;
@@ -33,7 +37,6 @@ class ModuleRepository extends AbstractRepository
 
     /**
      * @throws SelectError
-     * @throws DateTimeError
      *
      * @return Module[]
      */
@@ -58,7 +61,7 @@ class ModuleRepository extends AbstractRepository
     }
 
     /**
-     * @throws DateTimeError
+     * @throws SelectError
      *
      * @return Module[]
      */
@@ -70,58 +73,33 @@ class ModuleRepository extends AbstractRepository
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getByDeviceId(int $deviceId): Module
     {
         $this->logger->debug(sprintf('Get slave by device ID %d', $deviceId));
 
-        $model = $this->fetchOne('`device_id`=?', [$deviceId], Module::class);
-
-        if (!$model instanceof Module) {
-            throw new SelectError('Kein Modul unter der Device ID ' . $deviceId . ' bekannt!');
-        }
-
-        return $model;
+        return $this->fetchOne('`device_id`=?', [$deviceId], Module::class);
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getById(int $id): Module
     {
         $this->logger->debug(sprintf('Get slave by id %s', $id));
 
-        $model = $this->fetchOne('`id`=?', [$id], Module::class);
-
-        if (!$model instanceof Module) {
-            throw new SelectError('Kein Modul unter der ID ' . $id . ' bekannt!');
-        }
-
-        return $model;
+        return $this->fetchOne('`id`=?', [$id], Module::class);
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getByAddress(int $address, int $masterId): Module
     {
         $this->logger->debug(sprintf('Get slave by address %d and master id %d', $address, $masterId));
 
-        $model = $this->fetchOne(
-            '`address`=? AND `master_id`=?',
-            [$address, $masterId],
-            Module::class
-        );
-
-        if (!$model instanceof Module) {
-            throw new SelectError('Kein Modul unter der Adresse ' . $address . ' bekannt!');
-        }
-
-        return $model;
+        return $this->fetchOne('`address`=? AND `master_id`=?', [$address, $masterId], Module::class);
     }
 
     /**
@@ -134,18 +112,14 @@ class ModuleRepository extends AbstractRepository
         $deviceId = mt_rand(1, AbstractHcSlave::MAX_DEVICE_ID);
         ++$tryCount;
 
-        $table = self::getTable(Module::getTableName());
-        $table->setWhere('`device_id`=' . $deviceId);
-        $table->setLimit(1);
-
-        $count = $table->selectAggregate('COUNT(`device_id`)');
+        $count = $this->getAggregate('COUNT(`device_id`)', '`device_id`=?', [$deviceId], Module::class);
 
         if (!empty($count) && (int) $count[0] > 0) {
             if ($tryCount === self::MAX_GENERATE_DEVICE_ID_RETRY) {
                 throw new GetError('Es konnte keine freie Device ID ermittelt werden!');
             }
 
-            return self::getFreeDeviceId($tryCount);
+            return $this->getFreeDeviceId($tryCount);
         }
 
         return $deviceId;

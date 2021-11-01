@@ -3,11 +3,17 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Type;
+use mysqlTable;
 
+/**
+ * @method Type fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
+ * @method Type[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null)
+ * @method Type getModel(mysqlTable $table, string $abstractModelClassName)
+ */
 class TypeRepository extends AbstractRepository
 {
     /**
@@ -35,25 +41,15 @@ class TypeRepository extends AbstractRepository
             throw $exception;
         }
 
-        $model = new Type();
-        $model->loadFromMysqlTable($table);
-
-        return $model;
+        return $this->getModel($table, Type::class);
     }
 
     /**
      * @throws SelectError
-     * @throws DateTimeError
      */
     public function getById(int $id): Type
     {
-        $model = $this->fetchOne('`id`=?', [$id], Type::class);
-
-        if (!$model instanceof Type) {
-            throw new SelectError();
-        }
-
-        return $model;
+        return $this->fetchOne('`id`=?', [$id], Type::class);
     }
 
     /**
@@ -61,13 +57,7 @@ class TypeRepository extends AbstractRepository
      */
     public function getByHelperName(string $helperName): Type
     {
-        $model = $this->fetchOne('`helper`=?', [$helperName], Type::class);
-
-        if (!$model instanceof Type) {
-            throw new SelectError();
-        }
-
-        return $model;
+        return $this->fetchOne('`helper`=?', [$helperName], Type::class);
     }
 
     /**

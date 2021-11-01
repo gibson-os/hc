@@ -3,12 +3,16 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Log;
 use mysqlTable;
 
+/**
+ * @method Log fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
+ * @method Log getModel(mysqlTable $table, string $abstractModelClassName)
+ */
 class LogRepository extends AbstractRepository
 {
     public function create(int $type, string $data, string $direction): Log
@@ -21,18 +25,11 @@ class LogRepository extends AbstractRepository
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getById(int $id): Log
     {
-        $model = $this->fetchOne('`id`=?', [$id], Log::class);
-
-        if (!$model instanceof Log) {
-            throw new SelectError();
-        }
-
-        return $model;
+        return $this->fetchOne('`id`=?', [$id], Log::class);
     }
 
     /**
@@ -59,10 +56,7 @@ class LogRepository extends AbstractRepository
             throw $exception;
         }
 
-        $model = new Log();
-        $model->loadFromMysqlTable($table);
-
-        return $model;
+        return $this->getModel($table, Log::class);
     }
 
     /**
@@ -89,10 +83,7 @@ class LogRepository extends AbstractRepository
             throw $exception;
         }
 
-        $model = new Log();
-        $model->loadFromMysqlTable($table);
-
-        return $model;
+        return $this->getModel($table, Log::class);
     }
 
     private function completeWhere(
@@ -146,9 +137,6 @@ class LogRepository extends AbstractRepository
             throw $exception;
         }
 
-        $model = new Log();
-        $model->loadFromMysqlTable($table);
-
-        return $model;
+        return $this->getModel($table, Log::class);
     }
 }
