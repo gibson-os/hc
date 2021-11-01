@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Controller;
 
 use Exception;
+use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
@@ -13,29 +14,29 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\PermissionDenied;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Model\User\Permission;
+use GibsonOS\Core\Service\Attribute\PermissionAttribute;
 use GibsonOS\Core\Service\PermissionService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService as AnimationSequenceService;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Store\Neopixel\AnimationStore;
+use JsonException;
 
 class NeopixelAnimationController extends AbstractController
 {
     /**
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SelectError
      * @throws Exception
      */
+    #[CheckPermission(Permission::READ)]
     public function index(AnimationAttributeService $animationService, ModuleRepository $moduleRepository, int $moduleId): AjaxResponse
     {
-        $this->checkPermission(PermissionService::READ);
-
         $slave = $moduleRepository->getById($moduleId);
 
         return new AjaxResponse([
@@ -50,13 +51,10 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws GetError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      */
+    #[CheckPermission(Permission::READ)]
     public function list(AnimationStore $animationStore, int $moduleId): AjaxResponse
     {
-        $this->checkPermission(PermissionService::READ);
-
         $animationStore->setSlave($moduleId);
 
         return $this->returnSuccess(
@@ -67,14 +65,12 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SelectError
+     * @throws JsonException
      */
+    #[CheckPermission(Permission::READ)]
     public function load(AnimationSequenceService $animationService, int $id): AjaxResponse
     {
-        $this->checkPermission(PermissionService::READ);
-
         $steps = $animationService->getById($id);
         $items = [];
 
@@ -89,13 +85,12 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws DateTimeError
-     * @throws GetError
-     * @throws LoginRequired
-     * @throws PermissionDenied
-     * @throws SelectError
-     * @throws SaveError
      * @throws DeleteError
+     * @throws GetError
+     * @throws SaveError
+     * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE, ['id' => Permission::WRITE + Permission::DELETE])]
     public function save(
         AnimationSequenceService $animationService,
         AnimationStore $animationStore,
@@ -105,12 +100,6 @@ class NeopixelAnimationController extends AbstractController
         array $items,
         int $id = null
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
-        if (!empty($id)) {
-            $this->checkPermission(PermissionService::DELETE);
-        }
-
         $slave = $moduleRepository->getById($moduleId);
 
         if (empty($id)) {
@@ -150,11 +139,11 @@ class NeopixelAnimationController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws DeleteError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
+    #[CheckPermission(Permission::WRITE)]
     public function send(
         LedService $ledService,
         NeopixelService $neopixelService,
@@ -164,8 +153,6 @@ class NeopixelAnimationController extends AbstractController
         int $moduleId,
         array $items = []
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
         $slave = $moduleRepository->getById($moduleId);
         $steps = $animationSequenceService->transformToTimeSteps($items);
         $runtimes = $animationSequenceService->getRuntimes($steps);
@@ -206,11 +193,10 @@ class NeopixelAnimationController extends AbstractController
     /**
      * @throws DateTimeError
      * @throws DeleteError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function play(
         AnimationSequenceService $animationSequenceService,
         AnimationAttributeService $animationAttributeService,
@@ -219,8 +205,6 @@ class NeopixelAnimationController extends AbstractController
         int $iterations,
         array $items = []
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
         $slave = $moduleRepository->getById($moduleId);
         $steps = $animationSequenceService->transformToTimeSteps($items);
         $animationAttributeService->setSteps($slave, $steps, false);
@@ -231,12 +215,10 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function start(
         //AnimationAttributeService $animationService,
         NeopixelService $neopixelService,
@@ -244,8 +226,6 @@ class NeopixelAnimationController extends AbstractController
         int $moduleId,
         int $iterations = 0
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
         $slave = $moduleRepository->getById($moduleId);
         $neopixelService->writeSequenceStart($slave, $iterations);
         // @todo refactor. Sollte mit dem locker arbeiten um laufende prozesse zu setzen
@@ -256,20 +236,16 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function pause(
         //AnimationAttributeService $animationService,
         NeopixelService $neopixelService,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
         $slave = $moduleRepository->getById($moduleId);
         $neopixelService->writeSequencePause($slave);
         //$animationService->setStarted($slave, false);
@@ -279,20 +255,16 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function stop(
         //AnimationAttributeService $animationService,
         NeopixelService $neopixelService,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
         $slave = $moduleRepository->getById($moduleId);
         $neopixelService->writeSequenceStop($slave);
         //$animationService->setStarted($slave, false);

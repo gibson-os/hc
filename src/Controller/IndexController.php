@@ -3,17 +3,16 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\GetError;
-use GibsonOS\Core\Exception\LoginRequired;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\PermissionDenied;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Service\PermissionService;
+use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Log;
@@ -25,9 +24,8 @@ class IndexController extends AbstractController
     /**
      * @throws DateTimeError
      * @throws GetError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      */
+    #[CheckPermission(Permission::READ)]
     public function log(
         LogStore $logStore,
         ?int $masterId,
@@ -38,8 +36,6 @@ class IndexController extends AbstractController
         int $limit = 100,
         int $start = 0
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::READ);
-
         $logStore
             ->setMasterId($masterId)
             ->setModuleId($moduleId)
@@ -60,18 +56,15 @@ class IndexController extends AbstractController
 
     /**
      * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws AbstractException
      * @throws FactoryError
      * @throws SaveError
      * @throws SelectError
      * @throws ReceiveError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function logSend(SlaveFactory $slaveFactory, LogRepository $logRepository, int $id): AjaxResponse
     {
-        $this->checkPermission(PermissionService::WRITE);
-
         $log = $logRepository->getById($id);
         $module = $log->getModule();
 

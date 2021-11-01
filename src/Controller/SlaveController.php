@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
@@ -12,6 +13,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\PermissionDenied;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Service\PermissionService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
@@ -25,13 +27,11 @@ use GibsonOS\Module\Hc\Store\SlaveStore;
 class SlaveController extends AbstractController
 {
     /**
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      * @throws FactoryError
      */
+    #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function add(
         ModuleRepository $moduleRepository,
         MasterRepository $masterRepository,
@@ -44,8 +44,6 @@ class SlaveController extends AbstractController
         int $typeId,
         bool $withHandshake
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::MANAGE + PermissionService::WRITE);
-
         $master = $masterRepository->getById($masterId);
         $type = $typeRepository->getById($typeId);
 
@@ -77,10 +75,9 @@ class SlaveController extends AbstractController
     }
 
     /**
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws GetError
      */
+    #[CheckPermission(Permission::READ)]
     public function index(
         SlaveStore $slaveStore,
         int $limit = 100,
@@ -88,8 +85,6 @@ class SlaveController extends AbstractController
         array $sort = [],
         int $masterId = null
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::READ);
-
         $slaveStore->setLimit($limit, $start);
         $slaveStore->setSortByExt($sort);
         $slaveStore->setMasterId($masterId);
@@ -100,14 +95,11 @@ class SlaveController extends AbstractController
     /**
      * @param int[] $ids
      *
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws DeleteError
      */
+    #[CheckPermission(Permission::MANAGE + Permission::DELETE)]
     public function delete(ModuleRepository $moduleRepository, array $ids): AjaxResponse
     {
-        $this->checkPermission(PermissionService::DELETE + PermissionService::MANAGE);
-
         $moduleRepository->deleteByIds($ids);
 
         return $this->returnSuccess();

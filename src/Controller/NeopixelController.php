@@ -3,16 +3,15 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\GetError;
-use GibsonOS\Core\Exception\LoginRequired;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\PermissionDenied;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Service\PermissionService;
+use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Core\Utility\StatusCode;
@@ -30,17 +29,13 @@ use JsonException;
 class NeopixelController extends AbstractController
 {
     /**
-     * @throws DateTimeError
      * @throws GetError
      * @throws JsonException
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SelectError
      */
+    #[CheckPermission(Permission::READ)]
     public function index(LedStore $ledStore, ModuleRepository $moduleRepository, int $moduleId): AjaxResponse
     {
-        $this->checkPermission(PermissionService::READ);
-
         $slave = $moduleRepository->getById($moduleId);
         $ledStore->setModule($moduleId);
 
@@ -56,11 +51,10 @@ class NeopixelController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function showLeds(
         NeopixelService $neopixelService,
         LedMapper $ledMapper,
@@ -68,8 +62,6 @@ class NeopixelController extends AbstractController
         int $moduleId,
         array $leds = []
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
         $slave = $moduleRepository->getById($moduleId);
         $neopixelService->writeLeds($slave, $ledMapper->mapFromArrays($leds, true, false));
 
@@ -80,12 +72,11 @@ class NeopixelController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws DeleteError
-     * @throws LoginRequired
-     * @throws PermissionDenied
+     * @throws JsonException
      * @throws SaveError
      * @throws SelectError
-     * @throws JsonException
      */
+    #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function setLeds(
         NeopixelService $neopixelService,
         LedMapper $ledMapper,
@@ -94,8 +85,6 @@ class NeopixelController extends AbstractController
         int $moduleId,
         array $leds = []
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::MANAGE + PermissionService::WRITE);
-
         $slave = $moduleRepository->getById($moduleId);
         $leds = $ledMapper->mapFromArrays($leds, false, false);
         $ledCounts = $ledService->getChannelCounts($slave, $leds);
@@ -117,13 +106,11 @@ class NeopixelController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
      */
+    #[CheckPermission(Permission::WRITE)]
     public function send(
         NeopixelService $neopixelService,
         LedService $ledService,
@@ -131,8 +118,6 @@ class NeopixelController extends AbstractController
         int $moduleId,
         array $channels = []
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
         $slave = $moduleRepository->getById($moduleId);
 
         $neopixelService->writeChannels(
@@ -148,15 +133,12 @@ class NeopixelController extends AbstractController
 
     /**
      * @throws GetError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      */
+    #[CheckPermission(Permission::READ)]
     public function images(
         ImageStore $imageStore,
         int $moduleId
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::READ);
-
         $imageStore->setSlave($moduleId);
 
         return $this->returnSuccess(
@@ -170,11 +152,10 @@ class NeopixelController extends AbstractController
      * @throws DeleteError
      * @throws GetError
      * @throws ImageExists
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE, ['id' => Permission::WRITE + Permission::DELETE])]
     public function saveImage(
         ImageService $imageService,
         ImageStore $imageStore,
@@ -185,12 +166,6 @@ class NeopixelController extends AbstractController
         int $id = null,
         array $leds = []
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
-        if (!empty($id)) {
-            $this->checkPermission(PermissionService::DELETE);
-        }
-
         $slave = $moduleRepository->getById($moduleId);
 
         if (empty($id)) {

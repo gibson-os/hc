@@ -3,15 +3,13 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\LoginRequired;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\PermissionDenied;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Service\PermissionService;
+use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Slave\BlankService;
@@ -26,11 +24,12 @@ class BlankController extends AbstractController
     private const DATA_FORMAT_INT = 'int';
 
     /**
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
+     * @throws AbstractException
+     * @throws SaveError
      * @throws SelectError
+     * @throws ReceiveError
      */
+    #[CheckPermission(Permission::READ)]
     public function read(
         BlankService $blankService,
         TransformService $transformService,
@@ -40,8 +39,6 @@ class BlankController extends AbstractController
         string $dataFormat,
         int $length
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::READ);
-
         $slave = $moduleRepository->getById($moduleId);
         $data = $blankService->read($slave, $command, $length);
         $data = match ($dataFormat) {
@@ -55,12 +52,10 @@ class BlankController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function write(
         BlankService $blankService,
         TransformService $transformService,
@@ -71,8 +66,6 @@ class BlankController extends AbstractController
         string $data,
         bool $isHcData
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
         switch ($dataFormat) {
             case self::DATA_FORMAT_HEX:
                 $data = $transformService->hexToAscii($data);

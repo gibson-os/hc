@@ -17,6 +17,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
 use GibsonOS\Module\Hc\Repository\SequenceRepository;
+use JsonException;
 
 class AnimationService extends AbstractService
 {
@@ -38,6 +39,7 @@ class AnimationService extends AbstractService
     /**
      * @throws SelectError
      * @throws DateTimeError
+     * @throws JsonException
      */
     public function getById(int $id): array
     {

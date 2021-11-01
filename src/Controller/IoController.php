@@ -3,15 +3,13 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\LoginRequired;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\PermissionDenied;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Service\PermissionService;
+use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
@@ -22,11 +20,9 @@ class IoController extends AbstractController
 {
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function set(
         IoService $ioService,
         ModuleRepository $moduleRepository,
@@ -41,8 +37,6 @@ class IoController extends AbstractController
         int $fade,
         array $valueNames
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
         $valueNames = array_map('trim', $valueNames);
         $ioService->setPort(
             $moduleRepository->getById($moduleId),
@@ -60,14 +54,9 @@ class IoController extends AbstractController
         return $this->returnSuccess();
     }
 
-    /**
-     * @throws LoginRequired
-     * @throws PermissionDenied
-     */
+    #[CheckPermission(Permission::READ)]
     public function ports(PortStore $portStore, int $moduleId): AjaxResponse
     {
-        $this->checkPermission(PermissionService::READ);
-
         $portStore->setModule($moduleId);
 
         return $this->returnSuccess($portStore->getList());
@@ -75,19 +64,15 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function toggle(
         IoService $ioService,
         ModuleRepository $moduleRepository,
         int $moduleId,
         int $number
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
         $ioService->toggleValue($moduleRepository->getById($moduleId), $number);
 
         return $this->returnSuccess();
@@ -95,17 +80,13 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function loadFromEeprom(IoService $ioService, ModuleRepository $moduleRepository, int $moduleId): AjaxResponse
     {
-        $this->checkPermission(PermissionService::WRITE);
-
         $slave = $moduleRepository->getById($moduleId);
         $ioService->readPortsFromEeprom($slave);
 
@@ -114,14 +95,12 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function saveToEeprom(IoService $ioService, ModuleRepository $moduleRepository, int $moduleId): AjaxResponse
     {
-        $this->checkPermission(PermissionService::WRITE);
-
         $ioService->writePortsToEeprom($moduleRepository->getById($moduleId));
 
         return $this->returnSuccess();
@@ -129,21 +108,17 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::READ)]
     public function directConnects(
         IoService $ioService,
         DirectConnectStore $directConnectStore,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::READ);
-
         $directConnectStore->setModule($moduleId);
 
         return new AjaxResponse([
@@ -154,11 +129,9 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function saveDirectConnect(
         IoService $ioService,
         ModuleRepository $moduleRepository,
@@ -173,8 +146,6 @@ class IoController extends AbstractController
         int $value,
         int $addOrSub
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
         $ioService->saveDirectConnect(
             $moduleRepository->getById($moduleId),
             $inputPort,
@@ -193,11 +164,9 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SelectError
      */
+    #[CheckPermission(Permission::DELETE)]
     public function deleteDirectConnect(
         IoService $ioService,
         ModuleRepository $moduleRepository,
@@ -205,8 +174,6 @@ class IoController extends AbstractController
         int $inputPort,
         int $order
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::DELETE);
-
         $ioService->deleteDirectConnect($moduleRepository->getById($moduleId), $inputPort, $order);
 
         return $this->returnSuccess();
@@ -214,19 +181,15 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SelectError
      */
+    #[CheckPermission(Permission::DELETE)]
     public function resetDirectConnect(
         IoService $ioService,
         ModuleRepository $moduleRepository,
         int $moduleId,
         int $inputPort
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::DELETE);
-
         $ioService->resetDirectConnect($moduleRepository->getById($moduleId), $inputPort);
 
         return $this->returnSuccess();
@@ -234,13 +197,11 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::READ)]
     public function readDirectConnect(
         IoService $ioService,
         ModuleRepository $moduleRepository,
@@ -249,8 +210,6 @@ class IoController extends AbstractController
         int $order,
         bool $reset
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::READ);
-
         $slave = $moduleRepository->getById($moduleId);
 
         try {
@@ -270,19 +229,15 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function defragmentDirectConnect(
         IoService $ioService,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::READ);
-
         $ioService->defragmentDirectConnect($moduleRepository->getById($moduleId));
 
         return $this->returnSuccess();
@@ -290,18 +245,16 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function activateDirectConnect(
         IoService $ioService,
         ModuleRepository $moduleRepository,
         int $moduleId,
         bool $activate
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::WRITE);
-
         $ioService->activateDirectConnect($moduleRepository->getById($moduleId), $activate);
 
         return $this->returnSuccess();

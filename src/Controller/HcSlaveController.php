@@ -4,17 +4,16 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Controller;
 
 use Exception;
+use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\LoginRequired;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\PermissionDenied;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\SetError;
-use GibsonOS\Core\Service\PermissionService;
+use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Module\Hc\Model\Module;
@@ -25,17 +24,13 @@ use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 class HcSlaveController extends AbstractController
 {
     /**
-     * @throws DateTimeError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SelectError
      */
+    #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function generalSettings(
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::MANAGE + PermissionService::READ);
-
         $slave = $moduleRepository->getById($moduleId);
 
         return $this->returnSuccess([
@@ -53,11 +48,10 @@ class HcSlaveController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws FactoryError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SelectError
      * @throws Exception
      */
+    #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function saveGeneralSettings(
         ServiceManagerService $serviceManagerService,
         ModuleRepository $moduleRepository,
@@ -71,8 +65,6 @@ class HcSlaveController extends AbstractController
         bool $overwriteSlave = false,
         bool $deleteSlave = false
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::MANAGE + PermissionService::READ);
-
         $slave = $moduleRepository->getById($moduleId);
         $slaveService = $this->getSlaveService($serviceManagerService, $slave);
         $moduleRepository->startTransaction();
@@ -109,7 +101,7 @@ class HcSlaveController extends AbstractController
 
                         throw $exception;
                     }
-                } catch (SelectError $exception) {
+                } catch (SelectError) {
                     // No existing slave
                 }
 
@@ -167,19 +159,16 @@ class HcSlaveController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws FactoryError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function eepromSettings(
         ServiceManagerService $serviceManagerService,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::MANAGE + PermissionService::READ);
-
         $slave = $moduleRepository->getById($moduleId);
         $slaveService = $this->getSlaveService($serviceManagerService, $slave);
 
@@ -194,19 +183,16 @@ class HcSlaveController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws FactoryError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function saveEepromSettings(
         ServiceManagerService $serviceManagerService,
         ModuleRepository $moduleRepository,
         int $moduleId,
         int $position
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::MANAGE + PermissionService::READ);
-
         $slave = $moduleRepository->getById($moduleId);
         $slaveService = $this->getSlaveService($serviceManagerService, $slave);
         $slaveService->writeEepromPosition($slave, $position);
@@ -218,18 +204,15 @@ class HcSlaveController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws FactoryError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
     public function eraseEeprom(
         ServiceManagerService $serviceManagerService,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::MANAGE + PermissionService::DELETE);
-
         $slave = $moduleRepository->getById($moduleId);
         $slaveService = $this->getSlaveService($serviceManagerService, $slave);
         $slaveService->writeEepromErase($slave);
@@ -241,18 +224,15 @@ class HcSlaveController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws FactoryError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function restart(
         ServiceManagerService $serviceManagerService,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::MANAGE + PermissionService::WRITE);
-
         $slave = $moduleRepository->getById($moduleId);
         $slaveService = $this->getSlaveService($serviceManagerService, $slave);
         $slaveService->writeRestart($slave);
@@ -264,19 +244,16 @@ class HcSlaveController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws FactoryError
-     * @throws LoginRequired
-     * @throws PermissionDenied
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function getStatusLeds(
         ServiceManagerService $serviceManagerService,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
-        $this->checkPermission(PermissionService::MANAGE + PermissionService::READ);
-
         $slave = $moduleRepository->getById($moduleId);
         $slaveService = $this->getSlaveService($serviceManagerService, $slave);
         $activeLeds = $slaveService->readLedStatus($slave);
@@ -311,6 +288,7 @@ class HcSlaveController extends AbstractController
      * @throws SaveError
      * @throws SelectError
      */
+    #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function setStatusLeds(
         ServiceManagerService $serviceManagerService,
         ModuleRepository $moduleRepository,
@@ -368,7 +346,6 @@ class HcSlaveController extends AbstractController
     /**
      * @throws DateTimeError
      * @throws FactoryError
-     * @throws SelectError
      */
     private function getSlaveService(ServiceManagerService $serviceManagerService, Module $slave): AbstractHcSlave
     {
