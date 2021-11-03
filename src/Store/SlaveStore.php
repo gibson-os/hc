@@ -8,14 +8,16 @@ use GibsonOS\Module\Hc\Model\Module;
 
 class SlaveStore extends AbstractDatabaseStore
 {
-    protected function getTableName(): string
+    private ?int $masterId = null;
+
+    protected function getModelClassName(): string
     {
-        return Module::getTableName();
+        return Module::class;
     }
 
     protected function getCountField(): string
     {
-        return '`' . $this->getTableName() . '`.`id`';
+        return '`hc_module`.`id`';
     }
 
     /**
@@ -24,34 +26,45 @@ class SlaveStore extends AbstractDatabaseStore
     protected function getOrderMapping(): array
     {
         return [
-            'name' => '`' . $this->getTableName() . '`.`name`',
+            'name' => '`hc_module`.`name`',
             'type' => '`hy_type`.`name`',
-            'address' => '`' . $this->getTableName() . '`.`address`',
-            'offline' => '`' . $this->getTableName() . '`.`offline`',
-            'added' => '`' . $this->getTableName() . '`.`added`',
-            'modified' => '`' . $this->getTableName() . '`.`modified`',
+            'address' => '`hc_module`.`address`',
+            'offline' => '`hc_module`.`offline`',
+            'added' => '`hc_module`.`added`',
+            'modified' => '`hc_module`.`modified`',
         ];
+    }
+
+    protected function setWheres(): void
+    {
+        if ($this->masterId !== null) {
+            $this->addWhere('`hc_module`.`master_id`=?', [$this->masterId]);
+        }
     }
 
     public function getList(): array
     {
-        $this->table->appendJoinLeft(
-            '`gibson_os`.`hc_type`',
-            '`' . $this->getTableName() . '`.`type_id`=`hc_type`.`id`'
-        );
-        $this->table->setWhere($this->getWhere());
-        $this->table->setOrderBy($this->getOrderBy());
-        $this->table->select(
+        $this->table
+            ->appendJoinLeft(
+                '`gibson_os`.`hc_type`',
+                '`hc_module`.`type_id`=`hc_type`.`id`'
+            )
+            ->setWhere($this->getWhereString())
+            ->setWhereParameters($this->getWhereParameters())
+            ->setOrderBy($this->getOrderBy())
+        ;
+
+        $this->table->selectPrepared(
             false,
-            '`' . $this->getTableName() . '`.`id`, '
-            . '`' . $this->getTableName() . '`.`name`, '
-            . '`' . $this->getTableName() . '`.`type_id`, '
-            . '`' . $this->getTableName() . '`.`address`, '
-            . '`' . $this->getTableName() . '`.`offline`, '
-            . '`' . $this->getTableName() . '`.`added`, '
-            . '`' . $this->getTableName() . '`.`modified`, '
+            '`hc_module`.`id`, '
+            . '`hc_module`.`name`, '
+            . '`hc_module`.`type_id`, '
+            . '`hc_module`.`address`, '
+            . '`hc_module`.`offline`, '
+            . '`hc_module`.`added`, '
+            . '`hc_module`.`modified`, '
             . '`hc_type`.`name` AS `type`,'
-            . 'IFNULL(`' . $this->getTableName() . '`.`hertz`, `hc_type`.`hertz`) AS `hertz`,'
+            . 'IFNULL(`hc_module`.`hertz`, `hc_type`.`hertz`) AS `hertz`,'
             . '`hc_type`.`ui_settings` AS `settings`,'
             . '`hc_type`.`helper`'
         );
@@ -61,13 +74,7 @@ class SlaveStore extends AbstractDatabaseStore
 
     public function setMasterId(?int $masterId): SlaveStore
     {
-        if ($masterId === null) {
-            unset($this->where['masterId']);
-
-            return $this;
-        }
-
-        $this->where['masterId'] = '`' . $this->getTableName() . '`.`master_id`=' . $masterId;
+        $this->masterId = $masterId;
 
         return $this;
     }

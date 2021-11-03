@@ -9,60 +9,50 @@ use GibsonOS\Module\Hc\Model\Attribute;
 
 class PixelStore extends AbstractDatabaseStore
 {
-    protected function getTableName(): string
+    private ?int $moduleId = null;
+
+    protected function getModelClassName(): string
     {
-        return Attribute::getTableName();
+        return Attribute::class;
     }
 
     protected function getCountField(): string
     {
-        return '`' . $this->getTableName() . '`.`sub_id`';
+        return '`hc_attribute`.`sub_id`';
     }
 
-    protected function getOrderMapping(): array
+    public function setModuleId(?int $moduleId): PixelStore
     {
-        return [];
-    }
-
-    public function setModule(int $moduleId): PixelStore
-    {
-        if ($moduleId === 0) {
-            unset($this->where['moduleId']);
-        } else {
-            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $moduleId;
-        }
+        $this->moduleId = $moduleId;
 
         return $this;
     }
 
     public function getList(): iterable
     {
-        $list = [];
-
         for ($page = 0; $page < 8; ++$page) {
             for ($column = 0; $column < 128; ++$column) {
                 for ($bit = 0; $bit < 8; ++$bit) {
-                    $list[] = new Pixel($page, $column, $bit);
+                    yield new Pixel($page, $column, $bit);
                 }
             }
         }
 
-        return $list;
-
-//        $this->where[] = '`' . $this->getTableName() . '`.`type`=' . $this->database->escape(LedAttribute::ATTRIBUTE_TYPE);
+//        $this->where[] = '`hc_attribute`.`type`=' . $this->database->escape(LedAttribute::ATTRIBUTE_TYPE);
 //
 //        $this->table->appendJoinLeft(
 //            '`gibson_os`.`hc_attribute_value`',
-//            '`' . $this->getTableName() . '`.`id`=`hc_attribute_value`.`attribute_id`'
+//            '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`'
 //        );
 //
-//        $this->table->setWhere($this->getWhere());
-//        $this->table->setOrderBy('`' . $this->getTableName() . '`.`sub_id` ASC');
-//        $this->table->select(
+//        $this->table->setWhere($this->getWhereString());
+//        $this->table->setWhereParameters($this->getWhereParameters());
+//        $this->table->setOrderBy('`hc_attribute`.`sub_id` ASC');
+//        $this->table->selectPrepared(
 //            false,
-//            '`' . $this->getTableName() . '`.`id`, ' .
-//            '`' . $this->getTableName() . '`.`sub_id`, ' .
-//            '`' . $this->getTableName() . '`.`key`, ' .
+//            '`hc_attribute`.`id`, ' .
+//            '`hc_attribute`.`sub_id`, ' .
+//            '`hc_attribute`.`key`, ' .
 //            '`hc_attribute_value`.`order`, ' .
 //            '`hc_attribute_value`.`value`'
 //        );

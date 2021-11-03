@@ -57,7 +57,7 @@ class IoController extends AbstractController
     #[CheckPermission(Permission::READ)]
     public function ports(PortStore $portStore, int $moduleId): AjaxResponse
     {
-        $portStore->setModule($moduleId);
+        $portStore->setModuleId($moduleId);
 
         return $this->returnSuccess($portStore->getList());
     }
@@ -119,7 +119,7 @@ class IoController extends AbstractController
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
-        $directConnectStore->setModule($moduleId);
+        $directConnectStore->setModuleId($moduleId);
 
         return new AjaxResponse([
             'data' => $directConnectStore->getList(),

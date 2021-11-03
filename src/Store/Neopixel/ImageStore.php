@@ -3,72 +3,70 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Neopixel;
 
+use Generator;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService as ImageService;
+use JsonException;
 
 class ImageStore extends AbstractDatabaseStore
 {
-    protected function getTableName(): string
+    private ?int $slaveId = null;
+
+    protected function getModelClassName(): string
     {
-        return Sequence::getTableName();
+        return Sequence::class;
     }
 
     protected function getCountField(): string
     {
-        return '`' . $this->getTableName() . '`.`id`';
+        return '`hc_sequence`.`id`';
+    }
+
+    protected function setWheres(): void
+    {
+        $this->addWhere('`hc_sequence`.`type`=?', [ImageService::SEQUENCE_TYPE]);
+
+        if ($this->slaveId !== null) {
+            $this->addWhere('`hc_sequence`.`module_id`=?', [$this->slaveId]);
+        }
     }
 
     /**
-     * @return string[]
+     * @throws JsonException
      */
-    protected function getOrderMapping(): array
+    public function getList(): Generator
     {
-        return [];
-    }
+        $this->table
+                ->appendJoinLeft(
+                    '`gibson_os`.`' . Sequence\Element::getTableName() . '`',
+                    '`hc_sequence`.`id`=`' . Sequence\Element::getTableName() . '`.`sequence_id`'
+                )
+            ->setWhere($this->getWhereString())
+            ->setWhereParameters($this->getWhereParameters())
+            ->setOrderBy('`hc_sequence`.`name` ASC')
+        ;
 
-    /**
-     * @return array[]
-     */
-    public function getList(): array
-    {
-        $this->where[] = '`' . $this->getTableName() . '`.`type`=' . ImageService::SEQUENCE_TYPE;
-
-        $this->table->appendJoinLeft(
-            '`gibson_os`.`' . Sequence\Element::getTableName() . '`',
-            '`' . $this->getTableName() . '`.`id`=`' . Sequence\Element::getTableName() . '`.`sequence_id`'
-        );
-
-        $this->table->setWhere($this->getWhere());
-        $this->table->setOrderBy('`' . $this->getTableName() . '`.`name` ASC');
-        $this->table->select(
+        $this->table->selectPrepared(
             false,
-            '`' . $this->getTableName() . '`.`id`, ' .
-            '`' . $this->getTableName() . '`.`name`, ' .
+            '`hc_sequence`.`id`, ' .
+            '`hc_sequence`.`name`, ' .
             '`' . Sequence\Element::getTableName() . '`.`data`'
         );
 
-        $list = [];
-
         foreach ($this->table->connection->fetchObjectList() as $sequence) {
-            $list[] = [
+            yield [
                 'id' => $sequence->id,
                 'name' => $sequence->name,
                 'leds' => JsonUtility::decode($sequence->data),
             ];
         }
-
-        return $list;
     }
 
-    public function setSlave(int $slaveId): ImageStore
+    public function setSlaveId(?int $slaveId): ImageStore
     {
-        if ($slaveId === 0) {
-            unset($this->where['moduleId']);
-        } else {
-            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $slaveId;
-        }
+        $this->slaveId = $slaveId;
 
         return $this;
     }

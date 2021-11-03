@@ -51,7 +51,7 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission(Permission::READ)]
     public function list(AnimationStore $animationStore, int $moduleId): AjaxResponse
     {
-        $animationStore->setSlave($moduleId);
+        $animationStore->setSlaveId($moduleId);
 
         return $this->returnSuccess(
             $animationStore->getList(),
@@ -120,7 +120,7 @@ class NeopixelAnimationController extends AbstractController
             $animationService->transformToTimeSteps($items),
             $id
         );
-        $animationStore->setSlave($moduleId);
+        $animationStore->setSlaveId($moduleId);
 
         return new AjaxResponse([
             'data' => $animationStore->getList(),

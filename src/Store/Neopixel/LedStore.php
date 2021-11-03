@@ -10,9 +10,16 @@ use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService as LedAttribute;
 
 class LedStore extends AbstractDatabaseStore
 {
-    protected function getTableName(): string
+    private ?int $slaveId = null;
+
+    protected function getModelClassName(): string
     {
-        return Attribute::getTableName();
+        return Attribute::class;
+    }
+
+    protected function setWheres(): void
+    {
+        $this->addWhere('`hc_attribute`.`type`=?', [LedAttribute::ATTRIBUTE_TYPE]);
     }
 
     /**
@@ -20,20 +27,21 @@ class LedStore extends AbstractDatabaseStore
      */
     public function getList(): array
     {
-        $this->where[] = '`' . $this->getTableName() . '`.`type`=' . $this->database->escape(LedAttribute::ATTRIBUTE_TYPE);
+        $this->table
+            ->appendJoinLeft(
+                '`gibson_os`.`hc_attribute_value`',
+                '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`'
+            )
+            ->setWhere($this->getWhereString())
+            ->setWhereParameters($this->getWhereParameters())
+            ->setOrderBy('`hc_attribute`.`sub_id` ASC')
+        ;
 
-        $this->table->appendJoinLeft(
-            '`gibson_os`.`hc_attribute_value`',
-            '`' . $this->getTableName() . '`.`id`=`hc_attribute_value`.`attribute_id`'
-        );
-
-        $this->table->setWhere($this->getWhere());
-        $this->table->setOrderBy('`' . $this->getTableName() . '`.`sub_id` ASC');
-        $this->table->select(
+        $this->table->selectPrepared(
             false,
-            '`' . $this->getTableName() . '`.`id`, ' .
-            '`' . $this->getTableName() . '`.`sub_id`, ' .
-            '`' . $this->getTableName() . '`.`key`, ' .
+            '`hc_attribute`.`id`, ' .
+            '`hc_attribute`.`sub_id`, ' .
+            '`hc_attribute`.`key`, ' .
             '`hc_attribute_value`.`order`, ' .
             '`hc_attribute_value`.`value`'
         );
@@ -55,25 +63,13 @@ class LedStore extends AbstractDatabaseStore
 
     public function getCountField(): string
     {
-        return '`' . $this->getTableName() . '`.`sub_id`';
+        return '`hc_attribute`.`sub_id`';
     }
 
-    public function setModule(int $moduleId): LedStore
+    public function setSlaveId(?int $slaveId): LedStore
     {
-        if ($moduleId === 0) {
-            unset($this->where['moduleId']);
-        } else {
-            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $moduleId;
-        }
+        $this->slaveId = $slaveId;
 
         return $this;
-    }
-
-    /**
-     * @return string[]
-     */
-    protected function getOrderMapping(): array
-    {
-        return [];
     }
 }

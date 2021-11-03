@@ -9,58 +9,30 @@ use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService as AnimationSe
 
 class AnimationStore extends AbstractDatabaseStore
 {
-    protected function getTableName(): string
+    private ?int $slaveId = null;
+
+    protected function getModelClassName(): string
     {
-        return Sequence::getTableName();
+        return Sequence::class;
     }
 
-    protected function getCountField(): string
+    protected function getDefaultOrder(): string
     {
-        return '`' . $this->getTableName() . '`.`id`';
+        return '`name`';
     }
 
-    /**
-     * @return string[]
-     */
-    protected function getOrderMapping(): array
+    protected function setWheres(): void
     {
-        return [];
-    }
+        $this->addWhere('`type`=?', [AnimationService::SEQUENCE_TYPE]);
 
-    /**
-     * @return array[]
-     */
-    public function getList(): array
-    {
-        $this->where[] = '`' . $this->getTableName() . '`.`type`=' . AnimationService::SEQUENCE_TYPE;
-
-        $this->table->setWhere($this->getWhere());
-        $this->table->setOrderBy('`' . $this->getTableName() . '`.`name` ASC');
-        $this->table->select(
-            false,
-            '`' . $this->getTableName() . '`.`id`, ' .
-            '`' . $this->getTableName() . '`.`name`'
-        );
-
-        $list = [];
-
-        foreach ($this->table->connection->fetchObjectList() as $sequence) {
-            $list[] = [
-                'id' => $sequence->id,
-                'name' => $sequence->name,
-            ];
+        if ($this->slaveId !== null) {
+            $this->addWhere('`module_id`=?', [$this->slaveId]);
         }
-
-        return $list;
     }
 
-    public function setSlave(int $slaveId): AnimationStore
+    public function setSlaveId(?int $slaveId): AnimationStore
     {
-        if ($slaveId === 0) {
-            unset($this->where['moduleId']);
-        } else {
-            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $slaveId;
-        }
+        $this->slaveId = $slaveId;
 
         return $this;
     }

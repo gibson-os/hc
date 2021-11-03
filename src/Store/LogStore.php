@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store;
 
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Factory\FormatterFactory;
@@ -15,6 +14,14 @@ use mysqlDatabase;
 
 class LogStore extends AbstractDatabaseStore
 {
+    private ?int $masterId = null;
+
+    private ?int $moduleId = null;
+
+    private ?string $direction = null;
+
+    private array $types = [];
+
     public function __construct(
         private FormatterFactory $formatterFactory,
         private DateTimeService $dateTimeService,
@@ -23,91 +30,102 @@ class LogStore extends AbstractDatabaseStore
         parent::__construct($database);
     }
 
-    protected function getTableName(): string
+    protected function getModelClassName(): string
     {
-        return Log::getTableName();
+        return Log::class;
+    }
+
+    protected function setWheres(): void
+    {
+        if ($this->masterId !== null) {
+            $this->addWhere('`master_id`=?', [$this->masterId]);
+        }
+
+        if ($this->moduleId !== null) {
+            $this->addWhere('`module_id`=?', [$this->moduleId]);
+        }
+
+        if ($this->direction !== null) {
+            $this->addWhere('`direction`=?', [$this->direction]);
+        }
+
+        if (count($this->types) > 0) {
+            $this->addWhere('`type` IN (' . $this->table->getParametersString($this->types) . ')', $this->types);
+        }
+    }
+
+    public function getMasterId(): ?int
+    {
+        return $this->masterId;
     }
 
     public function setMasterId(?int $masterId): LogStore
     {
-        if ($masterId === null) {
-            unset($this->where['masterId']);
-        } else {
-            $this->where['masterId'] = '`' . $this->getTableName() . '`.`master_id`=' . $masterId;
-        }
+        $this->masterId = $masterId;
 
         return $this;
     }
 
+    public function getModuleId(): ?int
+    {
+        return $this->moduleId;
+    }
+
     public function setModuleId(?int $moduleId): LogStore
     {
-        if ($moduleId === null) {
-            unset($this->where['moduleId']);
-        } else {
-            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $moduleId;
-        }
+        $this->moduleId = $moduleId;
 
         return $this;
     }
 
     public function setDirection(?string $direction): LogStore
     {
-        if ($direction === null) {
-            unset($this->where['direction']);
-        } else {
-            $this->where['direction'] = '`' . $this->getTableName() . '`.`direction`=' . $this->database->escape($direction);
-        }
+        $this->direction = $direction;
 
         return $this;
     }
 
-    public function setTypes(?array $types): LogStore
+    public function setTypes(array $types): LogStore
     {
-        if (empty($types)) {
-            unset($this->where['types']);
-
-            return $this;
-        }
-
-        $this->where['types'] = '`' . $this->getTableName() . '`.`type` IN (' . $this->database->implode($types) . ')';
+        $this->types = $types;
 
         return $this;
     }
 
     /**
-     * @throws DateTimeError
-     *
      * @return Log[]
      */
     public function getList(): array
     {
-        $this->table->appendJoinLeft(
-            '`gibson_os`.`hc_master`',
-            '`hc_master`.`id`=`hc_log`.`master_id`'
-        );
-        $this->table->appendJoinLeft(
-            '`gibson_os`.`hc_module`',
-            '`hc_module`.`id`=`hc_log`.`module_id`'
-        );
-        $this->table->appendJoinLeft(
-            '`gibson_os`.`hc_type`',
-            '`hc_module`.`type_id`=`hc_type`.`id`'
-        );
+        $this->table
+            ->appendJoinLeft(
+                '`gibson_os`.`hc_master`',
+                '`hc_master`.`id`=`hc_log`.`master_id`'
+            )
+            ->appendJoinLeft(
+                '`gibson_os`.`hc_module`',
+                '`hc_module`.`id`=`hc_log`.`module_id`'
+            )
+            ->appendJoinLeft(
+                '`gibson_os`.`hc_type`',
+                '`hc_module`.`type_id`=`hc_type`.`id`'
+            )
+            ->setWhere($this->getWhereString())
+            ->setWhereParameters($this->getWhereParameters())
+            ->setOrderBy($this->getOrderBy())
+        ;
 
-        $this->table->setWhere($this->getWhere());
-        //$this->table->setOrderBy('`' . $this->getTableName() . '`.`id` DESC');
-        $this->table->setOrderBy($this->getOrderBy());
-        $this->table->select(
+        $this->table->selectPrepared(
             false,
-            '`' . $this->getTableName() . '`.`id`, ' .
-            '`' . $this->getTableName() . '`.`data`, ' .
-            '`' . $this->getTableName() . '`.`raw_data`, ' .
-            '`' . $this->getTableName() . '`.`direction`, ' .
-            '`' . $this->getTableName() . '`.`type`, ' .
-            '`' . $this->getTableName() . '`.`command`, ' .
-            '`' . $this->getTableName() . '`.`added`, ' .
-            '`' . $this->getTableName() . '`.`module_id`, ' .
-            '`' . $this->getTableName() . '`.`master_id`, ' .
+            '`hc_log`.`id`, ' .
+            '`hc_log`.`data`, ' .
+            '`hc_log`.`raw_data`, ' .
+            '`hc_log`.`direction`, ' .
+            '`hc_log`.`type`, ' .
+            '`hc_log`.`command`, ' .
+            '`hc_log`.`added`, ' .
+            '`hc_log`.`module_id`, ' .
+            '`hc_log`.`master_id`, ' .
             '`hc_master`.`id` AS `master_id`, ' .
             '`hc_master`.`name` AS `master_name`, ' .
             '`hc_master`.`protocol` AS `master_protocol`, ' .
@@ -209,17 +227,20 @@ class LogStore extends AbstractDatabaseStore
 
     public function getCountField(): string
     {
-        return '`' . $this->getTableName() . '`.`id`';
+        return '`hc_log`.`id`';
     }
 
     public function getTraffic(): int
     {
-        $this->table->clearJoin();
-        $this->table->setOrderBy();
-        $this->table->setWhere($this->getWhere());
+        $this->table
+            ->clearJoin()
+            ->setOrderBy()
+            ->setWhere($this->getWhereString())
+            ->setWhereParameters($this->getWhereParameters())
+        ;
 
-        $traffic = $this->table->selectAggregate(
-            'LENGTH(GROUP_CONCAT(`' . $this->getTableName() . '`.`raw_data` SEPARATOR \'\'))+' .
+        $traffic = $this->table->selectAggregatePrepared(
+            'LENGTH(GROUP_CONCAT(`hc_log`.`raw_data` SEPARATOR \'\'))+' .
             '(COUNT(`hc_log`.`id`)*3)'
         );
 
@@ -236,12 +257,12 @@ class LogStore extends AbstractDatabaseStore
     protected function getOrderMapping(): array
     {
         return [
-            'added' => '`' . $this->getTableName() . '`.`added`',
+            'added' => '`hc_log`.`added`',
             //'masterName' => '`hc_master`.`name`',
             //'moduleName' => '`hc_module`.`name`',
-            'direction' => '`' . $this->getTableName() . '`.`direction`',
-            'type' => '`' . $this->getTableName() . '`.`type`',
-            'command' => '`' . $this->getTableName() . '`.`command`',
+            'direction' => '`hc_log`.`direction`',
+            'type' => '`hc_log`.`type`',
+            'command' => '`hc_log`.`command`',
         ];
     }
 }

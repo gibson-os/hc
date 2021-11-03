@@ -8,14 +8,9 @@ use GibsonOS\Module\Hc\Model\Type;
 
 class TypeStore extends AbstractDatabaseStore
 {
-    protected function getTableName(): string
+    protected function getModelClassName(): string
     {
-        return Type::getTableName();
-    }
-
-    protected function getCountField(): string
-    {
-        return '`' . $this->getTableName() . '`.`id`';
+        return Type::class;
     }
 
     protected function getOrderMapping(): array
@@ -28,13 +23,5 @@ class TypeStore extends AbstractDatabaseStore
             'hertz' => '`hertz`',
             'isHcSlave' => '`isHcSlave`',
         ];
-    }
-
-    public function getList(): array
-    {
-        $this->table->setOrderBy($this->getOrderBy());
-        $this->table->select(false);
-
-        return $this->table->connection->fetchAssocList();
     }
 }

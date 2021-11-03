@@ -24,9 +24,9 @@ class Type extends AbstractModel implements JsonSerializable, AutoCompleteModelI
 
     private int $hertz;
 
-    private bool $isHcSlave;
+    private bool $isHcSlave = false;
 
-    private bool $hasInput;
+    private bool $hasInput = false;
 
     private ?string $uiSettings = null;
 
@@ -142,6 +142,11 @@ class Type extends AbstractModel implements JsonSerializable, AutoCompleteModelI
             'id' => $this->getId(),
             'name' => $this->getName(),
             'helper' => $this->getHelper(),
+            'hertz' => $this->getHertz(),
+            'network' => $this->getNetwork(),
+            'uiSettings' => $this->getUiSettings(),
+            'hasInput' => $this->getHasInput(),
+            'isHcSlave' => $this->getIsHcSlave(),
         ];
     }
 }

@@ -8,14 +8,9 @@ use GibsonOS\Module\Hc\Model\Master;
 
 class MasterStore extends AbstractDatabaseStore
 {
-    protected function getTableName(): string
+    protected function getModelClassName(): string
     {
-        return Master::getTableName();
-    }
-
-    protected function getCountField(): string
-    {
-        return '`' . $this->getTableName() . '`.`id`';
+        return Master::class;
     }
 
     /**
@@ -24,22 +19,11 @@ class MasterStore extends AbstractDatabaseStore
     protected function getOrderMapping(): array
     {
         return [
-            'name' => '`' . $this->getTableName() . '`.`name`',
-            'protocol' => '`' . $this->getTableName() . '`.`protocol`',
-            'address' => '`' . $this->getTableName() . '`.`address`',
-            'added' => '`' . $this->getTableName() . '`.`added`',
-            'modified' => '`' . $this->getTableName() . '`.`modified`',
+            'name' => '`name`',
+            'protocol' => '`protocol`',
+            'address' => '`address`',
+            'added' => '`added`',
+            'modified' => '`modified`',
         ];
-    }
-
-    /**
-     * @return array[]
-     */
-    public function getList(): array
-    {
-        $this->table->setOrderBy($this->getOrderBy());
-        $this->table->select(false);
-
-        return $this->table->connection->fetchAssocList();
     }
 }

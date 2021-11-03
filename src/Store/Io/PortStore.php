@@ -7,16 +7,22 @@ use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
 
-/**
- * Class Port.
- *
- * @package GibsonOS\Module\Hc\Store\Io
- */
 class PortStore extends AbstractDatabaseStore
 {
-    protected function getTableName(): string
+    private ?int $moduleId = null;
+
+    protected function getModelClassName(): string
     {
-        return Attribute::getTableName();
+        return Attribute::class;
+    }
+
+    protected function setWheres(): void
+    {
+        $this->addWhere('`hc_attribute`.`type`=?', [IoService::ATTRIBUTE_TYPE_PORT]);
+
+        if ($this->moduleId !== null) {
+            $this->addWhere('`hc_attribute`.`module_id`=?', [$this->moduleId]);
+        }
     }
 
     /**
@@ -24,20 +30,21 @@ class PortStore extends AbstractDatabaseStore
      */
     public function getList(): array
     {
-        $this->where[] = '`' . $this->getTableName() . '`.`type`=' . $this->database->escape(IoService::ATTRIBUTE_TYPE_PORT);
+        $this->table
+            ->appendJoinLeft(
+                '`gibson_os`.`hc_attribute_value`',
+                '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`'
+            )
+            ->setWhere($this->getWhereString())
+            ->setWhereParameters($this->getWhereParameters())
+            ->setOrderBy('`hc_attribute`.`sub_id` ASC')
+        ;
 
-        $this->table->appendJoinLeft(
-            '`gibson_os`.`hc_attribute_value`',
-            '`' . $this->getTableName() . '`.`id`=`hc_attribute_value`.`attribute_id`'
-        );
-
-        $this->table->setWhere($this->getWhere());
-        $this->table->setOrderBy('`' . $this->getTableName() . '`.`sub_id` ASC');
-        $this->table->select(
+        $this->table->selectPrepared(
             false,
-            '`' . $this->getTableName() . '`.`id`, ' .
-            '`' . $this->getTableName() . '`.`sub_id`, ' .
-            '`' . $this->getTableName() . '`.`key`, ' .
+            '`hc_attribute`.`id`, ' .
+            '`hc_attribute`.`sub_id`, ' .
+            '`hc_attribute`.`key`, ' .
             '`hc_attribute_value`.`order`, ' .
             '`hc_attribute_value`.`value`'
         );
@@ -67,25 +74,13 @@ class PortStore extends AbstractDatabaseStore
 
     public function getCountField(): string
     {
-        return '`' . $this->getTableName() . '`.`sub_id`';
+        return '`hc_attribute`.`sub_id`';
     }
 
-    public function setModule(int $moduleId): PortStore
+    public function setModuleId(?int $moduleId): PortStore
     {
-        if ($moduleId === 0) {
-            unset($this->where['moduleId']);
-        } else {
-            $this->where['moduleId'] = '`' . $this->getTableName() . '`.`module_id`=' . $moduleId;
-        }
+        $this->moduleId = $moduleId;
 
         return $this;
-    }
-
-    /**
-     * @return string[]
-     */
-    protected function getOrderMapping(): array
-    {
-        return [];
     }
 }

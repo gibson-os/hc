@@ -185,7 +185,7 @@ class NeopixelFormatter extends AbstractHcFormatter
     private function getLeds(int $moduleId): array
     {
         if (!isset($this->leds[$moduleId])) {
-            $this->ledStore->setModule($moduleId);
+            $this->ledStore->setSlaveId($moduleId);
             $this->leds[$moduleId] = $this->ledStore->getList();
         }
 

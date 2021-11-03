@@ -31,7 +31,7 @@ class IndexController extends AbstractController
         ?int $masterId,
         ?int $moduleId,
         ?array $directions,
-        ?array $types,
+        array $types = [],
         array $sort = [['property' => 'added', 'direction' => 'DESC']],
         int $limit = 100,
         int $start = 0

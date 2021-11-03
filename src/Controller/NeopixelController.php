@@ -37,7 +37,7 @@ class NeopixelController extends AbstractController
     public function index(LedStore $ledStore, ModuleRepository $moduleRepository, int $moduleId): AjaxResponse
     {
         $slave = $moduleRepository->getById($moduleId);
-        $ledStore->setModule($moduleId);
+        $ledStore->setSlaveId($moduleId);
 
         $config = JsonUtility::decode($slave->getConfig() ?? '');
         $config['pwmSpeed'] = $slave->getPwmSpeed();
@@ -139,7 +139,7 @@ class NeopixelController extends AbstractController
         ImageStore $imageStore,
         int $moduleId
     ): AjaxResponse {
-        $imageStore->setSlave($moduleId);
+        $imageStore->setSlaveId($moduleId);
 
         return $this->returnSuccess(
             $imageStore->getList(),
@@ -187,10 +187,10 @@ class NeopixelController extends AbstractController
         }
 
         $image = $imageService->save($slave, $name, $ledMapper->mapFromArrays($leds, true, false), $id);
-        $imageStore->setSlave($moduleId);
+        $imageStore->setSlaveId($moduleId);
 
         return new AjaxResponse([
-            'data' => $imageStore->getList(),
+            'data' => [...$imageStore->getList()],
             'total' => $imageStore->getCount(),
             'id' => $image->getId(),
             'success' => true,

@@ -9,11 +9,20 @@ use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
 
 class DirectConnectStore extends AbstractDatabaseStore
 {
-    private int $moduleId;
+    private ?int $moduleId = null;
 
-    protected function getTableName(): string
+    protected function getModelClassName(): string
     {
-        return Attribute::getTableName();
+        return Attribute::class;
+    }
+
+    protected function setWheres(): void
+    {
+        $this->addWhere('`hc_attribute`.`type`=?', [IoService::ATTRIBUTE_TYPE_DIRECT_CONNECT]);
+
+        if ($this->moduleId !== null) {
+            $this->addWhere('`hc_attribute`.`module_id`=?', [$this->moduleId]);
+        }
     }
 
     /**
@@ -22,24 +31,24 @@ class DirectConnectStore extends AbstractDatabaseStore
     public function getList(): array
     {
         $portStore = new PortStore();
-        $portStore->setModule($this->moduleId);
+        $portStore->setModuleId($this->moduleId);
         $ports = $portStore->getList();
 
-        $this->where[] = '`' . $this->getTableName() . '`.`type`=' . $this->database->escape(IoService::ATTRIBUTE_TYPE_DIRECT_CONNECT);
+        $this->table
+            ->appendJoinLeft(
+                '`gibson_os`.`hc_attribute_value`',
+                '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`'
+            )
+            ->setWhere($this->getWhereString())
+            ->setWhereParameters($this->getWhereParameters())
+            ->setOrderBy('`hc_attribute`.`sub_id` ASC, `hc_attribute_value`.`order`')
+        ;
 
-        $this->table->appendJoinLeft(
-            '`gibson_os`.`hc_attribute_value`',
-            '`' . $this->getTableName() . '`.`id`=`hc_attribute_value`.`attribute_id`'
-        );
-
-        $this->table->setWhere($this->getWhere());
-        $this->table->setOrderBy('`hc_attribute`.`sub_id` ASC, `hc_attribute_value`.`order`');
-
-        $this->table->select(
+        $this->table->selectPrepared(
             false,
-            '`' . $this->getTableName() . '`.`id`, ' .
-            '`' . $this->getTableName() . '`.`sub_id`, ' .
-            '`' . $this->getTableName() . '`.`key`, ' .
+            '`hc_attribute`.`id`, ' .
+            '`hc_attribute`.`sub_id`, ' .
+            '`hc_attribute`.`key`, ' .
             'IFNULL(`hc_attribute_value`.`order`, 0) as `order`, ' .
             '`hc_attribute_value`.`value`'
         );
@@ -79,14 +88,8 @@ class DirectConnectStore extends AbstractDatabaseStore
         return '`hc_attribute`.`sub_id`';
     }
 
-    public function setModule(int $moduleId): DirectConnectStore
+    public function setModuleId(?int $moduleId): DirectConnectStore
     {
-        if ($moduleId === 0) {
-            unset($this->where['moduleId']);
-        } else {
-            $this->where['moduleId'] = '`hc_attribute`.`module_id`=' . $moduleId;
-        }
-
         $this->moduleId = $moduleId;
 
         return $this;
