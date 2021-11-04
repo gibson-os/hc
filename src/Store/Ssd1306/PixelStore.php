@@ -3,29 +3,20 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Ssd1306;
 
-use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Dto\Ssd1306\Pixel;
 use GibsonOS\Module\Hc\Model\Attribute;
+use GibsonOS\Module\Hc\Store\AbstractAttributeStore;
 
-class PixelStore extends AbstractDatabaseStore
+class PixelStore extends AbstractAttributeStore
 {
-    private ?int $moduleId = null;
-
-    protected function getModelClassName(): string
+    protected function getType(): string
     {
-        return Attribute::class;
+        return '';
     }
 
     protected function getCountField(): string
     {
-        return '`hc_attribute`.`sub_id`';
-    }
-
-    public function setModuleId(?int $moduleId): PixelStore
-    {
-        $this->moduleId = $moduleId;
-
-        return $this;
+        return '`' . $this->getTableName() . '`.`sub_id`';
     }
 
     public function getList(): iterable

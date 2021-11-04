@@ -37,7 +37,7 @@ class NeopixelController extends AbstractController
     public function index(LedStore $ledStore, ModuleRepository $moduleRepository, int $moduleId): AjaxResponse
     {
         $slave = $moduleRepository->getById($moduleId);
-        $ledStore->setSlaveId($moduleId);
+        $ledStore->setModuleId($moduleId);
 
         $config = JsonUtility::decode($slave->getConfig() ?? '');
         $config['pwmSpeed'] = $slave->getPwmSpeed();

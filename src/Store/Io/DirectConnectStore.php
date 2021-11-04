@@ -3,36 +3,14 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Io;
 
-use GibsonOS\Core\Store\AbstractDatabaseStore;
-use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
+use GibsonOS\Module\Hc\Store\AbstractAttributeStore;
 
-class DirectConnectStore extends AbstractDatabaseStore
+class DirectConnectStore extends AbstractAttributeStore
 {
-    private ?int $moduleId = null;
-
-    protected function getModelClassName(): string
+    protected function getType(): string
     {
-        return Attribute::class;
-    }
-
-    protected function setWheres(): void
-    {
-        $this->addWhere('`hc_attribute`.`type`=?', [IoService::ATTRIBUTE_TYPE_DIRECT_CONNECT]);
-
-        if ($this->moduleId !== null) {
-            $this->addWhere('`hc_attribute`.`module_id`=?', [$this->moduleId]);
-        }
-    }
-
-    protected function initTable(): void
-    {
-        parent::initTable();
-
-        $this->table->appendJoinLeft(
-            '`gibson_os`.`hc_attribute_value`',
-            '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`'
-        );
+        return IoService::ATTRIBUTE_TYPE_DIRECT_CONNECT;
     }
 
     /**
@@ -101,13 +79,5 @@ class DirectConnectStore extends AbstractDatabaseStore
             'inputPortName' => $inputPort[IoService::ATTRIBUTE_PORT_KEY_NAME],
             'valueNames' => $inputPort[IoService::ATTRIBUTE_PORT_KEY_VALUE_NAMES],
         ];
-    }
-
-    /**
-     * @return string[]
-     */
-    protected function getOrderMapping(): array
-    {
-        return [];
     }
 }

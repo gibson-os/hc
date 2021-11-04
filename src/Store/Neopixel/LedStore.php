@@ -3,37 +3,15 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Neopixel;
 
-use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
-use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService as LedAttribute;
+use GibsonOS\Module\Hc\Store\AbstractAttributeStore;
 
-class LedStore extends AbstractDatabaseStore
+class LedStore extends AbstractAttributeStore
 {
-    private ?int $slaveId = null;
-
-    protected function getModelClassName(): string
+    protected function getType(): string
     {
-        return Attribute::class;
-    }
-
-    protected function setWheres(): void
-    {
-        $this->addWhere('`hc_attribute`.`type`=?', [LedAttribute::ATTRIBUTE_TYPE]);
-
-        if ($this->slaveId !== null) {
-            $this->addWhere('`hc_attribute`.`module_id`=?', [$this->slaveId]);
-        }
-    }
-
-    protected function initTable(): void
-    {
-        parent::initTable();
-
-        $this->table->appendJoinLeft(
-            '`gibson_os`.`hc_attribute_value`',
-            '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`'
-        );
+        return LedAttribute::ATTRIBUTE_TYPE;
     }
 
     /**
@@ -66,12 +44,5 @@ class LedStore extends AbstractDatabaseStore
         }
 
         return $list;
-    }
-
-    public function setSlaveId(?int $slaveId): LedStore
-    {
-        $this->slaveId = $slaveId;
-
-        return $this;
     }
 }
