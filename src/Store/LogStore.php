@@ -92,29 +92,34 @@ class LogStore extends AbstractDatabaseStore
         return $this;
     }
 
+    protected function initTable(): void
+    {
+        parent::initTable();
+
+        $tableName = $this->getTableName();
+        $moduleTableName = Module::getTableName();
+        $this->table
+            ->appendJoinLeft(
+                Master::getTableName(),
+                '`' . Master::getTableName() . '`.`id`=`' . $tableName . '`.`master_id`'
+            )
+            ->appendJoinLeft(
+                $moduleTableName,
+                '`' . $moduleTableName . '`.`id`=`' . $tableName . '`.`module_id`'
+            )
+            ->appendJoinLeft(
+                Type::getTableName(),
+                '`' . $moduleTableName . '`.`type_id`=`' . Type::getTableName() . '`.`id`'
+            )
+        ;
+    }
+
     /**
      * @return Log[]
      */
     public function getList(): array
     {
-        $this->table
-            ->appendJoinLeft(
-                '`gibson_os`.`hc_master`',
-                '`hc_master`.`id`=`hc_log`.`master_id`'
-            )
-            ->appendJoinLeft(
-                '`gibson_os`.`hc_module`',
-                '`hc_module`.`id`=`hc_log`.`module_id`'
-            )
-            ->appendJoinLeft(
-                '`gibson_os`.`hc_type`',
-                '`hc_module`.`type_id`=`hc_type`.`id`'
-            )
-            ->setWhere($this->getWhereString())
-            ->setWhereParameters($this->getWhereParameters())
-            ->setOrderBy($this->getOrderBy())
-        ;
-
+        $this->initTable();
         $this->table->selectPrepared(
             false,
             '`hc_log`.`id`, ' .
@@ -232,6 +237,7 @@ class LogStore extends AbstractDatabaseStore
 
     public function getTraffic(): int
     {
+        $this->initTable();
         $this->table
             ->clearJoin()
             ->setOrderBy()

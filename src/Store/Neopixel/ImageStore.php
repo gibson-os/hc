@@ -19,11 +19,6 @@ class ImageStore extends AbstractDatabaseStore
         return Sequence::class;
     }
 
-    protected function getCountField(): string
-    {
-        return '`hc_sequence`.`id`';
-    }
-
     protected function setWheres(): void
     {
         $this->addWhere('`hc_sequence`.`type`=?', [ImageService::SEQUENCE_TYPE]);
@@ -33,20 +28,23 @@ class ImageStore extends AbstractDatabaseStore
         }
     }
 
+    protected function initTable(): void
+    {
+        parent::initTable();
+
+        $this->table->appendJoinLeft(
+            '`gibson_os`.`' . Sequence\Element::getTableName() . '`',
+            '`hc_sequence`.`id`=`' . Sequence\Element::getTableName() . '`.`sequence_id`'
+        );
+    }
+
     /**
      * @throws JsonException
      */
     public function getList(): Generator
     {
-        $this->table
-                ->appendJoinLeft(
-                    '`gibson_os`.`' . Sequence\Element::getTableName() . '`',
-                    '`hc_sequence`.`id`=`' . Sequence\Element::getTableName() . '`.`sequence_id`'
-                )
-            ->setWhere($this->getWhereString())
-            ->setWhereParameters($this->getWhereParameters())
-            ->setOrderBy('`hc_sequence`.`name` ASC')
-        ;
+        $this->initTable();
+        $this->table->setOrderBy('`hc_sequence`.`name` ASC');
 
         $this->table->selectPrepared(
             false,

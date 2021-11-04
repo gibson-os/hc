@@ -25,20 +25,23 @@ class PortStore extends AbstractDatabaseStore
         }
     }
 
+    protected function initTable(): void
+    {
+        parent::initTable();
+
+        $this->table->appendJoinLeft(
+            '`gibson_os`.`hc_attribute_value`',
+            '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`'
+        );
+    }
+
     /**
      * @return array[]
      */
     public function getList(): array
     {
-        $this->table
-            ->appendJoinLeft(
-                '`gibson_os`.`hc_attribute_value`',
-                '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`'
-            )
-            ->setWhere($this->getWhereString())
-            ->setWhereParameters($this->getWhereParameters())
-            ->setOrderBy('`hc_attribute`.`sub_id` ASC')
-        ;
+        $this->initTable();
+        $this->table->setOrderBy('`hc_attribute`.`sub_id` ASC');
 
         $this->table->selectPrepared(
             false,
@@ -70,11 +73,6 @@ class PortStore extends AbstractDatabaseStore
         }
 
         return $list;
-    }
-
-    public function getCountField(): string
-    {
-        return '`hc_attribute`.`sub_id`';
     }
 
     public function setModuleId(?int $moduleId): PortStore

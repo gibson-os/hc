@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Store;
 
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Type;
 
 class SlaveStore extends AbstractDatabaseStore
 {
@@ -42,18 +43,19 @@ class SlaveStore extends AbstractDatabaseStore
         }
     }
 
+    public function initTable(): void
+    {
+        parent::initTable();
+
+        $this->table->appendJoinLeft(
+            Type::getTableName(),
+            '`' . $this->getTableName() . '`.`type_id`=`' . Type::getTableName() . '`.`id`'
+        );
+    }
+
     public function getList(): array
     {
-        $this->table
-            ->appendJoinLeft(
-                '`gibson_os`.`hc_type`',
-                '`hc_module`.`type_id`=`hc_type`.`id`'
-            )
-            ->setWhere($this->getWhereString())
-            ->setWhereParameters($this->getWhereParameters())
-            ->setOrderBy($this->getOrderBy())
-        ;
-
+        $this->initTable();
         $this->table->selectPrepared(
             false,
             '`hc_module`.`id`, '

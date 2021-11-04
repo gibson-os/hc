@@ -25,6 +25,16 @@ class DirectConnectStore extends AbstractDatabaseStore
         }
     }
 
+    protected function initTable(): void
+    {
+        parent::initTable();
+
+        $this->table->appendJoinLeft(
+            '`gibson_os`.`hc_attribute_value`',
+            '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`'
+        );
+    }
+
     /**
      * @return array[]
      */
@@ -34,15 +44,8 @@ class DirectConnectStore extends AbstractDatabaseStore
         $portStore->setModuleId($this->moduleId);
         $ports = $portStore->getList();
 
-        $this->table
-            ->appendJoinLeft(
-                '`gibson_os`.`hc_attribute_value`',
-                '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`'
-            )
-            ->setWhere($this->getWhereString())
-            ->setWhereParameters($this->getWhereParameters())
-            ->setOrderBy('`hc_attribute`.`sub_id` ASC, `hc_attribute_value`.`order`')
-        ;
+        $this->initTable();
+        $this->table->setOrderBy('`hc_attribute`.`sub_id` ASC, `hc_attribute_value`.`order`');
 
         $this->table->selectPrepared(
             false,
@@ -81,11 +84,6 @@ class DirectConnectStore extends AbstractDatabaseStore
         ksort($list);
 
         return array_values($list);
-    }
-
-    public function getCountField(): string
-    {
-        return '`hc_attribute`.`sub_id`';
     }
 
     public function setModuleId(?int $moduleId): DirectConnectStore
