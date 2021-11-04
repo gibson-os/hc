@@ -7,7 +7,6 @@ use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -29,7 +28,6 @@ use JsonException;
 class NeopixelController extends AbstractController
 {
     /**
-     * @throws GetError
      * @throws JsonException
      * @throws SelectError
      */
@@ -132,14 +130,15 @@ class NeopixelController extends AbstractController
     }
 
     /**
-     * @throws GetError
+     * @throws JsonException
+     * @throws SelectError
      */
     #[CheckPermission(Permission::READ)]
     public function images(
         ImageStore $imageStore,
         int $moduleId
     ): AjaxResponse {
-        $imageStore->setSlaveId($moduleId);
+        $imageStore->setModuleId($moduleId);
 
         return $this->returnSuccess(
             $imageStore->getList(),
@@ -150,8 +149,8 @@ class NeopixelController extends AbstractController
     /**
      * @throws DateTimeError
      * @throws DeleteError
-     * @throws GetError
      * @throws ImageExists
+     * @throws JsonException
      * @throws SaveError
      * @throws SelectError
      */
@@ -187,7 +186,7 @@ class NeopixelController extends AbstractController
         }
 
         $image = $imageService->save($slave, $name, $ledMapper->mapFromArrays($leds, true, false), $id);
-        $imageStore->setSlaveId($moduleId);
+        $imageStore->setModuleId($moduleId);
 
         return new AjaxResponse([
             'data' => [...$imageStore->getList()],

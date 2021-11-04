@@ -4,40 +4,14 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store\Neopixel;
 
 use Generator;
-use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Sequence;
-use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService as ImageService;
+use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService;
+use GibsonOS\Module\Hc\Store\AbstractSequenceStore;
 use JsonException;
 
-class ImageStore extends AbstractDatabaseStore
+class ImageStore extends AbstractSequenceStore
 {
-    private ?int $slaveId = null;
-
-    protected function getModelClassName(): string
-    {
-        return Sequence::class;
-    }
-
-    protected function setWheres(): void
-    {
-        $this->addWhere('`hc_sequence`.`type`=?', [ImageService::SEQUENCE_TYPE]);
-
-        if ($this->slaveId !== null) {
-            $this->addWhere('`hc_sequence`.`module_id`=?', [$this->slaveId]);
-        }
-    }
-
-    protected function initTable(): void
-    {
-        parent::initTable();
-
-        $this->table->appendJoinLeft(
-            '`gibson_os`.`' . Sequence\Element::getTableName() . '`',
-            '`hc_sequence`.`id`=`' . Sequence\Element::getTableName() . '`.`sequence_id`'
-        );
-    }
-
     /**
      * @throws JsonException
      */
@@ -62,10 +36,13 @@ class ImageStore extends AbstractDatabaseStore
         }
     }
 
-    public function setSlaveId(?int $slaveId): ImageStore
+    protected function loadElements(): bool
     {
-        $this->slaveId = $slaveId;
+        return true;
+    }
 
-        return $this;
+    protected function getType(): int
+    {
+        return ImageService::SEQUENCE_TYPE;
     }
 }

@@ -4,18 +4,18 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store;
 
 use GibsonOS\Core\Store\AbstractDatabaseStore;
-use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
+use GibsonOS\Module\Hc\Model\Sequence;
 
-abstract class AbstractAttributeStore extends AbstractDatabaseStore
+abstract class AbstractSequenceStore extends AbstractDatabaseStore
 {
     protected ?int $moduleId = null;
 
-    abstract protected function getType(): string;
+    abstract protected function getType(): int;
 
     protected function getModelClassName(): string
     {
-        return Attribute::class;
+        return Sequence::class;
     }
 
     protected function setWheres(): void
@@ -32,16 +32,23 @@ abstract class AbstractAttributeStore extends AbstractDatabaseStore
     {
         parent::initTable();
 
-        $this->table->appendJoinLeft(
-            '`' . Value::getTableName() . '`',
-            '`' . $this->getTableName() . '`.`id`=`' . Value::getTableName() . '`.`attribute_id`'
-        );
+        if ($this->loadElements()) {
+            $this->table->appendJoinLeft(
+                '`' . Value::getTableName() . '`',
+                '`' . $this->getTableName() . '`.`id`=`' . Value::getTableName() . '`.`attribute_id`'
+            );
+        }
     }
 
-    public function setModuleId(?int $moduleId): AbstractAttributeStore
+    public function setModuleId(?int $moduleId): AbstractSequenceStore
     {
         $this->moduleId = $moduleId;
 
         return $this;
+    }
+
+    protected function loadElements(): bool
+    {
+        return true;
     }
 }
