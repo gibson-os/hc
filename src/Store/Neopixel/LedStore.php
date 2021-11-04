@@ -20,6 +20,10 @@ class LedStore extends AbstractDatabaseStore
     protected function setWheres(): void
     {
         $this->addWhere('`hc_attribute`.`type`=?', [LedAttribute::ATTRIBUTE_TYPE]);
+
+        if ($this->slaveId !== null) {
+            $this->addWhere('`hc_attribute`.`module_id`=?', [$this->slaveId]);
+        }
     }
 
     protected function initTable(): void
