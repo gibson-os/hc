@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store;
 
 use GibsonOS\Core\Store\AbstractDatabaseStore;
-use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Sequence;
 
 abstract class AbstractSequenceStore extends AbstractDatabaseStore
@@ -34,8 +33,8 @@ abstract class AbstractSequenceStore extends AbstractDatabaseStore
 
         if ($this->loadElements()) {
             $this->table->appendJoinLeft(
-                '`' . Value::getTableName() . '`',
-                '`' . $this->getTableName() . '`.`id`=`' . Value::getTableName() . '`.`attribute_id`'
+                '`' . Sequence\Element::getTableName() . '`',
+                '`' . $this->getTableName() . '`.`id`=`' . Sequence\Element::getTableName() . '`.`sequence_id`'
             );
         }
     }
