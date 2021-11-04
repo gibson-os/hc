@@ -4,14 +4,13 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Repository;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Log;
 use mysqlTable;
 
 /**
- * @method Log fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
- * @method Log getModel(mysqlTable $table, string $abstractModelClassName)
+ * @method Log fetchOne(string $where, array $parameters, string $modelClassName)
+ * @method Log getModel(mysqlTable $table, string $modelClassName)
  */
 class LogRepository extends AbstractRepository
 {

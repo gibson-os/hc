@@ -7,15 +7,14 @@ use DateTime;
 use Exception;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type\DefaultAddress;
 
 /**
- * @method Master   fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
- * @method Master[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null, string $orderBy = null)
+ * @method Master   fetchOne(string $where, array $parameters, string $modelClassName)
+ * @method Master[] fetchAll(string $where, array $parameters, string $modelClassName, int $limit = null, int $offset = null, string $orderBy = null)
  */
 class MasterRepository extends AbstractRepository
 {

@@ -5,15 +5,14 @@ namespace GibsonOS\Module\Hc\Repository;
 
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Model\Type;
 
 /**
- * @method Sequence   fetchOne(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class)
- * @method Sequence[] fetchAll(string $where, array $parameters, string $abstractModelClassName = AbstractModel::class, int $limit = null, int $offset = null, string $orderBy = null)
+ * @method Sequence   fetchOne(string $where, array $parameters, string $modelClassName)
+ * @method Sequence[] fetchAll(string $where, array $parameters, string $modelClassName, int $limit = null, int $offset = null, string $orderBy = null)
  */
 class SequenceRepository extends AbstractRepository
 {
