@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "f8ab27b6760af5547d0139e71f32a65deb445924"
+                "reference": "ca4a33116b7b42ee286b227f7ed29c368bc99f28"
             },
             "require": {
                 "ext-curl": "*",
@@ -81,7 +81,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2021-11-04T13:34:55+00:00"
+            "time": "2021-11-11T22:41:51+00:00"
         },
         {
             "name": "mdo/mdo",
@@ -89,7 +89,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/mdo.git",
-                "reference": "f4f49288b962c066f985d982bf72bdc44c33d740"
+                "reference": "07f4b0a1da410a5c7357b15bae0fa9315895c68d"
             },
             "require": {
                 "ext-mbstring": "*",
@@ -145,7 +145,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2021-11-04T12:54:27+00:00"
+            "time": "2021-11-08T11:18:07+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -3158,20 +3158,20 @@
         },
         {
             "name": "psr/container",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/container.git",
-                "reference": "8622567409010282b7aeebe4bb841fe98b58dcaf"
+                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/8622567409010282b7aeebe4bb841fe98b58dcaf",
-                "reference": "8622567409010282b7aeebe4bb841fe98b58dcaf",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/513e0666f7216c7459170d56df27dfcefe1689ea",
+                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.0"
+                "php": ">=7.4.0"
             },
             "type": "library",
             "autoload": {
@@ -3200,9 +3200,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-fig/container/issues",
-                "source": "https://github.com/php-fig/container/tree/1.1.1"
+                "source": "https://github.com/php-fig/container/tree/1.1.2"
             },
-            "time": "2021-03-05T17:36:06+00:00"
+            "time": "2021-11-05T16:50:12+00:00"
         },
         {
             "name": "psr/event-dispatcher",
@@ -3946,16 +3946,16 @@
         },
         {
             "name": "sebastian/exporter",
-            "version": "4.0.3",
+            "version": "4.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/exporter.git",
-                "reference": "d89cc98761b8cb5a1a235a6b703ae50d34080e65"
+                "reference": "65e8b7db476c5dd267e65eea9cab77584d3cfff9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/d89cc98761b8cb5a1a235a6b703ae50d34080e65",
-                "reference": "d89cc98761b8cb5a1a235a6b703ae50d34080e65",
+                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/65e8b7db476c5dd267e65eea9cab77584d3cfff9",
+                "reference": "65e8b7db476c5dd267e65eea9cab77584d3cfff9",
                 "shasum": ""
             },
             "require": {
@@ -4004,14 +4004,14 @@
                 }
             ],
             "description": "Provides the functionality to export PHP variables for visualization",
-            "homepage": "http://www.github.com/sebastianbergmann/exporter",
+            "homepage": "https://www.github.com/sebastianbergmann/exporter",
             "keywords": [
                 "export",
                 "exporter"
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/exporter/issues",
-                "source": "https://github.com/sebastianbergmann/exporter/tree/4.0.3"
+                "source": "https://github.com/sebastianbergmann/exporter/tree/4.0.4"
             },
             "funding": [
                 {
@@ -4019,7 +4019,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-09-28T05:24:23+00:00"
+            "time": "2021-11-11T14:18:36+00:00"
         },
         {
             "name": "sebastian/global-state",
@@ -6305,16 +6305,16 @@
         },
         {
             "name": "vimeo/psalm",
-            "version": "4.11.2",
+            "version": "4.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
-                "reference": "6fba5eb554f9507b72932f9c75533d8af593688d"
+                "reference": "e42bc4a23f67acba28a23bb09c348e2ff38a1d87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/6fba5eb554f9507b72932f9c75533d8af593688d",
-                "reference": "6fba5eb554f9507b72932f9c75533d8af593688d",
+                "url": "https://api.github.com/repos/vimeo/psalm/zipball/e42bc4a23f67acba28a23bb09c348e2ff38a1d87",
+                "reference": "e42bc4a23f67acba28a23bb09c348e2ff38a1d87",
                 "shasum": ""
             },
             "require": {
@@ -6338,7 +6338,7 @@
                 "openlss/lib-array2xml": "^1.0",
                 "php": "^7.1|^8",
                 "sebastian/diff": "^3.0 || ^4.0",
-                "symfony/console": "^3.4.17 || ^4.1.6 || ^5.0",
+                "symfony/console": "^3.4.17 || ^4.1.6 || ^5.0 || ^6.0",
                 "webmozart/path-util": "^2.3"
             },
             "provide": {
@@ -6356,7 +6356,7 @@
                 "psalm/plugin-phpunit": "^0.16",
                 "slevomat/coding-standard": "^7.0",
                 "squizlabs/php_codesniffer": "^3.5",
-                "symfony/process": "^4.3 || ^5.0",
+                "symfony/process": "^4.3 || ^5.0 || ^6.0",
                 "weirdan/prophecy-shim": "^1.0 || ^2.0"
             },
             "suggest": {
@@ -6404,9 +6404,9 @@
             ],
             "support": {
                 "issues": "https://github.com/vimeo/psalm/issues",
-                "source": "https://github.com/vimeo/psalm/tree/4.11.2"
+                "source": "https://github.com/vimeo/psalm/tree/4.12.0"
             },
-            "time": "2021-10-26T17:28:17+00:00"
+            "time": "2021-11-06T10:31:17+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -6514,6 +6514,7 @@
                 "issues": "https://github.com/webmozart/path-util/issues",
                 "source": "https://github.com/webmozart/path-util/tree/2.3.0"
             },
+            "abandoned": "symfony/filesystem",
             "time": "2015-12-17T08:42:14+00:00"
         }
     ],
