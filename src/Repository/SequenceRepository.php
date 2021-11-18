@@ -10,10 +10,6 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Model\Type;
 
-/**
- * @method Sequence   fetchOne(string $where, array $parameters, string $modelClassName)
- * @method Sequence[] fetchAll(string $where, array $parameters, string $modelClassName, int $limit = null, int $offset = null, string $orderBy = null)
- */
 class SequenceRepository extends AbstractRepository
 {
     /**

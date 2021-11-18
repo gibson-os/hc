@@ -11,9 +11,6 @@ use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Module;
 
-/**
- * @method Attribute[] fetchAll(string $where, array $parameters, string $modelClassName, int $limit = null, int $offset = null, string $orderBy = null)
- */
 class AttributeRepository extends AbstractRepository
 {
     /**

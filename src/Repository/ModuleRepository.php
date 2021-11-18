@@ -12,10 +12,6 @@ use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use Psr\Log\LoggerInterface;
 
-/**
- * @method Module   fetchOne(string $where, array $parameters, string $modelClassName)
- * @method Module[] fetchAll(string $where, array $parameters, string $modelClassName, int $limit = null, int $offset = null, string $orderBy = null)
- */
 class ModuleRepository extends AbstractRepository
 {
     private const MAX_GENERATE_DEVICE_ID_RETRY = 10;

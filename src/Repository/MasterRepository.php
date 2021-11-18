@@ -12,10 +12,6 @@ use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type\DefaultAddress;
 
-/**
- * @method Master   fetchOne(string $where, array $parameters, string $modelClassName)
- * @method Master[] fetchAll(string $where, array $parameters, string $modelClassName, int $limit = null, int $offset = null, string $orderBy = null)
- */
 class MasterRepository extends AbstractRepository
 {
     private const MIN_PORT = 42001;

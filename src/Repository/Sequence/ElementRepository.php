@@ -9,9 +9,6 @@ use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Model\Sequence\Element;
 
-/**
- * @method Element[] fetchAll(string $where, array $parameters, string $modelClassName, int $limit = null, int $offset = null, string $orderBy = null)
- */
 class ElementRepository extends AbstractRepository
 {
     /**

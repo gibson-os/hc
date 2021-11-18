@@ -6,13 +6,7 @@ namespace GibsonOS\Module\Hc\Repository;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Type;
-use mysqlTable;
 
-/**
- * @method Type   fetchOne(string $where, array $parameters, string $modelClassName)
- * @method Type[] fetchAll(string $where, array $parameters, string $modelClassName, int $limit = null, int $offset = null, string $orderBy = null)
- * @method Type   getModel(mysqlTable $table, string $modelClassName)
- */
 class TypeRepository extends AbstractRepository
 {
     /**

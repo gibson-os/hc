@@ -8,10 +8,6 @@ use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Log;
 use mysqlTable;
 
-/**
- * @method Log fetchOne(string $where, array $parameters, string $modelClassName)
- * @method Log getModel(mysqlTable $table, string $modelClassName)
- */
 class LogRepository extends AbstractRepository
 {
     public function create(int $type, string $data, string $direction): Log
