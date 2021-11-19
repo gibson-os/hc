@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTimeInterface;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Sequence\Element;
@@ -110,13 +109,13 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
         return $this;
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function getTypeModel(): ?Type
     {
-        if ($this->typeModel instanceof Type) {
-            $this->loadForeignRecord($this->typeModel, $this->getTypeId());
+        $typeId = $this->getTypeId();
+
+        if ($typeId !== null) {
+            $this->typeModel = new Type();
+            $this->loadForeignRecord($this->typeModel, $typeId);
         }
 
         return $this->typeModel;
@@ -136,13 +135,13 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
         return $this;
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function getModule(): ?Module
     {
-        if ($this->module instanceof Module) {
-            $this->loadForeignRecord($this->module, $this->getModuleId());
+        $moduleId = $this->getModuleId();
+
+        if ($moduleId !== null) {
+            $this->module = new Module();
+            $this->loadForeignRecord($this->module, $moduleId);
         }
 
         return $this->module;
@@ -163,8 +162,6 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
     }
 
     /**
-     * @throws DateTimeError
-     *
      * @return Element[]
      */
     public function getElements(): ?array
@@ -193,9 +190,6 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
         return $this;
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function loadElements(): Sequence
     {
         /** @var Element[] $elements */

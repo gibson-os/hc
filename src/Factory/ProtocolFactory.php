@@ -18,10 +18,10 @@ class ProtocolFactory
      */
     public function get(string $protocolName): ProtocolInterface
     {
+        /** @var class-string $className */
+        $className = 'GibsonOS\\Module\\Hc\\Service\\Protocol\\' . ucfirst($protocolName) . 'Service';
         /** @var ProtocolInterface $protocol */
-        $protocol = $this->serviceManagerService->get(
-            'GibsonOS\\Module\\Hc\\Service\\Protocol\\' . ucfirst($protocolName) . 'Service'
-        );
+        $protocol = $this->serviceManagerService->get($className);
 
         return $protocol;
     }

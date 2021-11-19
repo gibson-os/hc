@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Factory;
 
 use Exception;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Module\Hc\Formatter\AbstractFormatter;
@@ -34,7 +33,6 @@ class FormatterFactory
     }
 
     /**
-     * @throws DateTimeError
      * @throws FactoryError
      */
     private function getModuleFormatter(Log $log): AbstractFormatter
@@ -45,6 +43,7 @@ class FormatterFactory
             throw new FactoryError('Log model has no module!');
         }
 
+        /** @var class-string $className */
         $className =
             'GibsonOS\\Module\\Hc\\Formatter\\' .
             ucfirst($module->getType()->getHelper()) . 'Formatter'

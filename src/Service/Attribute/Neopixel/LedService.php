@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Attribute\Neopixel;
 
 use Exception;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -65,7 +64,6 @@ class LedService
     /**
      * @param Led[] $leds
      *
-     * @throws DateTimeError
      * @throws SaveError
      */
     public function saveLeds(Module $slave, array $leds): void
@@ -165,7 +163,6 @@ class LedService
     }
 
     /**
-     * @throws DateTimeError
      * @throws SaveError
      */
     private function saveLed(Module $slave, Led $led): void
@@ -196,7 +193,6 @@ class LedService
     }
 
     /**
-     * @throws DateTimeError
      * @throws SaveError
      * @throws Exception
      */
@@ -226,7 +222,6 @@ class LedService
     }
 
     /**
-     * @throws DateTimeError
      * @throws SaveError
      */
     private function addAttribute(Module $slave, int $id, string $key): void
@@ -270,6 +265,7 @@ class LedService
      * @param Led[] $leds
      *
      * @throws OutOfRangeException
+     * @throws JsonException
      */
     public function getChannelCounts(Module $slave, array $leds): array
     {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTimeInterface;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
 use mysqlDatabase;
 
@@ -122,12 +121,13 @@ class Attribute extends AbstractModel
         return $this;
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function getModule(): Module
     {
-        $this->loadForeignRecord($this->module, $this->getModuleId());
+        $moduleId = $this->getModuleId();
+
+        if ($moduleId !== null) {
+            $this->loadForeignRecord($this->module, $moduleId);
+        }
 
         return $this->module;
     }

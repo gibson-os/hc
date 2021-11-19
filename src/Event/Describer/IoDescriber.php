@@ -10,7 +10,6 @@ use GibsonOS\Core\Dto\Parameter\BoolParameter;
 use GibsonOS\Core\Dto\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Parameter\OptionParameter;
 use GibsonOS\Core\Dto\Parameter\StringParameter;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\AutoComplete\Io\PortAutoComplete;
 use GibsonOS\Module\Hc\AutoComplete\SlaveAutoComplete;
@@ -81,7 +80,6 @@ class IoDescriber extends AbstractHcDescriber
     private AutoCompleteParameter $portParameter;
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function __construct(

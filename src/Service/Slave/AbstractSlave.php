@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Slave;
 
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
@@ -90,7 +89,6 @@ abstract class AbstractSlave extends AbstractService
     }
 
     /**
-     * @throws DateTimeError
      * @throws SaveError
      */
     private function addLog(Module $slave, int $command, string $data, string $direction): void

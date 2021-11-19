@@ -8,7 +8,6 @@ use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -21,10 +20,6 @@ use GibsonOS\Module\Hc\Store\LogStore;
 
 class IndexController extends AbstractController
 {
-    /**
-     * @throws DateTimeError
-     * @throws GetError
-     */
     #[CheckPermission(Permission::READ)]
     public function log(
         LogStore $logStore,

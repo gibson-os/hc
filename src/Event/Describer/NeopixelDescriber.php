@@ -8,7 +8,6 @@ use GibsonOS\Core\Dto\Event\Describer\Trigger;
 use GibsonOS\Core\Dto\Parameter\AutoCompleteParameter;
 use GibsonOS\Core\Dto\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Parameter\StringParameter;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\AutoComplete\Neopixel\ImageAutoComplete;
 use GibsonOS\Module\Hc\AutoComplete\SlaveAutoComplete;
@@ -19,7 +18,6 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 class NeopixelDescriber extends AbstractHcDescriber
 {
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function __construct(

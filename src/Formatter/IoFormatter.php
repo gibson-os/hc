@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Formatter;
 
 use Exception;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Module\Hc\Mapper\IoMapper;
@@ -15,6 +14,7 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Throwable;
 
 class IoFormatter extends AbstractHcFormatter
 {
@@ -33,6 +33,7 @@ class IoFormatter extends AbstractHcFormatter
 
     /**
      * @throws Exception
+     * @throws Throwable
      */
     public function command(Log $log): ?string
     {
@@ -336,9 +337,6 @@ class IoFormatter extends AbstractHcFormatter
         return parent::render($log);
     }
 
-    /**
-     * @throws DateTimeError
-     */
     private function getChangedPorts(Log $log): array
     {
         $module = $log->getModule();

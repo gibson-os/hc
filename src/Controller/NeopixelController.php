@@ -107,6 +107,7 @@ class NeopixelController extends AbstractController
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
+     * @throws JsonException
      */
     #[CheckPermission(Permission::WRITE)]
     public function send(
@@ -147,7 +148,6 @@ class NeopixelController extends AbstractController
     }
 
     /**
-     * @throws DateTimeError
      * @throws DeleteError
      * @throws ImageExists
      * @throws JsonException

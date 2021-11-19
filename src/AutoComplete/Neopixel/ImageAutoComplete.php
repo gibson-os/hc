@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\AutoComplete\Neopixel;
 
 use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
@@ -18,7 +17,6 @@ class ImageAutoComplete implements AutoCompleteInterface
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getByNamePart(string $namePart, array $parameters): array

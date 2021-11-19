@@ -21,6 +21,7 @@ use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationA
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService as AnimationSequenceService;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
+use JsonException;
 use mysqlDatabase;
 use Psr\Log\LoggerInterface;
 
@@ -125,6 +126,7 @@ class PlayAnimationCommand extends AbstractCommand
      * @throws DateTimeError
      * @throws SaveError
      * @throws WriteException
+     * @throws JsonException
      */
     private function writeLeds(Module $slave, NeopixelService $neopixelService, array &$leds, array &$changedSlaveLeds): void
     {

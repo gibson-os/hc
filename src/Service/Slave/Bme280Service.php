@@ -12,6 +12,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
 use Psr\Log\LoggerInterface;
 
 class Bme280Service extends AbstractSlave
@@ -57,6 +58,8 @@ class Bme280Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws JsonException
+     * @throws JsonException
      */
     public function handshake(Module $slave): Module
     {
@@ -80,6 +83,7 @@ class Bme280Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws ReceiveError
+     * @throws JsonException
      */
     private function calibrate(Module $slave): void
     {
@@ -99,6 +103,7 @@ class Bme280Service extends AbstractSlave
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
+     * @throws JsonException
      */
     public function measure(Module $slave): array
     {

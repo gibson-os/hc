@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Formatter;
 
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Mapper\Bme280Mapper;
 use GibsonOS\Module\Hc\Model\Log;
@@ -17,9 +16,6 @@ class Bme280Formatter extends AbstractFormatter
         parent::__construct($transformService);
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function text(Log $log): ?string
     {
         switch ($log->getCommand()) {

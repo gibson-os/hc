@@ -8,7 +8,6 @@ use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -45,9 +44,6 @@ class NeopixelAnimationController extends AbstractController
         ]);
     }
 
-    /**
-     * @throws GetError
-     */
     #[CheckPermission(Permission::READ)]
     public function list(AnimationStore $animationStore, int $moduleId): AjaxResponse
     {
@@ -60,7 +56,6 @@ class NeopixelAnimationController extends AbstractController
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      * @throws JsonException
      */
@@ -80,11 +75,11 @@ class NeopixelAnimationController extends AbstractController
     }
 
     /**
-     * @throws DateTimeError
      * @throws DeleteError
-     * @throws GetError
      * @throws SaveError
      * @throws SelectError
+     * @throws JsonException
+     * @throws JsonException
      */
     #[CheckPermission(Permission::WRITE, ['id' => Permission::WRITE + Permission::DELETE])]
     public function save(
@@ -187,7 +182,6 @@ class NeopixelAnimationController extends AbstractController
     }
 
     /**
-     * @throws DateTimeError
      * @throws DeleteError
      * @throws SaveError
      * @throws SelectError

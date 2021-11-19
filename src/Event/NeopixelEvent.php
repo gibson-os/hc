@@ -17,6 +17,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
+use JsonException;
 use Psr\Log\LoggerInterface;
 
 class NeopixelEvent extends AbstractHcEvent
@@ -45,6 +46,7 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      * @throws WriteException
+     * @throws JsonException
      */
     public function writeChannel(Module $slave, int $channel, int $length = 0): void
     {
@@ -109,6 +111,7 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      * @throws ReceiveError
+     * @throws JsonException
      */
     public function readLedCounts(Module $slave): array
     {
@@ -128,6 +131,7 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
+     * @throws JsonException
      */
     public function sendImage(Module $slave, Sequence $sequence): void
     {

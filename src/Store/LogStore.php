@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store;
 
+use Exception;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Factory\FormatterFactory;
@@ -115,6 +116,8 @@ class LogStore extends AbstractDatabaseStore
     }
 
     /**
+     * @throws Exception
+     *
      * @return Log[]
      */
     public function getList(): array

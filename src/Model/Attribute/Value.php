@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model\Attribute;
 
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Attribute;
@@ -67,9 +66,6 @@ class Value extends AbstractModel implements AutoCompleteModelInterface
         return $this;
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function getAttribute(): Attribute
     {
         $this->loadForeignRecord($this->attribute, $this->getAttributeId());

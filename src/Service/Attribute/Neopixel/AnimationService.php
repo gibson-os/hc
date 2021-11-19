@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Attribute\Neopixel;
 
 use Exception;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -98,7 +97,6 @@ class AnimationService
     }
 
     /**
-     * @throws DateTimeError
      * @throws SaveError
      * @throws SelectError
      * @throws DeleteError
@@ -121,7 +119,6 @@ class AnimationService
     }
 
     /**
-     * @throws DateTimeError
      * @throws SaveError
      * @throws Exception
      */
@@ -202,7 +199,6 @@ class AnimationService
     /**
      * @param string[] $values
      *
-     * @throws DateTimeError
      * @throws SaveError
      */
     private function saveAttribute(Attribute $attribute, array $values): void

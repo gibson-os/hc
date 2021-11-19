@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model\Type;
 
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Type;
 use mysqlDatabase;
@@ -52,9 +51,6 @@ class DefaultAddress extends AbstractModel
         return $this;
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function getType(): Type
     {
         $this->loadForeignRecord($this->type, $this->getTypeId());

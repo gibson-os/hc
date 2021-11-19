@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTimeInterface;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use JsonSerializable;
@@ -241,9 +240,6 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
         return $this;
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function getType(): Type
     {
         $this->loadForeignRecord($this->type, $this->getTypeId());
@@ -259,12 +255,13 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
         return $this;
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function getMaster(): Master
     {
-        $this->loadForeignRecord($this->master, $this->getMasterId());
+        $masterId = $this->getMasterId();
+
+        if ($masterId !== null) {
+            $this->loadForeignRecord($this->master, $masterId);
+        }
 
         return $this->master;
     }
@@ -277,9 +274,6 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
         return $this;
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function jsonSerialize(): array
     {
         return [

@@ -249,7 +249,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @throws DateTimeError
      * @throws SaveError
      */
     public function receive(Module $slave, BusMessage $busMessage): void
@@ -350,7 +349,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @throws DateTimeError
      * @throws SaveError
      * @throws Exception
      */
@@ -686,7 +684,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @throws DateTimeError
      * @throws SaveError
      * @throws Exception
      */

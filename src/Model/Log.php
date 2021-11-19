@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTimeInterface;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use JsonSerializable;
@@ -194,16 +193,15 @@ class Log extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function getModule(): ?Module
     {
-        if ($this->getModuleId() === null) {
+        $moduleId = $this->getModuleId();
+
+        if ($moduleId === null) {
             return null;
         }
 
-        $this->loadForeignRecord($this->module, $this->getModuleId());
+        $this->loadForeignRecord($this->module, $moduleId);
 
         return $this->module;
     }
@@ -216,16 +214,15 @@ class Log extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function getMaster(): ?Master
     {
-        if ($this->getMasterId() === null) {
+        $masterId = $this->getMasterId();
+
+        if ($masterId === null) {
             return null;
         }
 
-        $this->loadForeignRecord($this->master, $this->getMasterId());
+        $this->loadForeignRecord($this->master, $masterId);
 
         return $this->master;
     }

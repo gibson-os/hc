@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\AutoComplete\Io;
 
 use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Module;
@@ -19,7 +18,6 @@ class PortAutoComplete implements AutoCompleteInterface
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getByNamePart(string $namePart, array $parameters): array
@@ -44,9 +42,8 @@ class PortAutoComplete implements AutoCompleteInterface
     }
 
     /**
-     * @param $id
+     * @param mixed $id
      *
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getById($id, array $parameters): Value
@@ -69,7 +66,6 @@ class PortAutoComplete implements AutoCompleteInterface
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     private function getSlave(array $parameters): Module

@@ -344,15 +344,14 @@ class HcSlaveController extends AbstractController
     }
 
     /**
-     * @throws DateTimeError
      * @throws FactoryError
      */
     private function getSlaveService(ServiceManagerService $serviceManagerService, Module $slave): AbstractHcSlave
     {
+        /** @var class-string $className */
+        $className = 'GibsonOS\\Module\\Hc\\Service\\Slave\\' . ucfirst($slave->getType()->getHelper()) . 'Service';
         /** @var AbstractHcSlave $service */
-        $service = $serviceManagerService->get(
-            'GibsonOS\\Module\\Hc\\Service\\Slave\\' . ucfirst($slave->getType()->getHelper()) . 'Service'
-        );
+        $service = $serviceManagerService->get($className);
 
         return $service;
     }

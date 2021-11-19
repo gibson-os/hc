@@ -61,7 +61,6 @@ class MasterService extends AbstractService
     }
 
     /**
-     * @throws DateTimeError
      * @throws FactoryError
      * @throws ReceiveError
      * @throws SaveError
@@ -212,7 +211,6 @@ class MasterService extends AbstractService
     }
 
     /**
-     * @throws DateTimeError
      * @throws FactoryError
      * @throws SelectError
      */
@@ -246,7 +244,6 @@ class MasterService extends AbstractService
     }
 
     /**
-     * @throws DateTimeError
      * @throws FactoryError
      * @throws ReceiveError
      * @throws SelectError

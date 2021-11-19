@@ -25,6 +25,8 @@ class Bme280Controller extends AbstractController
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
+     * @throws JsonException
+     * @throws JsonException
      */
     #[CheckPermission(Permission::READ)]
     public function measure(

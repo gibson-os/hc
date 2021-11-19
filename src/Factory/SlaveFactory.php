@@ -18,8 +18,10 @@ class SlaveFactory
      */
     public function get(string $serviceName): AbstractSlave
     {
+        /** @var class-string $className */
+        $className = 'GibsonOS\\Module\\Hc\\Service\\Slave\\' . ucfirst($serviceName) . 'Service';
         /** @var AbstractSlave $slave */
-        $slave = $this->serviceManagerService->get('GibsonOS\\Module\\Hc\\Service\\Slave\\' . ucfirst($serviceName) . 'Service');
+        $slave = $this->serviceManagerService->get($className);
 
         return $slave;
     }

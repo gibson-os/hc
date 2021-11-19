@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Controller;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
@@ -16,9 +15,6 @@ use GibsonOS\Module\Hc\Store\MasterStore;
 
 class MasterController extends AbstractController
 {
-    /**
-     * @throws GetError
-     */
     #[CheckPermission(Permission::READ)]
     public function index(MasterStore $masterStore, int $start = 0, int $limit = 100, array $sort = []): AjaxResponse
     {

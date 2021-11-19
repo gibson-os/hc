@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Sequence\Neopixel;
 
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -28,7 +27,6 @@ class AnimationService extends AbstractService
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      */
     public function getByName(Module $slave, string $name): Sequence
@@ -38,7 +36,6 @@ class AnimationService extends AbstractService
 
     /**
      * @throws SelectError
-     * @throws DateTimeError
      * @throws JsonException
      */
     public function getById(int $id): array
@@ -56,9 +53,9 @@ class AnimationService extends AbstractService
     }
 
     /**
-     * @throws DateTimeError
      * @throws DeleteError
      * @throws SaveError
+     * @throws JsonException
      */
     public function save(Module $slave, string $name, array $steps, int $id = null): Sequence
     {

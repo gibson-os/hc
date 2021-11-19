@@ -27,6 +27,7 @@ use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
+use JsonException;
 use LogicException;
 use Psr\Log\LoggerInterface;
 
@@ -138,6 +139,7 @@ class NeopixelService extends AbstractHcSlave
      * @throws AbstractException
      * @throws ReceiveError
      * @throws WriteException
+     * @throws JsonException
      */
     public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module
     {
@@ -214,6 +216,7 @@ class NeopixelService extends AbstractHcSlave
      * @throws AbstractException
      * @throws SaveError
      * @throws WriteException
+     * @throws JsonException
      */
     public function writeChannel(Module $slave, int $channel, int $length = 0): NeopixelService
     {
@@ -226,6 +229,7 @@ class NeopixelService extends AbstractHcSlave
      * @throws AbstractException
      * @throws SaveError
      * @throws WriteException
+     * @throws JsonException
      */
     public function writeChannels(Module $slave, array $channelsLength): NeopixelService
     {
@@ -362,9 +366,10 @@ class NeopixelService extends AbstractHcSlave
     }
 
     /**
-     * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
+     * @throws JsonException
+     * @throws AbstractException
      *
      * @return int[]
      */

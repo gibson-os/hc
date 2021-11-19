@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model\Sequence;
 
 use DateTimeInterface;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Sequence;
 
@@ -87,9 +86,6 @@ class Element extends AbstractModel
         return $this;
     }
 
-    /**
-     * @throws DateTimeError
-     */
     public function getSequence(): Sequence
     {
         $this->loadForeignRecord($this->sequence, $this->getSequenceId());

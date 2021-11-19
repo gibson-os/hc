@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Module;
@@ -22,7 +21,6 @@ class SequenceRepository extends AbstractRepository
 
     /**
      * @throws SelectError
-     * @throws DateTimeError
      */
     public function getByName(Module $module, string $name, int $type = null): Sequence
     {
@@ -38,7 +36,6 @@ class SequenceRepository extends AbstractRepository
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      *
      * @return Sequence[]
@@ -57,7 +54,6 @@ class SequenceRepository extends AbstractRepository
     }
 
     /**
-     * @throws DateTimeError
      * @throws SelectError
      *
      * @return Sequence[]

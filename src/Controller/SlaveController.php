@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Controller;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -70,9 +69,6 @@ class SlaveController extends AbstractController
         }
     }
 
-    /**
-     * @throws GetError
-     */
     #[CheckPermission(Permission::READ)]
     public function index(
         SlaveStore $slaveStore,
