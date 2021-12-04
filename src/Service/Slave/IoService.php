@@ -319,7 +319,11 @@ class IoService extends AbstractHcSlave
     public function writePortsToEeprom(Module $slave): void
     {
         $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_WRITE_PORTS_TO_EEPROM, ['slave' => $slave]);
-        $this->write($slave, self::COMMAND_STATUS_IN_EEPROM, 'a');
+        $this->write(
+            $slave,
+            self::COMMAND_STATUS_IN_EEPROM,
+            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0)
+        );
         $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_WRITE_PORTS_TO_EEPROM, ['slave' => $slave]);
     }
 
@@ -591,6 +595,7 @@ class IoService extends AbstractHcSlave
                 $this->write(
                     $slave,
                     $new ? self::COMMAND_ADD_DIRECT_CONNECT : self::COMMAND_SET_DIRECT_CONNECT,
+                    $this->getDeviceIdAsString($slave->getDeviceId() ?? 0) .
                     $this->ioMapper->getDirectConnectAsString(
                         $inputPort,
                         $inputValue,
@@ -745,7 +750,11 @@ class IoService extends AbstractHcSlave
                 $port
             );
 
-            $this->write($slave, self::COMMAND_DELETE_DIRECT_CONNECT, chr($port) . chr($order));
+            $this->write(
+                $slave,
+                self::COMMAND_DELETE_DIRECT_CONNECT,
+                $this->getDeviceIdAsString($slave->getDeviceId() ?? 0) . chr($port) . chr($order)
+            );
         } catch (AbstractException $exception) {
             $this->valueRepository->rollback();
 
@@ -783,7 +792,11 @@ class IoService extends AbstractHcSlave
             );
 
             if (!$databaseOnly) {
-                $this->write($slave, self::COMMAND_RESET_DIRECT_CONNECT, chr($port));
+                $this->write(
+                    $slave,
+                    self::COMMAND_RESET_DIRECT_CONNECT,
+                    $this->getDeviceIdAsString($slave->getDeviceId() ?? 0) . chr($port)
+                );
             }
         } catch (AbstractException $exception) {
             $this->valueRepository->rollback();
@@ -807,7 +820,11 @@ class IoService extends AbstractHcSlave
     public function defragmentDirectConnect(Module $slave): void
     {
         $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::BEFORE_DEFRAGMENT_DIRECT_CONNECT, ['slave' => $slave]);
-        $this->write($slave, self::COMMAND_DEFRAGMENT_DIRECT_CONNECT, 'a');
+        $this->write(
+            $slave,
+            self::COMMAND_DEFRAGMENT_DIRECT_CONNECT,
+            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0)
+        );
         $this->eventService->fire($this->getEventDescriberClassName(), IoDescriber::AFTER_DEFRAGMENT_DIRECT_CONNECT, ['slave' => $slave]);
     }
 

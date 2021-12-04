@@ -321,13 +321,13 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function writeAddress(Module $slave, int $address): void
     {
-        $deviceId = $slave->getDeviceId();
+        $deviceId = $slave->getDeviceId() ?? 0;
 
         $this->logger->debug(sprintf(
             'Write new address %d to slave with current address %d and device ID %d',
             $address,
             $slave->getAddress() ?? 0,
-            $deviceId ?? 0
+            $deviceId
         ));
 
         $this->eventService->fire($this->getEventDescriberClassName(), AbstractHcDescriber::BEFORE_WRITE_ADDRESS, ['slave' => $slave, 'newAddress' => $address]);
@@ -335,7 +335,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         $this->write(
             $slave,
             self::COMMAND_ADDRESS,
-            chr($deviceId >> 8) . chr($deviceId & 255) . chr($address)
+            $this->getDeviceIdAsString($deviceId) . chr($address)
         );
         $this->masterService->scanBus($slave->getMaster());
 
@@ -376,12 +376,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
         $this->eventService->fire($this->getEventDescriberClassName(), AbstractHcDescriber::BEFORE_WRITE_DEVICE_ID, ['slave' => $slave, 'newDeviceId' => $deviceId]);
 
-        $currentDeviceId = $slave->getDeviceId();
         $this->write(
             $slave,
             self::COMMAND_DEVICE_ID,
-            chr($currentDeviceId >> 8) . chr($currentDeviceId & 255) .
-            chr($deviceId >> 8) . chr($deviceId & 255)
+            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0) .
+            $this->getDeviceIdAsString($deviceId)
         );
 
         $this->eventService->fire($this->getEventDescriberClassName(), AbstractHcDescriber::AFTER_WRITE_DEVICE_ID, ['slave' => $slave, 'newDeviceId' => $deviceId]);
@@ -441,11 +440,10 @@ abstract class AbstractHcSlave extends AbstractSlave
     {
         $this->eventService->fire($this->getEventDescriberClassName(), AbstractHcDescriber::BEFORE_WRITE_RESTART, ['slave' => $slave]);
 
-        $deviceId = $slave->getDeviceId();
         $this->write(
             $slave,
             self::COMMAND_RESTART,
-            chr($deviceId >> 8) . chr($deviceId & 255)
+            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0)
         );
 
         $this->eventService->fire($this->getEventDescriberClassName(), AbstractHcDescriber::AFTER_WRITE_RESTART, ['slave' => $slave]);
@@ -592,11 +590,10 @@ abstract class AbstractHcSlave extends AbstractSlave
     {
         $this->eventService->fire($this->getEventDescriberClassName(), AbstractHcDescriber::BEFORE_WRITE_EEPROM_ERASE, ['slave' => $slave]);
 
-        $deviceId = $slave->getDeviceId();
         $this->write(
             $slave,
             self::COMMAND_EEPROM_ERASE,
-            chr($deviceId >> 8) . chr($deviceId & 255)
+            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0)
         );
 
         $this->eventService->fire($this->getEventDescriberClassName(), AbstractHcDescriber::AFTER_WRITE_EEPROM_ERASE, ['slave' => $slave]);
@@ -1034,5 +1031,10 @@ abstract class AbstractHcSlave extends AbstractSlave
         $this->eventService->fire($this->getEventDescriberClassName(), AbstractHcDescriber::READ_ALL_LEDS, $eventData);
 
         return $leds;
+    }
+
+    protected function getDeviceIdAsString(int $deviceId): string
+    {
+        return chr($deviceId >> 8) . chr($deviceId & 255);
     }
 }
