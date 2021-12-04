@@ -109,8 +109,14 @@ class Bme280Service extends AbstractSlave
     {
         $this->init($slave);
 
-        $wait = 1.25 + (2.3 * self::OVERSAMPLE_TEMPERATURE) + ((2.3 * self::OVERSAMPLE_PRESSURE) + 0.575) + ((2.3 * self::OVERSAMPLE_HUMIDITY) + 0.575);
-        usleep((int) ($wait * 10));
+        /** @var positive-int $wait */
+        $wait = (int) (
+            1.25 +
+            (2.3 * self::OVERSAMPLE_TEMPERATURE) +
+            ((2.3 * self::OVERSAMPLE_PRESSURE) + 0.575) +
+            ((2.3 * self::OVERSAMPLE_HUMIDITY) + 0.575)
+        );
+        usleep($wait * 10);
 
         $config = JsonUtility::decode((string) $slave->getConfig());
         $data = $this->read($slave, self::COMMAND_MEASURE, self::COMMAND_MEASURE_READ_LENGTH);

@@ -231,7 +231,7 @@ class ValueRepository extends AbstractRepository
                 $this->getModuleIdsWhere($attributeTable, $moduleIds) .
                 $this->getTypeWhere($attributeTable, $type) .
                 $this->getSubIdWhere($attributeTable, $subId) .
-                $this->getKeysWhere($attributeTable, [$key])
+                $this->getKeysWhere($attributeTable, $key === null ? [] : [$key])
             )
         ;
 
@@ -240,12 +240,12 @@ class ValueRepository extends AbstractRepository
             ->setWhereParameters(array_merge([$startOrder], $attributeTable->getWhereParameters()))
             ->setWhere(
                 '`order`>=? AND ' .
-                '`attribute_id` IN (' . mb_substr($attributeTable->getSelect('`id`'), 0, -1) . ')'
+                '`attribute_id` IN (' . $attributeTable->getSelect('`id`') . ')'
             )
         ;
 
         if (!$table->update('`order`=`order`+' . $updateOrder)) {
-            $exception = new UpdateError();
+            $exception = new UpdateError($table->connection->error());
             $exception->setTable($table);
 
             throw $exception;

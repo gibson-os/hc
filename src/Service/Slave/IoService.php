@@ -7,7 +7,6 @@ use Exception;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
@@ -695,27 +694,30 @@ class IoService extends AbstractHcSlave
     private function createDirectConnectAttributes(Module $slave, int $port, array $data, int $order = 0): void
     {
         foreach ($data as $key => $value) {
-            try {
-                $attribute = $this->attributeRepository->getByModule(
-                    $slave,
-                    $port,
-                    $key,
-                    self::ATTRIBUTE_TYPE_DIRECT_CONNECT
-                )[0];
-            } catch (SelectError) {
+            $attributes = $this->attributeRepository->getByModule(
+                $slave,
+                $port,
+                $key,
+                self::ATTRIBUTE_TYPE_DIRECT_CONNECT
+            );
+
+            if (!isset($attributes[0])) {
                 $attribute = (new AttributeModel())
                     ->setModule($slave)
                     ->setType(self::ATTRIBUTE_TYPE_DIRECT_CONNECT)
                     ->setSubId($port)
                     ->setKey($key);
                 $attribute->save();
+            } else {
+                $attribute = $attributes[0];
             }
 
             (new ValueModel())
                 ->setAttribute($attribute)
                 ->setValue((string) $value)
                 ->setOrder($order)
-                ->save();
+                ->save()
+            ;
         }
     }
 
