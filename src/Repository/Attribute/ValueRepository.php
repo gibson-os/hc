@@ -104,7 +104,6 @@ class ValueRepository extends AbstractRepository
      * @param int[]|null $moduleIds
      *
      * @throws DeleteError
-     * @throws SelectError
      */
     public function deleteBySubId(
         int $subId,
@@ -114,47 +113,32 @@ class ValueRepository extends AbstractRepository
         string $key = null,
         string $order = null
     ): void {
+        $valueTable = $this->getTable(ValueModel::getTableName());
         $table = $this->getTable(AttributeModel::getTableName());
-        $table->setWhereParameters([$subId, $typeId]);
+        $valueTable->setWhereParameters([$subId, $typeId]);
         $where =
             '`sub_id`=? AND `type_id`=?' .
-            $this->getModuleIdsWhere($table, $moduleIds) .
-            $this->getTypeWhere($table, $type)
+            $this->getModuleIdsWhere($valueTable, $moduleIds) .
+            $this->getTypeWhere($valueTable, $type)
         ;
 
         if (!empty($key)) {
             $where .= ' AND `key`=?';
-            $table->addWhereParameter($key);
+            $valueTable->addWhereParameter($key);
         }
 
         $table->setWhere($where);
-
-        if (!$table->selectPrepared(false, '`id`')) {
-            $exception = new SelectError();
-            $exception->setTable($table);
-
-            throw $exception;
-        }
-
-        $ids = $table->connection->fetchResultList();
-
-        if (!count($ids)) {
-            return;
-        }
-
-        $valueTable = $this->getTable(ValueModel::getTableName());
-        $valueTable->setWhereParameters($ids);
-        $where = '`attribute_id` IN (' . $valueTable->getParametersString($ids) . ')';
+        $where = '`attribute_id` IN (' . $table->getSelect('`id`') . ')';
 
         if (!empty($order)) {
             $where .= ' AND `order`=?';
-            $table->addWhereParameter($order);
+            $valueTable->addWhereParameter($order);
         }
 
         $valueTable->setWhere($where);
 
         if (!$valueTable->deletePrepared()) {
-            $exception = new DeleteError('Werte konnten nicht gelöscht werden!');
+            $exception = new DeleteError($valueTable->connection->error());
             $exception->setTable($table);
 
             throw $exception;
