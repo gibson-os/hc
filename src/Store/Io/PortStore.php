@@ -19,7 +19,7 @@ class PortStore extends AbstractAttributeStore
     public function getList(): array
     {
         $this->initTable();
-        $this->table->setOrderBy('`hc_attribute`.`sub_id` ASC');
+        $this->table->setOrderBy('`hc_attribute`.`sub_id` ASC, `hc_attribute_value`.`order`');
 
         $this->table->selectPrepared(
             false,
