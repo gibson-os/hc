@@ -137,11 +137,11 @@ class IoMapper
         $setByte = ($value << 2) | ($blink << 3);
 
         if ($addOrSub === -1) {
-            $setByte += 64;
+            ++$setByte;
         } elseif ($addOrSub === 1) {
-            $setByte += 128;
+            $setByte += 2;
         } else {
-            $setByte += 192;
+            $setByte += 3;
         }
 
         $return .= chr($setByte) . chr($pwm);
