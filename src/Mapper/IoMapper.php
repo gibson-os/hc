@@ -87,12 +87,10 @@ class IoMapper
         $inputValueAndOutputPortByte = $this->transformService->asciiToUnsignedInt($data, 0);
         $setByte = $this->transformService->asciiToUnsignedInt($data, 1);
         $pwmByte = $this->transformService->asciiToUnsignedInt($data, 2);
-        $addOrSub = 0;
+        $addOrSub = $setByte & 1;
 
-        if ($setByte & 1) {
-            $addOrSub = 1;
-        } elseif (($pwmByte >> 1) & 1) {
-            $addOrSub = -1;
+        if (($setByte >> 1) & 1) {
+            --$addOrSub;
         }
 
         $value = (($setByte >> 2) & 1);
