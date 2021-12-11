@@ -41,7 +41,7 @@ class IoService extends AbstractHcSlave
 
     public const COMMAND_READ_DIRECT_CONNECT = 133;
 
-    public const COMMAND_READ_DIRECT_CONNECT_READ_LENGTH = 3;
+    public const COMMAND_READ_DIRECT_CONNECT_READ_LENGTH = 4;
 
     public const COMMAND_DEFRAGMENT_DIRECT_CONNECT = 134;
 
@@ -638,12 +638,11 @@ class IoService extends AbstractHcSlave
             'order' => $order,
         ]);
 
-        $directConnect = [];
+        $directConnect = ['hasMore' => false];
 
         for ($i = 0;; ++$i) {
             $this->write($slave, self::COMMAND_READ_DIRECT_CONNECT, chr($port) . chr($order));
             $data = $this->read($slave, self::COMMAND_READ_DIRECT_CONNECT, self::COMMAND_READ_DIRECT_CONNECT_READ_LENGTH);
-
             $lastByte = $this->transformService->asciiToUnsignedInt($data, 2);
 
             if ($lastByte === self::DIRECT_CONNECT_READ_NOT_SET) {
@@ -671,6 +670,7 @@ class IoService extends AbstractHcSlave
             }
 
             $this->attributeRepository->commit();
+            $directConnect['hasMore'] = (bool) (($this->transformService->asciiToUnsignedInt($data, 3) >> 5) & 1);
 
             break;
         }
