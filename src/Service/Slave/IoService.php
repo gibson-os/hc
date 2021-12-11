@@ -638,7 +638,6 @@ class IoService extends AbstractHcSlave
             'order' => $order,
         ]);
 
-        $lastByte = 0;
         $directConnect = [];
 
         for ($i = 0;; ++$i) {
@@ -648,7 +647,6 @@ class IoService extends AbstractHcSlave
             $lastByte = $this->transformService->asciiToUnsignedInt($data, 2);
 
             if ($lastByte === self::DIRECT_CONNECT_READ_NOT_SET) {
-                /** @psalm-suppress TypeDoesNotContainType */
                 if ($i === self::DIRECT_CONNECT_READ_RETRY) {
                     throw new ReceiveError('Es ist kein Port gesetzt!', self::DIRECT_CONNECT_READ_NOT_SET);
                 }
@@ -664,6 +662,7 @@ class IoService extends AbstractHcSlave
 
             try {
                 $directConnect = $this->ioMapper->getDirectConnectAsArray($data);
+                $directConnect['hasMore'] = $this->transformService->asciiToUnsignedInt($data, 3) !== 0;
                 $this->createDirectConnectAttributes($slave, $port, $directConnect, $order);
             } catch (AbstractException $exception) {
                 $this->attributeRepository->rollback();
@@ -675,8 +674,6 @@ class IoService extends AbstractHcSlave
 
             break;
         }
-
-        $directConnect['hasMore'] = (($lastByte >> 5) & 1) ? true : false;
 
         $eventData = $directConnect;
         $eventData['slave'] = $slave;
