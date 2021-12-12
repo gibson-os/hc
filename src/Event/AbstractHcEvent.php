@@ -674,10 +674,12 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws ReceiveError
      * @throws SaveError
      */
+    #[Event\Method('Power LED lesen')]
+    #[Event\ReturnValue(BoolParameter::class, 'An')]
     public function readPowerLed(
         #[Event\Parameter(SlaveParameter::class)] Module $slave
     ): bool {
-        return $slaveService->readPowerLed($slave);
+        return $this->slaveService->readPowerLed($slave);
     }
 
     /**
@@ -685,10 +687,12 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws ReceiveError
      * @throws SaveError
      */
+    #[Event\Method('Error LED lesen')]
+    #[Event\ReturnValue(BoolParameter::class, 'An')]
     public function readErrorLed(
         #[Event\Parameter(SlaveParameter::class)] Module $slave
     ): bool {
-        return $slaveService->readErrorLed($slave);
+        return $this->slaveService->readErrorLed($slave);
     }
 
     /**
@@ -696,10 +700,12 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws ReceiveError
      * @throws SaveError
      */
+    #[Event\Method('Connect LED lesen')]
+    #[Event\ReturnValue(BoolParameter::class, 'An')]
     public function readConnectLed(
         #[Event\Parameter(SlaveParameter::class)] Module $slave
     ): bool {
-        return $slaveService->readConnectLed($slave);
+        return $this->slaveService->readConnectLed($slave);
     }
 
     /**
@@ -707,10 +713,12 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws ReceiveError
      * @throws SaveError
      */
+    #[Event\Method('Transreceive LED lesen')]
+    #[Event\ReturnValue(BoolParameter::class, 'An')]
     public function readTransreceiveLed(
         #[Event\Parameter(SlaveParameter::class)] Module $slave
     ): bool {
-        return $slaveService->readTransreceiveLed($slave);
+        return $this->slaveService->readTransreceiveLed($slave);
     }
 
     /**
@@ -718,10 +726,12 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws ReceiveError
      * @throws SaveError
      */
+    #[Event\Method('Transceive LED lesen')]
+    #[Event\ReturnValue(BoolParameter::class, 'An')]
     public function readTransceiveLed(
         #[Event\Parameter(SlaveParameter::class)] Module $slave
     ): bool {
-        return $slaveService->readTransceiveLed($slave);
+        return $this->slaveService->readTransceiveLed($slave);
     }
 
     /**
@@ -729,10 +739,12 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws ReceiveError
      * @throws SaveError
      */
+    #[Event\Method('Receive LED lesen')]
+    #[Event\ReturnValue(BoolParameter::class, 'An')]
     public function readReceiveLed(
         #[Event\Parameter(SlaveParameter::class)] Module $slave
     ): bool {
-        return $slaveService->readReceiveLed($slave);
+        return $this->slaveService->readReceiveLed($slave);
     }
 
     /**
@@ -740,28 +752,36 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws ReceiveError
      * @throws SaveError
      */
+    #[Event\Method('Custom LED lesen')]
+    #[Event\ReturnValue(BoolParameter::class, 'An')]
     public function readCustomLed(
         #[Event\Parameter(SlaveParameter::class)] Module $slave
     ): bool {
-        return $slaveService->readCustomLed($slave);
+        return $this->slaveService->readCustomLed($slave);
     }
 
     /**
      * @throws AbstractException
      * @throws SaveError
      */
+    #[Event\Method('RGB LED schreiben')]
     public function writeRgbLed(
         #[Event\Parameter(SlaveParameter::class)] Module $slave,
-        array $params
+        #[Event\Parameter(StringParameter::class, 'Power LED')] string $power,
+        #[Event\Parameter(StringParameter::class, 'Error LED')] string $error,
+        #[Event\Parameter(StringParameter::class, 'Connect LED')] string $connect,
+        #[Event\Parameter(StringParameter::class, 'Transceive LED')] string $transceive,
+        #[Event\Parameter(StringParameter::class, 'Receive LED')] string $resceive,
+        #[Event\Parameter(StringParameter::class, 'Custom LED')] string $custom,
     ): void {
-        $slaveService->writeRgbLed(
+        $this->slaveService->writeRgbLed(
             $slave,
-            $params[AbstractHcSlave::POWER_LED_KEY],
-            $params[AbstractHcSlave::ERROR_LED_KEY],
-            $params[AbstractHcSlave::CONNECT_LED_KEY],
-            $params[AbstractHcSlave::TRANSCEIVE_LED_KEY],
-            $params[AbstractHcSlave::RECEIVE_LED_KEY],
-            $params[AbstractHcSlave::CUSTOM_LED_KEY]
+            $power,
+            $error,
+            $connect,
+            $transceive,
+            $resceive,
+            $custom
         );
     }
 
@@ -770,29 +790,43 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws ReceiveError
      * @throws SaveError
      */
+    #[Event\Method('RGB LED schreiben')]
+    #[Event\ReturnValue(className: StringParameter::class, title: 'Power LED', key: AbstractHcSlave::POWER_LED_KEY)]
+    #[Event\ReturnValue(className: StringParameter::class, title: 'Error LED', key: AbstractHcSlave::ERROR_LED_KEY)]
+    #[Event\ReturnValue(className: StringParameter::class, title: 'Connect LED', key: AbstractHcSlave::CONNECT_LED_KEY)]
+    #[Event\ReturnValue(className: StringParameter::class, title: 'Transceive LED', key: AbstractHcSlave::TRANSCEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: StringParameter::class, title: 'Receive LED', key: AbstractHcSlave::RECEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: StringParameter::class, title: 'Custom LED', key: AbstractHcSlave::CUSTOM_LED_KEY)]
     public function readRgbLed(
         #[Event\Parameter(SlaveParameter::class)] Module $slave
     ): array {
-        return $slaveService->readRgbLed($slave);
+        return $this->slaveService->readRgbLed($slave);
     }
 
     /**
      * @throws AbstractException
      * @throws SaveError
      */
+    #[Event\Method('Alle LEDs schreiben')]
     public function writeAllLeds(
         #[Event\Parameter(SlaveParameter::class)] Module $slave,
-        array $params
+        #[Event\Parameter(BoolParameter::class, 'Power LED')] bool $power,
+        #[Event\Parameter(BoolParameter::class, 'Error LED')] bool $error,
+        #[Event\Parameter(BoolParameter::class, 'Connect LED')] bool $connect,
+        #[Event\Parameter(BoolParameter::class, 'Transreceive LED')] bool $tranresceive,
+        #[Event\Parameter(BoolParameter::class, 'Transceive LED')] bool $transceive,
+        #[Event\Parameter(BoolParameter::class, 'Receive LED')] bool $resceive,
+        #[Event\Parameter(BoolParameter::class, 'Custom LED')] bool $custom,
     ): void {
-        $slaveService->writeAllLeds(
+        $this->slaveService->writeAllLeds(
             $slave,
-            $params[AbstractHcSlave::POWER_LED_KEY],
-            $params[AbstractHcSlave::ERROR_LED_KEY],
-            $params[AbstractHcSlave::CONNECT_LED_KEY],
-            $params[AbstractHcSlave::TRANSRECEIVE_LED_KEY],
-            $params[AbstractHcSlave::TRANSCEIVE_LED_KEY],
-            $params[AbstractHcSlave::RECEIVE_LED_KEY],
-            $params[AbstractHcSlave::CUSTOM_LED_KEY]
+            $power,
+            $error,
+            $connect,
+            $tranresceive,
+            $transceive,
+            $resceive,
+            $custom
         );
     }
 
@@ -801,9 +835,17 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws ReceiveError
      * @throws SaveError
      */
+    #[Event\Method('Alle LEDs lesen')]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Power LED', key: AbstractHcSlave::POWER_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Error LED', key: AbstractHcSlave::ERROR_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Connect LED', key: AbstractHcSlave::CONNECT_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Transreceive LED', key: AbstractHcSlave::TRANSRECEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Transceive LED', key: AbstractHcSlave::TRANSCEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Receive LED', key: AbstractHcSlave::RECEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Custom LED', key: AbstractHcSlave::CUSTOM_LED_KEY)]
     public function readAllLeds(
         #[Event\Parameter(SlaveParameter::class)] Module $slave
     ): array {
-        return $slaveService->readAllLeds($slave);
+        return $this->slaveService->readAllLeds($slave);
     }
 }

@@ -432,7 +432,6 @@ abstract class AbstractHcDescriber implements DescriberInterface
                     AbstractHcSlave::ERROR_LED_KEY => new StringParameter('Error LED'),
                     AbstractHcSlave::CONNECT_LED_KEY => new StringParameter('Connect LED'),
                     AbstractHcSlave::TRANSCEIVE_LED_KEY => new StringParameter('Transceive LED'),
-                    AbstractHcSlave::TRANSRECEIVE_LED_KEY => new StringParameter('Transreceive LED'),
                     AbstractHcSlave::RECEIVE_LED_KEY => new StringParameter('Receive LED'),
                     AbstractHcSlave::CUSTOM_LED_KEY => new StringParameter('Custom LED'),
                 ]),
