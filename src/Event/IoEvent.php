@@ -7,6 +7,7 @@ use GibsonOS\Core\Attribute\Event;
 use GibsonOS\Core\Dto\Parameter\BoolParameter;
 use GibsonOS\Core\Dto\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Parameter\OptionParameter;
+use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -268,8 +269,10 @@ class IoEvent extends AbstractHcEvent
      * @throws ReceiveError
      * @throws SaveError
      */
-    public function readPortsFromEeprom(Module $slave): void
-    {
+    #[Event\Method('Ports aus EEPROM lesen')]
+    public function readPortsFromEeprom(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave
+    ): void {
         $this->ioService->readPortsFromEeprom($slave);
     }
 
@@ -278,8 +281,10 @@ class IoEvent extends AbstractHcEvent
      * @throws ReceiveError
      * @throws SaveError
      */
-    public function getPorts(Module $slave): array
-    {
+    #[Event\Method('Ports auslesen')]
+    public function getPorts(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave
+    ): array {
         return $this->ioService->getPorts($slave);
     }
 
@@ -288,9 +293,21 @@ class IoEvent extends AbstractHcEvent
      * @throws ReceiveError
      * @throws SaveError
      */
-    public function readDirectConnect(Module $slave, array $params): array
-    {
-        return $this->ioService->readDirectConnect($slave, $params['port'], $params['order']);
+    #[Event\Method('DirectConnect lesen')]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Eingangsport geschloßen', key: IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_INPUT_PORT_VALUE)]
+    #[Event\ReturnValue(className: IntParameter::class, title: 'Ausgangsport', key: IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Ausgangsport An', key: IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_VALUE)]
+    #[Event\ReturnValue(className: IntParameter::class, title: 'Ausgangsport PWM', key: IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_PWM)]
+    #[Event\ReturnValue(className: IntParameter::class, title: 'Ausgangsport Blinken', key: IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_BLINK)]
+    #[Event\ReturnValue(className: IntParameter::class, title: 'Ausgangsport Einblenden', key: IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_FADE_IN)]
+    #[Event\ReturnValue(className: IntParameter::class, title: 'Addieren oder subtrahieren', key: IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_ADD_OR_SUB)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Es gibt weitere DirectConnects', key: 'hasMore')]
+    public function readDirectConnect(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order
+    ): array {
+        return $this->ioService->readDirectConnect($slave, $port, $order);
     }
 
     /**
@@ -298,27 +315,44 @@ class IoEvent extends AbstractHcEvent
      * @throws ReceiveError
      * @throws SaveError
      */
-    public function isDirectConnectActive(Module $slave): bool
-    {
+    #[Event\Method('Ist DirectConnect aktiv')]
+    #[Event\ReturnValue(BoolParameter::class, 'Aktiv')]
+    public function isDirectConnectActive(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+    ): bool {
         return $this->ioService->isDirectConnectActive($slave);
     }
 
     /**
      * @throws AbstractException
      */
-    public function setPort(Module $slave, array $params): void
-    {
+    #[Event\Method('Port setzen')]
+    public function setPort(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(PortParameter::class)] int $number,
+        #[Event\Parameter(StringParameter::class, 'Name')] string $name,
+        #[Event\Parameter(OptionParameter::class, 'Richtung', ['options' => [
+            IoService::DIRECTION_INPUT => 'Eingang',
+            IoService::DIRECTION_OUTPUT => 'Ausgang',
+        ]])] int $direction,
+        #[Event\Parameter(BoolParameter::class, 'PullUp')] bool $pullUp,
+        #[Event\Parameter(IntParameter::class, 'Verzögerung')] int $delay,
+        #[Event\Parameter(IntParameter::class, 'PWM')] int $pwm,
+        #[Event\Parameter(IntParameter::class, 'Blink')] int $blink,
+        #[Event\Parameter(IntParameter::class, 'Fade In')] int $fadeIn,
+        #[Event\Parameter(StringParameter::class, 'Werte Name')] string $valueNames,
+    ): void {
         $this->ioService->setPort(
             $slave,
-            $params['number'],
-            $params[IoService::ATTRIBUTE_PORT_KEY_NAME],
-            $params[IoService::ATTRIBUTE_PORT_KEY_DIRECTION],
-            $params[IoService::ATTRIBUTE_PORT_KEY_PULL_UP],
-            $params[IoService::ATTRIBUTE_PORT_KEY_DELAY],
-            $params[IoService::ATTRIBUTE_PORT_KEY_PWM],
-            $params[IoService::ATTRIBUTE_PORT_KEY_BLINK],
-            $params[IoService::ATTRIBUTE_PORT_KEY_FADE_IN],
-            $params[IoService::ATTRIBUTE_PORT_KEY_VALUE_NAMES]
+            $number,
+            $name,
+            $direction,
+            (int) $pullUp,
+            $delay,
+            $pwm,
+            $blink,
+            $fadeIn,
+            explode(', ', $valueNames)
         );
     }
 
@@ -326,52 +360,75 @@ class IoEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      */
-    public function writePortsToEeprom(Module $slave): void
-    {
+    #[Event\Method('Ports in EEPROM schreiben')]
+    public function writePortsToEeprom(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave
+    ): void {
         $this->ioService->writePortsToEeprom($slave);
     }
 
     /**
      * @throws AbstractException
      */
-    public function saveDirectConnect(Module $slave, array $params): void
-    {
+    #[Event\Method('DirectConnect speichern')]
+    public function saveDirectConnect(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(PortParameter::class, 'Eingangsport')] int $inputPort,
+        #[Event\Parameter(IntParameter::class, 'Eingangsport geschloßen')] int $inputPortValue,
+        #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order,
+        #[Event\Parameter(PortParameter::class, 'Ausgangsport')] int $outputPort,
+        #[Event\Parameter(BoolParameter::class, 'Ausgangsport An')] bool $value,
+        #[Event\Parameter(IntParameter::class, 'Ausgangsport PWM')] int $pwm,
+        #[Event\Parameter(IntParameter::class, 'Ausgangsport Blinken')] int $blink,
+        #[Event\Parameter(IntParameter::class, 'Ausgangsport Fade In')] int $fadeIn,
+        #[Event\Parameter(IntParameter::class, 'Addieren oder subtrahieren')] int $addOrSub
+    ): void {
         $this->ioService->saveDirectConnect(
             $slave,
-            $params['inputPort'],
-            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_INPUT_PORT_VALUE],
-            $params['order'],
-            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT],
-            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_VALUE],
-            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_PWM],
-            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_BLINK],
-            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_FADE_IN],
-            $params[IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_ADD_OR_SUB]
+            $inputPort,
+            $inputPortValue,
+            $order,
+            $outputPort,
+            (int) $value,
+            $pwm,
+            $blink,
+            $fadeIn,
+            $addOrSub
         );
     }
 
     /**
      * @throws AbstractException
      */
-    public function deleteDirectConnect(Module $slave, array $params): void
-    {
-        $this->ioService->deleteDirectConnect($slave, $params['port'], $params['order']);
+    #[Event\Method('DirectConnect löschen')]
+    public function deleteDirectConnect(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order
+    ): void {
+        $this->ioService->deleteDirectConnect($slave, $port, $order);
     }
 
     /**
      * @throws AbstractException
      */
-    public function resetDirectConnect(Module $slave, array $params): void
-    {
-        $this->ioService->resetDirectConnect($slave, $params['port'], $params['databaseOnly']);
+    #[Event\Method('Alle DirectConnects löschen')]
+    public function resetDirectConnect(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(BoolParameter::class, 'Nur Datenbank')] bool $databaseOnly
+    ): void {
+        $this->ioService->resetDirectConnect($slave, $port, $databaseOnly);
     }
 
     /**
      * @throws AbstractException
      * @throws SaveError
      */
-    public function defragmentDirectConnect(Module $slave): void
-    {
+    #[Event\Method('DirectConnect defragmentieren')]
+    public function defragmentDirectConnect(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave
+    ): void {
         $this->ioService->defragmentDirectConnect($slave);
     }
 
@@ -379,8 +436,11 @@ class IoEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      */
-    public function activateDirectConnect(Module $slave, array $params): void
-    {
-        $this->ioService->activateDirectConnect($slave, $params['active']);
+    #[Event\Method('DirectConnect de-/aktivieren')]
+    public function activateDirectConnect(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(BoolParameter::class, 'Aktiv')] bool $active
+    ): void {
+        $this->ioService->activateDirectConnect($slave, $active);
     }
 }
