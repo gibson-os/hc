@@ -94,6 +94,7 @@ class IoDescriber extends AbstractHcDescriber
             IoSlave::DIRECTION_OUTPUT => 'Ausgang',
         ]);
         $this->portParameter = new AutoCompleteParameter('Port', $portAutoComplete);
+        // @todo muss im neuen Konstrukt abbildbar sein
         $this->portParameter->setListener('slave', ['params' => [
             'paramKey' => 'moduleId',
             'recordKey' => 'id',

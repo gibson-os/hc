@@ -3,18 +3,86 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Event;
 
+use GibsonOS\Core\Attribute\Event;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\ServiceManagerService;
+use GibsonOS\Module\Hc\Dto\Parameter\Io\PortParameter;
+use GibsonOS\Module\Hc\Dto\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Event\Describer\IoDescriber;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use Psr\Log\LoggerInterface;
 
+#[Event('I/O')]
 class IoEvent extends AbstractHcEvent
 {
+    #[Event\Trigger('Vor auslesen eines Ports', [
+        ['key' => 'slave', 'className' => SlaveParameter::class],
+        ['key' => 'port', 'className' => PortParameter::class],
+    ])]
+    public const BEFORE_READ_PORT = 'beforeReadPort';
+
+    #[Event\Trigger('Nach auslesen eines Ports', [
+        ['key' => 'slave', 'className' => SlaveParameter::class],
+        ['key' => 'port', 'className' => PortParameter::class],
+    ])]
+    public const AFTER_READ_PORT = 'afterReadPort';
+
+    public const BEFORE_WRITE_PORT = 'beforeWritePort';
+
+    public const AFTER_WRITE_PORT = 'afterWritePort';
+
+    public const BEFORE_READ_PORTS_FROM_EEPROM = 'beforeReadPortsFromEeprom';
+
+    public const AFTER_READ_PORTS_FROM_EEPROM = 'afterReadPortsFromEeprom';
+
+    public const BEFORE_WRITE_PORTS_TO_EEPROM = 'beforeWritePortsToEeprom';
+
+    public const AFTER_WRITE_PORTS_TO_EEPROM = 'afterWritePortsToEeprom';
+
+    public const BEFORE_READ_PORTS = 'beforeReadPorts';
+
+    public const AFTER_READ_PORTS = 'afterReadPorts';
+
+    public const BEFORE_ADD_DIRECT_CONNECT = 'beforeAddDirectConnect';
+
+    public const AFTER_ADD_DIRECT_CONNECT = 'afterAddDirectConnect';
+
+    public const BEFORE_SET_DIRECT_CONNECT = 'beforeSetDirectConnect';
+
+    public const AFTER_SET_DIRECT_CONNECT = 'afterSetDirectConnect';
+
+    public const BEFORE_SAVE_DIRECT_CONNECT = 'beforeSaveDirectConnect';
+
+    public const AFTER_SAVE_DIRECT_CONNECT = 'afterSaveDirectConnect';
+
+    public const BEFORE_READ_DIRECT_CONNECT = 'beforeReadDirectConnect';
+
+    public const AFTER_READ_DIRECT_CONNECT = 'afterReadDirectConnect';
+
+    public const BEFORE_DELETE_DIRECT_CONNECT = 'beforeDeleteDirectConnect';
+
+    public const AFTER_DELETE_DIRECT_CONNECT = 'afterDeleteDirectConnect';
+
+    public const BEFORE_RESET_DIRECT_CONNECT = 'beforeResetDirectConnect';
+
+    public const AFTER_RESET_DIRECT_CONNECT = 'afterResetDirectConnect';
+
+    public const BEFORE_DEFRAGMENT_DIRECT_CONNECT = 'beforeDefragmentDirectConnect';
+
+    public const AFTER_DEFRAGMENT_DIRECT_CONNECT = 'afterDefragmentDirectConnect';
+
+    public const BEFORE_ACTIVATE_DIRECT_CONNECT = 'beforeActivateDirectConnect';
+
+    public const AFTER_ACTIVATE_DIRECT_CONNECT = 'afterActivateDirectConnect';
+
+    public const BEFORE_IS_DIRECT_CONNECT_ACTIVE = 'beforeIsDirectConnectActive';
+
+    public const AFTER_IS_DIRECT_CONNECT_ACTIVE = 'afterIsDirectConnectActive';
+
     public function __construct(
         IoDescriber $describer,
         ServiceManagerService $serviceManagerService,
