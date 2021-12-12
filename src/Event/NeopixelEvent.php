@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Event;
 
+use GibsonOS\Core\Attribute\Event;
+use GibsonOS\Core\Dto\Parameter\IntParameter;
+use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
@@ -10,6 +13,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
+use GibsonOS\Module\Hc\Dto\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Event\Describer\NeopixelDescriber;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
@@ -20,6 +24,7 @@ use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use JsonException;
 use Psr\Log\LoggerInterface;
 
+#[Event('Neopixel')]
 class NeopixelEvent extends AbstractHcEvent
 {
     public function __construct(
@@ -37,8 +42,11 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      */
-    public function writeSetLeds(Module $slave, array $leds): void
-    {
+    #[Event\Method('LEDs setzen')]
+    public function writeSetLeds(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        array $leds
+    ): void {
         $this->neopixelService->writeLeds($slave, $this->ledMapper->mapFromArrays($leds, true, false));
     }
 
@@ -48,8 +56,12 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws WriteException
      * @throws JsonException
      */
-    public function writeChannel(Module $slave, int $channel, int $length = 0): void
-    {
+    #[Event\Method('Channel schreiben')]
+    public function writeChannel(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(IntParameter::class, 'Channel')] int $channel,
+        #[Event\Parameter(IntParameter::class, 'Länge')] int $length = 0
+    ): void {
         $this->neopixelService->writeChannel($slave, $channel, $length);
     }
 
@@ -57,8 +69,11 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      */
-    public function writeSequenceStart(Module $slave, int $repeat = 0): void
-    {
+    #[Event\Method('Sequenz starten')]
+    public function writeSequenceStart(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(IntParameter::class, 'Wiederholungen')] int $repeat = 0
+    ): void {
         $this->neopixelService->writeSequenceStart($slave, $repeat);
     }
 
@@ -66,8 +81,10 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      */
-    public function writeSequenceStop(Module $slave): void
-    {
+    #[Event\Method('Sequenz stoppen')]
+    public function writeSequenceStop(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave
+    ): void {
         $this->neopixelService->writeSequenceStop($slave);
     }
 
@@ -75,8 +92,10 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      */
-    public function writeSequencePause(Module $slave): void
-    {
+    #[Event\Method('Sequenz pausieren')]
+    public function writeSequencePause(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave
+    ): void {
         $this->neopixelService->writeSequencePause($slave);
     }
 
@@ -84,8 +103,11 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      */
-    public function writeSequenceEepromAddress(Module $slave, int $address): void
-    {
+    #[Event\Method('Sequenz EEPROM Adresse schreiben')]
+    public function writeSequenceEepromAddress(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(IntParameter::class)] int $address
+    ): void {
         $this->neopixelService->writeSequenceEepromAddress($slave, $address);
     }
 
@@ -93,8 +115,11 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      */
-    public function readSequenceEepromAddress(Module $slave): int
-    {
+    #[Event\Method('Sequenz EEPROM Adresse lesen')]
+    #[Event\ReturnValue(IntParameter::class, 'EEPROM Adresse')]
+    public function readSequenceEepromAddress(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave
+    ): int {
         return $this->neopixelService->readSequenceEepromAddress($slave);
     }
 
@@ -102,8 +127,10 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      */
-    public function writeSequenceNew(Module $slave): void
-    {
+    #[Event\Method('Neue Sequenz übertragen')]
+    public function writeSequenceNew(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave
+    ): void {
         $this->neopixelService->writeSequenceNew($slave);
     }
 
@@ -113,8 +140,11 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws ReceiveError
      * @throws JsonException
      */
-    public function readLedCounts(Module $slave): array
-    {
+    #[Event\Method('LED Anzahl lesen')]
+    public function readLedCounts(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave
+    ): array {
+        // @todo dynamischer return. Kommt auf die Channel Anzahl an. Array Typ?
         return $this->neopixelService->readLedCounts($slave);
     }
 
@@ -122,8 +152,12 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      */
-    public function writeLedCounts(Module $slave, array $counts): void
-    {
+    #[Event\Method('LED Anzahl schreiben')]
+    public function writeLedCounts(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        array $counts
+    ): void {
+        // @todo dynamischer parameter. Kommt auf die Channel Anzahl an. Array typ?
         $this->neopixelService->writeLedCounts($slave, $counts);
     }
 
@@ -133,8 +167,11 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws SaveError
      * @throws JsonException
      */
-    public function sendImage(Module $slave, Sequence $sequence): void
-    {
+    // @todo Sequence Parameter
+    public function sendImage(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        Sequence $sequence
+    ): void {
         $elements = $sequence->getElements() ?? [];
         $element = reset($elements);
         $this->neopixelService->writeLeds(
@@ -143,24 +180,27 @@ class NeopixelEvent extends AbstractHcEvent
         );
     }
 
-    public function sendAnimation(Module $slave, int $animationId): void
-    {
+    public function sendAnimation(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        int $animationId
+    ): void {
     }
 
     /**
      * @throws AbstractException
      * @throws SaveError
      */
+    #[Event\Method('Zufallsanzeige')]
     public function randomImage(
-        Module $slave,
-        int $start,
-        int $end,
-        int $redFrom,
-        int $redTo,
-        int $greenFrom,
-        int $greenTo,
-        int $blueFrom,
-        int $blueTo
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(IntParameter::class, 'Start LED', ['range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1]])] int $start,
+        #[Event\Parameter(IntParameter::class, 'End LED', ['range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1]])] int $end,
+        #[Event\Parameter(IntParameter::class, 'Rot von', ['range' => [0, 255]])] int $redFrom,
+        #[Event\Parameter(IntParameter::class, 'Rot bis', ['range' => [0, 255]])] int $redTo,
+        #[Event\Parameter(IntParameter::class, 'Grün von', ['range' => [0, 255]])] int $greenFrom,
+        #[Event\Parameter(IntParameter::class, 'Grün bis', ['range' => [0, 255]])] int $greenTo,
+        #[Event\Parameter(IntParameter::class, 'Balu von', ['range' => [0, 255]])] int $blueFrom,
+        #[Event\Parameter(IntParameter::class, 'Blau bis', ['range' => [0, 255]])] int $blueTo
     ): void {
         $leds = [];
 
@@ -186,8 +226,14 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws DateTimeError
      * @throws SaveError
      */
-    public function sendColor(Module $slave, string $ledRanges, int $red, int $green, int $blue): void
-    {
+    #[Event\Method('Farbe setzen')]
+    public function sendColor(
+        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(StringParameter::class, 'LEDs')] string $ledRanges,
+        #[Event\Parameter(IntParameter::class, 'Rot', ['range' => [0, 255]])] int $red,
+        #[Event\Parameter(IntParameter::class, 'Grün', ['range' => [0, 255]])] int $green,
+        #[Event\Parameter(IntParameter::class, 'Blau', ['range' => [0, 255]])] int $blue
+    ): void {
         $leds = [];
 
         foreach ($this->getLedNumbers($ledRanges) as $ledNumber) {
