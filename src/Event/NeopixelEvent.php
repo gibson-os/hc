@@ -30,7 +30,7 @@ class NeopixelEvent extends AbstractHcEvent
         private NeopixelService $neopixelService,
         private LedMapper $ledMapper
     ) {
-        parent::__construct($describer, $serviceManagerService, $typeRepository, $logger);
+        parent::__construct($describer, $serviceManagerService, $typeRepository, $logger, $this->neopixelService);
     }
 
     /**

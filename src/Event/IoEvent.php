@@ -22,7 +22,7 @@ class IoEvent extends AbstractHcEvent
         LoggerInterface $logger,
         private IoService $ioService
     ) {
-        parent::__construct($describer, $serviceManagerService, $typeRepository, $logger);
+        parent::__construct($describer, $serviceManagerService, $typeRepository, $logger, $this->ioService);
     }
 
     /**
