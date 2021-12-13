@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Slave;
 
 use GibsonOS\Module\Hc\Dto\BusMessage;
-use GibsonOS\Module\Hc\Event\Describer\AbstractHcDescriber;
+use GibsonOS\Module\Hc\Event\AbstractHcEvent;
 use GibsonOS\Module\Hc\Model\Module;
 
 class BlankService extends AbstractHcSlave
@@ -24,8 +24,8 @@ class BlankService extends AbstractHcSlave
         // TODO: Implement receive() method.
     }
 
-    protected function getEventDescriberClassName(): string
+    protected function getEventClassName(): string
     {
-        return AbstractHcDescriber::class;
+        return AbstractHcEvent::class;
     }
 }

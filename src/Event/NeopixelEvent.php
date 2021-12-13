@@ -10,11 +10,10 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Service\ServiceManagerService;
+use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Dto\Parameter\SlaveParameter;
-use GibsonOS\Module\Hc\Event\Describer\NeopixelDescriber;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
@@ -25,17 +24,20 @@ use JsonException;
 use Psr\Log\LoggerInterface;
 
 #[Event('Neopixel')]
+#[Event\Listener('image', 'slave', ['params' => [
+    'paramKey' => 'moduleId',
+    'recordKey' => 'id',
+]])]
 class NeopixelEvent extends AbstractHcEvent
 {
     public function __construct(
-        NeopixelDescriber $describer,
-        ServiceManagerService $serviceManagerService,
+        EventService $eventService,
         TypeRepository $typeRepository,
         LoggerInterface $logger,
         private NeopixelService $neopixelService,
         private LedMapper $ledMapper
     ) {
-        parent::__construct($describer, $serviceManagerService, $typeRepository, $logger, $this->neopixelService);
+        parent::__construct($eventService, $typeRepository, $logger, $this->neopixelService);
     }
 
     /**
@@ -106,7 +108,7 @@ class NeopixelEvent extends AbstractHcEvent
     #[Event\Method('Sequenz EEPROM Adresse schreiben')]
     public function writeSequenceEepromAddress(
         #[Event\Parameter(SlaveParameter::class)] Module $slave,
-        #[Event\Parameter(IntParameter::class)] int $address
+        #[Event\Parameter(IntParameter::class, 'Adresse')] int $address
     ): void {
         $this->neopixelService->writeSequenceEepromAddress($slave, $address);
     }

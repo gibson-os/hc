@@ -8,13 +8,12 @@ use GibsonOS\Core\Dto\Parameter\BoolParameter;
 use GibsonOS\Core\Dto\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Event\AbstractEvent;
-use GibsonOS\Core\Event\Describer\DescriberInterface;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Service\ServiceManagerService;
+use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\TypeParameter;
 use GibsonOS\Module\Hc\Model\Module;
@@ -368,13 +367,12 @@ abstract class AbstractHcEvent extends AbstractEvent
     public const AFTER_WRITE_ALL_LEDS = 'afterWriteAllLeds';
 
     public function __construct(
-        DescriberInterface $describer,
-        ServiceManagerService $serviceManagerService,
+        EventService $eventService,
         private TypeRepository $typeRepository,
         protected LoggerInterface $logger,
         private AbstractHcSlave $slaveService
     ) {
-        parent::__construct($describer, $serviceManagerService);
+        parent::__construct($eventService);
     }
 
     /**

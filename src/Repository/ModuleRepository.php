@@ -46,7 +46,7 @@ class ModuleRepository extends AbstractRepository
         $parameters = [$name . '%'];
 
         if ($typeId !== null) {
-            $where .= ' AND `type_id`=' . $typeId;
+            $where .= ' AND `type_id`=?';
             $parameters[] = $typeId;
         }
 

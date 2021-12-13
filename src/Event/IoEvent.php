@@ -11,16 +11,19 @@ use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Service\ServiceManagerService;
+use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\Parameter\Io\PortParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\SlaveParameter;
-use GibsonOS\Module\Hc\Event\Describer\IoDescriber;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use Psr\Log\LoggerInterface;
 
 #[Event('I/O')]
+#[Event\Listener('port', 'slave', ['params' => [
+    'paramKey' => 'moduleId',
+    'recordKey' => 'id',
+]])]
 class IoEvent extends AbstractHcEvent
 {
     #[Event\Trigger('Vor auslesen eines Ports', [
@@ -232,13 +235,12 @@ class IoEvent extends AbstractHcEvent
     public const AFTER_IS_DIRECT_CONNECT_ACTIVE = 'afterIsDirectConnectActive';
 
     public function __construct(
-        IoDescriber $describer,
-        ServiceManagerService $serviceManagerService,
+        EventService $eventService,
         TypeRepository $typeRepository,
         LoggerInterface $logger,
         private IoService $ioService
     ) {
-        parent::__construct($describer, $serviceManagerService, $typeRepository, $logger, $this->ioService);
+        parent::__construct($eventService, $typeRepository, $logger, $this->ioService);
     }
 
     /**
@@ -247,10 +249,10 @@ class IoEvent extends AbstractHcEvent
      * @throws SaveError
      */
     #[Event\Method('Port lesen')]
-    #[Event\ReturnValue(OptionParameter::class, 'Richtung', ['options' => [
+    #[Event\ReturnValue(OptionParameter::class, 'Richtung', ['options' => [[
         IoService::DIRECTION_INPUT => 'Eingang',
         IoService::DIRECTION_OUTPUT => 'Ausgang',
-    ]], IoService::ATTRIBUTE_PORT_KEY_DIRECTION)]
+    ]]], IoService::ATTRIBUTE_PORT_KEY_DIRECTION)]
     #[Event\ReturnValue(className: IntParameter::class, title: 'Wert', key: IoService::ATTRIBUTE_PORT_KEY_VALUE)]
     #[Event\ReturnValue(className: IntParameter::class, title: 'Verzögerung', key: IoService::ATTRIBUTE_PORT_KEY_DELAY)]
     #[Event\ReturnValue(className: BoolParameter::class, title: 'PullUp', key: IoService::ATTRIBUTE_PORT_KEY_PULL_UP)]
@@ -259,9 +261,9 @@ class IoEvent extends AbstractHcEvent
     #[Event\ReturnValue(className: IntParameter::class, title: 'Blink', key: IoService::ATTRIBUTE_PORT_KEY_BLINK)]
     public function readPort(
         #[Event\Parameter(SlaveParameter::class)] Module $slave,
-        #[Event\Parameter(PortParameter::class)] int $number
+        #[Event\Parameter(PortParameter::class)] int $port
     ): array {
-        return $this->ioService->readPort($slave, $number);
+        return $this->ioService->readPort($slave, $port);
     }
 
     /**
@@ -329,12 +331,12 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Port setzen')]
     public function setPort(
         #[Event\Parameter(SlaveParameter::class)] Module $slave,
-        #[Event\Parameter(PortParameter::class)] int $number,
+        #[Event\Parameter(PortParameter::class)] int $port,
         #[Event\Parameter(StringParameter::class, 'Name')] string $name,
-        #[Event\Parameter(OptionParameter::class, 'Richtung', ['options' => [
+        #[Event\Parameter(OptionParameter::class, 'Richtung', ['options' => [[
             IoService::DIRECTION_INPUT => 'Eingang',
             IoService::DIRECTION_OUTPUT => 'Ausgang',
-        ]])] int $direction,
+        ]]])] int $direction,
         #[Event\Parameter(BoolParameter::class, 'PullUp')] bool $pullUp,
         #[Event\Parameter(IntParameter::class, 'Verzögerung')] int $delay,
         #[Event\Parameter(IntParameter::class, 'PWM')] int $pwm,
@@ -344,7 +346,7 @@ class IoEvent extends AbstractHcEvent
     ): void {
         $this->ioService->setPort(
             $slave,
-            $number,
+            $port,
             $name,
             $direction,
             (int) $pullUp,
@@ -371,9 +373,13 @@ class IoEvent extends AbstractHcEvent
      * @throws AbstractException
      */
     #[Event\Method('DirectConnect speichern')]
+    #[Event\Listener('outputPort', 'slave', ['params' => [
+        'paramKey' => 'moduleId',
+        'recordKey' => 'id',
+    ]])]
     public function saveDirectConnect(
         #[Event\Parameter(SlaveParameter::class)] Module $slave,
-        #[Event\Parameter(PortParameter::class, 'Eingangsport')] int $inputPort,
+        #[Event\Parameter(PortParameter::class, 'Eingangsport')] int $port,
         #[Event\Parameter(IntParameter::class, 'Eingangsport geschloßen')] int $inputPortValue,
         #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order,
         #[Event\Parameter(PortParameter::class, 'Ausgangsport')] int $outputPort,
@@ -385,7 +391,7 @@ class IoEvent extends AbstractHcEvent
     ): void {
         $this->ioService->saveDirectConnect(
             $slave,
-            $inputPort,
+            $port,
             $inputPortValue,
             $order,
             $outputPort,
