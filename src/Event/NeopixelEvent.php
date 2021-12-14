@@ -148,7 +148,7 @@ class NeopixelEvent extends AbstractHcEvent
     #[Event\Method('LED Anzahl lesen')]
     #[Event\ReturnValue(className: CollectionParameter::class, options: [
         'className' => [IntParameter::class],
-        'range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1],
+//        'range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1],
     ])]
     public function readLedCounts(
         #[Event\Parameter(SlaveParameter::class)] Module $slave
@@ -165,7 +165,7 @@ class NeopixelEvent extends AbstractHcEvent
         #[Event\Parameter(SlaveParameter::class)] Module $slave,
         #[Event\Parameter(className: CollectionParameter::class, options: [
             'className' => [IntParameter::class],
-            'range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1],
+//            'range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1],
         ])] array $counts
     ): void {
         $this->neopixelService->writeLedCounts($slave, $counts);
