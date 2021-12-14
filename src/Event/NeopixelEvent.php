@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Event;
 
 use GibsonOS\Core\Attribute\Event;
+use GibsonOS\Core\Dto\Parameter\CollectionParameter;
 use GibsonOS\Core\Dto\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Exception\AbstractException;
@@ -145,10 +146,13 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws JsonException
      */
     #[Event\Method('LED Anzahl lesen')]
+    #[Event\ReturnValue(className: CollectionParameter::class, options: [
+        'className' => [IntParameter::class],
+        'range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1],
+    ])]
     public function readLedCounts(
         #[Event\Parameter(SlaveParameter::class)] Module $slave
     ): array {
-        // @todo dynamischer return. Kommt auf die Channel Anzahl an. Array Typ?
         return $this->neopixelService->readLedCounts($slave);
     }
 
@@ -159,9 +163,11 @@ class NeopixelEvent extends AbstractHcEvent
     #[Event\Method('LED Anzahl schreiben')]
     public function writeLedCounts(
         #[Event\Parameter(SlaveParameter::class)] Module $slave,
-        array $counts
+        #[Event\Parameter(className: CollectionParameter::class, options: [
+            'className' => [IntParameter::class],
+            'range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1],
+        ])] array $counts
     ): void {
-        // @todo dynamischer parameter. Kommt auf die Channel Anzahl an. Array typ?
         $this->neopixelService->writeLedCounts($slave, $counts);
     }
 
