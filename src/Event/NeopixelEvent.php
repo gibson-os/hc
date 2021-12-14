@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
+use GibsonOS\Module\Hc\Dto\Parameter\Neopixel\ImageParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
@@ -170,10 +171,14 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws SaveError
      * @throws JsonException
      */
-    // @todo Sequence Parameter
+    #[Event\Method('Bild anzeigen')]
+    #[Event\Listener('sequence', 'slave', ['params' => [
+        'paramKey' => 'moduleId',
+        'recordKey' => 'id',
+    ]])]
     public function sendImage(
         #[Event\Parameter(SlaveParameter::class)] Module $slave,
-        Sequence $sequence
+        #[Event\Parameter(ImageParameter::class)] Sequence $sequence
     ): void {
         $elements = $sequence->getElements() ?? [];
         $element = reset($elements);
