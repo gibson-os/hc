@@ -24,6 +24,7 @@ use Psr\Log\LoggerInterface;
     'paramKey' => 'moduleId',
     'recordKey' => 'id',
 ]])]
+#[Event\ParameterOption('slave', 'typeHelper', 'io')]
 class IoEvent extends AbstractHcEvent
 {
     #[Event\Trigger('Vor auslesen eines Ports', [

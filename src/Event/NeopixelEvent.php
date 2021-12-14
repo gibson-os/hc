@@ -28,6 +28,7 @@ use Psr\Log\LoggerInterface;
     'paramKey' => 'moduleId',
     'recordKey' => 'id',
 ]])]
+#[Event\ParameterOption('slave', 'typeHelper', 'neopixel')]
 class NeopixelEvent extends AbstractHcEvent
 {
     public function __construct(
