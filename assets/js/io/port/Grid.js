@@ -7,6 +7,27 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
     },
     initComponent: function () {
         let me = this;
+        const toggleFields = (form, direction) => {
+            const pullUp = form.findField('pullUp');
+            const delay = form.findField('delay');
+            const pwm = form.findField('pwm');
+            const fade = form.findField('fade');
+            const blink = form.findField('blink');
+
+            if (direction === 0) {
+                pullUp.enable();
+                delay.enable();
+                pwm.disable();
+                fade.disable();
+                blink.disable();
+            } else {
+                pullUp.disable();
+                delay.disable();
+                pwm.enable();
+                fade.enable();
+                blink.enable();
+            }
+        }
 
         me.store = new GibsonOS.module.hc.io.store.Port({
             gos: me.gos
@@ -17,8 +38,9 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                 cancelBtnText: 'Abbrechen',
                 clicksToMoveEditor: 1,
                 listeners: {
-                    beforeedit: function() {
+                    beforeedit: function(editor, context) {
                         me.getStore().gos.autoReload = false;
+                        toggleFields(editor.editor.form, context.record.get('direction'));
                     },
                     canceledit: function() {
                         me.getStore().gos.autoReload = true;
@@ -147,26 +169,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                 },
                 listeners: {
                     change(comboBox, value) {
-                        const form = comboBox.up('form').getForm();
-                        const pullUp = form.findField('pullUp');
-                        const delay = form.findField('delay');
-                        const pwm = form.findField('pwm');
-                        const fade = form.findField('fade');
-                        const blink = form.findField('blink');
-
-                        if (value === 0) {
-                            pullUp.enable();
-                            delay.enable();
-                            pwm.disable();
-                            fade.disable();
-                            blink.disable();
-                        } else {
-                            pullUp.disable();
-                            delay.disable();
-                            pwm.enable();
-                            fade.enable();
-                            blink.enable();
-                        }
+                        toggleFields(comboBox.up('form').getForm(), value);
                     }
                 }
             }
