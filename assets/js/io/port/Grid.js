@@ -144,6 +144,30 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                         id: 1,
                         name: 'Ausgang'
                     }]
+                },
+                listeners: {
+                    change(comboBox, value) {
+                        const form = comboBox.up('form').getForm();
+                        const pullUp = form.findField('pullUp');
+                        const delay = form.findField('delay');
+                        const pwm = form.findField('pwm');
+                        const fade = form.findField('fade');
+                        const blink = form.findField('blink');
+
+                        if (value === 0) {
+                            pullUp.enable();
+                            delay.enable();
+                            pwm.disable();
+                            fade.disable();
+                            blink.disable();
+                        } else {
+                            pullUp.disable();
+                            delay.disable();
+                            pwm.enable();
+                            fade.enable();
+                            blink.enable();
+                        }
+                    }
                 }
             }
         },{
@@ -213,7 +237,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
             editor: {
                 xtype: 'numberfield',
                 minValue: 0,
-                maxValue: 7
+                maxValue: 31
             }
         }];
 
