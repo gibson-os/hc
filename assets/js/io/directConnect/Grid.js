@@ -144,7 +144,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 xtype: 'numberfield',
                 disabled: true,
                 minValue: 0,
-                maxValue: 15
+                maxValue: 255
             },
             renderer: function(value, metaData, record) {
                 if (record.get('outputPort') === null) {
@@ -161,7 +161,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
             editor: {
                 xtype: 'numberfield',
                 minValue: 0,
-                maxValue: 7
+                maxValue: 31
             },
             renderer: function(value, metaData, record) {
                 if (record.get('outputPort') === null) {
@@ -179,7 +179,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 xtype: 'numberfield',
                 disabled: true,
                 minValue: 0,
-                maxValue: 15
+                maxValue: 255
             },
             renderer: function(value, metaData, record) {
                 if (record.get('outputPort') === null) {
