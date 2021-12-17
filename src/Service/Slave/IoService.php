@@ -97,9 +97,9 @@ class IoService extends AbstractHcSlave
 
     public const ATTRIBUTE_DIRECT_CONNECT_KEY_ADD_OR_SUB = 'addOrSub';
 
-    public const DIRECT_CONNECT_READ_NOT_SET = 127;
+    public const DIRECT_CONNECT_READ_NOT_SET = 1;
 
-    public const DIRECT_CONNECT_READ_NOT_EXIST = 255;
+    public const DIRECT_CONNECT_READ_NOT_EXIST = 2;
 
     public const DIRECT_CONNECT_READ_RETRY = 5;
 
@@ -643,7 +643,7 @@ class IoService extends AbstractHcSlave
         for ($i = 0;; ++$i) {
             $this->write($slave, self::COMMAND_READ_DIRECT_CONNECT, chr($port) . chr($order));
             $data = $this->read($slave, self::COMMAND_READ_DIRECT_CONNECT, self::COMMAND_READ_DIRECT_CONNECT_READ_LENGTH);
-            $lastByte = $this->transformService->asciiToUnsignedInt($data, 2);
+            $lastByte = $this->transformService->asciiToUnsignedInt($data, 3);
 
             if ($lastByte === self::DIRECT_CONNECT_READ_NOT_SET) {
                 if ($i === self::DIRECT_CONNECT_READ_RETRY) {
@@ -661,7 +661,7 @@ class IoService extends AbstractHcSlave
 
             try {
                 $directConnect = $this->ioMapper->getDirectConnectAsArray($data);
-                $directConnect['hasMore'] = $this->transformService->asciiToUnsignedInt($data, 3) !== 0;
+                $directConnect['hasMore'] = $lastByte === 255;
                 $this->createDirectConnectAttributes($slave, $port, $directConnect, $order);
             } catch (AbstractException $exception) {
                 $this->attributeRepository->rollback();
