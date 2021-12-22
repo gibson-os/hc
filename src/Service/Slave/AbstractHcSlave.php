@@ -269,7 +269,7 @@ abstract class AbstractHcSlave extends AbstractSlave
         try {
             $this->typeRepository->getByDefaultAddress($slave->getAddress() ?? 0);
         } catch (SelectError) {
-            // Given address is allowed
+            return $slave;
         }
 
         $this->writeAddress(
