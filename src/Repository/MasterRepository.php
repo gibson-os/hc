@@ -131,7 +131,7 @@ class MasterRepository extends AbstractRepository
             ->addWhereParameter($port)
         ;
 
-        if ($table->selectPrepared(false)) {
+        if (!$table->selectPrepared(false)) {
             return $this->findFreePort();
         }
 
