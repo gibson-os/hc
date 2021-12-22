@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "7c1e657eb117a7aa7c982b10037ff2d985de42cd"
+                "reference": "d133e0990a2c37bc142ee0a48168b0193adfd7f0"
             },
             "require": {
                 "ext-curl": "*",
@@ -81,7 +81,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2021-12-16T11:33:23+00:00"
+            "time": "2021-12-16T18:55:03+00:00"
         },
         {
             "name": "mdo/mdo",
@@ -89,7 +89,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/mdo.git",
-                "reference": "e5f7ccd5b0b628b5b37214e857993a4ef23f4469"
+                "reference": "8a95aed3c81ced07f84f908eae2778b479050f53"
             },
             "require": {
                 "ext-mbstring": "*",
@@ -145,7 +145,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2021-12-04T15:30:11+00:00"
+            "time": "2021-12-22T21:58:49+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -615,16 +615,16 @@
         },
         {
             "name": "captainhook/captainhook",
-            "version": "5.10.4",
+            "version": "5.10.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/captainhookphp/captainhook.git",
-                "reference": "4cf2f8afda36e1f08f4f04985355e1f5126ea9a1"
+                "reference": "cd0a92d6b3b16d98a4e148f83f8dd40098a4cdc5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/captainhookphp/captainhook/zipball/4cf2f8afda36e1f08f4f04985355e1f5126ea9a1",
-                "reference": "4cf2f8afda36e1f08f4f04985355e1f5126ea9a1",
+                "url": "https://api.github.com/repos/captainhookphp/captainhook/zipball/cd0a92d6b3b16d98a4e148f83f8dd40098a4cdc5",
+                "reference": "cd0a92d6b3b16d98a4e148f83f8dd40098a4cdc5",
                 "shasum": ""
             },
             "require": {
@@ -634,7 +634,7 @@
                 "php": ">=7.2",
                 "sebastianfeldmann/camino": "^0.9.2",
                 "sebastianfeldmann/cli": "^3.3",
-                "sebastianfeldmann/git": "^3.7",
+                "sebastianfeldmann/git": "^3.8.1",
                 "symfony/console": "^2.7 || ^3.0 || ^4.0 || ^5.0",
                 "symfony/filesystem": "^2.7 || ^3.0 || ^4.0 || ^5.0",
                 "symfony/process": "^2.7 || ^3.0 || ^4.0 || ^5.0"
@@ -686,7 +686,7 @@
             ],
             "support": {
                 "issues": "https://github.com/captainhookphp/captainhook/issues",
-                "source": "https://github.com/captainhookphp/captainhook/tree/5.10.4"
+                "source": "https://github.com/captainhookphp/captainhook/tree/5.10.5"
             },
             "funding": [
                 {
@@ -694,7 +694,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-09-28T15:12:04+00:00"
+            "time": "2021-12-19T23:13:15+00:00"
         },
         {
             "name": "captainhook/plugin-composer",
@@ -753,23 +753,23 @@
         },
         {
             "name": "codeception/codeception",
-            "version": "4.1.23",
+            "version": "4.1.27",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "27d18cd5d5a1d77d3f1b01ea776238676faf5dcc"
+                "reference": "2d9a11e6f487e3bcc17e22b7552fb6a10cec5c7c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/27d18cd5d5a1d77d3f1b01ea776238676faf5dcc",
-                "reference": "27d18cd5d5a1d77d3f1b01ea776238676faf5dcc",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/2d9a11e6f487e3bcc17e22b7552fb6a10cec5c7c",
+                "reference": "2d9a11e6f487e3bcc17e22b7552fb6a10cec5c7c",
                 "shasum": ""
             },
             "require": {
                 "behat/gherkin": "^4.4.0",
-                "codeception/lib-asserts": "^1.0",
+                "codeception/lib-asserts": "^1.0 | 2.0.*@dev",
                 "codeception/phpunit-wrapper": ">6.0.15 <6.1.0 | ^6.6.1 | ^7.7.1 | ^8.1.1 | ^9.0",
-                "codeception/stub": "^2.0 | ^3.0",
+                "codeception/stub": "^2.0 | ^3.0 | ^4.0",
                 "ext-curl": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
@@ -782,11 +782,11 @@
                 "symfony/yaml": ">=2.7 <6.0"
             },
             "require-dev": {
-                "codeception/module-asserts": "1.*@dev",
-                "codeception/module-cli": "1.*@dev",
-                "codeception/module-db": "1.*@dev",
-                "codeception/module-filesystem": "1.*@dev",
-                "codeception/module-phpbrowser": "1.*@dev",
+                "codeception/module-asserts": "^1.0 | 2.0.*@dev",
+                "codeception/module-cli": "^1.0 | 2.0.*@dev",
+                "codeception/module-db": "^1.0 | 2.0.*@dev",
+                "codeception/module-filesystem": "^1.0 | 2.0.*@dev",
+                "codeception/module-phpbrowser": "^1.0 | 2.0.*@dev",
                 "codeception/specify": "~0.3",
                 "codeception/util-universalframework": "*@dev",
                 "monolog/monolog": "~1.8",
@@ -839,7 +839,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/Codeception/issues",
-                "source": "https://github.com/Codeception/Codeception/tree/4.1.23"
+                "source": "https://github.com/Codeception/Codeception/tree/4.1.27"
             },
             "funding": [
                 {
@@ -847,7 +847,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2021-12-11T18:05:26+00:00"
+            "time": "2021-12-22T06:40:46+00:00"
         },
         {
             "name": "codeception/lib-asserts",
@@ -1011,20 +1011,24 @@
         },
         {
             "name": "codeception/stub",
-            "version": "3.7.0",
+            "version": "4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Stub.git",
-                "reference": "468dd5fe659f131fc997f5196aad87512f9b1304"
+                "reference": "4c9cf3e19bd5f064e08e7f3ba6be651c218dc6ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Stub/zipball/468dd5fe659f131fc997f5196aad87512f9b1304",
-                "reference": "468dd5fe659f131fc997f5196aad87512f9b1304",
+                "url": "https://api.github.com/repos/Codeception/Stub/zipball/4c9cf3e19bd5f064e08e7f3ba6be651c218dc6ae",
+                "reference": "4c9cf3e19bd5f064e08e7f3ba6be651c218dc6ae",
                 "shasum": ""
             },
             "require": {
+                "php": "^7.4 | ^8.0",
                 "phpunit/phpunit": "^8.4 | ^9.0"
+            },
+            "require-dev": {
+                "consolidation/robo": "^3.0"
             },
             "type": "library",
             "autoload": {
@@ -1039,9 +1043,9 @@
             "description": "Flexible Stub wrapper for PHPUnit's Mock Builder",
             "support": {
                 "issues": "https://github.com/Codeception/Stub/issues",
-                "source": "https://github.com/Codeception/Stub/tree/3.7.0"
+                "source": "https://github.com/Codeception/Stub/tree/4.0.0"
             },
-            "time": "2020-07-03T15:54:43+00:00"
+            "time": "2021-12-07T14:39:17+00:00"
         },
         {
             "name": "composer/package-versions-deprecated",
@@ -2497,16 +2501,16 @@
         },
         {
             "name": "phpmd/phpmd",
-            "version": "2.11.0",
+            "version": "2.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpmd/phpmd.git",
-                "reference": "3637949092e6471aeaeca66bc6c016f45e459e24"
+                "reference": "08b60a2eb7e14c23f46ff8865b510ae08b75d0fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpmd/phpmd/zipball/3637949092e6471aeaeca66bc6c016f45e459e24",
-                "reference": "3637949092e6471aeaeca66bc6c016f45e459e24",
+                "url": "https://api.github.com/repos/phpmd/phpmd/zipball/08b60a2eb7e14c23f46ff8865b510ae08b75d0fd",
+                "reference": "08b60a2eb7e14c23f46ff8865b510ae08b75d0fd",
                 "shasum": ""
             },
             "require": {
@@ -2568,7 +2572,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/phpmd",
                 "issues": "https://github.com/phpmd/phpmd/issues",
-                "source": "https://github.com/phpmd/phpmd/tree/2.11.0"
+                "source": "https://github.com/phpmd/phpmd/tree/2.11.1"
             },
             "funding": [
                 {
@@ -2576,7 +2580,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-11-29T14:05:52+00:00"
+            "time": "2021-12-17T11:25:43+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -4614,16 +4618,16 @@
         },
         {
             "name": "sebastianfeldmann/cli",
-            "version": "3.4.0",
+            "version": "3.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianfeldmann/cli.git",
-                "reference": "72f2066dd70688eb7b117840fb02a54726cc137b"
+                "reference": "8a932e99e9455981fb32fa6c085492462fe8f8cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianfeldmann/cli/zipball/72f2066dd70688eb7b117840fb02a54726cc137b",
-                "reference": "72f2066dd70688eb7b117840fb02a54726cc137b",
+                "url": "https://api.github.com/repos/sebastianfeldmann/cli/zipball/8a932e99e9455981fb32fa6c085492462fe8f8cf",
+                "reference": "8a932e99e9455981fb32fa6c085492462fe8f8cf",
                 "shasum": ""
             },
             "require": {
@@ -4660,7 +4664,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianfeldmann/cli/issues",
-                "source": "https://github.com/sebastianfeldmann/cli/tree/3.4.0"
+                "source": "https://github.com/sebastianfeldmann/cli/tree/3.4.1"
             },
             "funding": [
                 {
@@ -4668,20 +4672,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-10-20T19:43:50+00:00"
+            "time": "2021-12-20T14:59:49+00:00"
         },
         {
             "name": "sebastianfeldmann/git",
-            "version": "3.8.0",
+            "version": "3.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianfeldmann/git.git",
-                "reference": "6fa753d57900b0edd57a0fdb5a97945f314cc0fa"
+                "reference": "c7a16b549e303f870a003b7df08fa88c6756593a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianfeldmann/git/zipball/6fa753d57900b0edd57a0fdb5a97945f314cc0fa",
-                "reference": "6fa753d57900b0edd57a0fdb5a97945f314cc0fa",
+                "url": "https://api.github.com/repos/sebastianfeldmann/git/zipball/c7a16b549e303f870a003b7df08fa88c6756593a",
+                "reference": "c7a16b549e303f870a003b7df08fa88c6756593a",
                 "shasum": ""
             },
             "require": {
@@ -4721,7 +4725,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianfeldmann/git/issues",
-                "source": "https://github.com/sebastianfeldmann/git/tree/3.8.0"
+                "source": "https://github.com/sebastianfeldmann/git/tree/3.8.1"
             },
             "funding": [
                 {
@@ -4729,7 +4733,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-12-01T15:08:30+00:00"
+            "time": "2021-12-19T20:42:49+00:00"
         },
         {
             "name": "symfony/config",

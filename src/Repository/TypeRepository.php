@@ -20,7 +20,7 @@ class TypeRepository extends AbstractRepository
         $table
             ->appendJoin(
                 '`' . $defaultAddressTableName . '`',
-                '`' . $tableName . '`.`id`=`hc_type_default_address`.`type_id`'
+                '`' . $tableName . '`.`id`=`' . $defaultAddressTableName . '`.`type_id`'
             )
             ->setWhere('`' . $defaultAddressTableName . '`.`address`=?')
             ->addWhereParameter($address)

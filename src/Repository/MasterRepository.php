@@ -80,15 +80,15 @@ class MasterRepository extends AbstractRepository
             ->setWhere('`master_id`=?')
             ->addWhereParameter($masterId)
         ;
+        $table->setSelectString('`address`');
 
         $typeDefaultAddressTable = $this->getTable(DefaultAddress::getTableName());
         $typeDefaultAddressTable->setSelectString('`address`');
 
-        $table->appendUnion(null, '`address`');
         $table->appendUnion($typeDefaultAddressTable->getSelect());
         $table->setOrderBy('`address`');
 
-        if (!$table->selectUnion(false)) {
+        if ($table->selectPrepared(false) === false) {
             $exception = new SelectError('Konnte reservierte Adressen nicht laden!');
             $exception->setTable($table);
 

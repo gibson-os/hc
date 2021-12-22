@@ -268,10 +268,14 @@ abstract class AbstractHcSlave extends AbstractSlave
 
         try {
             $this->typeRepository->getByDefaultAddress($slave->getAddress() ?? 0);
-            $this->writeAddress($slave, $this->masterRepository->getNextFreeAddress((int) $slave->getMaster()->getId()));
         } catch (SelectError) {
             // Given address is allowed
         }
+
+        $this->writeAddress(
+            $slave,
+            $this->masterRepository->getNextFreeAddress($slave->getMaster()->getId() ?? 0)
+        );
 
         return $slave;
     }
