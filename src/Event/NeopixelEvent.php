@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Event;
 
 use GibsonOS\Core\Attribute\Event;
-use GibsonOS\Core\Dto\Parameter\CollectionParameter;
 use GibsonOS\Core\Dto\Parameter\IntParameter;
+use GibsonOS\Core\Dto\Parameter\OptionParameter;
 use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
@@ -208,14 +208,32 @@ class NeopixelEvent extends AbstractHcEvent
     #[Event\Method('Zufallsanzeige')]
     public function randomImage(
         #[Event\Parameter(SlaveParameter::class)] Module $slave,
-        #[Event\Parameter(IntParameter::class, 'Start LED', ['range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1]])] int $start,
-        #[Event\Parameter(IntParameter::class, 'End LED', ['range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1]])] int $end,
-        #[Event\Parameter(IntParameter::class, 'Rot von', ['range' => [0, 255]])] int $redFrom,
-        #[Event\Parameter(IntParameter::class, 'Rot bis', ['range' => [0, 255]])] int $redTo,
-        #[Event\Parameter(IntParameter::class, 'Grün von', ['range' => [0, 255]])] int $greenFrom,
-        #[Event\Parameter(IntParameter::class, 'Grün bis', ['range' => [0, 255]])] int $greenTo,
-        #[Event\Parameter(IntParameter::class, 'Balu von', ['range' => [0, 255]])] int $blueFrom,
-        #[Event\Parameter(IntParameter::class, 'Blau bis', ['range' => [0, 255]])] int $blueTo
+        #[Event\Parameter(IntParameter::class, 'Start LED', ['range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1]])] int $start = 0,
+        #[Event\Parameter(IntParameter::class, 'End LED', ['range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1]])] int $end = LedMapper::MAX_PROTOCOL_LEDS + 1,
+        #[Event\Parameter(IntParameter::class, 'Rot von', ['range' => [0, 255]])] int $redFrom = 0,
+        #[Event\Parameter(IntParameter::class, 'Rot bis', ['range' => [0, 255]])] int $redTo = 255,
+        #[Event\Parameter(IntParameter::class, 'Grün von', ['range' => [0, 255]])] int $greenFrom = 0,
+        #[Event\Parameter(IntParameter::class, 'Grün bis', ['range' => [0, 255]])] int $greenTo = 255,
+        #[Event\Parameter(IntParameter::class, 'Blau von', ['range' => [0, 255]])] int $blueFrom = 0,
+        #[Event\Parameter(IntParameter::class, 'Blau bis', ['range' => [0, 255]])] int $blueTo = 255,
+        #[Event\Parameter(OptionParameter::class, 'Einblenden', ['options' => [[
+            0 => 'Nicht',
+            1 => 'Verdammt langsam',
+            2 => 'Extrem langsam',
+            3 => 'Sehr sehr langsam',
+            4 => 'Sehr langsam',
+            5 => 'Ganz langsam',
+            6 => 'Langsamer',
+            7 => 'Langsam',
+            8 => 'Normal',
+            9 => 'Schnell',
+            10 => 'Schneller',
+            11 => 'Ganz schnell',
+            12 => 'Sehr schnell',
+            13 => 'Sehr sehr schnell',
+            14 => 'Extrem schnell',
+            15 => 'Verdammt schnell',
+        ]]])] int $fadeIn = 0
     ): void {
         $leds = [];
 
@@ -229,6 +247,7 @@ class NeopixelEvent extends AbstractHcEvent
                 ->setRed($red)
                 ->setGreen($green)
                 ->setBlue($blue)
+                ->setFadeIn($fadeIn)
                 ->setOnlyColor(true)
             ;
         }
