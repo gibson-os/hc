@@ -185,15 +185,22 @@ class AnimationService
     private function getAttribute(Module $slave, string $key): Attribute
     {
         try {
-            return $this->attributeRepository->getByModule(
+            $attributes = $this->attributeRepository->getByModule(
                 $slave,
                 null,
                 $key,
                 self::ATTRIBUTE_TYPE
-            )[0];
+            );
+            $attribute = reset($attributes);
+
+            if ($attribute !== false) {
+                return $attribute;
+            }
         } catch (SelectError) {
-            return $this->newAttribute($slave, $key);
+            // do nothing
         }
+
+        return $this->newAttribute($slave, $key);
     }
 
     /**

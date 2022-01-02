@@ -157,42 +157,29 @@ class ValueRepository extends AbstractRepository
         array $keys = null,
         string $type = null
     ): void {
-        $table = $this->getTable(AttributeModel::getTableName());
+        $table = $this->getTable(ValueModel::getTableName());
         $table
             ->setWhereParameters([$module->getTypeId(), $module->getId()])
             ->setWhere(
-                '`type_id`=? AND `module_id`=?' .
-                $this->getTypeWhere($table, $type) .
-                $this->getSubIdWhere($table, $subId) .
-                $this->getKeysWhere($table, $keys)
+                '`attribute_id` IN (' .
+                    'SELECT `id` FROM `hc_attribute` WHERE ' .
+                        '`type_id`=? AND `module_id`=?' .
+                        $this->getTypeWhere($table, $type) .
+                        $this->getSubIdWhere($table, $subId) .
+                        $this->getKeysWhere($table, $keys) .
+                ')'
             )
         ;
 
-        if (!$table->selectPrepared(false, '`id`')) {
-            $exception = new SelectError();
-            $exception->setTable($table);
-
-            throw $exception;
-        }
-
-        $ids = $table->connection->fetchResultList();
-
-        if (!count($ids)) {
-            return;
-        }
-
-        $valueTable = $this->getTable(ValueModel::getTableName());
-        $valueTable
-            ->setWhereParameters($ids)
-            ->setWhere('`attribute_id` IN (' . $table->getParametersString($ids) . ')')
-        ;
-
-        if (!$valueTable->deletePrepared()) {
+        if (!$table->deletePrepared()) {
             $exception = new DeleteError('Werte konnten nicht gelöscht werden!');
             $exception->setTable($table);
 
             throw $exception;
         }
+        errlog($table->sql);
+        errlog($table->getWhereParameters());
+        errlog($table->connection->error());
     }
 
     /**
@@ -378,7 +365,7 @@ class ValueRepository extends AbstractRepository
             $table->addWhereParameter($key);
         });
 
-        return ' AND `' . $tableName . '`.`module_id` IN (' . $table->getParametersString($keys) . ')';
+        return ' AND `' . $tableName . '`.`key` IN (' . $table->getParametersString($keys) . ')';
     }
 
     private function getSubIdWhere(mysqlTable $table, ?int $subId, string $tableName = 'hc_attribute'): string

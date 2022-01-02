@@ -51,5 +51,11 @@
     "php-unit": "php ./vendor/codeception/codeception/codecept run unit --ext DotReporter",
     "php-unit-push": "php ./vendor/codeception/codeception/codecept run unit --ext DotReporter --no-ansi --no-colors",
     "php-unit-add": "php ./vendor/codeception/codeception/codecept generate:test unit"
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/package-versions-deprecated": true,
+      "captainhook/plugin-composer": true
+    }
   }
 }
