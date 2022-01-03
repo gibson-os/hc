@@ -210,7 +210,6 @@ class NeopixelAnimationController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE)]
     public function start(
-        //AnimationAttributeService $animationService,
         NeopixelService $neopixelService,
         ModuleRepository $moduleRepository,
         int $moduleId,
@@ -218,8 +217,6 @@ class NeopixelAnimationController extends AbstractController
     ): AjaxResponse {
         $slave = $moduleRepository->getById($moduleId);
         $neopixelService->writeSequenceStart($slave, $iterations);
-        // @todo refactor. Sollte mit dem locker arbeiten um laufende prozesse zu setzen
-        //$animationService->setStarted($slave, true);
 
         return $this->returnSuccess();
     }
@@ -231,7 +228,6 @@ class NeopixelAnimationController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE)]
     public function pause(
-        //AnimationAttributeService $animationService,
         NeopixelService $neopixelService,
         ModuleRepository $moduleRepository,
         int $moduleId
@@ -250,14 +246,14 @@ class NeopixelAnimationController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE)]
     public function stop(
-        //AnimationAttributeService $animationService,
+        AnimationSequenceService $animationService,
         NeopixelService $neopixelService,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
         $slave = $moduleRepository->getById($moduleId);
         $neopixelService->writeSequenceStop($slave);
-        //$animationService->setStarted($slave, false);
+        $animationService->stop($slave);
 
         return $this->returnSuccess();
     }

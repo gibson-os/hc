@@ -16,14 +16,20 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
 use GibsonOS\Module\Hc\Repository\SequenceRepository;
+use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
 use JsonException;
 
 class AnimationService extends AbstractService
 {
     public const SEQUENCE_TYPE = 1;
 
-    public function __construct(private SequenceRepository $sequenceRepository, private ElementRepository $elementRepository, private CommandService $commandService, private LedMapper $ledMapper)
-    {
+    public function __construct(
+        private SequenceRepository $sequenceRepository,
+        private ElementRepository $elementRepository,
+        private CommandService $commandService,
+        private LedMapper $ledMapper,
+        private AnimationAttributeService $animationAttributesService
+    ) {
     }
 
     /**
@@ -117,6 +123,17 @@ class AnimationService extends AbstractService
             'slaveId' => $slave->getId(),
             'iterations' => $iterations,
         ]);
+    }
+
+    public function stop(Module $module): void
+    {
+        $pid = $this->animationAttributesService->getPid($module);
+
+        if (empty($pid)) {
+            return;
+        }
+
+        exec('kill -9 ' . $pid);
     }
 
     /**

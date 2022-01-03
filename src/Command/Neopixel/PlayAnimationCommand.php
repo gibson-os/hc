@@ -58,12 +58,7 @@ class PlayAnimationCommand extends AbstractCommand
         $iterations = (int) ($this->getArgument('iterations') ?? 1);
 
         $slave = $this->moduleRepository->getById($slaveId);
-        $lastPid = $this->animationAttributeService->getPid($slave);
-
-        if (!empty($lastPid)) {
-            exec('kill -9 ' . $lastPid);
-        }
-
+        $this->animationSequenceService->stop($slave);
         $this->animationAttributeService->setPid($slave, getmypid());
         $steps = $this->animationAttributeService->getSteps($slave);
         $runtimes = $this->animationSequenceService->getRuntimes($steps);

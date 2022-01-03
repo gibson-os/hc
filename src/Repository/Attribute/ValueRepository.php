@@ -177,9 +177,6 @@ class ValueRepository extends AbstractRepository
 
             throw $exception;
         }
-        errlog($table->sql);
-        errlog($table->getWhereParameters());
-        errlog($table->connection->error());
     }
 
     /**
