@@ -252,8 +252,8 @@ class NeopixelAnimationController extends AbstractController
         int $moduleId
     ): AjaxResponse {
         $slave = $moduleRepository->getById($moduleId);
-        $neopixelService->writeSequenceStop($slave);
         $animationService->stop($slave);
+        $neopixelService->writeSequenceStop($slave);
 
         return $this->returnSuccess();
     }
