@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Command;
 
+use GibsonOS\Core\Attribute\Install\Cronjob;
 use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\ArgumentError;
@@ -15,6 +16,7 @@ use GibsonOS\Module\Hc\Service\ReceiverService;
 use mysqlDatabase;
 use Psr\Log\LoggerInterface;
 
+#[Cronjob]
 class UdpServerCommand extends AbstractCommand
 {
     private const LOCK_NAME = 'hcUdpServer';
