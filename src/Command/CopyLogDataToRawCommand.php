@@ -15,7 +15,11 @@ use Psr\Log\LoggerInterface;
  */
 class CopyLogDataToRawCommand extends AbstractCommand
 {
-    public function __construct(LoggerInterface $logger, private mysqlDatabase $mysqlDatabase, private TransformService $transformService)
+    public function __construct(
+        LoggerInterface $logger,
+        private mysqlDatabase $mysqlDatabase,
+        private TransformService $transformService
+    )
     {
         parent::__construct($logger);
     }
@@ -26,7 +30,7 @@ class CopyLogDataToRawCommand extends AbstractCommand
         $logTable->setWhere('`data`!="" AND `raw_data`=""');
 
         if (!$logTable->select()) {
-            return 1;
+            return self::ERROR;
         }
 
         do {
@@ -42,6 +46,6 @@ class CopyLogDataToRawCommand extends AbstractCommand
             $log->save();
         } while ($logTable->next());
 
-        return 0;
+        return self::SUCCESS;
     }
 }

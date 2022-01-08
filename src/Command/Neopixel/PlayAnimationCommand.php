@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Command\Neopixel;
 
 use Exception;
+use GibsonOS\Core\Attribute\Command\Argument;
 use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\ArgumentError;
@@ -30,6 +31,12 @@ use Psr\Log\LoggerInterface;
  */
 class PlayAnimationCommand extends AbstractCommand
 {
+    #[Argument('Neopixel slave ID')]
+    private int $slaveId;
+
+    #[Argument('How often the animation should be repeated. 0 = infinity')]
+    private int $iterations = 1;
+
     public function __construct(
         private NeopixelService $neopixelService,
         private AnimationAttributeService $animationAttributeService,
@@ -40,9 +47,6 @@ class PlayAnimationCommand extends AbstractCommand
         private EnvService $envService,
         LoggerInterface $logger
     ) {
-        $this->setArgument('slaveId', true);
-        $this->setArgument('iterations', false);
-
         parent::__construct($logger);
     }
 
@@ -57,10 +61,7 @@ class PlayAnimationCommand extends AbstractCommand
      */
     protected function run(): int
     {
-        $slaveId = (int) $this->getArgument('slaveId');
-        $iterations = (int) ($this->getArgument('iterations') ?? 1);
-
-        $slave = $this->moduleRepository->getById($slaveId);
+        $slave = $this->moduleRepository->getById($this->slaveId);
         $this->animationSequenceService->stop($slave);
         $this->animationAttributeService->setPid($slave, getmypid());
         $steps = $this->animationAttributeService->getSteps($slave);
@@ -68,7 +69,7 @@ class PlayAnimationCommand extends AbstractCommand
         $this->mysqlDatabase->closeDB();
         $startTime = (int) (microtime(true) * 1000000);
 
-        for ($i = 0; $iterations === 0 || $i < $iterations; ++$i) {
+        for ($i = 0; $this->iterations === 0 || $i < $this->iterations; ++$i) {
             foreach ($steps as $time => $leds) {
                 $newLeds = [];
 
@@ -88,7 +89,7 @@ class PlayAnimationCommand extends AbstractCommand
             }
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 
     private function sleepToTime(int $time): void
@@ -149,5 +150,19 @@ class PlayAnimationCommand extends AbstractCommand
                 $lastChangedIds
             )
         );
+    }
+
+    public function setSlaveId(int $slaveId): PlayAnimationCommand
+    {
+        $this->slaveId = $slaveId;
+
+        return $this;
+    }
+
+    public function setIterations(int $iterations): PlayAnimationCommand
+    {
+        $this->iterations = $iterations;
+
+        return $this;
     }
 }

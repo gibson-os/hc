@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Command;
 
+use GibsonOS\Core\Attribute\Command\Argument;
+use GibsonOS\Core\Attribute\Command\Option;
 use GibsonOS\Core\Attribute\Install\Cronjob;
 use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\ArgumentError;
 use GibsonOS\Core\Exception\Flock\LockError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Service\EnvService;
@@ -22,6 +23,12 @@ use Psr\Log\LoggerInterface;
 #[Cronjob]
 class UdpServerCommand extends AbstractCommand
 {
+    #[Argument('Run Server on IP')]
+    private string $bindIp = '0';
+
+    #[Option('Stop server if already runs and starts new')]
+    private bool $force = false;
+
     private const LOCK_NAME = 'hcUdpServer';
 
     public function __construct(
@@ -32,20 +39,16 @@ class UdpServerCommand extends AbstractCommand
         private LockService $lockService,
         LoggerInterface $logger
     ) {
-        $this->setArgument('bindIp', false);
-        $this->setOption('force');
-
         parent::__construct($logger);
     }
 
     /**
-     * @throws ArgumentError
      * @throws GetError
      */
     protected function run(): int
     {
         try {
-            if ($this->hasOption('force')) {
+            if ($this->force) {
                 $this->lockService->forceLock(self::LOCK_NAME);
             } else {
                 $this->lockService->lock(self::LOCK_NAME);
@@ -53,10 +56,10 @@ class UdpServerCommand extends AbstractCommand
         } catch (LockError) {
             $this->logger->info('Server already runs!');
 
-            return 1;
+            return self::ERROR;
         }
 
-        $this->protocol->setIp($this->getArgument('bindIp') ?? '0');
+        $this->protocol->setIp($this->bindIp);
         $this->logger->info('Start server...');
 
         while (1) {
@@ -70,6 +73,20 @@ class UdpServerCommand extends AbstractCommand
             }
         }
 
-        return 0;
+        return self::SUCCESS;
+    }
+
+    public function setBindIp(string $bindIp): UdpServerCommand
+    {
+        $this->bindIp = $bindIp;
+
+        return $this;
+    }
+
+    public function setForce(bool $force): UdpServerCommand
+    {
+        $this->force = $force;
+
+        return $this;
     }
 }
