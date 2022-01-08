@@ -16,6 +16,9 @@ use GibsonOS\Module\Hc\Service\ReceiverService;
 use mysqlDatabase;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @description Run HC UDP Server
+ */
 #[Cronjob]
 class UdpServerCommand extends AbstractCommand
 {

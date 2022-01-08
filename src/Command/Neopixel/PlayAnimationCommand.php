@@ -25,6 +25,9 @@ use JsonException;
 use mysqlDatabase;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @description Play not transferred neopixel animation
+ */
 class PlayAnimationCommand extends AbstractCommand
 {
     public function __construct(

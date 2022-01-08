@@ -10,6 +10,9 @@ use mysqlDatabase;
 use mysqlTable;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @description TEMP copy old log data to new raw field
+ */
 class CopyLogDataToRawCommand extends AbstractCommand
 {
     public function __construct(LoggerInterface $logger, private mysqlDatabase $mysqlDatabase, private TransformService $transformService)

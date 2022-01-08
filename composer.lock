@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "9b2047c163d140ba96d71b2b8decea6a56315dc4"
+                "reference": "10d0616c9a4aa08cf2d9f398095c5c9ce2856743"
             },
             "require": {
                 "ext-curl": "*",
@@ -81,7 +81,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2022-01-07T21:25:47+00:00"
+            "time": "2022-01-08T12:43:32+00:00"
         },
         {
             "name": "mdo/mdo",
@@ -1017,16 +1017,16 @@
         },
         {
             "name": "codeception/stub",
-            "version": "4.0.0",
+            "version": "4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Stub.git",
-                "reference": "4c9cf3e19bd5f064e08e7f3ba6be651c218dc6ae"
+                "reference": "ce0a9e418c775ca8b737d50c2b4ac1132f3990d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Stub/zipball/4c9cf3e19bd5f064e08e7f3ba6be651c218dc6ae",
-                "reference": "4c9cf3e19bd5f064e08e7f3ba6be651c218dc6ae",
+                "url": "https://api.github.com/repos/Codeception/Stub/zipball/ce0a9e418c775ca8b737d50c2b4ac1132f3990d8",
+                "reference": "ce0a9e418c775ca8b737d50c2b4ac1132f3990d8",
                 "shasum": ""
             },
             "require": {
@@ -1049,9 +1049,9 @@
             "description": "Flexible Stub wrapper for PHPUnit's Mock Builder",
             "support": {
                 "issues": "https://github.com/Codeception/Stub/issues",
-                "source": "https://github.com/Codeception/Stub/tree/4.0.0"
+                "source": "https://github.com/Codeception/Stub/tree/4.0.1"
             },
-            "time": "2021-12-07T14:39:17+00:00"
+            "time": "2022-01-08T09:35:36+00:00"
         },
         {
             "name": "composer/pcre",
