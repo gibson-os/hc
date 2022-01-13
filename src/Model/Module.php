@@ -4,43 +4,61 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTimeInterface;
+use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use JsonSerializable;
 use mysqlDatabase;
 
+#[Table]
 class Module extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     public const MAX_ADDRESS = 119;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
+    #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $deviceId = null;
 
+    #[Column(length: 64)]
     private string $name;
 
+    #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $typeId;
 
+    #[Column(type: Column::TYPE_TEXT)]
     private ?string $config = null;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $hertz = null;
 
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $bufferSize = null;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $eepromSize = null;
 
+    #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $pwmSpeed = null;
 
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $address = null;
 
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $ip = null;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $masterId = null;
 
+    #[Column]
     private bool $offline = false;
 
+    #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
     private ?DateTimeInterface $added = null;
 
+    #[Column(attributes: [Column::ATTRIBUTE_CURRENT_TIMESTAMP])]
     private ?DateTimeInterface $modified = null;
 
     private Type $type;

@@ -4,38 +4,51 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTimeInterface;
+use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use JsonSerializable;
 use mysqlDatabase;
 
+#[Table]
 class Log extends AbstractModel implements JsonSerializable
 {
     public const DIRECTION_INPUT = 'input';
 
     public const DIRECTION_OUTPUT = 'output';
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $moduleId = null;
 
-    private ?DateTimeInterface $added = null;
+    #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
+    private ?DateTimeInterface $added;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $masterId = null;
 
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $slaveAddress = null;
 
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $type;
 
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $command = null;
 
     /**
      * @deprecated
      */
-    private string $data = '';
+    #[Column(length: 192)]
+    private string $data;
 
+    #[Column(type: Column::TYPE_VARBINARY, length: 128)]
     private string $rawData = '';
 
+    #[Column(type: Column::TYPE_ENUM, values: ['input', 'output'])]
     private string $direction;
 
     private Module $module;

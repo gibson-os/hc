@@ -198,7 +198,7 @@ class LogStore extends AbstractDatabaseStore
                             ->setId((int) $log['type_id'])
                             ->setName((string) $log['type_name'])
                             ->setHertz((int) $log['type_hertz'])
-                            ->setNetwork((int) $log['network'])
+                            ->isNetwork((bool) $log['network'])
                             ->setUiSettings($log['ui_settings'] === null ? null : (string) $log['ui_settings'])
                             ->setHelper((string) $log['helper'])
                     )

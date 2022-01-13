@@ -4,23 +4,33 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTimeInterface;
+use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use mysqlDatabase;
 
+#[Table]
 class Attribute extends AbstractModel
 {
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
+    #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $typeId = null;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $moduleId = null;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $subId = null;
 
+    #[Column(length: 64)]
     private string $key;
 
+    #[Column(length: 64)]
     private ?string $type = null;
 
+    #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
     private ?DateTimeInterface $added = null;
 
     private Module $module;

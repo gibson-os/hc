@@ -4,26 +4,36 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTimeInterface;
+use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use JsonSerializable;
 
+#[Table]
 class Master extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     public const PROTOCOL_UDP = 'udp';
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
+    #[Column(length: 64)]
     private string $name;
 
+    #[Column(type: Column::TYPE_ENUM, values: ['udp', 'rfm'])]
     private string $protocol;
 
+    #[Column(length: 39)]
     private string $address;
 
+    #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $sendPort;
 
+    #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
     private ?DateTimeInterface $added = null;
 
+    #[Column(attributes: [Column::ATTRIBUTE_CURRENT_TIMESTAMP])]
     private ?DateTimeInterface $modified = null;
 
     public static function getTableName(): string

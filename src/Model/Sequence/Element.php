@@ -4,19 +4,27 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model\Sequence;
 
 use DateTimeInterface;
+use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Sequence;
 
+#[Table]
 class Element extends AbstractModel
 {
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $sequenceId;
 
+    #[Column(type: Column::TYPE_TEXT)]
     private string $data;
 
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $order = 0;
 
+    #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
     private ?DateTimeInterface $added = null;
 
     private Sequence $sequence;

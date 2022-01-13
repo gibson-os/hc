@@ -3,14 +3,19 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model\Type;
 
+use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Type;
 use mysqlDatabase;
 
+#[Table]
 class DefaultAddress extends AbstractModel
 {
+    #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED], primary: true)]
     private int $typeId;
 
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], primary: true)]
     private int $address;
 
     private Type $type;

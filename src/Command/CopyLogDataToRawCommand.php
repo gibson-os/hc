@@ -19,8 +19,7 @@ class CopyLogDataToRawCommand extends AbstractCommand
         LoggerInterface $logger,
         private mysqlDatabase $mysqlDatabase,
         private TransformService $transformService
-    )
-    {
+    ) {
         parent::__construct($logger);
     }
 

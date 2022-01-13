@@ -4,23 +4,32 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use DateTimeInterface;
+use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Sequence\Element;
 use JsonSerializable;
 
+#[Table]
 class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
+    #[Column(length: 32)]
     private string $name;
 
+    #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $typeId = null;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $moduleId = null;
 
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $type = null;
 
+    #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
     private ?DateTimeInterface $added = null;
 
     private ?Type $typeModel = null;
