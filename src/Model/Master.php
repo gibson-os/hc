@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
+use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use JsonSerializable;
+use mysqlDatabase;
 
 #[Table]
 class Master extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
@@ -31,10 +33,18 @@ class Master extends AbstractModel implements JsonSerializable, AutoCompleteMode
     private int $sendPort;
 
     #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
-    private ?DateTimeInterface $added = null;
+    private DateTimeInterface $added;
 
-    #[Column(attributes: [Column::ATTRIBUTE_CURRENT_TIMESTAMP])]
-    private ?DateTimeInterface $modified = null;
+    #[Column(type: Column::TYPE_TIMESTAMP, attributes: [Column::ATTRIBUTE_CURRENT_TIMESTAMP])]
+    private DateTimeInterface $modified;
+
+    public function __construct(mysqlDatabase $database = null)
+    {
+        parent::__construct($database);
+
+        $this->added = new DateTimeImmutable();
+        $this->modified = new DateTimeImmutable();
+    }
 
     public static function getTableName(): string
     {

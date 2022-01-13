@@ -13,10 +13,10 @@ use mysqlDatabase;
 #[Table]
 class Value extends AbstractModel implements AutoCompleteModelInterface
 {
-    #[Column(primary: true)]
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], primary: true)]
     private int $attributeId;
 
-    #[Column(type: Column::TYPE_INT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    #[Column(type: Column::TYPE_INT, attributes: [Column::ATTRIBUTE_UNSIGNED], primary: true)]
     private int $order;
 
     #[Column(type: Column::TYPE_TEXT)]

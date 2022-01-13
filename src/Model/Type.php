@@ -12,7 +12,7 @@ use JsonSerializable;
 #[Table]
 class Type extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
-    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
     #[Column(length: 32)]
@@ -25,7 +25,7 @@ class Type extends AbstractModel implements JsonSerializable, AutoCompleteModelI
     private bool $network = false;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $hertz;
+    private int $hertz = 0;
 
     #[Column]
     private bool $isHcSlave = false;

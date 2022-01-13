@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store;
 
+use DateTimeImmutable;
 use Exception;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
@@ -185,7 +186,7 @@ class LogStore extends AbstractDatabaseStore
                     ->setOffline((bool) $log['offline'])
                     ->setAdded(
                         empty($log['module_added'])
-                            ? null
+                            ? new DateTimeImmutable()
                             : $this->dateTimeService->get((string) $log['module_added'])
                     )
                     ->setModified(

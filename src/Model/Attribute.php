@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
+use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Table;
@@ -30,8 +31,8 @@ class Attribute extends AbstractModel
     #[Column(length: 64)]
     private ?string $type = null;
 
-    #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
-    private ?DateTimeInterface $added = null;
+    #[Column(type: Column::TYPE_TIMESTAMP, default: Column::DEFAULT_CURRENT_TIMESTAMP)]
+    private DateTimeInterface $added;
 
     private Module $module;
 
@@ -40,6 +41,7 @@ class Attribute extends AbstractModel
         parent::__construct($database);
 
         $this->module = new Module();
+        $this->added = new DateTimeImmutable();
     }
 
     public static function getTableName(): string
@@ -119,12 +121,12 @@ class Attribute extends AbstractModel
         return $this;
     }
 
-    public function getAdded(): ?DateTimeInterface
+    public function getAdded(): DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(?DateTimeInterface $added): Attribute
+    public function setAdded(DateTimeInterface $added): Attribute
     {
         $this->added = $added;
 

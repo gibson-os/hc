@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
+use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Table;
@@ -24,8 +25,8 @@ class Log extends AbstractModel implements JsonSerializable
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $moduleId = null;
 
-    #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
-    private ?DateTimeInterface $added;
+    #[Column(type: Column::TYPE_TIMESTAMP, default: Column::DEFAULT_CURRENT_TIMESTAMP)]
+    private DateTimeInterface $added;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $masterId = null;
@@ -73,6 +74,7 @@ class Log extends AbstractModel implements JsonSerializable
 
         $this->module = new Module();
         $this->master = new Master();
+        $this->added = new DateTimeImmutable();
     }
 
     public static function getTableName(): string
@@ -104,7 +106,7 @@ class Log extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getAdded(): ?DateTimeInterface
+    public function getAdded(): DateTimeInterface
     {
         return $this->added;
     }
@@ -309,16 +311,16 @@ class Log extends AbstractModel implements JsonSerializable
         return [
             'id' => $this->getId(),
             'moduleId' => $this->getModuleId(),
-            'moduleName' => $module === null ? null : $module->getName(),
+            'moduleName' => $module?->getName(),
             'masterId' => $this->getMasterId(),
-            'masterName' => $master === null ? null : $master->getName(),
-            'added' => $added === null ? null : $added->format('Y-m-d H:i:s'),
+            'masterName' => $master?->getName(),
+            'added' => $added->format('Y-m-d H:i:s'),
             'slaveAddress' => $this->getSlaveAddress(),
             'type' => $this->getType(),
             'command' => $this->getCommandText() ?? $this->getCommand(),
             'data' => utf8_encode($this->getRawData()),
             'direction' => $this->getDirection(),
-            'helper' => $module === null ? null : $module->getType()->getHelper(),
+            'helper' => $module?->getType()->getHelper(),
             'text' => $this->getText(),
             'rendered' => $this->getRendered(),
             'explains' => $this->getExplains(),

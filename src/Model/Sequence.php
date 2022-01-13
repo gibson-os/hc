@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
+use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Table;
@@ -10,6 +11,7 @@ use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Sequence\Element;
 use JsonSerializable;
+use mysqlDatabase;
 
 #[Table]
 class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
@@ -21,7 +23,7 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
     private string $name;
 
     #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private ?int $typeId = null;
+    private int $typeId;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $moduleId = null;
@@ -29,10 +31,10 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
     #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $type = null;
 
-    #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
-    private ?DateTimeInterface $added = null;
+    #[Column(type: Column::TYPE_TIMESTAMP, default: Column::DEFAULT_CURRENT_TIMESTAMP)]
+    private DateTimeInterface $added;
 
-    private ?Type $typeModel = null;
+    private Type $typeModel;
 
     private ?Module $module = null;
 
@@ -40,6 +42,14 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
      * @var Element[]|null
      */
     private ?array $elements = null;
+
+    public function __construct(mysqlDatabase $database = null)
+    {
+        parent::__construct($database);
+
+        $this->typeModel = new Type();
+        $this->added = new DateTimeImmutable();
+    }
 
     public static function getTableName(): string
     {
@@ -70,12 +80,12 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
         return $this;
     }
 
-    public function getTypeId(): ?int
+    public function getTypeId(): int
     {
         return $this->typeId;
     }
 
-    public function setTypeId(?int $typeId): Sequence
+    public function setTypeId(int $typeId): Sequence
     {
         $this->typeId = $typeId;
 
@@ -106,12 +116,12 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
         return $this;
     }
 
-    public function getAdded(): ?DateTimeInterface
+    public function getAdded(): DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(?DateTimeInterface $added): Sequence
+    public function setAdded(DateTimeInterface $added): Sequence
     {
         $this->added = $added;
 
@@ -121,25 +131,16 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
     public function getTypeModel(): ?Type
     {
         $typeId = $this->getTypeId();
-
-        if ($typeId !== null) {
-            $this->typeModel = new Type();
-            $this->loadForeignRecord($this->typeModel, $typeId);
-        }
+        $this->typeModel = new Type();
+        $this->loadForeignRecord($this->typeModel, $typeId);
 
         return $this->typeModel;
     }
 
-    public function setTypeModel(?Type $typeModel): Sequence
+    public function setTypeModel(Type $typeModel): Sequence
     {
         $this->typeModel = $typeModel;
-        $typeId = null;
-
-        if ($typeModel instanceof Type) {
-            $typeId = $typeModel->getId();
-        }
-
-        $this->setTypeId($typeId);
+        $this->setTypeId($typeModel->getId() ?? 0);
 
         return $this;
     }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
+use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Table;
@@ -56,10 +57,10 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
     private bool $offline = false;
 
     #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
-    private ?DateTimeInterface $added = null;
+    private DateTimeInterface $added;
 
-    #[Column(attributes: [Column::ATTRIBUTE_CURRENT_TIMESTAMP])]
-    private ?DateTimeInterface $modified = null;
+    #[Column(type: Column::TYPE_TIMESTAMP, attributes: [Column::ATTRIBUTE_CURRENT_TIMESTAMP])]
+    private DateTimeInterface $modified;
 
     private Type $type;
 
@@ -71,6 +72,8 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
 
         $this->type = new Type();
         $this->master = new Master();
+        $this->added = new DateTimeImmutable();
+        $this->modified = new DateTimeImmutable();
     }
 
     public static function getTableName(): string
@@ -234,24 +237,24 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
         return $this;
     }
 
-    public function getAdded(): ?DateTimeInterface
+    public function getAdded(): DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(?DateTimeInterface $added): Module
+    public function setAdded(DateTimeInterface $added): Module
     {
         $this->added = $added;
 
         return $this;
     }
 
-    public function getModified(): ?DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
 
-    public function setModified(?DateTimeInterface $modified): Module
+    public function setModified(DateTimeInterface $modified): Module
     {
         $this->modified = $modified;
 

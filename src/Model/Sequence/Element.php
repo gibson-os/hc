@@ -24,8 +24,8 @@ class Element extends AbstractModel
     #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $order = 0;
 
-    #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
-    private ?DateTimeInterface $added = null;
+    #[Column(type: Column::TYPE_TIMESTAMP, default: Column::DEFAULT_CURRENT_TIMESTAMP)]
+    private DateTimeInterface $added;
 
     private Sequence $sequence;
 
@@ -82,12 +82,12 @@ class Element extends AbstractModel
         return $this;
     }
 
-    public function getAdded(): ?DateTimeInterface
+    public function getAdded(): DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(?DateTimeInterface $added): Element
+    public function setAdded(DateTimeInterface $added): Element
     {
         $this->added = $added;
 
