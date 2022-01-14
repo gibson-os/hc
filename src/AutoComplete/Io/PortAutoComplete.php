@@ -25,8 +25,7 @@ class PortAutoComplete implements AutoCompleteInterface
         $slave = $this->getSlave($parameters);
 
         try {
-            $valueRepository = new ValueRepository();
-            $ports = $valueRepository->findAttributesByValue(
+            $ports = $this->valueRepository->findAttributesByValue(
                 $namePart . '*',
                 $slave->getTypeId(),
                 [IoService::ATTRIBUTE_PORT_KEY_NAME],

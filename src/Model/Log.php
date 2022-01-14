@@ -6,12 +6,17 @@ namespace GibsonOS\Module\Hc\Model;
 use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use JsonSerializable;
 use mysqlDatabase;
 
+/**
+ * @method Module|null getModule()
+ * @method Master|null getMaster()
+ */
 #[Table]
 class Log extends AbstractModel implements JsonSerializable
 {
@@ -52,9 +57,11 @@ class Log extends AbstractModel implements JsonSerializable
     #[Column(type: Column::TYPE_ENUM, values: ['input', 'output'])]
     private string $direction;
 
-    private Module $module;
+    #[Constraint]
+    protected ?Module $module;
 
-    private Master $master;
+    #[Constraint]
+    protected ?Master $master;
 
     /** @var string|null Virtual Field */
     private ?string $text = null;
@@ -72,14 +79,7 @@ class Log extends AbstractModel implements JsonSerializable
     {
         parent::__construct($database);
 
-        $this->module = new Module();
-        $this->master = new Master();
         $this->added = new DateTimeImmutable();
-    }
-
-    public static function getTableName(): string
-    {
-        return 'hc_log';
     }
 
     public function getId(): ?int
@@ -208,44 +208,18 @@ class Log extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getModule(): ?Module
-    {
-        $moduleId = $this->getModuleId();
-
-        if ($moduleId === null) {
-            return null;
-        }
-
-        $this->loadForeignRecord($this->module, $moduleId);
-
-        return $this->module;
-    }
-
-    public function setModule(Module $module): Log
+    public function setModule(?Module $module): Log
     {
         $this->module = $module;
-        $this->setModuleId($module->getId());
+        $this->setModuleId($module?->getId());
 
         return $this;
     }
 
-    public function getMaster(): ?Master
-    {
-        $masterId = $this->getMasterId();
-
-        if ($masterId === null) {
-            return null;
-        }
-
-        $this->loadForeignRecord($this->master, $masterId);
-
-        return $this->master;
-    }
-
-    public function setMaster(Master $master): Log
+    public function setMaster(?Master $master): Log
     {
         $this->master = $master;
-        $this->setMasterId($master->getId());
+        $this->setMasterId($master?->getId());
 
         return $this;
     }

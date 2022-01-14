@@ -5,10 +5,14 @@ namespace GibsonOS\Module\Hc\Model\Sequence;
 
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Sequence;
 
+/**
+ * @method Sequence getSequence()
+ */
 #[Table]
 class Element extends AbstractModel
 {
@@ -27,12 +31,8 @@ class Element extends AbstractModel
     #[Column(type: Column::TYPE_TIMESTAMP, default: Column::DEFAULT_CURRENT_TIMESTAMP)]
     private DateTimeInterface $added;
 
-    private Sequence $sequence;
-
-    public static function getTableName(): string
-    {
-        return 'hc_sequence_element';
-    }
+    #[Constraint]
+    protected Sequence $sequence;
 
     public function getId(): ?int
     {
@@ -92,13 +92,6 @@ class Element extends AbstractModel
         $this->added = $added;
 
         return $this;
-    }
-
-    public function getSequence(): Sequence
-    {
-        $this->loadForeignRecord($this->sequence, $this->getSequenceId());
-
-        return $this->sequence;
     }
 
     public function setSequence(Sequence $sequence): Element

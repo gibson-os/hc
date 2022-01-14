@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
+use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Log;
@@ -10,6 +11,10 @@ use mysqlTable;
 
 class LogRepository extends AbstractRepository
 {
+    public function __construct(#[GetTableName(Log::class)] private string $logTableName)
+    {
+    }
+
     public function create(int $type, string $data, string $direction): Log
     {
         return (new Log())
@@ -36,7 +41,7 @@ class LogRepository extends AbstractRepository
         int $type = null,
         string $direction = null
     ): Log {
-        $table = $this->getTable(Log::getTableName());
+        $table = $this->getTable($this->logTableName);
         $table
             ->addWhereParameter($moduleId)
             ->setWhere('`module_id`=?' . $this->completeWhere($table, $command, $type, $direction))
@@ -63,7 +68,7 @@ class LogRepository extends AbstractRepository
         int $type = null,
         string $direction = null
     ): Log {
-        $table = $this->getTable(Log::getTableName());
+        $table = $this->getTable($this->logTableName);
         $table
             ->addWhereParameter($masterId)
             ->setWhere('`master_id`=?' . $this->completeWhere($table, $command, $type, $direction))
@@ -117,7 +122,7 @@ class LogRepository extends AbstractRepository
         int $type = null,
         string $direction = null
     ): Log {
-        $table = $this->getTable(Log::getTableName());
+        $table = $this->getTable($this->logTableName);
         $table
             ->setWhereParameters([$id, $moduleId])
             ->setWhere('`id`<? AND `module_id`=?' . $this->completeWhere($table, $command, $type, $direction))

@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Service\Slave;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
@@ -13,6 +14,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Event\AbstractHcEvent;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
@@ -22,7 +24,9 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 abstract class AbstractHcSlave extends AbstractSlave
 {
@@ -178,10 +182,16 @@ abstract class AbstractHcSlave extends AbstractSlave
      */
     public function handshake(Module $slave): Module
     {
+        $master = $slave->getMaster();
+
+        if ($master === null) {
+            throw new WriteException(sprintf('Slave #%d has no master!', $slave->getId() ?? 0));
+        }
+
         $this->logger->debug(sprintf(
             'Handshake hc slave address %d on master address %s',
             $slave->getAddress() ?? 0,
-            $slave->getMaster()->getAddress()
+            $master->getAddress()
         ));
 
         $typeId = $this->readTypeId($slave);
@@ -195,7 +205,6 @@ abstract class AbstractHcSlave extends AbstractSlave
         }
 
         $deviceId = $this->readDeviceId($slave);
-        $master = $slave->getMaster();
 
         if (
             $deviceId !== $slave->getDeviceId() ||
@@ -217,16 +226,16 @@ abstract class AbstractHcSlave extends AbstractSlave
         $this->logger->debug(sprintf(
             'Slave address %d on master address %s has input check',
             $slave->getAddress() ?? 0,
-            $slave->getMaster()->getAddress()
+            $master->getAddress()
         ));
 
         if ($slave->getType()->getHasInput()) {
-            $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_SLAVE_HAS_INPUT_CHECK))
+            $busMessage = (new BusMessage($master->getAddress(), MasterService::TYPE_SLAVE_HAS_INPUT_CHECK))
                 ->setSlaveAddress($slave->getAddress())
-                ->setPort($slave->getMaster()->getSendPort())
+                ->setPort($master->getSendPort())
             ;
-            $this->masterService->send($slave->getMaster(), $busMessage);
-            $this->masterService->receiveReceiveReturn($slave->getMaster(), $busMessage);
+            $this->masterService->send($master, $busMessage);
+            $this->masterService->receiveReceiveReturn($master, $busMessage);
         }
 
         $slave
@@ -259,11 +268,23 @@ abstract class AbstractHcSlave extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
      * @throws GetError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws SelectError
+     * @throws WriteException
      */
     private function handshakeNewSlave(Module $slave): Module
     {
+        $master = $slave->getMaster();
+
+        if ($master === null) {
+            throw new WriteException(sprintf('Slave #%d has no master!', $slave->getId() ?? 0));
+        }
+
         $this->checkDeviceId($slave);
 
         try {
@@ -274,7 +295,7 @@ abstract class AbstractHcSlave extends AbstractSlave
 
         $this->writeAddress(
             $slave,
-            $this->masterRepository->getNextFreeAddress($slave->getMaster()->getId() ?? 0)
+            $this->masterRepository->getNextFreeAddress($master->getId() ?? 0)
         );
 
         return $slave;
@@ -324,10 +345,22 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws FactoryError
      * @throws SaveError
+     * @throws WriteException
+     * @throws EventException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     public function writeAddress(Module $slave, int $address): void
     {
+        $master = $slave->getMaster();
+
+        if ($master === null) {
+            throw new WriteException(sprintf('Slave #%d has no master!', $slave->getId() ?? 0));
+        }
+
         $deviceId = $slave->getDeviceId() ?? 0;
 
         $this->logger->debug(sprintf(
@@ -344,7 +377,7 @@ abstract class AbstractHcSlave extends AbstractSlave
             self::COMMAND_ADDRESS,
             $this->getDeviceIdAsString($deviceId) . chr($address)
         );
-        $this->masterService->scanBus($slave->getMaster());
+        $this->masterService->scanBus($master);
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::AFTER_WRITE_ADDRESS, ['slave' => $slave, 'newAddress' => $address]);
 

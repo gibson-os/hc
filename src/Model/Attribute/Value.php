@@ -4,12 +4,15 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model\Attribute;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Attribute;
-use mysqlDatabase;
 
+/**
+ * @method Attribute getAttribute()
+ */
 #[Table]
 class Value extends AbstractModel implements AutoCompleteModelInterface
 {
@@ -22,19 +25,8 @@ class Value extends AbstractModel implements AutoCompleteModelInterface
     #[Column(type: Column::TYPE_TEXT)]
     private string $value;
 
-    private Attribute $attribute;
-
-    public function __construct(mysqlDatabase $database = null)
-    {
-        parent::__construct($database);
-
-        $this->attribute = new Attribute();
-    }
-
-    public static function getTableName(): string
-    {
-        return 'hc_attribute_value';
-    }
+    #[Constraint]
+    protected Attribute $attribute;
 
     public function getAttributeId(): int
     {
@@ -70,13 +62,6 @@ class Value extends AbstractModel implements AutoCompleteModelInterface
         $this->value = $value;
 
         return $this;
-    }
-
-    public function getAttribute(): Attribute
-    {
-        $this->loadForeignRecord($this->attribute, $this->getAttributeId());
-
-        return $this->attribute;
     }
 
     public function setAttribute(Attribute $attribute): Value

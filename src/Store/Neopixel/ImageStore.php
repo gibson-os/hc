@@ -5,7 +5,6 @@ namespace GibsonOS\Module\Hc\Store\Neopixel;
 
 use Generator;
 use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService;
 use GibsonOS\Module\Hc\Store\AbstractSequenceStore;
 use JsonException;
@@ -24,7 +23,7 @@ class ImageStore extends AbstractSequenceStore
             false,
             '`hc_sequence`.`id`, ' .
             '`hc_sequence`.`name`, ' .
-            '`' . Sequence\Element::getTableName() . '`.`data`'
+            '`' . $this->elementTableName . '`.`data`'
         );
 
         foreach ($this->table->connection->fetchObjectList() as $sequence) {

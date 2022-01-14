@@ -3,15 +3,26 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store;
 
+use GibsonOS\Core\Attribute\GetTableName;
+use GibsonOS\Core\Service\AttributeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
+use mysqlDatabase;
 
 abstract class AbstractAttributeStore extends AbstractDatabaseStore
 {
     protected ?int $moduleId = null;
 
     abstract protected function getType(): string;
+
+    public function __construct(
+        AttributeService $attributeService,
+        #[GetTableName(Value::class)] protected string $valueTableName,
+        mysqlDatabase $database = null
+    ) {
+        parent::__construct($attributeService, $database);
+    }
 
     protected function getModelClassName(): string
     {
@@ -20,7 +31,7 @@ abstract class AbstractAttributeStore extends AbstractDatabaseStore
 
     protected function setWheres(): void
     {
-        $tableName = $this->getTableName();
+        $tableName = $this->tableName;
         $this->addWhere('`' . $tableName . '`.`type`=?', [$this->getType()]);
 
         if ($this->moduleId !== null) {
@@ -33,8 +44,8 @@ abstract class AbstractAttributeStore extends AbstractDatabaseStore
         parent::initTable();
 
         $this->table->appendJoinLeft(
-            '`' . Value::getTableName() . '`',
-            '`' . $this->getTableName() . '`.`id`=`' . Value::getTableName() . '`.`attribute_id`'
+            '`' . $this->valueTableName . '`',
+            '`' . $this->tableName . '`.`id`=`' . $this->valueTableName . '`.`attribute_id`'
         );
     }
 

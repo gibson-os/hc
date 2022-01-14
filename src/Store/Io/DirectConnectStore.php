@@ -3,11 +3,24 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Io;
 
+use GibsonOS\Core\Attribute\GetTableName;
+use GibsonOS\Core\Service\AttributeService;
+use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
 use GibsonOS\Module\Hc\Store\AbstractAttributeStore;
+use mysqlDatabase;
 
 class DirectConnectStore extends AbstractAttributeStore
 {
+    public function __construct(
+        private PortStore $portStore,
+        AttributeService $attributeService,
+        #[GetTableName(Value::class)] string $valueTableName,
+        mysqlDatabase $database = null
+    ) {
+        parent::__construct($attributeService, $valueTableName, $database);
+    }
+
     protected function getType(): string
     {
         return IoService::ATTRIBUTE_TYPE_DIRECT_CONNECT;
@@ -18,9 +31,8 @@ class DirectConnectStore extends AbstractAttributeStore
      */
     public function getList(): array
     {
-        $portStore = new PortStore();
-        $portStore->setModuleId($this->moduleId);
-        $ports = $portStore->getList();
+        $this->portStore->setModuleId($this->moduleId);
+        $ports = $this->portStore->getList();
 
         $this->initTable();
         $this->table->setOrderBy('`hc_attribute`.`sub_id` ASC, `hc_attribute_value`.`order`');

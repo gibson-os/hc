@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
+use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -13,6 +14,10 @@ use GibsonOS\Module\Hc\Model\Module;
 
 class AttributeRepository extends AbstractRepository
 {
+    public function __construct(#[GetTableName(Attribute::class)] private string $attributeTableName)
+    {
+    }
+
     /**
      * @throws SelectError
      *
@@ -104,7 +109,7 @@ class AttributeRepository extends AbstractRepository
         string $key = null,
         string $type = null
     ) {
-        $table = self::getTable(Attribute::getTableName());
+        $table = self::getTable($this->attributeTableName);
 
         $where = '`type_id`=? AND `module_id`=?';
         $table->setWhereParameters([$module->getTypeId(), $module->getId()]);

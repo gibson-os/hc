@@ -3,14 +3,25 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store;
 
+use GibsonOS\Core\Attribute\GetTableName;
+use GibsonOS\Core\Service\AttributeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Sequence;
+use mysqlDatabase;
 
 abstract class AbstractSequenceStore extends AbstractDatabaseStore
 {
     protected ?int $moduleId = null;
 
     abstract protected function getType(): int;
+
+    public function __construct(
+        AttributeService $attributeService,
+        #[GetTableName(Sequence\Element::class)] protected string $elementTableName,
+        mysqlDatabase $database = null
+    ) {
+        parent::__construct($attributeService, $database);
+    }
 
     protected function getModelClassName(): string
     {
@@ -19,7 +30,7 @@ abstract class AbstractSequenceStore extends AbstractDatabaseStore
 
     protected function setWheres(): void
     {
-        $tableName = $this->getTableName();
+        $tableName = $this->tableName;
         $this->addWhere('`' . $tableName . '`.`type`=?', [$this->getType()]);
 
         if ($this->moduleId !== null) {
@@ -33,8 +44,8 @@ abstract class AbstractSequenceStore extends AbstractDatabaseStore
 
         if ($this->loadElements()) {
             $this->table->appendJoinLeft(
-                '`' . Sequence\Element::getTableName() . '`',
-                '`' . $this->getTableName() . '`.`id`=`' . Sequence\Element::getTableName() . '`.`sequence_id`'
+                '`' . $this->elementTableName . '`',
+                '`' . $this->tableName . '`.`id`=`' . $this->elementTableName . '`.`sequence_id`'
             );
         }
     }

@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Repository;
 
 use DateTime;
 use Exception;
+use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
@@ -19,6 +20,12 @@ class MasterRepository extends AbstractRepository
     private const MAX_PORT = 42999;
 
     private const FIRST_SLAVE_ADDRESS = 8;
+
+    public function __construct(
+        #[GetTableName((Master::class))] private string $masterTableName,
+        #[GetTableName((DefaultAddress::class))] private string $defaultAddressTableName,
+    ) {
+    }
 
     /**
      * @throws SelectError
@@ -82,7 +89,7 @@ class MasterRepository extends AbstractRepository
         ;
         $table->setSelectString('`address`');
 
-        $typeDefaultAddressTable = $this->getTable(DefaultAddress::getTableName());
+        $typeDefaultAddressTable = $this->getTable($this->defaultAddressTableName);
         $typeDefaultAddressTable->setSelectString('`address`');
 
         $table->appendUnion($typeDefaultAddressTable->getSelect());
@@ -124,7 +131,7 @@ class MasterRepository extends AbstractRepository
 
     private function findFreePort(): int
     {
-        $table = $this->getTable(Master::getTableName());
+        $table = $this->getTable($this->masterTableName);
         $port = mt_rand(self::MIN_PORT, self::MAX_PORT);
         $table
             ->setWhere('`send_port`=?')

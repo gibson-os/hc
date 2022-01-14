@@ -8,6 +8,7 @@ use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\DirectConnect;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\BusMessageMapper;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
@@ -94,12 +95,19 @@ class DirectConnectService extends AbstractService
     /**
      * @throws AbstractException
      * @throws DateTimeError
+     * @throws WriteException
      */
     public function start(Module $slave): void
     {
+        $master = $slave->getMaster();
+
+        if ($master === null) {
+            throw new WriteException(sprintf('Slave #%d has no master!', $slave->getId() ?? 0));
+        }
+
         $this->masterService->send(
-            $slave->getMaster(),
-            (new BusMessage($slave->getMaster()->getAddress(), self::TYPE_SEQUENCE_START))
+            $master,
+            (new BusMessage($master->getAddress(), self::TYPE_SEQUENCE_START))
                 ->setData(chr($slave->getAddress() ?? 0))
         );
     }
@@ -107,12 +115,19 @@ class DirectConnectService extends AbstractService
     /**
      * @throws AbstractException
      * @throws DateTimeError
+     * @throws WriteException
      */
     public function stop(Module $slave): void
     {
+        $master = $slave->getMaster();
+
+        if ($master === null) {
+            throw new WriteException(sprintf('Slave #%d has no master!', $slave->getId() ?? 0));
+        }
+
         $this->masterService->send(
-            $slave->getMaster(),
-            (new BusMessage($slave->getMaster()->getAddress(), self::TYPE_SEQUENCE_STOP))
+            $master,
+            (new BusMessage($master->getAddress(), self::TYPE_SEQUENCE_STOP))
                 ->setData(chr($slave->getAddress() ?? 0))
         );
     }
@@ -120,12 +135,19 @@ class DirectConnectService extends AbstractService
     /**
      * @throws AbstractException
      * @throws DateTimeError
+     * @throws WriteException
      */
     public function pause(Module $slave): void
     {
+        $master = $slave->getMaster();
+
+        if ($master === null) {
+            throw new WriteException(sprintf('Slave #%d has no master!', $slave->getId() ?? 0));
+        }
+
         $this->masterService->send(
-            $slave->getMaster(),
-            (new BusMessage($slave->getMaster()->getAddress(), self::TYPE_SEQUENCE_PAUSE))
+            $master,
+            (new BusMessage($master->getAddress(), self::TYPE_SEQUENCE_PAUSE))
                 ->setData(chr($slave->getAddress() ?? 0))
         );
     }

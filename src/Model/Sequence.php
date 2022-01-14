@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Model;
 use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
@@ -13,6 +14,11 @@ use GibsonOS\Module\Hc\Model\Sequence\Element;
 use JsonSerializable;
 use mysqlDatabase;
 
+/**
+ * @method Type      getTypeModel()
+ * @method Module    getModule()
+ * @method Element[] getElements()
+ */
 #[Table]
 class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
@@ -34,26 +40,23 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
     #[Column(type: Column::TYPE_TIMESTAMP, default: Column::DEFAULT_CURRENT_TIMESTAMP)]
     private DateTimeInterface $added;
 
-    private Type $typeModel;
+    #[Constraint(ownColumn: 'typeId')]
+    protected Type $typeModel;
 
-    private ?Module $module = null;
+    #[Constraint]
+    protected ?Module $module;
 
     /**
      * @var Element[]|null
      */
-    private ?array $elements = null;
+    #[Constraint('sequenceId', Element::class)]
+    protected ?array $elements = null;
 
     public function __construct(mysqlDatabase $database = null)
     {
         parent::__construct($database);
 
-        $this->typeModel = new Type();
         $this->added = new DateTimeImmutable();
-    }
-
-    public static function getTableName(): string
-    {
-        return 'hc_sequence';
     }
 
     public function getId(): ?int
@@ -128,33 +131,12 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
         return $this;
     }
 
-    public function getTypeModel(): ?Type
-    {
-        $typeId = $this->getTypeId();
-        $this->typeModel = new Type();
-        $this->loadForeignRecord($this->typeModel, $typeId);
-
-        return $this->typeModel;
-    }
-
     public function setTypeModel(Type $typeModel): Sequence
     {
         $this->typeModel = $typeModel;
         $this->setTypeId($typeModel->getId() ?? 0);
 
         return $this;
-    }
-
-    public function getModule(): ?Module
-    {
-        $moduleId = $this->getModuleId();
-
-        if ($moduleId !== null) {
-            $this->module = new Module();
-            $this->loadForeignRecord($this->module, $moduleId);
-        }
-
-        return $this->module;
     }
 
     public function setModule(?Module $module): Sequence
@@ -172,18 +154,6 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
     }
 
     /**
-     * @return Element[]
-     */
-    public function getElements(): ?array
-    {
-        if ($this->elements === null) {
-            $this->loadElements();
-        }
-
-        return $this->elements;
-    }
-
-    /**
      * @param Element[] $elements
      */
     public function setElements(?array $elements): Sequence
@@ -196,21 +166,6 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
     public function addElement(Element $element): Sequence
     {
         $this->elements[] = $element;
-
-        return $this;
-    }
-
-    public function loadElements(): Sequence
-    {
-        /** @var Element[] $elements */
-        $elements = $this->loadForeignRecords(
-            Element::class,
-            $this->getId(),
-            Element::getTableName(),
-            'sequence_id'
-        );
-
-        $this->setElements($elements);
 
         return $this;
     }

@@ -36,11 +36,6 @@ class Type extends AbstractModel implements JsonSerializable, AutoCompleteModelI
     #[Column(type: Column::TYPE_TEXT)]
     private ?string $uiSettings = null;
 
-    public static function getTableName(): string
-    {
-        return 'hc_type';
-    }
-
     public function getId(): ?int
     {
         return $this->id;

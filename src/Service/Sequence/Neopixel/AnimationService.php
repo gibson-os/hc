@@ -47,10 +47,9 @@ class AnimationService extends AbstractService
     public function getById(int $id): array
     {
         $sequence = $this->sequenceRepository->getById($id);
-        $sequence->loadElements();
         $steps = [];
 
-        foreach ($sequence->getElements() ?? [] as $element) {
+        foreach ($sequence->getElements() as $element) {
             //$steps[$element->getOrder()] = Json::decode($element->getData());
             $steps[] = JsonUtility::decode($element->getData());
         }

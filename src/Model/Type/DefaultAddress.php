@@ -4,11 +4,14 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model\Type;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Type;
-use mysqlDatabase;
 
+/**
+ * @method Type getType()
+ */
 #[Table]
 class DefaultAddress extends AbstractModel
 {
@@ -18,19 +21,8 @@ class DefaultAddress extends AbstractModel
     #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], primary: true)]
     private int $address;
 
-    private Type $type;
-
-    public function __construct(mysqlDatabase $database = null)
-    {
-        parent::__construct($database);
-
-        $this->type = new Type();
-    }
-
-    public static function getTableName(): string
-    {
-        return 'hc_type_default_address';
-    }
+    #[Constraint]
+    protected Type $type;
 
     public function getTypeId(): int
     {
@@ -54,13 +46,6 @@ class DefaultAddress extends AbstractModel
         $this->address = $address;
 
         return $this;
-    }
-
-    public function getType(): Type
-    {
-        $this->loadForeignRecord($this->type, $this->getTypeId());
-
-        return $this->type;
     }
 
     public function setType(Type $type): DefaultAddress

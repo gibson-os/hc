@@ -65,6 +65,7 @@ class NeopixelService extends AbstractHcSlave
         EventService $eventService,
         private LedMapper $ledMapper,
         private LedService $ledService,
+        private LedStore $ledStore,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
@@ -179,9 +180,8 @@ class NeopixelService extends AbstractHcSlave
         $config[self::CONFIG_COUNTS] = $existingConfig[self::CONFIG_COUNTS];
         $this->writeLedCounts($slave, $config[self::CONFIG_COUNTS]);
 
-        $ledStore = new LedStore();
-        $ledStore->setModuleId($existingSlave->getId() ?? 0);
-        $this->writeSetLeds($slave, $ledStore->getList());
+        $this->ledStore->setModuleId($existingSlave->getId() ?? 0);
+        $this->writeSetLeds($slave, $this->ledStore->getList());
         $channels = [];
 
         for ($channel = 0; $channel < $config[self::CONFIG_CHANNELS]; ++$channel) {

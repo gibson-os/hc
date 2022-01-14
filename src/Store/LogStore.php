@@ -5,6 +5,8 @@ namespace GibsonOS\Module\Hc\Store;
 
 use DateTimeImmutable;
 use Exception;
+use GibsonOS\Core\Attribute\GetTableName;
+use GibsonOS\Core\Service\AttributeService;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Factory\FormatterFactory;
@@ -25,11 +27,14 @@ class LogStore extends AbstractDatabaseStore
     private array $types = [];
 
     public function __construct(
+        #[GetTableName(Master::class)] private string $masterTableName,
+        #[GetTableName(Type::class)] private string $typeTableName,
         private FormatterFactory $formatterFactory,
         private DateTimeService $dateTimeService,
+        AttributeService $attributeService,
         mysqlDatabase $database = null
     ) {
-        parent::__construct($database);
+        parent::__construct($attributeService, $database);
     }
 
     protected function getModelClassName(): string
@@ -98,20 +103,20 @@ class LogStore extends AbstractDatabaseStore
     {
         parent::initTable();
 
-        $tableName = $this->getTableName();
+        $tableName = $this->tableName;
         $moduleTableName = Module::getTableName();
         $this->table
             ->appendJoinLeft(
-                Master::getTableName(),
-                '`' . Master::getTableName() . '`.`id`=`' . $tableName . '`.`master_id`'
+                $this->masterTableName,
+                '`' . $this->masterTableName . '`.`id`=`' . $tableName . '`.`master_id`'
             )
             ->appendJoinLeft(
                 $moduleTableName,
                 '`' . $moduleTableName . '`.`id`=`' . $tableName . '`.`module_id`'
             )
             ->appendJoinLeft(
-                Type::getTableName(),
-                '`' . $moduleTableName . '`.`type_id`=`' . Type::getTableName() . '`.`id`'
+                $this->typeTableName,
+                '`' . $moduleTableName . '`.`type_id`=`' . $this->typeTableName . '`.`id`'
             )
         ;
     }

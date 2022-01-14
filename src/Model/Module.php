@@ -6,12 +6,17 @@ namespace GibsonOS\Module\Hc\Model;
 use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use JsonSerializable;
 use mysqlDatabase;
 
+/**
+ * @method Type        getType()
+ * @method Master|null getMaster()
+ */
 #[Table]
 class Module extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
@@ -62,16 +67,16 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
     #[Column(type: Column::TYPE_TIMESTAMP, attributes: [Column::ATTRIBUTE_CURRENT_TIMESTAMP])]
     private DateTimeInterface $modified;
 
-    private Type $type;
+    #[Constraint]
+    protected Type $type;
 
-    private Master $master;
+    #[Constraint]
+    protected ?Master $master;
 
     public function __construct(mysqlDatabase $database = null)
     {
         parent::__construct($database);
 
-        $this->type = new Type();
-        $this->master = new Master();
         $this->added = new DateTimeImmutable();
         $this->modified = new DateTimeImmutable();
     }
@@ -261,30 +266,12 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
         return $this;
     }
 
-    public function getType(): Type
-    {
-        $this->loadForeignRecord($this->type, $this->getTypeId());
-
-        return $this->type;
-    }
-
     public function setType(Type $type): Module
     {
         $this->type = $type;
         $this->setTypeId((int) $type->getId());
 
         return $this;
-    }
-
-    public function getMaster(): Master
-    {
-        $masterId = $this->getMasterId();
-
-        if ($masterId !== null) {
-            $this->loadForeignRecord($this->master, $masterId);
-        }
-
-        return $this->master;
     }
 
     public function setMaster(Master $master): Module

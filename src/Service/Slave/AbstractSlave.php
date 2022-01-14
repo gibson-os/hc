@@ -8,6 +8,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -28,24 +29,31 @@ abstract class AbstractSlave extends AbstractService
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function write(Module $slave, int $command, string $data): void
     {
+        $master = $slave->getMaster();
+
+        if ($master === null) {
+            throw new WriteException(sprintf('Slave #%d has no master!', $slave->getId() ?? 0));
+        }
+
         $this->logger->debug(sprintf(
             'Write command %d with data "%s" to %d',
             $command,
             $data,
             $slave->getAddress() ?? 0
         ));
-        $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_DATA))
+        $busMessage = (new BusMessage($master->getAddress(), MasterService::TYPE_DATA))
             ->setSlaveAddress($slave->getAddress())
             ->setCommand($command)
             ->setWrite(true)
             ->setData($data)
-            ->setPort($slave->getMaster()->getSendPort())
+            ->setPort($master->getSendPort())
         ;
-        $this->masterService->send($slave->getMaster(), $busMessage);
-        $this->masterService->receiveReceiveReturn($slave->getMaster(), $busMessage);
+        $this->masterService->send($master, $busMessage);
+        $this->masterService->receiveReceiveReturn($master, $busMessage);
         $this->addLog($slave, $command, $data, Log::DIRECTION_OUTPUT);
     }
 
@@ -56,21 +64,27 @@ abstract class AbstractSlave extends AbstractService
      */
     public function read(Module $slave, int $command, int $length): string
     {
+        $master = $slave->getMaster();
+
+        if ($master === null) {
+            throw new ReceiveError(sprintf('Slave #%d has no master!', $slave->getId() ?? 0));
+        }
+
         $this->logger->debug(sprintf(
             'Read command %d with length %d from slave %d on master %s',
             $command,
             $length,
             $slave->getAddress() ?? 0,
-            $slave->getMaster()->getAddress()
+            $master->getAddress()
         ));
-        $busMessage = (new BusMessage($slave->getMaster()->getAddress(), MasterService::TYPE_DATA))
+        $busMessage = (new BusMessage($master->getAddress(), MasterService::TYPE_DATA))
             ->setSlaveAddress($slave->getAddress())
             ->setCommand($command)
             ->setData(chr($length))
-            ->setPort($slave->getMaster()->getSendPort())
+            ->setPort($master->getSendPort())
         ;
-        $this->masterService->send($slave->getMaster(), $busMessage);
-        $receivedBusMessage = $this->masterService->receiveReadData($slave->getMaster(), $busMessage);
+        $this->masterService->send($master, $busMessage);
+        $receivedBusMessage = $this->masterService->receiveReadData($master, $busMessage);
         $this->logger->debug(sprintf(
             'Read data "%s" from slave %d on master %s with command %d',
             $receivedBusMessage->getData() ?? '',

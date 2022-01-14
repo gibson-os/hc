@@ -3,13 +3,24 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store;
 
+use GibsonOS\Core\Attribute\GetTableName;
+use GibsonOS\Core\Service\AttributeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
+use mysqlDatabase;
 
 class SlaveStore extends AbstractDatabaseStore
 {
     private ?int $masterId = null;
+
+    public function __construct(
+        #[GetTableName(Type::class)] private string $typeTableName,
+        AttributeService $attributeService,
+        mysqlDatabase $database = null
+    ) {
+        parent::__construct($attributeService, $database);
+    }
 
     protected function getModelClassName(): string
     {
@@ -48,8 +59,8 @@ class SlaveStore extends AbstractDatabaseStore
         parent::initTable();
 
         $this->table->appendJoinLeft(
-            Type::getTableName(),
-            '`' . $this->getTableName() . '`.`type_id`=`' . Type::getTableName() . '`.`id`'
+            $this->typeTableName,
+            '`' . $this->tableName . '`.`type_id`=`' . $this->typeTableName . '`.`id`'
         );
     }
 

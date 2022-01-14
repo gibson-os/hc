@@ -46,11 +46,6 @@ class Master extends AbstractModel implements JsonSerializable, AutoCompleteMode
         $this->modified = new DateTimeImmutable();
     }
 
-    public static function getTableName(): string
-    {
-        return 'hc_master';
-    }
-
     public function getId(): ?int
     {
         return $this->id;

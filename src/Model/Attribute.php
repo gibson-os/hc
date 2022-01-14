@@ -6,10 +6,14 @@ namespace GibsonOS\Module\Hc\Model;
 use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use mysqlDatabase;
 
+/**
+ * @method Module getModule()
+ */
 #[Table]
 class Attribute extends AbstractModel
 {
@@ -34,19 +38,14 @@ class Attribute extends AbstractModel
     #[Column(type: Column::TYPE_TIMESTAMP, default: Column::DEFAULT_CURRENT_TIMESTAMP)]
     private DateTimeInterface $added;
 
-    private Module $module;
+    #[Constraint]
+    protected Module $module;
 
     public function __construct(mysqlDatabase $database = null)
     {
         parent::__construct($database);
 
-        $this->module = new Module();
         $this->added = new DateTimeImmutable();
-    }
-
-    public static function getTableName(): string
-    {
-        return 'hc_attribute';
     }
 
     public function getId(): ?int
@@ -131,17 +130,6 @@ class Attribute extends AbstractModel
         $this->added = $added;
 
         return $this;
-    }
-
-    public function getModule(): Module
-    {
-        $moduleId = $this->getModuleId();
-
-        if ($moduleId !== null) {
-            $this->loadForeignRecord($this->module, $moduleId);
-        }
-
-        return $this->module;
     }
 
     public function setModule(Module $module): Attribute

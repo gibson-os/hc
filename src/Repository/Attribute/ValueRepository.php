@@ -5,23 +5,30 @@ namespace GibsonOS\Module\Hc\Repository\Attribute;
 
 use DateTime;
 use Exception;
+use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Repository\UpdateError;
 use GibsonOS\Core\Repository\AbstractRepository;
-use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
-use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
+use GibsonOS\Module\Hc\Model\Attribute;
+use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Module as ModuleModel;
 use mysqlTable;
 
 class ValueRepository extends AbstractRepository
 {
+    public function __construct(
+        #[GetTableName(Attribute::class)] private string $attributeTableName,
+        #[GetTableName(Value::class)] private string $valueTableName
+    ) {
+    }
+
     /**
      * @param int[]|null $moduleIds
      *
-     * @throws Exception
+     *@throws Exception
      *
-     * @return ValueModel[]
+     * @return Value[]
      */
     public function getByTypeId(
         int $typeId,
@@ -32,7 +39,7 @@ class ValueRepository extends AbstractRepository
         string $order = null
     ): array {
         $separator = '#_#^#_#';
-        $table = $this->getTable(AttributeModel::getTableName());
+        $table = $this->getTable($this->attributeTableName);
         $table->addWhereParameter($typeId);
         $where =
             '`hc_attribute`.`type_id`=?' .
@@ -77,7 +84,7 @@ class ValueRepository extends AbstractRepository
         $models = [];
 
         foreach ($attributes as $attribute) {
-            $attributeModel = (new AttributeModel())
+            $attributeModel = (new Attribute())
                 ->setId((int) $attribute->id)
                 ->setTypeId(empty($attribute->type_id) ? null : (int) $attribute->type_id)
                 ->setModuleId(empty($attribute->module_id) ? null : (int) $attribute->module_id)
@@ -90,7 +97,7 @@ class ValueRepository extends AbstractRepository
             $orders = explode($separator, $attribute->orders);
 
             foreach (explode($separator, $attribute->values) as $pos => $value) {
-                $models[] = (new ValueModel())
+                $models[] = (new Value())
                     ->setAttribute($attributeModel)
                     ->setOrder((int) $orders[$pos])
                     ->setValue($value);
@@ -113,8 +120,8 @@ class ValueRepository extends AbstractRepository
         string $key = null,
         string $order = null
     ): void {
-        $valueTable = $this->getTable(ValueModel::getTableName());
-        $table = $this->getTable(AttributeModel::getTableName());
+        $valueTable = $this->getTable($this->valueTableName);
+        $table = $this->getTable($this->attributeTableName);
         $valueTable->setWhereParameters([$subId, $typeId]);
         $where =
             '`sub_id`=? AND `type_id`=?' .
@@ -157,7 +164,7 @@ class ValueRepository extends AbstractRepository
         array $keys = null,
         string $type = null
     ): void {
-        $table = $this->getTable(ValueModel::getTableName());
+        $table = $this->getTable($this->valueTableName);
         $table
             ->setWhereParameters([$module->getTypeId(), $module->getId()])
             ->setWhere(
@@ -191,7 +198,7 @@ class ValueRepository extends AbstractRepository
         int $subId = null,
         string $key = null
     ): void {
-        $attributeTable = $this->getTable(AttributeModel::getTableName());
+        $attributeTable = $this->getTable($this->attributeTableName);
         $attributeTable
             ->addWhereParameter($typeId)
             ->setWhere(
@@ -203,7 +210,7 @@ class ValueRepository extends AbstractRepository
             )
         ;
 
-        $table = $this->getTable(ValueModel::getTableName());
+        $table = $this->getTable($this->valueTableName);
         $table
             ->setWhereParameters(array_merge([$startOrder], $attributeTable->getWhereParameters()))
             ->setWhere(
@@ -232,7 +239,7 @@ class ValueRepository extends AbstractRepository
         int $subId = null,
         ?string $type = ''
     ): array {
-        $table = $this->getTable(AttributeModel::getTableName());
+        $table = $this->getTable($this->attributeTableName);
         $table
             ->setWhereParameters([$this->getRegexString($value), $typeId])
             ->setWhere(
@@ -266,7 +273,7 @@ class ValueRepository extends AbstractRepository
 
         foreach ($table->connection->fetchObjectList() as $attribute) {
             if (!isset($attributeModels[$attribute->id])) {
-                $attributeModels[$attribute->id] = (new AttributeModel())
+                $attributeModels[$attribute->id] = (new Attribute())
                     ->setId($attribute->id)
                     ->setTypeId($attribute->type_id)
                     ->setModuleId($attribute->module_id)
@@ -277,7 +284,7 @@ class ValueRepository extends AbstractRepository
                 ;
             }
 
-            $models[] = (new ValueModel())
+            $models[] = (new Value())
                 ->setAttribute($attributeModels[$attribute->id])
                 ->setOrder($attribute->order)
                 ->setValue($attribute->value)
@@ -292,7 +299,7 @@ class ValueRepository extends AbstractRepository
      */
     public function countByKey(string $key, int $typeId, ?array $moduleIds = [], ?string $type = ''): array
     {
-        $table = $this->getTable(AttributeModel::getTableName());
+        $table = $this->getTable($this->attributeTableName);
         $table
             ->setWhereParameters([$key, $typeId])
             ->setWhere(
