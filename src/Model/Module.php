@@ -15,7 +15,9 @@ use mysqlDatabase;
 
 /**
  * @method Type        getType()
+ * @method Module      setType(Type $type)
  * @method Master|null getMaster()
+ * @method Module      setMaster(?Master $master)
  */
 #[Table]
 class Module extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
@@ -79,11 +81,6 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
 
         $this->added = new DateTimeImmutable();
         $this->modified = new DateTimeImmutable();
-    }
-
-    public static function getTableName(): string
-    {
-        return 'hc_module';
     }
 
     public function getId(): ?int
@@ -262,22 +259,6 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
     public function setModified(DateTimeInterface $modified): Module
     {
         $this->modified = $modified;
-
-        return $this;
-    }
-
-    public function setType(Type $type): Module
-    {
-        $this->type = $type;
-        $this->setTypeId((int) $type->getId());
-
-        return $this;
-    }
-
-    public function setMaster(Master $master): Module
-    {
-        $this->master = $master;
-        $this->setMasterId($master->getId());
 
         return $this;
     }

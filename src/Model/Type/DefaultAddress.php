@@ -10,7 +10,8 @@ use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Type;
 
 /**
- * @method Type getType()
+ * @method Type           getType()
+ * @method DefaultAddress setType(Type $type)
  */
 #[Table]
 class DefaultAddress extends AbstractModel
@@ -44,14 +45,6 @@ class DefaultAddress extends AbstractModel
     public function setAddress(int $address): DefaultAddress
     {
         $this->address = $address;
-
-        return $this;
-    }
-
-    public function setType(Type $type): DefaultAddress
-    {
-        $this->type = $type;
-        $this->setTypeId((int) $type->getId());
 
         return $this;
     }

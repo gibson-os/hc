@@ -29,6 +29,7 @@ class LogStore extends AbstractDatabaseStore
     public function __construct(
         #[GetTableName(Master::class)] private string $masterTableName,
         #[GetTableName(Type::class)] private string $typeTableName,
+        #[GetTableName(Module::class)] private string $moduleTableName,
         private FormatterFactory $formatterFactory,
         private DateTimeService $dateTimeService,
         AttributeService $attributeService,
@@ -104,7 +105,7 @@ class LogStore extends AbstractDatabaseStore
         parent::initTable();
 
         $tableName = $this->tableName;
-        $moduleTableName = Module::getTableName();
+        $moduleTableName = $this->moduleTableName;
         $this->table
             ->appendJoinLeft(
                 $this->masterTableName,

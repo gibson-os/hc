@@ -134,8 +134,7 @@ class Attribute extends AbstractModel
 
     public function setModule(Module $module): Attribute
     {
-        $this->module = $module;
-        $this->setModuleId($module->getId());
+        $this->__call('setModule', [$module]);
         $this->setTypeId($module->getTypeId());
 
         return $this;

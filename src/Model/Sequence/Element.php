@@ -12,6 +12,7 @@ use GibsonOS\Module\Hc\Model\Sequence;
 
 /**
  * @method Sequence getSequence()
+ * @method Element  setSequence(Sequence $sequence)
  */
 #[Table]
 class Element extends AbstractModel
@@ -90,14 +91,6 @@ class Element extends AbstractModel
     public function setAdded(DateTimeInterface $added): Element
     {
         $this->added = $added;
-
-        return $this;
-    }
-
-    public function setSequence(Sequence $sequence): Element
-    {
-        $this->sequence = $sequence;
-        $this->setSequenceId((int) $sequence->getId());
 
         return $this;
     }

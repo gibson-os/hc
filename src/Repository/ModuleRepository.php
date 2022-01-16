@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
+use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -16,8 +17,10 @@ class ModuleRepository extends AbstractRepository
 {
     private const MAX_GENERATE_DEVICE_ID_RETRY = 10;
 
-    public function __construct(private LoggerInterface $logger)
-    {
+    public function __construct(
+        private LoggerInterface $logger,
+        #[GetTableName(Module::class)] private string $moduleTableName
+    ) {
     }
 
     public function create(string $name, Type $type): Module
@@ -39,7 +42,7 @@ class ModuleRepository extends AbstractRepository
     {
         $this->logger->debug(sprintf('Find slave with name %d and type id %s', $name, $typeId ?? 0));
 
-        $tableName = Module::getTableName();
+        $tableName = $this->moduleTableName;
         $table = self::getTable($tableName);
 
         $where = '`name` LIKE ?';
@@ -129,7 +132,7 @@ class ModuleRepository extends AbstractRepository
     {
         $this->logger->debug(sprintf('Delete slaves by IDs %s', implode(', ', $ids)));
 
-        $table = self::getTable(Module::getTableName());
+        $table = self::getTable($this->moduleTableName);
         $table
             ->setWhere('`id` IN (' . $table->getParametersString($ids) . ')')
             ->setWhereParameters($ids)

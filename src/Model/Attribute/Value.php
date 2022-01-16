@@ -12,6 +12,7 @@ use GibsonOS\Module\Hc\Model\Attribute;
 
 /**
  * @method Attribute getAttribute()
+ * @method Value     setAttribute(Attribute $attribute)
  */
 #[Table]
 class Value extends AbstractModel implements AutoCompleteModelInterface
@@ -60,14 +61,6 @@ class Value extends AbstractModel implements AutoCompleteModelInterface
     public function setValue(string $value): Value
     {
         $this->value = $value;
-
-        return $this;
-    }
-
-    public function setAttribute(Attribute $attribute): Value
-    {
-        $this->attribute = $attribute;
-        $this->setAttributeId((int) $attribute->getId());
 
         return $this;
     }

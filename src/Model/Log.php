@@ -15,7 +15,9 @@ use mysqlDatabase;
 
 /**
  * @method Module|null getModule()
+ * @method Log         setModule(?Module $module)
  * @method Master|null getMaster()
+ * @method Log         setMaster(?Master $master)
  */
 #[Table]
 class Log extends AbstractModel implements JsonSerializable
@@ -204,22 +206,6 @@ class Log extends AbstractModel implements JsonSerializable
     public function setDirection(string $direction): Log
     {
         $this->direction = $direction;
-
-        return $this;
-    }
-
-    public function setModule(?Module $module): Log
-    {
-        $this->module = $module;
-        $this->setModuleId($module?->getId());
-
-        return $this;
-    }
-
-    public function setMaster(?Master $master): Log
-    {
-        $this->master = $master;
-        $this->setMasterId($master?->getId());
 
         return $this;
     }

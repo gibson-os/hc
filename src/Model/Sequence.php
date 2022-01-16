@@ -49,7 +49,7 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
     /**
      * @var Element[]|null
      */
-    #[Constraint('sequenceId', Element::class)]
+    #[Constraint('sequence', Element::class)]
     protected ?array $elements = null;
 
     public function __construct(mysqlDatabase $database = null)

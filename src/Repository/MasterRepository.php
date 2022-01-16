@@ -24,6 +24,7 @@ class MasterRepository extends AbstractRepository
     public function __construct(
         #[GetTableName((Master::class))] private string $masterTableName,
         #[GetTableName((DefaultAddress::class))] private string $defaultAddressTableName,
+        #[GetTableName((Module::class))] private string $moduleTableName,
     ) {
     }
 
@@ -83,7 +84,7 @@ class MasterRepository extends AbstractRepository
      */
     public function getNextFreeAddress(int $masterId): int
     {
-        $table = $this->getTable(Module::getTableName())
+        $table = $this->getTable($this->moduleTableName)
             ->setWhere('`master_id`=?')
             ->addWhereParameter($masterId)
         ;
