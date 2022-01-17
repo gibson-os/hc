@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
+use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use mysqlDatabase;
@@ -15,6 +16,7 @@ use mysqlDatabase;
  * @method Module getModule()
  */
 #[Table]
+#[Key(unique: true, columns: ['type_id', 'module_id', 'sub_id', 'key', 'type'])]
 class Attribute extends AbstractModel
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]

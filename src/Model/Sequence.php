@@ -22,6 +22,7 @@ use mysqlDatabase;
  */
 #[Table]
 #[Key(columns: ['module_id', 'type'])]
+#[Key(unique: true, columns: ['name', 'type_id', 'module_id', 'type'])]
 class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]

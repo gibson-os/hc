@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
+use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
@@ -20,6 +21,7 @@ use mysqlDatabase;
  * @method Module      setMaster(?Master $master)
  */
 #[Table]
+#[Key(unique: true, columns: ['master_id', 'address'])]
 class Module extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     public const MAX_ADDRESS = 119;
@@ -55,6 +57,7 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
     private ?int $address = null;
 
     #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    #[Key(true)]
     private ?int $ip = null;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
