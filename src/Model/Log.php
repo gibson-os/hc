@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
+use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
@@ -20,6 +21,9 @@ use mysqlDatabase;
  * @method Log         setMaster(?Master $master)
  */
 #[Table]
+#[Key(columns: ['module_id', 'added', 'type', 'direction', 'command'])]
+#[Key(columns: ['module_id', 'direction'])]
+#[Key(columns: ['module_id', 'master_id', 'id', 'command', 'direction'])]
 class Log extends AbstractModel implements JsonSerializable
 {
     public const DIRECTION_INPUT = 'input';
@@ -33,6 +37,7 @@ class Log extends AbstractModel implements JsonSerializable
     private ?int $moduleId = null;
 
     #[Column(type: Column::TYPE_TIMESTAMP, default: Column::DEFAULT_CURRENT_TIMESTAMP)]
+    #[Key]
     private DateTimeInterface $added;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]

@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Model;
 use DateTimeImmutable;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
@@ -13,6 +14,7 @@ use JsonSerializable;
 use mysqlDatabase;
 
 #[Table]
+#[Key(unique: true, columns: ['protocol', 'address'])]
 class Master extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     public const PROTOCOL_UDP = 'udp';
@@ -21,6 +23,7 @@ class Master extends AbstractModel implements JsonSerializable, AutoCompleteMode
     private ?int $id = null;
 
     #[Column(length: 64)]
+    #[Key(true)]
     private string $name;
 
     #[Column(type: Column::TYPE_ENUM, values: ['udp', 'rfm'])]

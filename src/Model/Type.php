@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
@@ -22,6 +23,7 @@ class Type extends AbstractModel implements JsonSerializable, AutoCompleteModelI
     private string $helper;
 
     #[Column]
+    #[Key]
     private bool $network = false;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]

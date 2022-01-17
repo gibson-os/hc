@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Model\Sequence;
 use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
+use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Sequence;
@@ -15,6 +16,7 @@ use GibsonOS\Module\Hc\Model\Sequence;
  * @method Element  setSequence(Sequence $sequence)
  */
 #[Table]
+#[Key(columns: ['sequence_id', 'order'])]
 class Element extends AbstractModel
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]

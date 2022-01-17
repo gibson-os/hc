@@ -30,6 +30,7 @@ class Attribute extends AbstractModel
     private ?int $subId = null;
 
     #[Column(length: 64)]
+    #[Key]
     private string $key;
 
     #[Column(length: 64)]
@@ -40,6 +41,9 @@ class Attribute extends AbstractModel
 
     #[Constraint]
     protected Module $module;
+
+    #[Constraint(ownColumn: 'type_id')]
+    protected Type $typeModel;
 
     public function __construct(mysqlDatabase $database = null)
     {
