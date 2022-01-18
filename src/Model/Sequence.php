@@ -43,7 +43,7 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
     #[Column(type: Column::TYPE_TIMESTAMP, default: Column::DEFAULT_CURRENT_TIMESTAMP)]
     private DateTimeInterface $added;
 
-    #[Constraint(ownColumn: 'type_id')]
+    #[Constraint(onDelete: null, ownColumn: 'type_id')]
     protected Type $typeModel;
 
     #[Constraint]

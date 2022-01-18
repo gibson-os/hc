@@ -44,7 +44,7 @@ class Attribute extends AbstractModel
     #[Constraint]
     protected Module $module;
 
-    #[Constraint(ownColumn: 'type_id')]
+    #[Constraint(onDelete: null, ownColumn: 'type_id')]
     protected Type $typeModel;
 
     public function __construct(mysqlDatabase $database = null)
