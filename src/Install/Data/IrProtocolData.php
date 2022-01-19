@@ -36,6 +36,11 @@ class IrProtocolData extends AbstractInstall implements PriorityInterface
         return InstallService::PART_DATA;
     }
 
+    public function getModule(): ?string
+    {
+        return 'hc';
+    }
+
     public function getPriority(): int
     {
         return 0;

@@ -34,6 +34,11 @@ class FilePathInstall extends AbstractInstall implements PriorityInterface
         return InstallService::PART_CONFIG;
     }
 
+    public function getModule(): ?string
+    {
+        return 'hc';
+    }
+
     public function getPriority(): int
     {
         return 500;
