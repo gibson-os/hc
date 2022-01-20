@@ -18,7 +18,7 @@ class FilePathInstall extends AbstractInstall implements PriorityInterface
             'hc_file_path',
             'What is the directory for homecontrol files?'
         );
-        $value = $filePathInput->getValue() ?? '';
+        $value = $this->dirService->addEndSlash($filePathInput->getValue() ?? '');
 
         if (!file_exists($value)) {
             $this->dirService->create($value);
