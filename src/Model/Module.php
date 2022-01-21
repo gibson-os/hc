@@ -78,6 +78,18 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
     #[Constraint]
     protected ?Master $master;
 
+    /**
+     * @deprecated
+     */
+    #[Column]
+    private ?int $via = null;
+
+    /**
+     * @deprecated
+     */
+    #[Column]
+    private ?int $group = null;
+
     public function __construct(mysqlDatabase $database = null)
     {
         parent::__construct($database);
@@ -262,6 +274,30 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
     public function setModified(DateTimeInterface $modified): Module
     {
         $this->modified = $modified;
+
+        return $this;
+    }
+
+    public function getVia(): ?int
+    {
+        return $this->via;
+    }
+
+    public function setVia(?int $via): Module
+    {
+        $this->via = $via;
+
+        return $this;
+    }
+
+    public function getGroup(): ?int
+    {
+        return $this->group;
+    }
+
+    public function setGroup(?int $group): Module
+    {
+        $this->group = $group;
 
         return $this;
     }
