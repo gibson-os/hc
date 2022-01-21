@@ -56,7 +56,7 @@ class Log extends AbstractModel implements JsonSerializable
      * @deprecated
      */
     #[Column(length: 192)]
-    private string $data;
+    private string $data = '';
 
     #[Column(type: Column::TYPE_VARBINARY, length: 128)]
     private string $rawData = '';
