@@ -175,10 +175,16 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
      * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
     public function handshake(Module $slave): Module
     {
