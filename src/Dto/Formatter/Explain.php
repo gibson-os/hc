@@ -15,7 +15,7 @@ class Explain implements JsonSerializable
 
     public const COLOR_BLUE = 'blue';
 
-    public const COLOR_YELLOW = 'blue';
+    public const COLOR_YELLOW = 'yellow';
 
     public const COLOR_MAGENTA = 'magenta';
 
