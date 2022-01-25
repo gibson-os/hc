@@ -35,11 +35,17 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.general.Form', {
             fieldLabel: 'Device ID',
             name: 'deviceId'
         },{
-            xtype: 'gosModuleHcTypeAutoComplete',
+            xtype: 'gosModuleCoreParameterTypeAutoComplete',
             fieldLabel: 'Type',
             name: 'typeId',
-            params: {
-                onlyHcSlave: true
+            parameterObject: {
+                config: {
+                    model: 'GibsonOS.module.hc.index.model.Type',
+                    autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\TypeAutoComplete',
+                    parameters: {
+                        onlyHcSlave: true
+                    }
+                }
             }
         },{
             xtype: 'gosFormNumberfield',
@@ -128,7 +134,13 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.general.Form', {
                     moduleId: me.gos.data.module.id
                 },
                 success: function(formAction, action) {
-                    me.getForm().findField('typeId').setValueById(Ext.decode(action.response.responseText).data.typeId);
+                    const data = Ext.decode(action.response.responseText).data;
+
+                    me.getForm().findField('typeId').setValueById(data.typeId);
+
+                    if (data.pwmSpeed === null) {
+                        me.getForm().findField('pwmSpeed').disable();
+                    }
                 }
             });
         });

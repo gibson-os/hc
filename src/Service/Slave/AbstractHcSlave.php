@@ -244,11 +244,12 @@ abstract class AbstractHcSlave extends AbstractSlave
             $this->masterService->receiveReceiveReturn($master, $busMessage);
         }
 
+        $pwmSpeed = $this->readPwmSpeed($slave);
         $slave
             ->setHertz($this->readHertz($slave))
             ->setBufferSize($this->readBufferSize($slave))
             ->setEepromSize($this->readEepromSize($slave))
-            ->setPwmSpeed($this->readPwmSpeed($slave))
+            ->setPwmSpeed($pwmSpeed === 0 ? null : $pwmSpeed)
         ;
 
         return $this->slaveHandshake($slave);

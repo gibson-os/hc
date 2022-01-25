@@ -25,28 +25,6 @@ Ext.define('GibsonOS.module.hc.index.App', {
                 xtype: 'gosModuleHcIndexTypeGrid',
                 title: 'Modul Typen'
             },{
-                xtype: 'gosModuleHcCallbackGrid',
-                title: 'Makros',
-                itemId: 'hcIndexMacroGrid',
-                gos: {
-                    data: {
-                        extraParams: {
-                            macro: true
-                        }
-                    }
-                }
-            },{
-                xtype: 'gosModuleHcCallbackGrid',
-                title: 'Zeitgesteuerte Anweisungen',
-                itemId: 'hcIndexCallbackGrid',
-                gos: {
-                    data: {
-                        extraParams: {
-                            timer: true
-                        }
-                    }
-                }
-            },{
                 xtype: 'gosModuleHcIndexLogGrid'
             }]
         }];

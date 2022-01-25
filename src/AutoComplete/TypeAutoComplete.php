@@ -19,7 +19,7 @@ class TypeAutoComplete implements AutoCompleteInterface
      */
     public function getByNamePart(string $namePart, array $parameters): array
     {
-        return $this->typeRepository->findByName($namePart);
+        return $this->typeRepository->findByName($namePart, isset($parameters['onlyHcSlave']));
     }
 
     /**

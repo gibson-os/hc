@@ -61,7 +61,7 @@ class HcSlaveController extends AbstractController
         int $deviceId,
         int $typeId,
         int $address,
-        int $pwmSpeed,
+        int $pwmSpeed = null,
         bool $overwriteSlave = false,
         bool $deleteSlave = false
     ): AjaxResponse {
@@ -119,7 +119,10 @@ class HcSlaveController extends AbstractController
             }
 
             if ($pwmSpeed !== $slave->getPwmSpeed()) {
-                $slaveService->writePwmSpeed($slave, $pwmSpeed);
+                if ($pwmSpeed !== null) {
+                    $slaveService->writePwmSpeed($slave, $pwmSpeed);
+                }
+
                 $slave
                     ->setPwmSpeed($pwmSpeed)
                     ->save()
