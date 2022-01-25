@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Formatter;
 
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Model\Log;
@@ -109,7 +110,14 @@ abstract class AbstractHcFormatter extends AbstractFormatter
                 $typeId = $this->transformService->asciiToUnsignedInt($log->getRawData());
 
                 if (!isset($this->loadedTypes[$typeId])) {
-                    $this->loadedTypes[$typeId] = $this->typeRepository->getById($typeId);
+                    try {
+                        $this->loadedTypes[$typeId] = $this->typeRepository->getById($typeId);
+                    } catch (SelectError) {
+                        $this->loadedTypes[$typeId] = (new Type())
+                            ->setId($typeId)
+                            ->setName('Unbekannter Typ')
+                        ;
+                    }
                 }
 
                 $context['type'] = $this->loadedTypes[$typeId];

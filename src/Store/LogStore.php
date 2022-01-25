@@ -46,19 +46,19 @@ class LogStore extends AbstractDatabaseStore
     protected function setWheres(): void
     {
         if ($this->masterId !== null) {
-            $this->addWhere('`master_id`=?', [$this->masterId]);
+            $this->addWhere('`hc_log`.`master_id`=?', [$this->masterId]);
         }
 
         if ($this->moduleId !== null) {
-            $this->addWhere('`module_id`=?', [$this->moduleId]);
+            $this->addWhere('`hc_log`.`module_id`=?', [$this->moduleId]);
         }
 
         if ($this->direction !== null) {
-            $this->addWhere('`direction`=?', [$this->direction]);
+            $this->addWhere('`hc_log`.`direction`=?', [$this->direction]);
         }
 
         if (count($this->types) > 0) {
-            $this->addWhere('`type` IN (' . $this->table->getParametersString($this->types) . ')', $this->types);
+            $this->addWhere('`hc_log`.`type` IN (' . $this->table->getParametersString($this->types) . ')', $this->types);
         }
     }
 
