@@ -13,6 +13,11 @@ class PortStore extends AbstractAttributeStore
         return IoService::ATTRIBUTE_TYPE_PORT;
     }
 
+    protected function getTypeName(): string
+    {
+        return 'ssd1306';
+    }
+
     /**
      * @return array[]
      */

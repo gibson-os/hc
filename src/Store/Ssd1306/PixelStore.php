@@ -14,6 +14,11 @@ class PixelStore extends AbstractAttributeStore
         return '';
     }
 
+    protected function getTypeName(): string
+    {
+        return 'io';
+    }
+
     protected function getCountField(): string
     {
         return '`' . $this->tableName . '`.`sub_id`';

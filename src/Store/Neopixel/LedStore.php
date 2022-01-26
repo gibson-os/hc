@@ -14,6 +14,11 @@ class LedStore extends AbstractAttributeStore
         return LedAttribute::ATTRIBUTE_TYPE;
     }
 
+    protected function getTypeName(): string
+    {
+        return 'neopixel';
+    }
+
     /**
      * @return array<int, Led>
      */
