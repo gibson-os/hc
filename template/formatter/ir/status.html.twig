@@ -5,7 +5,13 @@
 {% block render %}
     <ul>
         {% for key in keys %}
-        <li>Protokoll: {{ irProtocols[key.protocol] }}, Addresse: {{ key.address }}, Kommando: {{ key.command }}</li>
+        <li>
+            {% if key.name is defined %}
+                {{ key.name }}
+            {% else %}
+                Protokoll: {{ irProtocols[key.protocol] }}, Adresse: {{ key.address }}, Kommando: {{ key.command }}
+            {% endif %}
+        </li>
         {% endfor %}
     </ul>
 {% endblock %}

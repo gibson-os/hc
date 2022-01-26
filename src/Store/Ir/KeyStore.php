@@ -41,5 +41,7 @@ class KeyStore extends AbstractAttributeStore
             '`hc_attribute_value`.`order`, ' .
             '`hc_attribute_value`.`value`'
         );
+
+        yield new Key(0, 0, 0, 'todo name setzen');
     }
 }

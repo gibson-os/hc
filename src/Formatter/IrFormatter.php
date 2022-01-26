@@ -3,17 +3,22 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Formatter;
 
+use Exception;
 use GibsonOS\Core\Attribute\GetSetting;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\Setting;
 use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
 use GibsonOS\Module\Hc\Model\Log;
+use GibsonOS\Module\Hc\Model\Type;
+use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
@@ -22,15 +27,25 @@ class IrFormatter extends AbstractHcFormatter
 {
     private array $irProtocols;
 
+    private Type $type;
+
+    private array $keyNames = [];
+
+    /**
+     * @throws SelectError
+     * @throws JsonException
+     */
     public function __construct(
         TransformService $transformService,
         TwigService $twigService,
         TypeRepository $typeRepository,
-        #[GetSetting('irProtocols')] Setting $irProtocols
+        #[GetSetting('irProtocols')] Setting $irProtocols,
+        private ValueRepository $valueRepository
     ) {
         parent::__construct($transformService, $twigService, $typeRepository);
 
         $this->irProtocols = JsonUtility::decode($irProtocols->getValue());
+        $this->type = $this->typeRepository->getByHelperName('ir');
     }
 
     /**
@@ -82,16 +97,44 @@ class IrFormatter extends AbstractHcFormatter
         $keys = [];
 
         for ($i = 0; $i < strlen($data); $i += 5) {
-            $keys[] = new Key(
+            $key = new Key(
                 $this->transformService->asciiToUnsignedInt($data, $i),
                 ($this->transformService->asciiToUnsignedInt($data, $i + 1) << 8) |
                 $this->transformService->asciiToUnsignedInt($data, $i + 2),
                 ($this->transformService->asciiToUnsignedInt($data, $i + 3) << 8) |
                 $this->transformService->asciiToUnsignedInt($data, $i + 4)
             );
+            $key->setName($this->getKeyName($key));
+
+            $keys[] = $key;
         }
 
         return $keys;
+    }
+
+    private function getKeyName(Key $key): ?string
+    {
+        $subId = $key->getProtocol() << 32 | $key->getAddress() << 16 | $key->getCommand();
+
+        if (!array_key_exists($subId, $this->keyNames)) {
+            $this->keyNames[$subId] = null;
+
+            try {
+                $keyNames = $this->valueRepository->getByTypeId(
+                    $this->type->getId() ?? 0,
+                    $subId,
+                    type: IrService::ATTRIBUTE_TYPE_KEY,
+                    key: 'name'
+                );
+
+                if (count($keyNames) !== 0) {
+                    $this->keyNames[$subId] = $keyNames[0]->getValue();
+                }
+            } catch (Exception) {
+            }
+        }
+
+        return $this->keyNames[$subId];
     }
 
     protected function getTemplates(): array

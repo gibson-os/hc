@@ -42,7 +42,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
     public function __construct(
         TransformService $transformService,
         protected TwigService $twigService,
-        private TypeRepository $typeRepository
+        protected TypeRepository $typeRepository
     ) {
         parent::__construct($transformService);
 
