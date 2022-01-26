@@ -7,8 +7,12 @@ use JsonSerializable;
 
 class Key implements JsonSerializable
 {
-    public function __construct(private int $protocol, private int $address, private int $command)
-    {
+    public function __construct(
+        private int $protocol,
+        private int $address,
+        private int $command,
+        private ?string $name = null
+    ) {
     }
 
     public function getProtocol(): int
@@ -26,12 +30,25 @@ class Key implements JsonSerializable
         return $this->command;
     }
 
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): Key
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         return [
             'protocol' => $this->getProtocol(),
             'address' => $this->getAddress(),
             'command' => $this->getCommand(),
+            'name' => $this->getName(),
         ];
     }
 }

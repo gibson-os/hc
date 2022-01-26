@@ -146,9 +146,22 @@ abstract class AbstractHcFormatter extends AbstractFormatter
         $context = ['data' => $log->getRawData()];
 
         return match ($command) {
-            AbstractHcSlave::COMMAND_ADDRESS, AbstractHcSlave::COMMAND_BUFFER_SIZE, AbstractHcSlave::COMMAND_EEPROM_ERASE, AbstractHcSlave::COMMAND_TYPE => [new Explain(0, 1, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? '')],
-            AbstractHcSlave::COMMAND_DEVICE_ID, AbstractHcSlave::COMMAND_EEPROM_FREE, AbstractHcSlave::COMMAND_EEPROM_POSITION, AbstractHcSlave::COMMAND_EEPROM_SIZE => [new Explain(0, 1, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? '')],
-            AbstractHcSlave::COMMAND_PWM_SPEED, AbstractHcSlave::COMMAND_HERTZ => [new Explain(0, 3, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? '')],
+            AbstractHcSlave::COMMAND_ADDRESS,
+            AbstractHcSlave::COMMAND_BUFFER_SIZE,
+            AbstractHcSlave::COMMAND_EEPROM_ERASE,
+            AbstractHcSlave::COMMAND_TYPE => [
+                new Explain(0, 0, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? ''),
+            ],
+            AbstractHcSlave::COMMAND_DEVICE_ID,
+            AbstractHcSlave::COMMAND_EEPROM_FREE,
+            AbstractHcSlave::COMMAND_EEPROM_POSITION,
+            AbstractHcSlave::COMMAND_EEPROM_SIZE => [
+                new Explain(0, 1, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? ''),
+            ],
+            AbstractHcSlave::COMMAND_PWM_SPEED,
+            AbstractHcSlave::COMMAND_HERTZ => [
+                new Explain(0, 3, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? ''),
+            ],
             default => parent::explain($log),
         };
     }

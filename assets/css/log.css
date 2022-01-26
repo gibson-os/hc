@@ -71,6 +71,17 @@
     color: #FFF;
 }
 
+.hc_log_plain .explain.yellow {
+    background: #FF0;
+    border-color: #FF0;
+    color: #000;
+}
+
+.hc_log_plain .explain.yellow:hover {
+    background: #CC0;
+    color: #000;
+}
+
 .hc_log_plain .explain .title {
     position: absolute;
     border: 1px solid #000;
@@ -90,7 +101,7 @@
 
 .hc_log_rendered {
     margin-top: 10px;
-    line-height: 7px;
+    line-height: 14px;
 }
 
 .hc_log_rendered table {

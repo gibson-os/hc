@@ -1,0 +1,18 @@
+{% block command %}IR Kommando{% endblock %}
+
+{% block text %}IR Kommando empfangen{% endblock %}
+
+{% block render %}
+    <ul>
+        {% for key in keys %}
+        <li>Protokoll: {{ irProtocols[key.protocol] }}, Addresse: {{ key.address }}, Kommando: {{ key.command }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block explain %}
+    {% if protocol is defined %}Protokoll: {{ protocol }}
+    {% elseif address is defined %}Adresse: {{ address }}
+    {% elseif command is defined %}Kommando: {{ command }}
+    {% endif %}
+{% endblock %}
