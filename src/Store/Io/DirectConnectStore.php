@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store\Io;
 
 use GibsonOS\Core\Attribute\GetTableName;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\AttributeService;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
@@ -36,11 +37,14 @@ class DirectConnectStore extends AbstractAttributeStore
     }
 
     /**
+     * @throws SelectError
+     *
      * @return array[]
      */
     public function getList(): array
     {
         $this->portStore->setModuleId($this->moduleId);
+        /** @var array $ports */
         $ports = $this->portStore->getList();
 
         $this->initTable();

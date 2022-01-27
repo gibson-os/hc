@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Io;
 
+use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
 use GibsonOS\Module\Hc\Store\AbstractAttributeStore;
 
@@ -19,39 +21,32 @@ class PortStore extends AbstractAttributeStore
     }
 
     /**
-     * @return array[]
+     * @throws SelectError
+     *
+     * @return array<int, array<string, string|array<int, string>>>
      */
     public function getList(): array
     {
-        $this->initTable();
-        $this->table->setOrderBy('`hc_attribute`.`sub_id` ASC, `hc_attribute_value`.`order`');
-
-        $this->table->selectPrepared(
-            false,
-            '`hc_attribute`.`id`, ' .
-            '`hc_attribute`.`sub_id`, ' .
-            '`hc_attribute`.`key`, ' .
-            '`hc_attribute_value`.`order`, ' .
-            '`hc_attribute_value`.`value`'
-        );
-
         $list = [];
 
-        foreach ($this->table->connection->fetchObjectList() as $attribute) {
-            if (!isset($list[$attribute->sub_id])) {
-                $list[$attribute->sub_id] = [
-                    'number' => $attribute->sub_id,
-                ];
-            }
+        /** @var Attribute $attribute */
+        foreach (parent::getList() as $attribute) {
+            $subId = $attribute->getSubId() ?? 0;
+            $key = $attribute->getKey();
+            $list[$subId] = ['number' => $subId];
 
-            if ($attribute->key === IoService::ATTRIBUTE_PORT_KEY_VALUE_NAMES) {
-                if (!isset($list[$attribute->sub_id][$attribute->key])) {
-                    $list[$attribute->sub_id][$attribute->key] = [];
+            foreach ($attribute->getValues() as $value) {
+                if ($key === IoService::ATTRIBUTE_PORT_KEY_VALUE_NAMES) {
+                    if (!isset($list[$subId][$key]) || !is_array($list[$subId][$key])) {
+                        $list[$subId][$key] = [];
+                    }
+
+                    $list[$subId][$key][$value->getOrder()] = $value->getValue();
+
+                    continue;
                 }
 
-                $list[$attribute->sub_id][$attribute->key][$attribute->order] = $attribute->value;
-            } else {
-                $list[$attribute->sub_id][$attribute->key] = $attribute->value;
+                $list[$subId][$key] = $value->getValue();
             }
         }
 

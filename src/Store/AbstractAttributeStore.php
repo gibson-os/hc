@@ -15,7 +15,7 @@ use GibsonOS\Module\Hc\Model\Type;
 use mysqlDatabase;
 
 /**
- * @method Generator|iterable getList()
+ * @method array|Generator getList()
  */
 abstract class AbstractAttributeStore extends AbstractDatabaseStore
 {
