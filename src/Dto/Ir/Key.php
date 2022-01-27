@@ -11,7 +11,8 @@ class Key implements JsonSerializable
         private int $protocol,
         private int $address,
         private int $command,
-        private ?string $name = null
+        private ?string $name = null,
+        private ?string $protocolName = null
     ) {
     }
 
@@ -42,6 +43,18 @@ class Key implements JsonSerializable
         return $this;
     }
 
+    public function getProtocolName(): ?string
+    {
+        return $this->protocolName;
+    }
+
+    public function setProtocolName(?string $protocolName): Key
+    {
+        $this->protocolName = $protocolName;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         return [
@@ -49,6 +62,7 @@ class Key implements JsonSerializable
             'address' => $this->getAddress(),
             'command' => $this->getCommand(),
             'name' => $this->getName(),
+            'protocolName' => $this->getProtocolName(),
         ];
     }
 }

@@ -6,7 +6,7 @@
     <ul>
         {% for key in keys %}
         <li>
-            {% if key.name is defined %}
+            {% if key.name is not null %}
                 {{ key.name }}
             {% else %}
                 Protokoll: {{ irProtocols[key.protocol] }}, Adresse: {{ key.address }}, Kommando: {{ key.command }}

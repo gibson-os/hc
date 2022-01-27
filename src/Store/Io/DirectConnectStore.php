@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Store\Io;
 
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Service\AttributeService;
+use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
@@ -15,12 +16,13 @@ class DirectConnectStore extends AbstractAttributeStore
 {
     public function __construct(
         private PortStore $portStore,
+        DateTimeService $dateTimeService,
         AttributeService $attributeService,
         #[GetTableName(Value::class)] string $valueTableName,
         #[GetTableName(Type::class)] string $typeTableName,
         mysqlDatabase $database = null
     ) {
-        parent::__construct($attributeService, $valueTableName, $typeTableName, $database);
+        parent::__construct($dateTimeService, $attributeService, $valueTableName, $typeTableName, $database);
     }
 
     protected function getType(): string

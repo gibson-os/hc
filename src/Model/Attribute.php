@@ -10,10 +10,16 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Module\Hc\Model\Attribute\Value;
 use mysqlDatabase;
 
 /**
- * @method Module getModule()
+ * @method Module    getModule()
+ * @method Type      getTypeModel()
+ * @method Attribute setTypeModel(Type $type)
+ * @method Value[]   getValues()
+ * @method Attribute setValues(Value[] $values)
+ * @method Attribute addValues(Value[] $values)
  */
 #[Table]
 #[Key(unique: true, columns: ['type_id', 'module_id', 'sub_id', 'key', 'type'])]
@@ -46,6 +52,9 @@ class Attribute extends AbstractModel
 
     #[Constraint(onDelete: null, ownColumn: 'type_id')]
     protected Type $typeModel;
+
+    #[Constraint('attribute', Value::class)]
+    protected array $values;
 
     public function __construct(mysqlDatabase $database = null)
     {
