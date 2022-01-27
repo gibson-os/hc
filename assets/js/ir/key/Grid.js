@@ -2,6 +2,15 @@ Ext.define('GibsonOS.module.hc.ir.key.Grid', {
     extend: 'GibsonOS.module.core.component.grid.Panel',
     alias: ['widget.gosModuleIrKeyGrid'],
     autoScroll: true,
+    addFunction() {
+        const me = this;
+
+        new GibsonOS.module.hc.ir.key.Window({
+            moduleId: me.moduleId,
+            gridStore: me.store
+        });
+    },
+
     initComponent() {
         const me = this;
 

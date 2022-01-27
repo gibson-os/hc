@@ -1,4 +1,4 @@
-Ext.define('GibsonOS.module.add..Form', {
+Ext.define('GibsonOS.module.hc.module.add.Form', {
     extend: 'GibsonOS.module.core.component.form.Panel',
     alias: ['widget.gosModuleHcModuleAddForm'],
     requiredPermission: {
