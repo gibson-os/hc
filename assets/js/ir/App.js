@@ -5,7 +5,7 @@ Ext.define('GibsonOS.module.hc.ir.App', {
     appIcon: 'icon_remotecontrol',
     width: 700,
     height: 500,
-    initComponent: function() {
+    initComponent() {
         const me = this;
 
         me.title += ': ' + me.gos.data.module.name;
