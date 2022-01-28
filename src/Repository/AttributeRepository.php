@@ -100,6 +100,16 @@ class AttributeRepository extends AbstractRepository
         return empty($count) ? 0 : (int) $count[0];
     }
 
+    public function deleteSubIds(array $ids): void
+    {
+        $table = self::getTable($this->attributeTableName);
+        $table
+            ->setWhere('`sub_id` IN (' . $table->getParametersString($ids) . ')')
+            ->setWhereParameters($ids)
+            ->deletePrepared()
+        ;
+    }
+
     /**
      * @throws DeleteError
      */
@@ -108,7 +118,7 @@ class AttributeRepository extends AbstractRepository
         int $subId = null,
         string $key = null,
         string $type = null
-    ) {
+    ): void {
         $table = self::getTable($this->attributeTableName);
 
         $where = '`type_id`=? AND `module_id`=?';

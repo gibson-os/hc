@@ -15,6 +15,7 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
             fieldLabel: 'Name'
         },{
             xtype: 'gosCoreComponentFormFieldDisplay',
+            name: 'protocolName',
             fieldLabel: 'Protokoll'
         },{
             xtype: 'gosCoreComponentFormFieldDisplay',
@@ -37,6 +38,10 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
                 me.getForm().submit({
                     xtype: 'gosFormActionAction',
                     url: baseDir + 'hc/ir/addKey',
+                    params: {
+                        address: me.getForm().findField('address').getValue(),
+                        command: me.getForm().findField('command').getValue(),
+                    },
                     success() {
                         me.reset();
                     }
@@ -64,6 +69,7 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
     reset() {
         const me = this;
 
+        me.lastLogId = null;
         me.getForm().reset();
         me.loadMask.show();
         me.waitForKey();
@@ -71,26 +77,32 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
     waitForKey() {
         const me = this;
 
-        GibsonOS.Ajax.request({
-            url: baseDir + 'hc/ir/waitForKey',
-            params: {
-                id: me.moduleId,
-                lastLogId: me.lastLogId
-            },
-            success(response) {
-                const data = Ext.decode(response.responseText).data;
-
-                if (data) {
+        const runRequest = function() {
+            GibsonOS.Ajax.request({
+                url: baseDir + 'hc/ir/waitForKey',
+                params: {
+                    moduleId: me.moduleId,
+                    lastLogId: me.lastLogId
+                },
+                messageBox: {
+                    buttonHandler() {
+                        me.lastLogId = null;
+                        setTimeout(runRequest, 1000);
+                    }
+                },
+                success(response) {
+                    const data = Ext.decode(response.responseText).data;
                     me.lastLogId = data.lastLogId;
-                    me.getForm().setValues(data);
-                    me.loadMask.hide();
-                } else {
-                    setTimeout(me.waitForKey, 1000);
+
+                    if (data.key) {
+                        me.getForm().setValues(data.key);
+                        me.loadMask.hide();
+                    } else {
+                        setTimeout(runRequest, 1000);
+                    }
                 }
-            },
-            failure() {
-                setTimeout(me.waitForKey, 1000);
-            }
-        });
+            });
+        };
+        runRequest();
     }
 });

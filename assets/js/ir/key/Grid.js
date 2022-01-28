@@ -2,6 +2,10 @@ Ext.define('GibsonOS.module.hc.ir.key.Grid', {
     extend: 'GibsonOS.module.core.component.grid.Panel',
     alias: ['widget.gosModuleIrKeyGrid'],
     autoScroll: true,
+    multiSelect: true,
+    enterButton: {
+        iconCls: 'icon_system system_play'
+    },
     addFunction() {
         const me = this;
 
@@ -26,6 +30,43 @@ Ext.define('GibsonOS.module.hc.ir.key.Grid', {
             callback() {
                 me.setLoading(false);
             }
+        });
+    },
+    deleteFunction(records) {
+        const me = this;
+
+        GibsonOS.MessageBox.show({
+            title: 'Wirklich löschen?',
+            msg: 'Möchtest du die ' +
+                (records.length === 1 ? 'Taste "' + records[0].get('name') + '"' : records.length + ' Tasten ') +
+                ' wirklich löschen?',
+            type: GibsonOS.MessageBox.type.QUESTION,
+            buttons: [{
+                text: 'Ja',
+                handler() {
+                    let keys = [];
+
+                    Ext.iterate(records, (key) => {
+                        keys.push({
+                            protocol: key.get('protocol'),
+                            address: key.get('address'),
+                            command: key.get('command')
+                        });
+                    });
+
+                    GibsonOS.Ajax.request({
+                        url: baseDir + 'hc/ir/deleteKeys',
+                        params: {
+                            keys: Ext.encode(keys)
+                        },
+                        success() {
+                            me.viewItem.getStore().load();
+                        }
+                    });
+                }
+            },{
+                text: 'Nein'
+            }]
         });
     },
     initComponent() {

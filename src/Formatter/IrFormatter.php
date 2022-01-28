@@ -102,9 +102,12 @@ class IrFormatter extends AbstractHcFormatter
                 ($this->transformService->asciiToUnsignedInt($data, $i + 1) << 8) |
                 $this->transformService->asciiToUnsignedInt($data, $i + 2),
                 ($this->transformService->asciiToUnsignedInt($data, $i + 3) << 8) |
-                $this->transformService->asciiToUnsignedInt($data, $i + 4)
+                $this->transformService->asciiToUnsignedInt($data, $i + 4),
             );
-            $key->setName($this->getKeyName($key));
+            $key
+                ->setName($this->getKeyName($key))
+                ->setProtocolName($this->irProtocols[$key->getProtocol()])
+            ;
 
             $keys[] = $key;
         }
@@ -112,9 +115,14 @@ class IrFormatter extends AbstractHcFormatter
         return $keys;
     }
 
+    public function getSubId(int $protocol, int $address, int $command): int
+    {
+        return $protocol << 32 | $address << 16 | $command;
+    }
+
     private function getKeyName(Key $key): ?string
     {
-        $subId = $key->getProtocol() << 32 | $key->getAddress() << 16 | $key->getCommand();
+        $subId = $this->getSubId($key->getProtocol(), $key->getAddress(), $key->getCommand());
 
         if (!array_key_exists($subId, $this->keyNames)) {
             $this->keyNames[$subId] = null;
@@ -124,7 +132,7 @@ class IrFormatter extends AbstractHcFormatter
                     $this->type->getId() ?? 0,
                     $subId,
                     type: IrService::ATTRIBUTE_TYPE_KEY,
-                    key: 'name'
+                    key: IrService::KEY_ATTRIBUTE_NAME
                 );
 
                 if (count($keyNames) !== 0) {

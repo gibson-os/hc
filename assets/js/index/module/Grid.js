@@ -139,10 +139,10 @@ Ext.define('GibsonOS.module.hc.index.module.Grid', {
     },
     deleteFunction(records) {
         const me = this;
-        let message = 'Möchten Sie die ' + records.length + ' Module wirklich löchen?';
+        let message = 'Möchten Sie die ' + records.length + ' Module wirklich löschen?';
 
         if (records.length === 1) {
-            message = 'Möchten Sie das Modul ' + records[0].get('name') + ' wirklich löchen?';
+            message = 'Möchten Sie das Modul ' + records[0].get('name') + ' wirklich löschen?';
         }
 
         GibsonOS.MessageBox.show({

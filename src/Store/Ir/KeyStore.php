@@ -47,7 +47,7 @@ class KeyStore extends AbstractAttributeStore
     ) {
         parent::__construct($dateTimeService, $attributeService, $valueTableName, $typeTableName, $database);
 
-        $this->setKey('name');
+        $this->setKey(IrService::KEY_ATTRIBUTE_NAME);
         $this->irProtocols = JsonUtility::decode($irProtocols->getValue());
     }
 

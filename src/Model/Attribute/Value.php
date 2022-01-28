@@ -21,7 +21,7 @@ class Value extends AbstractModel implements AutoCompleteModelInterface
     private int $attributeId;
 
     #[Column(type: Column::TYPE_INT, attributes: [Column::ATTRIBUTE_UNSIGNED], primary: true)]
-    private int $order;
+    private int $order = 0;
 
     #[Column(type: Column::TYPE_TEXT)]
     private string $value;
