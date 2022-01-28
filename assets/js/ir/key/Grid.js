@@ -10,7 +10,24 @@ Ext.define('GibsonOS.module.hc.ir.key.Grid', {
             gridStore: me.store
         });
     },
+    enterFunction(key) {
+        const me = this;
 
+        me.setLoading(true);
+
+        GibsonOS.Ajax.request({
+            url: baseDir + 'hc/ir/send',
+            params:  {
+                moduleId: me.moduleId,
+                protocol: key.get('protocol'),
+                address: key.get('address'),
+                command: key.get('name'),
+            },
+            callback() {
+                me.setLoading(false);
+            }
+        });
+    },
     initComponent() {
         const me = this;
 
