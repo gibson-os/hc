@@ -3,7 +3,7 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
     alias: ['widget.gosModuleHcIrKeyForm'],
     requiredPermission: {
         action: 'addKey',
-        permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.READ
+        permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.WRITE
     },
     lastLogId: null,
     initComponent() {

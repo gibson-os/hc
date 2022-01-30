@@ -136,4 +136,10 @@ class IrController extends AbstractController
 
         return $this->returnSuccess();
     }
+
+    #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
+    public function saveRemote(): AjaxResponse
+    {
+        return $this->returnSuccess();
+    }
 }

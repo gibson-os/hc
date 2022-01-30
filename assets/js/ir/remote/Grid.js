@@ -3,7 +3,11 @@ Ext.define('GibsonOS.module.hc.ir.remote.Grid', {
     alias: ['widget.gosModuleIrRemoteGrid'],
     autoScroll: true,
     addFunction() {
-        new GibsonOS.module.hc.ir.remote.App();
+        const me = this;
+
+        new GibsonOS.module.hc.ir.remote.Window({
+            moduleId: me.moduleId
+        });
     },
     enterFunction() {
         new GibsonOS.module.hc.ir.remote.App();
