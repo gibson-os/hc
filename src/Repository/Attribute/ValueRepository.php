@@ -32,7 +32,7 @@ class ValueRepository extends AbstractRepository
      */
     public function getByTypeId(
         int $typeId,
-        ?int $subId,
+        int $subId = null,
         ?array $moduleIds = [],
         ?string $type = '',
         string $key = null,
