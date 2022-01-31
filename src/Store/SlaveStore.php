@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store;
 
 use GibsonOS\Core\Attribute\GetTableName;
-use GibsonOS\Core\Service\AttributeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
@@ -16,10 +15,9 @@ class SlaveStore extends AbstractDatabaseStore
 
     public function __construct(
         #[GetTableName(Type::class)] private string $typeTableName,
-        AttributeService $attributeService,
         mysqlDatabase $database = null
     ) {
-        parent::__construct($attributeService, $database);
+        parent::__construct($database);
     }
 
     protected function getModelClassName(): string

@@ -31,9 +31,11 @@ class IrController extends AbstractController
     public function keys(
         KeyStore $keyStore,
         int $limit = 100,
-        int $start = 0
+        int $start = 0,
+        array $sort = [['property' => 'name', 'direction' => 'ASC']]
     ): AjaxResponse {
         $keyStore->setLimit($limit, $start);
+        $keyStore->setSortByExt($sort);
 
         return $this->returnSuccess(
             $keyStore->getList(),

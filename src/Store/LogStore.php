@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Store;
 use DateTimeImmutable;
 use Exception;
 use GibsonOS\Core\Attribute\GetTableName;
-use GibsonOS\Core\Service\AttributeService;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Factory\FormatterFactory;
@@ -32,10 +31,9 @@ class LogStore extends AbstractDatabaseStore
         #[GetTableName(Module::class)] private string $moduleTableName,
         private FormatterFactory $formatterFactory,
         private DateTimeService $dateTimeService,
-        AttributeService $attributeService,
         mysqlDatabase $database = null
     ) {
-        parent::__construct($attributeService, $database);
+        parent::__construct($database);
     }
 
     protected function getModelClassName(): string

@@ -6,11 +6,8 @@ namespace GibsonOS\Module\Hc\Store\Ir;
 use Generator;
 use GibsonOS\Core\Attribute\GetSetting;
 use GibsonOS\Core\Attribute\GetTableName;
-use GibsonOS\Core\Exception\CreateError;
-use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\Setting;
-use GibsonOS\Core\Service\AttributeService;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
@@ -19,9 +16,7 @@ use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
 use GibsonOS\Module\Hc\Store\AbstractAttributeStore;
-use JsonException;
 use mysqlDatabase;
-use ReflectionException;
 
 class KeyStore extends AbstractAttributeStore
 {
@@ -31,21 +26,15 @@ class KeyStore extends AbstractAttributeStore
      * @param Setting $irProtocols
      * @param string  $valueTableName
      * @param string  $typeTableName
-     *
-     * @throws CreateError
-     * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
      */
     public function __construct(
         #[GetSetting('irProtocols')] Setting $irProtocols,
         DateTimeService $dateTimeService,
-        AttributeService $attributeService,
         #[GetTableName(Value::class)] string $valueTableName,
         #[GetTableName(Type::class)] string $typeTableName,
         mysqlDatabase $database = null
     ) {
-        parent::__construct($dateTimeService, $attributeService, $valueTableName, $typeTableName, $database);
+        parent::__construct($dateTimeService, $valueTableName, $typeTableName, $database);
 
         $this->setKey(IrService::KEY_ATTRIBUTE_NAME);
         $this->irProtocols = JsonUtility::decode($irProtocols->getValue());
@@ -64,6 +53,39 @@ class KeyStore extends AbstractAttributeStore
     protected function getCountField(): string
     {
         return '`' . $this->tableName . '`.`sub_id`';
+    }
+
+    protected function getDefaultOrder(): string
+    {
+        return '`' . $this->valueTableName . '`.`value`';
+    }
+
+    protected function getOrderMapping(): array
+    {
+        return [
+            'name' => $this->getDefaultOrder(),
+            'protocol' => '(`' . $this->tableName . '`.`sub_id` >> 32) & 255',
+            //'protocolName' => //@todo per json table die protokolle injecten
+            'address' => '(`' . $this->tableName . '`.`sub_id` >> 16) & 65535',
+            'command' => '`' . $this->tableName . '`.`sub_id` & 65535',
+        ];
+    }
+
+    protected function initTable(): void
+    {
+        parent::initTable();
+
+        // @todo hier json table joinen
+//        $this->table
+//            ->appendJoinLeft(
+//                '`' . $valueTableName . '`',
+//                '`' . $tableName . '`.`id`=`' . $valueTableName . '`.`attribute_id`'
+//            )
+//            ->appendJoinLeft(
+//                '`' . $typeTableName . '`',
+//                '`' . $tableName . '`.`type_id`=`' . $typeTableName . '`.`id`'
+//            )
+//        ;
     }
 
     /**

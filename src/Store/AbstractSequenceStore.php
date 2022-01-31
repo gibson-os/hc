@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store;
 
 use GibsonOS\Core\Attribute\GetTableName;
-use GibsonOS\Core\Service\AttributeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Sequence;
 use mysqlDatabase;
@@ -16,11 +15,10 @@ abstract class AbstractSequenceStore extends AbstractDatabaseStore
     abstract protected function getType(): int;
 
     public function __construct(
-        AttributeService $attributeService,
         #[GetTableName(Sequence\Element::class)] protected string $elementTableName,
         mysqlDatabase $database = null
     ) {
-        parent::__construct($attributeService, $database);
+        parent::__construct($database);
     }
 
     protected function getModelClassName(): string
