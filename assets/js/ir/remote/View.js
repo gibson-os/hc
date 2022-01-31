@@ -54,7 +54,6 @@ Ext.define('GibsonOS.module.hc.ir.remote.View', {
                     let sizeAdd = [0, 0, 0, 0];
                     let borderRadius = [0, 0, 0, 0];
                     let background = 'none';
-                    console.log(1);
 
                     switch (values.style) {
                         case 1:
@@ -67,11 +66,11 @@ Ext.define('GibsonOS.module.hc.ir.remote.View', {
                             borderWidth = [0, 0, 0, 0];
                             break;
                     }
-                    console.log(2);
+
                     if (values.background) {
                         background = '#' + values.background;
                     }
-                    console.log(3);
+
                     if (values.docked) {
                         Ext.iterate(values.docked, function(dock) {
                             let id = -1;
@@ -105,7 +104,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.View', {
                             }
                         });
                     }
-                    console.log(4);
+
                     textTopMargin += sizeAdd[0] - borderWidth[0] + 1;
                     top -= sizeAdd[0];
                     width += sizeAdd[1] + sizeAdd[3];
@@ -113,21 +112,21 @@ Ext.define('GibsonOS.module.hc.ir.remote.View', {
                     left -= sizeAdd[3];
 
                     borders = 'border-radius:';
-                    console.log(5);
+
                     Ext.iterate(borderRadius, function(radius) {
                         borders += ' ' + radius + '%';
                     });
 
                     borders += ';';
                     borders += 'border-width:';
-                    console.log(5);
+
                     Ext.iterate(borderWidth, function(width) {
                         borders += ' ' + width + 'px';
                     });
 
                     borders += ';';
                     borders += 'border-style: solid;';
-                    console.log(7);
+
                     let style =
                         'top: ' + top + 'px;' +
                         'left: ' + left + 'px;' +
@@ -136,14 +135,14 @@ Ext.define('GibsonOS.module.hc.ir.remote.View', {
                         'background: ' + background + ';' +
                         borders
                     ;
-                    console.log(8);
+
                     if (
                         values.keys ||
                         values.eventId
                     ) {
                         style += 'cursor: pointer;';
                     }
-                    console.log(9);
+
                     return '<div ' +
                         'class="hcIrRemoteItem" ' +
                         'style="' + style + '" ' +
