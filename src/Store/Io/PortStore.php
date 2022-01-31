@@ -17,7 +17,7 @@ class PortStore extends AbstractAttributeStore
 
     protected function getTypeName(): string
     {
-        return 'ssd1306';
+        return 'io';
     }
 
     /**
@@ -33,7 +33,10 @@ class PortStore extends AbstractAttributeStore
         foreach (parent::getList() as $attribute) {
             $subId = $attribute->getSubId() ?? 0;
             $key = $attribute->getKey();
-            $list[$subId] = ['number' => $subId];
+
+            if (!isset($list[$subId])) {
+                $list[$subId] = ['number' => $subId];
+            }
 
             foreach ($attribute->getValues() as $value) {
                 if ($key === IoService::ATTRIBUTE_PORT_KEY_VALUE_NAMES) {
