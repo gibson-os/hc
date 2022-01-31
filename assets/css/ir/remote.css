@@ -1,0 +1,20 @@
+.hcIrRemoteContainer {
+    margin: 4px;
+    padding: 6px;
+    border: 1px #999 solid;
+    border-radius: 8px;
+    position: relative;
+}
+
+.hcIrRemoteItem {
+    border: 1px #000 solid;
+    position: absolute;
+    overflow: hidden;
+    text-align: center;
+    font-size: 12px;
+    cursor: default;
+}
+
+.hcIrRemoteItemIcon {
+    margin: 4px;
+}
