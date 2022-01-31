@@ -28,8 +28,13 @@ class IrController extends AbstractController
      * @throws SelectError
      */
     #[CheckPermission(Permission::READ)]
-    public function keys(KeyStore $keyStore): AjaxResponse
-    {
+    public function keys(
+        KeyStore $keyStore,
+        int $limit = 100,
+        int $start = 0
+    ): AjaxResponse {
+        $keyStore->setLimit($limit, $start);
+
         return $this->returnSuccess(
             $keyStore->getList(),
             $keyStore->getCount()

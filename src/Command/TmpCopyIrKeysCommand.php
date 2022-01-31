@@ -28,7 +28,7 @@ class TmpCopyIrKeysCommand extends AbstractCommand
     {
         $keys = [];
         $attributes = $this->attributeRepository->getByType(
-            $this->typeRepository->getByHelperName('ir'),
+            $this->typeRepository->getByHelperName('ethbridge'),
             type: 'irKey'
         );
 
@@ -39,12 +39,34 @@ class TmpCopyIrKeysCommand extends AbstractCommand
                 $keys[$subId] = [];
             }
 
-            $keys[$subId][$attribute->getKey()] = $attribute->getValues()[0]->getValue();
+            $values = $attribute->getValues();
+
+            if (count($values) === 0) {
+                $this->logger->warning(sprintf(
+                    'SubId %d has no value for key "%s"',
+                    $subId,
+                    $attribute->getKey()
+                ));
+
+                continue;
+            }
+
+            $keys[$subId][$attribute->getKey()] = $values[0]->getValue();
         }
 
-        foreach ($keys as $key) {
+        foreach ($keys as $oldSubId => $key) {
             $newSubId = 0;
             $name = '';
+
+            if (count($key) !== 4) {
+                $this->logger->warning(sprintf(
+                    'SubId %d has not all required properties. Found: %s',
+                    $oldSubId,
+                    implode(', ', array_keys($key))
+                ));
+
+                continue;
+            }
 
             foreach ($key as $keyName => $keyValue) {
                 $newSubId += match ($keyName) {
