@@ -11,11 +11,44 @@ use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Type;
 
 class AttributeRepository extends AbstractRepository
 {
     public function __construct(#[GetTableName(Attribute::class)] private string $attributeTableName)
     {
+    }
+
+    /**
+     * @throws SelectError
+     *
+     * @return Attribute[]
+     */
+    public function getByType(
+        Type $typeModel,
+        int $subId = null,
+        string $key = null,
+        string $type = null
+    ): array {
+        $where = '`type_id`=?';
+        $parameters = [$typeModel->getId()];
+
+        if ($subId !== null) {
+            $where .= ' AND `sub_id`=?';
+            $parameters[] = $subId;
+        }
+
+        if ($key !== null) {
+            $where .= ' AND `key`=?';
+            $parameters[] = $key;
+        }
+
+        if ($type !== null) {
+            $where .= ' AND `type`=?';
+            $parameters[] = $type;
+        }
+
+        return $this->fetchAll($where, $parameters, Attribute::class);
     }
 
     /**

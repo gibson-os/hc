@@ -6,14 +6,16 @@ namespace GibsonOS\Module\Hc\Command;
 use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Module\Hc\Model\Attribute;
-use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
+use GibsonOS\Module\Hc\Repository\AttributeRepository;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
 use Psr\Log\LoggerInterface;
 
 class TmpCopyIrKeysCommand extends AbstractCommand
 {
     public function __construct(
-        private ValueRepository $valueRepository,
+        private AttributeRepository $attributeRepository,
+        private TypeRepository $typeRepository,
         LoggerInterface $logger
     ) {
         parent::__construct($logger);
@@ -25,16 +27,19 @@ class TmpCopyIrKeysCommand extends AbstractCommand
     protected function run(): int
     {
         $keys = [];
+        $attributes = $this->attributeRepository->getByType(
+            $this->typeRepository->getByHelperName('ir'),
+            type: 'irKey'
+        );
 
-        foreach ($this->valueRepository->getByTypeId(3, type: 'irKey') as $value) {
-            $attribute = $value->getAttribute();
+        foreach ($attributes as $attribute) {
             $subId = $attribute->getSubId() ?? 0;
 
             if (!isset($keys[$subId])) {
                 $keys[$subId] = [];
             }
 
-            $keys[$subId][$attribute->getKey()] = $value->getValue();
+            $keys[$subId][$attribute->getKey()] = $attribute->getValues()[0]->getValue();
         }
 
         foreach ($keys as $key) {
