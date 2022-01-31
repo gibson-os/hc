@@ -10,7 +10,7 @@ use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
 use Psr\Log\LoggerInterface;
 
-class TmpCopyIrKeys extends AbstractCommand
+class TmpCopyIrKeysCommand extends AbstractCommand
 {
     public function __construct(
         private ValueRepository $valueRepository,
