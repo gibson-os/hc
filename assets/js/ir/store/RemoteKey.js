@@ -3,6 +3,7 @@ Ext.define('GibsonOS.module.hc.ir.store.RemoteKey', {
     alias: ['hcIrRemoteStore'],
     autoLoad: true,
     model: 'GibsonOS.module.hc.ir.model.RemoteKey',
+    remote: null,
     constructor(data) {
         const me = this;
 
@@ -18,6 +19,10 @@ Ext.define('GibsonOS.module.hc.ir.store.RemoteKey', {
         };
 
         me.callParent(arguments);
+
+        me.on('load', function() {
+            me.remote = me.getProxy().getReader().rawData;
+        });
 
         return me;
     }
