@@ -11,6 +11,9 @@ Ext.define('GibsonOS.module.hc.ir.store.RemoteKey', {
             url: baseDir + 'hc/ir/remote',
             extraParams: {
                 remoteId: data.remoteId
+            },
+            reader: {
+                root: 'data.keys'
             }
         };
 

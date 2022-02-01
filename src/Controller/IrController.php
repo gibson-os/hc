@@ -11,6 +11,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
+use GibsonOS\Module\Hc\Dto\Ir\Remote;
 use GibsonOS\Module\Hc\Exception\IrException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
 use GibsonOS\Module\Hc\Model\Attribute;
@@ -142,6 +143,11 @@ class IrController extends AbstractController
         $irService->sendKey($module, new Key($protocol, $address, $command));
 
         return $this->returnSuccess();
+    }
+
+    public function remote(?int $remoteId): AjaxResponse
+    {
+        return $this->returnSuccess(new Remote(keys: [new Remote\Key()]));
     }
 
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
