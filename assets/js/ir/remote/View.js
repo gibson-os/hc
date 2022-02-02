@@ -4,156 +4,112 @@ Ext.define('GibsonOS.module.hc.ir.remote.View', {
     multiSelect: false,
     singleSelect: true,
     trackOver: true,
-    itemSelector: 'div.hcIrRemoteItem',
-    selectedItemCls: 'hcIrRemoteItemSelected',
-    overItemCls: 'hcIrRemoteItemHover',
+    itemSelector: 'div.hcIrRemoteKey',
+    selectedItemCls: 'hcIrRemoteKeySelected',
+    overItemCls: 'hcIrRemoteKeyHover',
     remote: {
         name: null,
         itemWidth: 30,
         width: 0,
         height: 0
     },
+    gridSize: 10,
+    offsetTop: 6,
+    offsetLeft: 6,
     initComponent() {
         const me = this;
 
         me.store = new GibsonOS.module.hc.ir.store.RemoteKey({
             remoteId: me.remote.id
         });
+        let id = Ext.id();
         me.tpl = new Ext.XTemplate(
-            '{[this.container()]}',
             '<tpl for=".">',
-                '{[this.renderButton(values)]}',
-            '</tpl>',
-            '</div>',
-            {
-                container() {
-                    const container = document.getElementById('hcIrRemoteContainer' + me.getId());
-                    const width = me.remote.width * me.remote.itemWidth + 10;
-                    const height = me.remote.height * me.remote.itemWidth + 10;
-
-                    if (container) {
-                        container.style.width = width + 'px';
-                        container.style.height = height + 'px';
-                    }
-
-                    return '<div '
-                        + 'id="hcIrRemoteContainer' + me.getId() + '" '
-                        + 'class="hcIrRemoteContainer" '
-                        + 'style="width: ' + width + 'px; height: ' + height + 'px;"'
-                        + '>';
-                },
-                renderButton(values) {
-                    console.log(values);
-                    let width = values.width * me.remote.itemWidth - 4;
-                    let height = values.height * me.remote.itemWidth - 4;
-                    let textTopMargin = (height - 14) / 2-1;
-                    let borders = '';
-                    let top = values.top * me.remote.itemWidth + 6;
-                    let left = values.left * me.remote.itemWidth + 6;
-                    let borderWidth = [1, 1, 1, 1];
-                    let sizeAdd = [0, 0, 0, 0];
-                    let borderRadius = [0, 0, 0, 0];
-                    let background = 'none';
-
-                    switch (values.style) {
-                        case 1:
-                            borderRadius = [20, 20, 20, 20];
-                            break;
-                        case 2:
-                            borderRadius = [50, 50, 50, 50];
-                            break;
-                        case 3:
-                            borderWidth = [0, 0, 0, 0];
-                            break;
-                    }
-
-                    if (values.background) {
-                        background = '#' + values.background;
-                    }
-
-                    if (values.docked) {
-                        Ext.iterate(values.docked, function(dock) {
-                            let id = -1;
-
-                            switch (dock) {
-                                case 'top':
-                                    id = 0;
-                                    break;
-                                case 'right':
-                                    id = 1;
-                                    break;
-                                case 'bottom':
-                                    id = 2;
-                                    break;
-                                case 'left':
-                                    id = 3;
-                                    break;
-                            }
-
-                            if (id > -1) {
-                                borderRadius[id] = 0;
-
-                                if (id < 3) {
-                                    borderRadius[id+1] = 0;
-                                } else {
-                                    borderRadius[0] = 0;
-                                }
-
-                                borderWidth[id] = 0;
-                                sizeAdd[id] = 2;
-                            }
-                        });
-                    }
-
-                    textTopMargin += sizeAdd[0] - borderWidth[0] + 1;
-                    top -= sizeAdd[0];
-                    width += sizeAdd[1] + sizeAdd[3];
-                    height += sizeAdd[0] + sizeAdd[2];
-                    left -= sizeAdd[3];
-
-                    borders = 'border-radius:';
-
-                    Ext.iterate(borderRadius, function(radius) {
-                        borders += ' ' + radius + '%';
-                    });
-
-                    borders += ';';
-                    borders += 'border-width:';
-
-                    Ext.iterate(borderWidth, function(width) {
-                        borders += ' ' + width + 'px';
-                    });
-
-                    borders += ';';
-                    borders += 'border-style: solid;';
-
-                    let style =
-                        'top: ' + top + 'px;' +
-                        'left: ' + left + 'px;' +
-                        'width: ' + width + 'px;' +
-                        'height: ' + height + 'px;' +
-                        'background: ' + background + ';' +
-                        borders
-                    ;
-
-                    if (
-                        values.keys ||
-                        values.eventId
-                    ) {
-                        style += 'cursor: pointer;';
-                    }
-
-                    return '<div ' +
-                        'class="hcIrRemoteItem" ' +
-                        'style="' + style + '" ' +
-                        'title="' + values.name + '"' +
-                    '>' +
-                        '<div style="margin-top: ' + textTopMargin + 'px;">' + values.name + '</div>' +
-                    '</div>';
-                }
-            },
+                '<div ',
+                    'id="' + id + '{number}" ',
+                    'class="hcIrRemoteKey" ',
+                    'style="',
+                        'left: {left*' + me.gridSize + '+' + me.offsetLeft + '}px; ',
+                        'top: {top*' + me.gridSize + '+' + me.offsetTop + '}px; ',
+                        'width: {width*' + me.gridSize + '}px; ',
+                        'height: {height*' + me.gridSize + '}px; ',
+                        '">',
+                    '{name}',
+                '</div>',
+            '</tpl>'
         );
 
         me.callParent();
+
+        me.on('render', function() {
+            me.dragZone = Ext.create('Ext.dd.DragZone', me.getEl(), {
+                getDragData: function(event) {
+                    let sourceElement = event.getTarget(me.itemSelector, 10);
+
+                    if (sourceElement) {
+                        let clone = sourceElement.cloneNode(true);
+                        clone.style = 'position: relative;';
+
+                        return me.dragData = {
+                            sourceEl: sourceElement,
+                            repairXY: Ext.fly(sourceElement).getXY(),
+                            ddel: clone,
+                            record: me.getRecord(sourceElement)
+                        };
+                    }
+                },
+                getRepairXY: function() {
+                    return me.dragData.repairXY;
+                }
+            });
+            me.dropZone = GibsonOS.dropZones.add(me.getEl(), {
+                getTargetFromEvent: function(event) {
+                    return event.getTarget('#' + me.getId());
+                },
+                onNodeOver: function(target, dd, event, data) {
+                    if (data.record instanceof GibsonOS.module.hc.ir.model.RemoteKey) {
+                        return Ext.dd.DropZone.prototype.dropAllowed;
+                    }
+
+                    return Ext.dd.DropZone.prototype.dropNotAllowed;
+                },
+                onNodeDrop: function(target, dd, event, data) {
+                    let element = me.getEl().dom;
+                    let boundingClientRect = element.getBoundingClientRect();
+                    let elementLeft = (dd.lastPageX + element.scrollLeft) - boundingClientRect.x;
+                    let elementTop = (dd.lastPageY + element.scrollTop) - boundingClientRect.y;
+
+                    data.record.set('left', Math.floor((elementLeft - me.offsetLeft - 17) / me.gridSize));
+                    data.record.set('top', Math.floor((elementTop - me.offsetTop - 25) / me.gridSize));
+
+                    me.getStore().each((key) => key.commit());
+                }
+            });
+        });
+        me.on('itemkeydown', function(view, record, item, index, event) {
+            let moveRecords = function(left, top) {
+                Ext.iterate(me.getSelectionModel().getSelection(), function(record) {
+                    record.set('left', record.get('left') + left);
+                    record.set('top', record.get('top') + top);
+                });
+
+                me.getStore().each((key) => key.commit());
+            };
+
+            switch (event.getKey()) {
+                case Ext.EventObject.S:
+                    moveRecords(0, 1);
+                    break;
+                case Ext.EventObject.W:
+                    moveRecords(0, -1);
+                    break;
+                case Ext.EventObject.A:
+                    moveRecords(-1, 0);
+                    break;
+                case Ext.EventObject.D:
+                    moveRecords(1, 0);
+                    break;
+            }
+        });
     },
 });

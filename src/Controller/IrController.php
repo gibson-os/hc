@@ -147,7 +147,7 @@ class IrController extends AbstractController
 
     public function remote(?int $remoteId): AjaxResponse
     {
-        return $this->returnSuccess(new Remote(keys: [new Remote\Key()]));
+        return $this->returnSuccess(new Remote());
     }
 
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
