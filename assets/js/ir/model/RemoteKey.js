@@ -1,9 +1,6 @@
 Ext.define('GibsonOS.module.hc.ir.model.RemoteKey', {
     extend: 'GibsonOS.data.Model',
     fields: [{
-        name: 'id',
-        type: 'int'
-    },{
         name: 'width',
         type: 'int'
     },{
@@ -19,14 +16,29 @@ Ext.define('GibsonOS.module.hc.ir.model.RemoteKey', {
         name: 'name',
         type: 'string'
     },{
-        name: 'style',
+        name: 'borderTop',
+        type: 'bool'
+    },{
+        name: 'borderRight',
+        type: 'bool'
+    },{
+        name: 'borderBottom',
+        type: 'bool'
+    },{
+        name: 'borderLeft',
+        type: 'bool'
+    },{
+        name: 'borderRadiusTopLeft',
         type: 'int'
     },{
-        name: 'background',
-        type: 'string'
+        name: 'borderRadiusTopRight',
+        type: 'int'
     },{
-        name: 'docked',
-        type: 'string'
+        name: 'borderRadiusBottomLeft',
+        type: 'int'
+    },{
+        name: 'borderRadiusBottomRight',
+        type: 'int'
     },{
         name: 'eventId',
         type: 'int'

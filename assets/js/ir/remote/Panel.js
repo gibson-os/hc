@@ -21,6 +21,14 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
             top: maxTop,
             width: 3,
             height: 3,
+            borderTop: true,
+            borderRight: true,
+            borderBottom: true,
+            borderLeft: true,
+            borderRadiusTopLeft: 0,
+            borderRadiusTopRight: 0,
+            borderRadiusBottomLeft: 0,
+            borderRadiusBottomRight: 0,
         });
     },
     deleteFunction(records) {
@@ -39,6 +47,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
         me.items = [me.viewItem, {
             xtype: 'gosModuleHcIrRemoteForm',
             region: 'east',
+            disabled: true,
             flex: 0,
             width: 300
         }];
@@ -46,6 +55,19 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
         me.callParent();
 
         me.addActions();
+        me.viewItem.on('selectionchange', (view, records) => {
+            const form = me.down('form');
+
+            if (records.length !== 1) {
+                form.disable();
+                form.loadRecord(new GibsonOS.module.hc.ir.model.RemoteKey());
+
+                return;
+            }
+
+            form.loadRecord(records[0]);
+            form.enable();
+        });
     },
     addActions() {
         const me = this;
