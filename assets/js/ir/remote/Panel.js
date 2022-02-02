@@ -68,6 +68,18 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
             form.loadRecord(records[0]);
             form.enable();
         });
+
+        me.down('form').getForm().getFields().each((field) => {
+            field.on('change', (field, value) => {
+                const keys = me.viewItem.getSelectionModel().getSelection();
+
+                if (keys.length !== 1) {
+                    return;
+                }
+
+                keys[0].set(field.name, value);
+            });
+        });
     },
     addActions() {
         const me = this;
