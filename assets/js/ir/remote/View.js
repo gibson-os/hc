@@ -40,6 +40,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.View', {
                         'border-top-right-radius: {borderRadiusTopRight}%; ',
                         'border-bottom-left-radius: {borderRadiusBottomLeft}%; ',
                         'border-bottom-right-radius: {borderRadiusBottomRight}%; ',
+                        'padding-top: {height*' + me.gridSize + '/2-9}px',
                         '">',
                     '{name}',
                 '</div>',

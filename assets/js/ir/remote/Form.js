@@ -74,7 +74,17 @@ Ext.define('GibsonOS.module.hc.ir.remote.Form', {
                 name: 'borderRadiusBottomRight',
                 maxValue: 100
             }]
-        }]
+        },{
+            xtype: 'gosModuleCoreParameterTypeAutoComplete',
+            fieldLabel: 'Event',
+            name: 'eventId',
+            parameterObject: {
+                config: {
+                    model: 'GibsonOS.module.core.event.model.Grid',
+                    autoCompleteClassname: 'GibsonOS\\Core\\AutoComplete\\EventAutoComplete',
+                }
+            }
+        }];
 
         me.callParent();
     }

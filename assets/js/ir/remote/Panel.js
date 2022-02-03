@@ -29,6 +29,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
             borderRadiusTopRight: 0,
             borderRadiusBottomLeft: 0,
             borderRadiusBottomRight: 0,
+            eventId: null
         });
     },
     deleteFunction(records) {
