@@ -40,11 +40,14 @@ Ext.define('GibsonOS.module.hc.ir.model.RemoteKey', {
         name: 'borderRadiusBottomRight',
         type: 'int'
     },{
+        name: 'background',
+        type: 'string'
+    },{
         name: 'eventId',
         type: 'int'
     }],
-    // hasMany: {
-    //     model: 'GibsonOS.module.hc.ir.model.Key',
-    //     name: 'keys'
-    // }
+    hasMany: {
+        model: 'GibsonOS.module.hc.ir.model.Key',
+        name: 'keys'
+    }
 });

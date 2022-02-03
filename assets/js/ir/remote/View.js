@@ -32,6 +32,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.View', {
                         'top: {top*' + me.gridSize + '+' + me.offsetTop + '}px; ',
                         'width: {width*' + me.gridSize + '}px; ',
                         'height: {height*' + me.gridSize + '}px; ',
+                        '<tpl if="background">background-color: #{background}; </tpl>',
                         '<tpl if="borderTop">border-top: 1px solid #000; </tpl>',
                         '<tpl if="borderRight">border-right: 1px solid #000; </tpl>',
                         '<tpl if="borderBottom">border-bottom: 1px solid #000; </tpl>',

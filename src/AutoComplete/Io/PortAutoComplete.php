@@ -41,18 +41,16 @@ class PortAutoComplete implements AutoCompleteInterface
     }
 
     /**
-     * @param mixed $id
-     *
      * @throws SelectError
      */
-    public function getById($id, array $parameters): Value
+    public function getById(string $id, array $parameters): Value
     {
         $slave = $this->getSlave($parameters);
 
         $values = $this->valueRepository->getByTypeId(
             $slave->getTypeId(),
-            $id,
-            [(int) $slave->getId()],
+            (int) $id,
+            [$slave->getId() ?? 0],
             IoService::ATTRIBUTE_TYPE_PORT
         );
 

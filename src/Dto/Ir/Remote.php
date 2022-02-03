@@ -53,8 +53,8 @@ class Remote implements JsonSerializable
             'itemWidth' => $this->getItemWidth(),
             'background' => $this->getBackground(),
             'keys' => $this->getKeys(),
-            'width' => max(array_map(static fn (Key $key): int => $key->getWidth() + $key->getLeft(), $this->getKeys())),
-            'height' => max(array_map(static fn (Key $key): int => $key->getHeight() + $key->getTop(), $this->getKeys())),
+            'width' => max(array_map(static fn (Key $key): int => $key->getWidth() + $key->getLeft(), $this->getKeys()) ?: [0]),
+            'height' => max(array_map(static fn (Key $key): int => $key->getHeight() + $key->getTop(), $this->getKeys()) ?: [0]),
         ];
     }
 }

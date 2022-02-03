@@ -39,7 +39,7 @@ class IrFormatter extends AbstractHcFormatter
         TransformService $transformService,
         TwigService $twigService,
         TypeRepository $typeRepository,
-        #[GetSetting('irProtocols')] Setting $irProtocols,
+        #[GetSetting('irProtocols', 'hc')] Setting $irProtocols,
         private ValueRepository $valueRepository
     ) {
         parent::__construct($transformService, $twigService, $typeRepository);
@@ -118,6 +118,15 @@ class IrFormatter extends AbstractHcFormatter
     public function getSubId(int $protocol, int $address, int $command): int
     {
         return $protocol << 32 | $address << 16 | $command;
+    }
+
+    public function getKeyBySubId(int $subId): Key
+    {
+        return new Key(
+            $subId >> 32,
+            ($subId & 0xFFFF) >> 16,
+            ($subId & 0xFFFF),
+        );
     }
 
     private function getKeyName(Key $key): ?string

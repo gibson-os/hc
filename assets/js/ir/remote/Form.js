@@ -75,6 +75,10 @@ Ext.define('GibsonOS.module.hc.ir.remote.Form', {
                 maxValue: 100
             }]
         },{
+            xtype: 'gosCoreComponentFormFieldTextField',
+            fieldLabel: 'Hintergrund',
+            name: 'background'
+        },{
             xtype: 'gosModuleCoreParameterTypeAutoComplete',
             fieldLabel: 'Event',
             name: 'eventId',
@@ -84,6 +88,19 @@ Ext.define('GibsonOS.module.hc.ir.remote.Form', {
                     autoCompleteClassname: 'GibsonOS\\Core\\AutoComplete\\EventAutoComplete',
                 }
             }
+        },{
+            xtype: 'gosModuleCoreParameterTypeAutoComplete',
+            fieldLabel: 'Taste',
+            name: 'key',
+            parameterObject: {
+                config: {
+                    model: 'GibsonOS.module.core.event.model.Key',
+                    autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Ir\\KeyAutoComplete',
+                }
+            }
+        },{
+            xtype: 'gosModuleIrRemoteKeyGrid',
+            title: 'Tasten'
         }];
 
         me.callParent();

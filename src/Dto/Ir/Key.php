@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Dto\Ir;
 
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use JsonSerializable;
 
-class Key implements JsonSerializable
+class Key implements JsonSerializable, AutoCompleteModelInterface
 {
     public function __construct(
         private int $protocol,
@@ -64,5 +65,10 @@ class Key implements JsonSerializable
             'name' => $this->getName(),
             'protocolName' => $this->getProtocolName(),
         ];
+    }
+
+    public function getAutoCompleteId(): string|int|float
+    {
+        return $this->getProtocol() << 32 | $this->getAddress() << 16 | $this->getCommand();
     }
 }

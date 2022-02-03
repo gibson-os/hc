@@ -32,7 +32,7 @@ class ValueRepository extends AbstractRepository
      */
     public function getByTypeId(
         int $typeId,
-        ?int $subId,
+        int|bool $subId = null,
         ?array $moduleIds = [],
         ?string $type = '',
         string $key = null,
@@ -160,7 +160,7 @@ class ValueRepository extends AbstractRepository
      */
     public function deleteByModule(
         ModuleModel $module,
-        int $subId = null,
+        int|bool $subId = null,
         array $keys = null,
         string $type = null
     ): void {
@@ -195,7 +195,7 @@ class ValueRepository extends AbstractRepository
         int $updateOrder,
         ?array $moduleIds = [],
         ?string $type = '',
-        int $subId = null,
+        int|bool $subId = null,
         string $key = null
     ): void {
         $attributeTable = $this->getTable($this->attributeTableName);
@@ -230,13 +230,15 @@ class ValueRepository extends AbstractRepository
     /**
      * @throws SelectError
      * @throws Exception
+     *
+     * @return Value[]
      */
     public function findAttributesByValue(
         string $value,
         int $typeId,
         array $keys = null,
         ?array $moduleIds = [],
-        int $subId = null,
+        int|bool $subId = null,
         ?string $type = ''
     ): array {
         $table = $this->getTable($this->attributeTableName);
@@ -261,7 +263,7 @@ class ValueRepository extends AbstractRepository
             ->appendJoin('`hc_attribute_value` AS `values`', '`attribute`.`id`=`values`.`attribute_id`')
         ;
 
-        if (!$table->select(false, 'DISTINCT `attribute`.*, `values`.`value`, `values`.`order`')) {
+        if (!$table->selectPrepared(false, 'DISTINCT `attribute`.*, `values`.`value`, `values`.`order`')) {
             $exception = new SelectError('Keine Attribute gefunden!');
             $exception->setTable($table);
 
@@ -372,10 +374,14 @@ class ValueRepository extends AbstractRepository
         return ' AND `' . $tableName . '`.`key` IN (' . $table->getParametersString($keys) . ')';
     }
 
-    private function getSubIdWhere(mysqlTable $table, ?int $subId, string $tableName = 'hc_attribute'): string
+    private function getSubIdWhere(mysqlTable $table, null|int|bool $subId, string $tableName = 'hc_attribute'): string
     {
-        if ($subId === null) {
+        if ($subId === null || $subId === false) {
             return ' AND `' . $tableName . '`.`sub_id` IS NULL';
+        }
+
+        if ($subId === true) {
+            return ' AND `' . $tableName . '`.`sub_id` IS NOT NULL';
         }
 
         $table->addWhereParameter($subId);

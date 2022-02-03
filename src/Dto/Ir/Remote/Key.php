@@ -3,10 +3,14 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Dto\Ir\Remote;
 
+use GibsonOS\Module\Hc\Dto\Ir\Key as IrKey;
 use JsonSerializable;
 
 class Key implements JsonSerializable
 {
+    /**
+     * @param IrKey[] $keys
+     */
     public function __construct(
         private ?string $name = null,
         private int $width = 1,
@@ -16,7 +20,8 @@ class Key implements JsonSerializable
         private int $style = 0,
         private ?string $background = null,
         private ?string $docked = null,
-        private ?int $eventId = null
+        private ?int $eventId = null,
+        private array $keys = []
     ) {
     }
 
@@ -65,6 +70,14 @@ class Key implements JsonSerializable
         return $this->eventId;
     }
 
+    /**
+     * @return IrKey[]
+     */
+    public function getKeys(): array
+    {
+        return $this->keys;
+    }
+
     public function jsonSerialize(): array
     {
         return [
@@ -77,6 +90,7 @@ class Key implements JsonSerializable
             'background' => $this->getBackground(),
             'docked' => $this->getDocked(),
             'eventId' => $this->getEventId(),
+            'keys' => $this->getKeys(),
         ];
     }
 }

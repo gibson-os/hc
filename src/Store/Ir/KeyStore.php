@@ -11,6 +11,7 @@ use GibsonOS\Core\Model\Setting;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
+use GibsonOS\Module\Hc\Formatter\IrFormatter;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Type;
@@ -28,6 +29,7 @@ class KeyStore extends AbstractAttributeStore
      * @param string  $typeTableName
      */
     public function __construct(
+        private IrFormatter $irFormatter,
         #[GetSetting('irProtocols')] Setting $irProtocols,
         DateTimeService $dateTimeService,
         #[GetTableName(Value::class)] string $valueTableName,
@@ -97,13 +99,10 @@ class KeyStore extends AbstractAttributeStore
     {
         /** @var Attribute $attribute */
         foreach (parent::getList() as $attribute) {
-            yield new Key(
-                $attribute->getSubId() >> 32,
-                ($attribute->getSubId() >> 16) & 0xFFFF,
-                $attribute->getSubId() & 0xFFFF,
-                $attribute->getValues()[0]->getValue(),
-                $this->irProtocols[$attribute->getSubId() >> 32] ?? null
-            );
+            yield $this->irFormatter->getKeyBySubId($attribute->getSubId() ?? 0)
+                ->setName($attribute->getValues()[0]->getValue())
+                ->setProtocolName($this->irProtocols[$attribute->getSubId() >> 32] ?? null)
+            ;
         }
     }
 }
