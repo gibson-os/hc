@@ -100,9 +100,28 @@ Ext.define('GibsonOS.module.hc.ir.remote.Form', {
             }
         },{
             xtype: 'gosModuleIrRemoteKeyGrid',
-            title: 'Tasten'
+            title: 'Tasten',
+            addButton: {
+                disabled: true
+            },
+            addFunction() {
+                const keyField = me.getForm().findField('key');
+
+                if (keyField.valueModels.length === 0) {
+                    return;
+                }
+
+                me.down('gosModuleIrRemoteKeyGrid').getStore().add(keyField.valueModels[0].getData());
+            }
         }];
 
         me.callParent();
+
+        me.getForm().findField('key').on('change', () => {
+            me.down('#addButton').disable();
+        });
+        me.getForm().findField('key').on('select', () => {
+            me.down('#addButton').enable();
+        });
     }
 });

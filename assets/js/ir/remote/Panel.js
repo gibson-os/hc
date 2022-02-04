@@ -42,7 +42,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
             region: 'center',
             moduleId: me.moduleId,
             overflowX: 'auto',
-            overflowY: 'auto',
+            overflowY: 'auto'
         });
 
         me.items = [me.viewItem, {

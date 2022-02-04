@@ -2,16 +2,10 @@ Ext.define('GibsonOS.module.hc.ir.remote.KeyGrid', {
     extend: 'GibsonOS.module.core.component.grid.Panel',
     alias: ['widget.gosModuleIrRemoteKeyGrid'],
     autoScroll: true,
+    multiSelect: true,
     enablePagingBar: false,
-    addFunction() {
-        const me = this;
-
-        // new GibsonOS.module.hc.ir.remote.Window({
-        //     moduleId: me.moduleId
-        // });
-    },
     deleteFunction(records) {
-
+        this.getStore().remove(records);
     },
     initComponent() {
         const me = this;
