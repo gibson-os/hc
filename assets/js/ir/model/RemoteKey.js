@@ -2,49 +2,64 @@ Ext.define('GibsonOS.module.hc.ir.model.RemoteKey', {
     extend: 'GibsonOS.data.Model',
     fields: [{
         name: 'width',
-        type: 'int'
+        type: 'int',
+        useNull: true
     },{
         name: 'height',
-        type: 'int'
+        type: 'int',
+        useNull: true
     },{
         name: 'top',
-        type: 'int'
+        type: 'int',
+        useNull: true
     },{
         name: 'left',
-        type: 'int'
+        type: 'int',
+        useNull: true
     },{
         name: 'name',
-        type: 'string'
+        type: 'string',
+        useNull: true
     },{
         name: 'borderTop',
-        type: 'bool'
+        type: 'bool',
+        defaultValue: true
     },{
         name: 'borderRight',
-        type: 'bool'
+        type: 'bool',
+        defaultValue: true
     },{
         name: 'borderBottom',
-        type: 'bool'
+        type: 'bool',
+        defaultValue: true
     },{
         name: 'borderLeft',
-        type: 'bool'
+        type: 'bool',
+        defaultValue: true
     },{
         name: 'borderRadiusTopLeft',
-        type: 'int'
+        type: 'int',
+        defaultValue: 0
     },{
         name: 'borderRadiusTopRight',
-        type: 'int'
+        type: 'int',
+        defaultValue: 0
     },{
         name: 'borderRadiusBottomLeft',
-        type: 'int'
+        type: 'int',
+        defaultValue: 0
     },{
         name: 'borderRadiusBottomRight',
-        type: 'int'
+        type: 'int',
+        defaultValue: 0
     },{
         name: 'background',
-        type: 'string'
+        type: 'string',
+        useNull: true
     },{
         name: 'eventId',
-        type: 'int'
+        type: 'int',
+        useNull: true
     }],
     hasMany: {
         model: 'GibsonOS.module.hc.ir.model.Key',

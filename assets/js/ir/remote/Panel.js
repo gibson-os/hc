@@ -16,21 +16,12 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
             }
         });
 
-        store.add({
+        store.add(new GibsonOS.module.hc.ir.model.RemoteKey({
             left: 0,
             top: maxTop,
             width: 3,
-            height: 3,
-            borderTop: true,
-            borderRight: true,
-            borderBottom: true,
-            borderLeft: true,
-            borderRadiusTopLeft: 0,
-            borderRadiusTopRight: 0,
-            borderRadiusBottomLeft: 0,
-            borderRadiusBottomRight: 0,
-            eventId: null
-        });
+            height: 3
+        }));
     },
     deleteFunction(records) {
         this.viewItem.getStore().remove(records);
@@ -58,6 +49,9 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
         me.addActions();
         me.viewItem.on('selectionchange', (view, records) => {
             const form = me.down('form');
+            const keyStore = me.down('gosModuleIrRemoteKeyGrid').getStore();
+
+            keyStore.removeAll();
 
             if (records.length !== 1) {
                 form.disable();
@@ -67,6 +61,11 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
             }
 
             form.loadRecord(records[0]);
+
+            if (records[0].get('keys')) {
+                keyStore.add(records[0].get('keys'));
+            }
+
             form.enable();
         });
 
@@ -80,6 +79,10 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
 
                 keys[0].set(field.name, value);
             });
+        });
+        me.down('gosModuleIrRemoteKeyGrid').getStore().on('add', (store, records) => {
+            const keys = me.viewItem.getSelectionModel().getSelection();
+            keys[0].set('keys', records);
         });
         me.viewItem.on('render', function() {
             me.viewItem.dragZone = Ext.create('Ext.dd.DragZone', me.viewItem.getEl(), {
@@ -158,6 +161,8 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
         me.addAction({xtype: 'tbseparator'});
         me.addAction({
             xtype: 'gosCoreComponentFormFieldTextField',
+            addToContainerContextMenu: false,
+            addToItemContextMenu: false,
             itemId: 'name',
             value: me.remote.name,
             emptyText: 'Name',
@@ -166,6 +171,8 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
         });
         me.addAction({
             iconCls: 'icon_system system_save',
+            addToContainerContextMenu: false,
+            addToItemContextMenu: false,
             requiredPermission: {
                 action: 'saveRemote',
                 permission: GibsonOS.Permission.WRITE + GibsonOS.Permission.MANAGE
