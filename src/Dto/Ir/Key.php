@@ -4,15 +4,18 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Dto\Ir;
 
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
+use GibsonOS\Module\Hc\Attribute\IsAttribute;
+use GibsonOS\Module\Hc\Dto\AttributeInterface;
+use GibsonOS\Module\Hc\Model\Module;
 use JsonSerializable;
 
-class Key implements JsonSerializable, AutoCompleteModelInterface
+class Key implements JsonSerializable, AutoCompleteModelInterface, AttributeInterface
 {
     public function __construct(
         private int $protocol,
         private int $address,
         private int $command,
-        private ?string $name = null,
+        #[IsAttribute] private ?string $name = null,
         private ?string $protocolName = null
     ) {
     }
@@ -67,8 +70,23 @@ class Key implements JsonSerializable, AutoCompleteModelInterface
         ];
     }
 
-    public function getAutoCompleteId(): string|int|float
+    public function getAutoCompleteId(): int
+    {
+        return $this->getSubId();
+    }
+
+    public function getSubId(): int
     {
         return $this->getProtocol() << 32 | $this->getAddress() << 16 | $this->getCommand();
+    }
+
+    public function getTypeName(): string
+    {
+        return 'ir';
+    }
+
+    public function getModule(): ?Module
+    {
+        return null;
     }
 }

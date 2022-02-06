@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Controller;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\User\Permission;
@@ -16,11 +17,9 @@ use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Exception\IrException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
 use GibsonOS\Module\Hc\Mapper\Ir\RemoteMapper;
-use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
-use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
 use GibsonOS\Module\Hc\Store\Ir\KeyStore;
@@ -49,32 +48,24 @@ class IrController extends AbstractController
     }
 
     /**
-     * @throws SelectError
+     * @throws AttributeException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws SelectError
+     * @throws DeleteError
+     *
+     * @return AjaxResponse
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function addKey(
-        IrFormatter $irFormatter,
-        TypeRepository $typeRepository,
+        AttributeRepository $attributeRepository,
         string $name,
         int $protocol,
         int $address,
         int $command
     ): AjaxResponse {
-        $type = $typeRepository->getByHelperName('ir');
-        $attribute = (new Attribute())
-            ->setSubId($irFormatter->getSubId($protocol, $address, $command))
-            ->setType(IrService::ATTRIBUTE_TYPE_KEY)
-            ->setTypeModel($type)
-            ->setKey(IrService::KEY_ATTRIBUTE_NAME)
-        ;
-        $attribute->save();
-
-        (new Attribute\Value())
-            ->setAttribute($attribute)
-            ->setValue($name)
-            ->save()
-        ;
+        $attributeRepository->saveDto(new Key($protocol, $address, $command, $name));
 
         return $this->returnSuccess();
     }

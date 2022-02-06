@@ -10,6 +10,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
+use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Attribute\IsAttribute;
 use GibsonOS\Module\Hc\Dto\AttributeInterface;
@@ -26,40 +27,10 @@ class AttributeRepository extends AbstractRepository
 {
     public function __construct(
         #[GetTableName(Attribute::class)] private string $attributeTableName,
-        private TypeRepository $typeRepository
+        #[GetTableName(Value::class)] private string $valueTableName,
+        private TypeRepository $typeRepository,
+        private DateTimeService $dateTimeService
     ) {
-    }
-
-    /**
-     * @throws SelectError
-     *
-     * @return Attribute[]
-     */
-    public function getByType(
-        Type $typeModel,
-        int $subId = null,
-        string $key = null,
-        string $type = null
-    ): array {
-        $where = '`type_id`=?';
-        $parameters = [$typeModel->getId()];
-
-        if ($subId !== null) {
-            $where .= ' AND `sub_id`=?';
-            $parameters[] = $subId;
-        }
-
-        if ($key !== null) {
-            $where .= ' AND `key`=?';
-            $parameters[] = $key;
-        }
-
-        if ($type !== null) {
-            $where .= ' AND `type`=?';
-            $parameters[] = $type;
-        }
-
-        return $this->fetchAll($where, $parameters, Attribute::class);
     }
 
     /**
@@ -208,7 +179,7 @@ class AttributeRepository extends AbstractRepository
 
         try {
             $attribute = $this->fetchOne($where, $parameters, Attribute::class, '`sub_id` DESC');
-        } catch (SelectError $e) {
+        } catch (SelectError) {
             return 0;
         }
 
@@ -226,6 +197,8 @@ class AttributeRepository extends AbstractRepository
     public function saveDto(AttributeInterface $dto): void
     {
         $getterPrefixes = ['get', 'is', 'has'];
+        $keyNames = [];
+        $values = [];
         $reflectionClass = new ReflectionClass($dto);
         $this->startTransaction();
 
@@ -237,15 +210,16 @@ class AttributeRepository extends AbstractRepository
                 ? null
                 : ($this->getMaxSubId($type, $typeName, $dto->getModule()) + 1)
             );
-            foreach ($reflectionClass->getProperties() as $reflectionProperty) {
-                $attributes = $reflectionProperty->getAttributes(IsAttribute::class);
 
-                if (count($attributes) === 0) {
+            foreach ($reflectionClass->getProperties() as $reflectionProperty) {
+                $reflectionAttributes = $reflectionProperty->getAttributes(IsAttribute::class);
+
+                if (count($reflectionAttributes) === 0) {
                     continue;
                 }
 
                 /** @var IsAttribute $attributeAttribute */
-                $attributeAttribute = $attributes[0]->newInstance();
+                $attributeAttribute = $reflectionAttributes[0]->newInstance();
                 $getter = null;
                 $propertyName = ucfirst($reflectionProperty->getName());
 
@@ -264,55 +238,52 @@ class AttributeRepository extends AbstractRepository
                 }
 
                 $keyName = $attributeAttribute->getName() ?? $reflectionProperty->getName();
+                $keyNames[$keyName] = $keyName;
+                $values[$keyName] = $dto->$getter();
 
-                try {
-                    $parameters = [$keyName];
-
-                    if ($dto->getSubId() !== null) {
-                        $parameters[] = $dto->getSubId();
-                    }
-
-                    $attribute = $this->fetchOne(
-                        '`key`=? AND `sub_id`' . ($dto->getSubId() === null ? ' IS NULL' : '=?'),
-                        $parameters,
-                        Attribute::class
-                    );
-                } catch (SelectError) {
-                    $attribute = new Attribute();
+                /** @psalm-suppress UndefinedMethod */
+                if ($reflectionProperty->getType()?->getName() !== 'array') {
+                    $values[$keyName] = [$values];
                 }
+            }
 
-                $attribute
+            $attributes = $this->loadAttributes($type, $typeName, $keyNames, $subId);
+
+            foreach ($attributes as $attribute) {
+                unset($keyNames[$attribute->getKey()]);
+            }
+
+            foreach ($keyNames as $keyName) {
+                $attribute = (new Attribute())
                     ->setType($typeName)
                     ->setTypeModel($type)
                     ->setSubId($subId)
                     ->setKey($keyName)
                     ->setModule($dto->getModule())
-                    ->save()
                 ;
+                $attribute->save();
+                $attributes[] = $attribute;
+            }
 
-                $values = $dto->$getter();
-
-                /** @psalm-suppress UndefinedMethod */
-                if ($reflectionProperty->getType()?->getName() !== 'array') {
-                    $values = [$values];
-                }
+            foreach ($attributes as $attribute) {
+                $key = $attribute->getKey();
 
                 foreach ($attribute->getValues() as $value) {
-                    if (!isset($values[$value->getOrder()])) {
+                    if (!isset($values[$key][$value->getOrder()])) {
                         $value->delete();
 
                         continue;
                     }
 
-                    $newValue = $values[$value->getOrder()];
+                    $newValue = $values[$key][$value->getOrder()];
                     $value
                         ->setValue(is_array($newValue) || is_object($newValue) ? JsonUtility::encode($newValue) : (string) $newValue)
                         ->save()
                     ;
-                    unset($values[$value->getOrder()]);
+                    unset($values[$key][$value->getOrder()]);
                 }
 
-                foreach ($values as $order => $value) {
+                foreach ($values[$key] as $order => $value) {
                     (new Value())
                         ->setAttribute($attribute)
                         ->setValue(is_array($value) || is_object($value) ? JsonUtility::encode($value) : (string) $value)
@@ -328,5 +299,97 @@ class AttributeRepository extends AbstractRepository
         }
 
         $this->commit();
+    }
+
+    /**
+     * @template T of AttributeInterface
+     *
+     * @param T $dto
+     *
+     * @return T
+     */
+    public function loadDto(AttributeInterface $dto): AttributeInterface
+    {
+        return $dto;
+    }
+
+    /**
+     * @throws Exception
+     *
+     * @return Attribute[]
+     */
+    private function loadAttributes(Type $typeModel, string $type, array $keyNames, int $subId = null): array
+    {
+        $separator = '#_#^#_#';
+        $table = $this->getTable($this->attributeTableName);
+        $parameters = array_values($keyNames);
+        array_push($parameters, $typeModel->getId() ?? 0, $type);
+        $where =
+            '`' . $this->attributeTableName . '`.`key` IN (' . $table->getParametersString($keyNames) . ') AND ' .
+            '`' . $this->attributeTableName . '`.`type_id`=? AND ' .
+            '`' . $this->attributeTableName . '`.`type`=? AND ' .
+            '`' . $this->attributeTableName . '`.`sub_id`' . ($subId === null ? ' IS NULL' : '=?')
+        ;
+
+        if ($subId !== null) {
+            $parameters[] = $subId;
+        }
+
+        $table
+            ->setWhere($where)
+            ->setWhereParameters($parameters)
+            ->appendJoinLeft(
+                $this->valueTableName,
+                '`' . $this->attributeTableName . '`.`id`=`' . $this->valueTableName . '`.`attribute_id`'
+            )
+            ->setGroupBy('`' . $this->attributeTableName . '`.`id`')
+            ->setOrderBy('`' . $this->valueTableName . '`.`order`')
+        ;
+
+        $select =
+            '`hc_attribute`.`id`, ' .
+            '`hc_attribute`.`type_id`, ' .
+            '`hc_attribute`.`module_id`, ' .
+            '`hc_attribute`.`sub_id`, ' .
+            '`hc_attribute`.`key`, ' .
+            '`hc_attribute`.`type`, ' .
+            '`hc_attribute`.`added`, ' .
+            'GROUP_CONCAT(`value` SEPARATOR "' . $separator . '") AS `values`, ' .
+            'GROUP_CONCAT(`order` SEPARATOR "' . $separator . '") AS `orders`'
+        ;
+
+        if (!$table->selectPrepared(false, $select)) {
+            $exception = new SelectError($table->connection->error() ?: 'No results!');
+            $exception->setTable($table);
+
+            throw $exception;
+        }
+
+        $attributes = $table->connection->fetchObjectList();
+        $models = [];
+
+        foreach ($attributes as $attribute) {
+            $orders = explode($separator, $attribute->orders);
+            $values = explode($separator, $attribute->values);
+
+            $models[] = (new Attribute())
+                ->setId((int) $attribute->id)
+                ->setTypeId(empty($attribute->type_id) ? null : (int) $attribute->type_id)
+                ->setModuleId(empty($attribute->module_id) ? null : (int) $attribute->module_id)
+                ->setSubId(empty($attribute->sub_id) ? null : (int) $attribute->sub_id)
+                ->setKey($attribute->key)
+                ->setType($attribute->type)
+                ->setValues(array_map(
+                    fn (string $value, string $order): Value => (new Value())
+                        ->setValue($value)
+                        ->setOrder((int) $order),
+                    $values,
+                    $orders
+                ))
+                ->setAdded($this->dateTimeService->get($attribute->added))
+            ;
+        }
+
+        return $models;
     }
 }
