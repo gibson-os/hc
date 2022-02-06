@@ -20,7 +20,7 @@ abstract class AbstractAttributeStore extends AbstractDatabaseStore
 {
     protected ?int $moduleId = null;
 
-    protected ?string $key = null;
+    protected array $keys = [];
 
     abstract protected function getType(): string;
 
@@ -40,6 +40,11 @@ abstract class AbstractAttributeStore extends AbstractDatabaseStore
         return Attribute::class;
     }
 
+    protected function getCountField(): string
+    {
+        return '`' . $this->tableName . '`.`sub_id`';
+    }
+
     protected function setWheres(): void
     {
         $tableName = $this->tableName;
@@ -50,8 +55,11 @@ abstract class AbstractAttributeStore extends AbstractDatabaseStore
             $this->addWhere('`' . $tableName . '`.`module_id`=?', [$this->moduleId]);
         }
 
-        if ($this->key !== null) {
-            $this->addWhere('`' . $tableName . '`.`key`=?', [$this->key]);
+        if (count($this->keys) > 0) {
+            $this->addWhere(
+                '`' . $tableName . '`.`key` IN (' . $this->table->getParametersString($this->keys) . ')',
+                $this->keys
+            );
         }
     }
 
@@ -133,9 +141,9 @@ abstract class AbstractAttributeStore extends AbstractDatabaseStore
         return $this;
     }
 
-    public function setKey(?string $key): AbstractAttributeStore
+    public function setKeys(array $keys): AbstractAttributeStore
     {
-        $this->key = $key;
+        $this->keys = $keys;
 
         return $this;
     }

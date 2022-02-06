@@ -6,7 +6,9 @@ Ext.define('GibsonOS.module.hc.ir.remote.View', {
     itemSelector: 'div.hcIrRemoteKey',
     selectedItemCls: 'hcIrRemoteKeySelected',
     overItemCls: 'hcIrRemoteKeyHover',
+    remoteId: null,
     remote: {
+        id: null,
         name: null,
         itemWidth: 30,
         width: 0,
@@ -19,7 +21,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.View', {
         const me = this;
 
         me.store = new GibsonOS.module.hc.ir.store.RemoteKey({
-            remoteId: me.remote.id
+            remoteId: me.remoteId
         });
         let id = Ext.id();
         me.tpl = new Ext.XTemplate(

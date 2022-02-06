@@ -5,10 +5,12 @@ namespace GibsonOS\Module\Hc\Repository;
 
 use Exception;
 use GibsonOS\Core\Attribute\GetTableName;
+use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Model\DeleteError as ModelDeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Mapper\ObjectMapper;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Utility\JsonUtility;
@@ -22,6 +24,7 @@ use GibsonOS\Module\Hc\Model\Type;
 use JsonException;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionProperty;
 
 class AttributeRepository extends AbstractRepository
 {
@@ -29,7 +32,8 @@ class AttributeRepository extends AbstractRepository
         #[GetTableName(Attribute::class)] private string $attributeTableName,
         #[GetTableName(Value::class)] private string $valueTableName,
         private TypeRepository $typeRepository,
-        private DateTimeService $dateTimeService
+        private DateTimeService $dateTimeService,
+        private ObjectMapper $objectMapper
     ) {
     }
 
@@ -243,7 +247,7 @@ class AttributeRepository extends AbstractRepository
 
                 /** @psalm-suppress UndefinedMethod */
                 if ($reflectionProperty->getType()?->getName() !== 'array') {
-                    $values[$keyName] = [$values];
+                    $values[$keyName] = [$values[$keyName]];
                 }
             }
 
@@ -306,11 +310,93 @@ class AttributeRepository extends AbstractRepository
      *
      * @param T $dto
      *
+     * @throws AttributeException
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SelectError
+     * @throws MapperException
+     *
      * @return T
      */
     public function loadDto(AttributeInterface $dto): AttributeInterface
     {
+        $type = $this->typeRepository->getByHelperName($dto->getTypeName());
+        $reflectionClass = new ReflectionClass($dto);
+        /** @var array<string, array{setter: string, reflectionProperty: ReflectionProperty, attribute: IsAttribute}> $properties */
+        $properties = [];
+
+        foreach ($reflectionClass->getProperties() as $reflectionProperty) {
+            $reflectionAttributes = $reflectionProperty->getAttributes(IsAttribute::class);
+
+            if (count($reflectionAttributes) === 0) {
+                continue;
+            }
+
+            /** @var IsAttribute $attributeAttribute */
+            $attributeAttribute = $reflectionAttributes[0]->newInstance();
+
+            $keyName = $attributeAttribute->getName() ?? $reflectionProperty->getName();
+            $setter = 'set' . ucfirst($reflectionProperty->getName());
+
+            if (!method_exists($dto, $setter)) {
+                throw new AttributeException(sprintf(
+                    'No setter found for property "%s" of dto "%s"!',
+                    $reflectionProperty->getName(),
+                    $dto::class
+                ));
+            }
+
+            $properties[$keyName] = [
+                'setter' => $setter,
+                'reflectionProperty' => $reflectionProperty,
+                'attribute' => $attributeAttribute,
+            ];
+        }
+
+        foreach ($this->loadAttributes($type, $dto->getTypeName(), array_keys($properties), $dto->getSubId()) as $attribute) {
+            if (count($attribute->getValues()) === 0) {
+                continue;
+            }
+
+            $keyName = $attribute->getKey();
+            $property = $properties[$keyName];
+            /** @var ReflectionProperty $reflectionProperty */
+            $reflectionProperty = $property['reflectionProperty'];
+            /** @var IsAttribute $reflectionAttribute */
+            $reflectionAttribute = $property['attribute'];
+            /** @psalm-suppress UndefinedMethod */
+            $typeName = $reflectionProperty->getType()?->getName();
+            $propertyType = $reflectionAttribute->getType();
+            $mappedValues = array_map(
+                fn (Value $value) => match ($typeName) {
+                    'int' => (int) $value->getValue(),
+                    'float' => (float) $value->getValue(),
+                    'bool' => (bool) $value->getValue(),
+                    default => $propertyType === null
+                        ? $value->getValue()
+                        : $this->objectMapper->map($propertyType, JsonUtility::decode($value->getValue())),
+                },
+                $attribute->getValues()
+            );
+
+            if ($typeName === 'array') {
+                $dto->{$property['setter']}($mappedValues);
+
+                continue;
+            }
+
+            $dto->{$property['setter']}(reset($mappedValues));
+        }
+
         return $dto;
+    }
+
+    /**
+     * @param AttributeInterface[] $dtos
+     */
+    public function removeDtos(array $dtos): void
+    {
+        $this->deleteSubIds(array_map(fn (AttributeInterface $dto): int => $dto->getSubId() ?? 0, $dtos));
     }
 
     /**

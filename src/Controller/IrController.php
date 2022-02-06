@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Controller;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -23,6 +24,7 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
 use GibsonOS\Module\Hc\Store\Ir\KeyStore;
+use GibsonOS\Module\Hc\Store\Ir\RemoteStore;
 use JsonException;
 use ReflectionException;
 
@@ -140,9 +142,37 @@ class IrController extends AbstractController
         return $this->returnSuccess();
     }
 
-    public function remote(?int $remoteId): AjaxResponse
+    /**
+     * @throws AttributeException
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SelectError
+     * @throws MapperException
+     */
+    #[CheckPermission(Permission::READ)]
+    public function remote(AttributeRepository $attributeRepository, ?int $remoteId): AjaxResponse
     {
+        if ($remoteId !== null) {
+            return $this->returnSuccess($attributeRepository->loadDto(new Remote(id: $remoteId)));
+        }
+
         return $this->returnSuccess(new Remote());
+    }
+
+    #[CheckPermission(Permission::READ)]
+    public function remotes(
+        RemoteStore $remoteStore,
+        int $limit = 100,
+        int $start = 0,
+        array $sort = [['property' => 'name', 'direction' => 'ASC']]
+    ): AjaxResponse {
+        $remoteStore->setLimit($limit, $start);
+        $remoteStore->setSortByExt($sort);
+
+        return $this->returnSuccess(
+            $remoteStore->getList(),
+            $remoteStore->getCount()
+        );
     }
 
     /**

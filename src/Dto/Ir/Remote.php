@@ -17,9 +17,33 @@ class Remote implements JsonSerializable, AttributeInterface
     public function __construct(
         #[IsAttribute] private ?string $name = null,
         private ?int $id = null,
-        #[IsAttribute] private array $keys = [],
+        #[IsAttribute(Key::class)] private array $keys = [],
         #[IsAttribute] private ?string $background = null
     ) {
+    }
+
+    public function setName(?string $name): Remote
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * @param Key[] $keys
+     */
+    public function setKeys(array $keys): Remote
+    {
+        $this->keys = $keys;
+
+        return $this;
+    }
+
+    public function setBackground(?string $background): Remote
+    {
+        $this->background = $background;
+
+        return $this;
     }
 
     public function getName(): ?string

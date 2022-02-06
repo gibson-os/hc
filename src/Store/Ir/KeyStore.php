@@ -38,7 +38,7 @@ class KeyStore extends AbstractAttributeStore
     ) {
         parent::__construct($dateTimeService, $valueTableName, $typeTableName, $database);
 
-        $this->setKey(IrService::KEY_ATTRIBUTE_NAME);
+        $this->setKeys([IrService::KEY_ATTRIBUTE_NAME]);
         $this->irProtocols = JsonUtility::decode($irProtocols->getValue());
     }
 
@@ -50,11 +50,6 @@ class KeyStore extends AbstractAttributeStore
     protected function getTypeName(): string
     {
         return 'ir';
-    }
-
-    protected function getCountField(): string
-    {
-        return '`' . $this->tableName . '`.`sub_id`';
     }
 
     protected function getDefaultOrder(): string

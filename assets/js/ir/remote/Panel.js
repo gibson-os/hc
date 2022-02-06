@@ -4,6 +4,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
     layout: 'border',
     enableContextMenu: true,
     enableKeyEvents: true,
+    remoteId: null,
     addFunction() {
         const store = this.viewItem.getStore();
         let maxTop = 0;
@@ -32,6 +33,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
         me.viewItem = new GibsonOS.module.hc.ir.remote.View({
             region: 'center',
             moduleId: me.moduleId,
+            remoteId: me.remoteId,
             overflowX: 'auto',
             overflowY: 'auto'
         });
@@ -86,6 +88,10 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
             store.each((setKey) => setKeys.push(setKey.getData()));
             // console.log(setKeys);
             key.set('keys', setKeys);
+        });
+
+        me.down('gosModuleIrRemoteKeyGrid').getStore().on('load', (store) => {
+            me.down('#name').setValue(store.remote.name);
         });
         me.viewItem.on('render', function() {
             me.viewItem.dragZone = Ext.create('Ext.dd.DragZone', me.viewItem.getEl(), {
@@ -167,7 +173,6 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
             addToContainerContextMenu: false,
             addToItemContextMenu: false,
             itemId: 'name',
-            value: me.remote.name,
             emptyText: 'Name',
             hideLabel: true,
             width: 120
@@ -194,9 +199,6 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                         moduleId: me.moduleId,
                         remoteId: me.remoteId,
                         name: me.down('#name').getValue(),
-                        width: me.remote.width,
-                        height: me.remote.height,
-                        itemWidth: me.remote.itemWidth,
                         keys: Ext.encode(keys)
                     },
                     callback() {
