@@ -353,7 +353,14 @@ class AttributeRepository extends AbstractRepository
             ];
         }
 
-        foreach ($this->loadAttributes($type, $dto->getTypeName(), array_keys($properties), $dto->getSubId()) as $attribute) {
+        $attributes = $this->loadAttributes(
+            $type,
+            $reflectionClass->getShortName(),
+            array_keys($properties),
+            $dto->getSubId()
+        );
+
+        foreach ($attributes as $attribute) {
             if (count($attribute->getValues()) === 0) {
                 continue;
             }
