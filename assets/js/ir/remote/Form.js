@@ -94,7 +94,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Form', {
             name: 'key',
             parameterObject: {
                 config: {
-                    model: 'GibsonOS.module.core.event.model.Key',
+                    model: 'GibsonOS.module.hc.ir.model.Key',
                     autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Ir\\KeyAutoComplete',
                 }
             }
@@ -106,11 +106,10 @@ Ext.define('GibsonOS.module.hc.ir.remote.Form', {
             },
             addFunction() {
                 const keyField = me.getForm().findField('key');
-
                 if (keyField.valueModels.length === 0) {
                     return;
                 }
-
+console.log(keyField);
                 me.down('gosModuleIrRemoteKeyGrid').getStore().add(keyField.valueModels[0].getData());
             }
         }];

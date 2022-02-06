@@ -12,6 +12,7 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
 use mysqlDatabase;
+use ReflectionException;
 
 /**
  * @method Module    getModule()
@@ -48,12 +49,12 @@ class Attribute extends AbstractModel
     private DateTimeInterface $added;
 
     #[Constraint]
-    protected Module $module;
+    protected ?Module $module = null;
 
     #[Constraint(onDelete: null, ownColumn: 'type_id')]
     protected Type $typeModel;
 
-    #[Constraint('attribute', Value::class)]
+    #[Constraint('attribute', Value::class, orderBy: '`order`')]
     protected array $values;
 
     public function __construct(mysqlDatabase $database = null)
@@ -147,10 +148,16 @@ class Attribute extends AbstractModel
         return $this;
     }
 
-    public function setModule(Module $module): Attribute
+    /**
+     * @throws ReflectionException
+     */
+    public function setModule(?Module $module): Attribute
     {
         $this->__call('setModule', [$module]);
-        $this->setTypeId($module->getTypeId());
+
+        if ($module !== null) {
+            $this->setTypeId($module->getTypeId());
+        }
 
         return $this;
     }

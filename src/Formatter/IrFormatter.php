@@ -122,11 +122,13 @@ class IrFormatter extends AbstractHcFormatter
 
     public function getKeyBySubId(int $subId): Key
     {
-        return new Key(
+        $key = new Key(
             $subId >> 32,
-            ($subId & 0xFFFF) >> 16,
-            ($subId & 0xFFFF),
+            ($subId >> 16) & 0xFFFF,
+            $subId & 0xFFFF,
         );
+
+        return $key;
     }
 
     private function getKeyName(Key $key): ?string

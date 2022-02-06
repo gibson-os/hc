@@ -80,9 +80,12 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                 keys[0].set(field.name, value);
             });
         });
-        me.down('gosModuleIrRemoteKeyGrid').getStore().on('add', (store, records) => {
-            const keys = me.viewItem.getSelectionModel().getSelection();
-            keys[0].set('keys', records);
+        me.down('gosModuleIrRemoteKeyGrid').getStore().on('add', (store) => {
+            const key = me.viewItem.getSelectionModel().getSelection()[0];
+            let setKeys = [];
+            store.each((setKey) => setKeys.push(setKey.getData()));
+            // console.log(setKeys);
+            key.set('keys', setKeys);
         });
         me.viewItem.on('render', function() {
             me.viewItem.dragZone = Ext.create('Ext.dd.DragZone', me.viewItem.getEl(), {
@@ -178,6 +181,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                 permission: GibsonOS.Permission.WRITE + GibsonOS.Permission.MANAGE
             },
             handler: function() {
+                me.setLoading(true);
                 let keys = [];
 
                 me.viewItem.store.each(function(key) {
@@ -187,7 +191,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                 GibsonOS.Ajax.request({
                     url: baseDir + 'hc/ir/saveRemote',
                     params: {
-                        id: me.moduleId,
+                        moduleId: me.moduleId,
                         remoteId: me.remoteId,
                         name: me.down('#name').getValue(),
                         width: me.remote.width,
@@ -195,8 +199,11 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                         itemWidth: me.remote.itemWidth,
                         keys: Ext.encode(keys)
                     },
-                    success: function(response) {
-                        me.up('window').close();
+                    callback() {
+                        me.setLoading(false);
+                    },
+                    success() {
+                        //me.up('window').close();
                     }
                 });
             }

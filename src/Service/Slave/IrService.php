@@ -16,7 +16,15 @@ class IrService extends AbstractHcSlave
 
     public const ATTRIBUTE_TYPE_KEY = 'irKey';
 
+    public const ATTRIBUTE_TYPE_REMOTE = 'remote';
+
     public const KEY_ATTRIBUTE_NAME = 'name';
+
+    public const REMOTE_ATTRIBUTE_NAME = 'name';
+
+    public const REMOTE_ATTRIBUTE_BACKGROUND = 'background';
+
+    public const REMOTE_ATTRIBUTE_KEYS = 'keys';
 
     public function slaveHandshake(Module $slave): Module
     {

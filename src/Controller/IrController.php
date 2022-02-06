@@ -12,8 +12,10 @@ use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
 use GibsonOS\Module\Hc\Dto\Ir\Remote;
+use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Exception\IrException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
+use GibsonOS\Module\Hc\Mapper\Ir\RemoteMapper;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -22,6 +24,8 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
 use GibsonOS\Module\Hc\Store\Ir\KeyStore;
+use JsonException;
+use ReflectionException;
 
 class IrController extends AbstractController
 {
@@ -150,9 +154,25 @@ class IrController extends AbstractController
         return $this->returnSuccess(new Remote());
     }
 
+    /**
+     * @throws SaveError
+     * @throws SelectError
+     * @throws AttributeException
+     * @throws ReflectionException
+     * @throws JsonException
+     */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
-    public function saveRemote(): AjaxResponse
-    {
+    public function saveRemote(
+        RemoteMapper $remoteMapper,
+        AttributeRepository $attributeRepository,
+        string $name,
+        array $keys,
+        string $background = null,
+        int $remoteId = null,
+        int $moduleId = null
+    ): AjaxResponse {
+        $attributeRepository->saveDto($remoteMapper->mapRemote($name, $background, $remoteId, $keys));
+
         return $this->returnSuccess();
     }
 }

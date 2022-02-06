@@ -3,13 +3,12 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Dto\Ir\Remote;
 
-use GibsonOS\Module\Hc\Dto\Ir\Key as IrKey;
 use JsonSerializable;
 
 class Key implements JsonSerializable
 {
     /**
-     * @param IrKey[] $keys
+     * @param int[] $keys
      */
     public function __construct(
         private ?string $name = null,
@@ -17,9 +16,15 @@ class Key implements JsonSerializable
         private int $height = 1,
         private int $top = 0,
         private int $left = 0,
-        private int $style = 0,
+        private bool $borderTop = true,
+        private bool $borderRight = true,
+        private bool $borderBottom = true,
+        private bool $borderLeft = true,
+        private int $borderRadiusTopLeft = 0,
+        private int $borderRadiusTopRight = 0,
+        private int $borderRadiusBottomLeft = 0,
+        private int $borderRadiusBottomRight = 0,
         private ?string $background = null,
-        private ?string $docked = null,
         private ?int $eventId = null,
         private array $keys = []
     ) {
@@ -50,19 +55,49 @@ class Key implements JsonSerializable
         return $this->left;
     }
 
-    public function getStyle(): int
+    public function hasBorderTop(): bool
     {
-        return $this->style;
+        return $this->borderTop;
+    }
+
+    public function hasBorderRight(): bool
+    {
+        return $this->borderRight;
+    }
+
+    public function hasBorderBottom(): bool
+    {
+        return $this->borderBottom;
+    }
+
+    public function hasBorderLeft(): bool
+    {
+        return $this->borderLeft;
+    }
+
+    public function getBorderRadiusTopLeft(): int
+    {
+        return $this->borderRadiusTopLeft;
+    }
+
+    public function getBorderRadiusTopRight(): int
+    {
+        return $this->borderRadiusTopRight;
+    }
+
+    public function getBorderRadiusBottomLeft(): int
+    {
+        return $this->borderRadiusBottomLeft;
+    }
+
+    public function getBorderRadiusBottomRight(): int
+    {
+        return $this->borderRadiusBottomRight;
     }
 
     public function getBackground(): ?string
     {
         return $this->background;
-    }
-
-    public function getDocked(): ?string
-    {
-        return $this->docked;
     }
 
     public function getEventId(): ?int
@@ -71,7 +106,7 @@ class Key implements JsonSerializable
     }
 
     /**
-     * @return IrKey[]
+     * @return int[]
      */
     public function getKeys(): array
     {
@@ -86,9 +121,15 @@ class Key implements JsonSerializable
             'height' => $this->getHeight(),
             'top' => $this->getTop(),
             'left' => $this->getLeft(),
-            'style' => $this->getStyle(),
+            'borderTop' => $this->hasBorderTop(),
+            'borderRight' => $this->hasBorderRight(),
+            'borderBottom' => $this->hasBorderBottom(),
+            'borderLeft' => $this->hasBorderLeft(),
+            'borderRadiusTopLeft' => $this->getBorderRadiusTopLeft(),
+            'borderRadiusTopRight' => $this->getBorderRadiusTopRight(),
+            'borderRadiusBottomLeft' => $this->getBorderRadiusBottomLeft(),
+            'borderRadiusBottomRight' => $this->getBorderRadiusBottomRight(),
             'background' => $this->getBackground(),
-            'docked' => $this->getDocked(),
             'eventId' => $this->getEventId(),
             'keys' => $this->getKeys(),
         ];
