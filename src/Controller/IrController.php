@@ -196,4 +196,10 @@ class IrController extends AbstractController
 
         return $this->returnSuccess();
     }
+
+    #[CheckPermission(Permission::WRITE)]
+    public function sendRemoteKey(int $eventId = null, array $keys = []): AjaxResponse
+    {
+        return $this->returnSuccess();
+    }
 }
