@@ -7,13 +7,6 @@ Ext.define('GibsonOS.module.hc.ir.remote.View', {
     selectedItemCls: 'hcIrRemoteKeySelected',
     overItemCls: 'hcIrRemoteKeyHover',
     remoteId: null,
-    remote: {
-        id: null,
-        name: null,
-        itemWidth: 30,
-        width: 0,
-        height: 0
-    },
     gridSize: 10,
     offsetTop: 6,
     offsetLeft: 6,

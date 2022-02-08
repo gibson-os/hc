@@ -106,10 +106,11 @@ Ext.define('GibsonOS.module.hc.ir.remote.Form', {
             },
             addFunction() {
                 const keyField = me.getForm().findField('key');
+
                 if (keyField.valueModels.length === 0) {
                     return;
                 }
-console.log(keyField);
+
                 me.down('gosModuleIrRemoteKeyGrid').getStore().add(keyField.valueModels[0].getData());
             }
         }];

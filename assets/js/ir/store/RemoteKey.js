@@ -4,7 +4,6 @@ Ext.define('GibsonOS.module.hc.ir.store.RemoteKey', {
     autoLoad: true,
     model: 'GibsonOS.module.hc.ir.model.RemoteKey',
     remoteId: null,
-    remote: null,
     constructor(data) {
         const me = this;
 
@@ -20,12 +19,6 @@ Ext.define('GibsonOS.module.hc.ir.store.RemoteKey', {
         };
 
         me.callParent(arguments);
-
-        me.on('load', () => {
-            me.remote = me.getProxy().getReader().rawData;
-        }, this, {
-            priority: 999
-        });
 
         return me;
     }

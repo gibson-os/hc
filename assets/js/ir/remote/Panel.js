@@ -49,6 +49,11 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
         me.callParent();
 
         me.addActions();
+
+        me.down('gosModuleHcIrRemoteView').getStore().on('load', (store) => {
+            me.down('#name').setValue(store.getProxy().getReader().rawData.data.name);
+        });
+
         me.viewItem.on('selectionchange', (view, records) => {
             const form = me.down('form');
             const keyStore = me.down('gosModuleIrRemoteKeyGrid').getStore();
@@ -90,9 +95,6 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
             key.set('keys', setKeys);
         });
 
-        me.down('gosModuleIrRemoteKeyGrid').getStore().on('load', (store) => {
-            me.down('#name').setValue(store.remote.name);
-        });
         me.viewItem.on('render', function() {
             me.viewItem.dragZone = Ext.create('Ext.dd.DragZone', me.viewItem.getEl(), {
                 getDragData: function(event) {
