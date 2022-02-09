@@ -43,20 +43,37 @@ class IrService extends AbstractHcSlave
     }
 
     /**
+     * @param Key[] $keys
+     *
      * @throws AbstractException
      * @throws SaveError
      *
      * @return $this
      */
-    public function sendKey(Module $module, Key $key): IrService
+    public function sendKeys(Module $module, array $keys): IrService
     {
-        $this->write(
-            $module,
-            self::COMMAND_SEND,
-            chr($key->getProtocol()) .
-            chr($key->getAddress() >> 8) . chr($key->getAddress() & 255) .
-            chr($key->getCommand() >> 8) . chr($key->getCommand() & 255)
-        );
+        if (count($keys) === 0) {
+            return $this;
+        }
+
+        $data = '';
+        $i = 0;
+
+        foreach ($keys as $key) {
+            if ($i === 6) {
+                $this->write($module, self::COMMAND_SEND, $data);
+                $data = '';
+            }
+
+            $data .=
+                chr($key->getProtocol()) .
+                chr($key->getAddress() >> 8) . chr($key->getAddress() & 255) .
+                chr($key->getCommand() >> 8) . chr($key->getCommand() & 255)
+            ;
+            ++$i;
+        }
+
+        $this->write($module, self::COMMAND_SEND, $data);
 
         return $this;
     }

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Neopixel;
 
-use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService as AnimationService;
+use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService;
 use GibsonOS\Module\Hc\Store\AbstractSequenceStore;
 
 class AnimationStore extends AbstractSequenceStore

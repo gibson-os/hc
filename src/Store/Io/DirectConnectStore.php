@@ -8,7 +8,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Type;
-use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
+use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Store\AbstractAttributeStore;
 use mysqlDatabase;
 

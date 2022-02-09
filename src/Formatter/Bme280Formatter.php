@@ -6,7 +6,7 @@ namespace GibsonOS\Module\Hc\Formatter;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Mapper\Bme280Mapper;
 use GibsonOS\Module\Hc\Model\Log;
-use GibsonOS\Module\Hc\Service\Slave\Bme280Service as Bme280Service;
+use GibsonOS\Module\Hc\Service\Slave\Bme280Service;
 use GibsonOS\Module\Hc\Service\TransformService;
 
 class Bme280Formatter extends AbstractFormatter

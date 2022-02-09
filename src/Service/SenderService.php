@@ -11,12 +11,10 @@ use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\ProtocolFactory;
 use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Model\Master;
-use GibsonOS\Module\Hc\Repository\MasterRepository as MasterRepository;
-use Psr\Log\LoggerInterface;
 
 class SenderService extends AbstractService
 {
-    public function __construct(private MasterMapper $masterMapper, private TransformService $transformService, private MasterRepository $masterRepository, private ProtocolFactory $protocolFactory, private LoggerInterface $logger)
+    public function __construct(private MasterMapper $masterMapper, private ProtocolFactory $protocolFactory)
     {
     }
 

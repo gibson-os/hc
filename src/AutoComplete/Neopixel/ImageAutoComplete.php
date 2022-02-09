@@ -8,7 +8,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\SequenceRepository;
-use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService as ImageService;
+use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService;
 
 class ImageAutoComplete implements AutoCompleteInterface
 {

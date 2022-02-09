@@ -12,8 +12,8 @@ use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository as ValueRepository;
-use GibsonOS\Module\Hc\Repository\AttributeRepository as AttributeRepository;
+use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
+use GibsonOS\Module\Hc\Repository\AttributeRepository;
 
 class AnimationService
 {

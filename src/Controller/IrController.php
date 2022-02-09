@@ -4,13 +4,19 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Controller;
 
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\EventException;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Model\Event;
 use GibsonOS\Core\Model\User\Permission;
+use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
 use GibsonOS\Module\Hc\Dto\Ir\Remote;
@@ -18,9 +24,9 @@ use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Exception\IrException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
 use GibsonOS\Module\Hc\Mapper\Ir\RemoteMapper;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
-use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
 use GibsonOS\Module\Hc\Store\Ir\KeyStore;
@@ -128,16 +134,13 @@ class IrController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE)]
     public function send(
-        ModuleRepository $moduleRepository,
         IrService $irService,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         int $protocol,
         int $address,
         int $command
     ): AjaxResponse {
-        $module = $moduleRepository->getById($moduleId);
-
-        $irService->sendKey($module, new Key($protocol, $address, $command));
+        $irService->sendKeys($module, [new Key($protocol, $address, $command)]);
 
         return $this->returnSuccess();
     }
@@ -197,9 +200,38 @@ class IrController extends AbstractController
         return $this->returnSuccess();
     }
 
+    /**
+     * @throws AbstractException
+     * @throws JsonException
+     * @throws SaveError
+     * @throws SelectError
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     *
+     * @return AjaxResponse
+     */
     #[CheckPermission(Permission::WRITE)]
-    public function sendRemoteKey(int $eventId = null, array $keys = []): AjaxResponse
-    {
+    public function sendRemoteKey(
+        EventService $eventService,
+        IrService $irService,
+        IrFormatter $irFormatter,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'eventId'])] ?Event $event,
+        array $keys = []
+    ): AjaxResponse {
+        if ($event !== null) {
+            $eventService->runEvent($event, true);
+        }
+
+        $irService->sendKeys(
+            $module,
+            array_map(
+                fn (int $key): Key => $irFormatter->getKeyBySubId($key),
+                $keys
+            )
+        );
+
         return $this->returnSuccess();
     }
 }

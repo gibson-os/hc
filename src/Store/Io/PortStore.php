@@ -5,7 +5,7 @@ namespace GibsonOS\Module\Hc\Store\Io;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Attribute;
-use GibsonOS\Module\Hc\Service\Slave\IoService as IoService;
+use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Store\AbstractAttributeStore;
 
 class PortStore extends AbstractAttributeStore
