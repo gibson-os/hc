@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Repository;
 
 use Exception;
 use GibsonOS\Core\Attribute\GetTableName;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Model\DeleteError as ModelDeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
@@ -310,11 +311,12 @@ class AttributeRepository extends AbstractRepository
      *
      * @param T $dto
      *
-     * @throws AttributeException
      * @throws JsonException
+     * @throws MapperException
      * @throws ReflectionException
      * @throws SelectError
-     * @throws MapperException
+     * @throws FactoryError
+     * @throws AttributeException
      *
      * @return T
      */
@@ -381,7 +383,7 @@ class AttributeRepository extends AbstractRepository
                     'bool' => (bool) $value->getValue(),
                     default => $propertyType === null
                         ? $value->getValue()
-                        : $this->objectMapper->map($propertyType, JsonUtility::decode($value->getValue())),
+                        : $this->objectMapper->mapToObject($propertyType, JsonUtility::decode($value->getValue())),
                 },
                 $attribute->getValues()
             );

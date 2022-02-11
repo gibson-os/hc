@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Dto\Ir\Remote;
 
+use GibsonOS\Core\Attribute\ObjectMapper;
+use GibsonOS\Module\Hc\Dto\Ir\Key as IrKey;
 use JsonSerializable;
 
 class Key implements JsonSerializable
 {
     /**
-     * @param int[] $keys
+     * @param IrKey[] $keys
      */
     public function __construct(
         private ?string $name = null,
@@ -26,7 +28,7 @@ class Key implements JsonSerializable
         private int $borderRadiusBottomRight = 0,
         private ?string $background = null,
         private ?int $eventId = null,
-        private array $keys = []
+        #[ObjectMapper(IrKey::class)] private array $keys = []
     ) {
     }
 
@@ -106,7 +108,7 @@ class Key implements JsonSerializable
     }
 
     /**
-     * @return int[]
+     * @return IrKey[]
      */
     public function getKeys(): array
     {

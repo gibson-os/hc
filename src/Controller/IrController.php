@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Controller;
 
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetModel;
+use GibsonOS\Core\Attribute\GetObject;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
@@ -23,7 +24,6 @@ use GibsonOS\Module\Hc\Dto\Ir\Remote;
 use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Exception\IrException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
-use GibsonOS\Module\Hc\Mapper\Ir\RemoteMapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -179,23 +179,20 @@ class IrController extends AbstractController
     }
 
     /**
+     * @throws AttributeException
+     * @throws DeleteError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
-     * @throws AttributeException
-     * @throws ReflectionException
-     * @throws JsonException
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function saveRemote(
-        RemoteMapper $remoteMapper,
         AttributeRepository $attributeRepository,
-        string $name,
-        array $keys,
-        string $background = null,
-        int $remoteId = null,
+        #[GetObject(['id' => 'remoteId'])] Remote $remote,
         int $moduleId = null
     ): AjaxResponse {
-        $attributeRepository->saveDto($remoteMapper->mapRemote($name, $background, $remoteId, $keys));
+        $attributeRepository->saveDto($remote);
 
         return $this->returnSuccess();
     }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Dto\Ir;
 
+use GibsonOS\Core\Attribute\ObjectMapper;
 use GibsonOS\Module\Hc\Attribute\IsAttribute;
 use GibsonOS\Module\Hc\Dto\AttributeInterface;
 use GibsonOS\Module\Hc\Dto\Ir\Remote\Key;
@@ -17,7 +18,7 @@ class Remote implements JsonSerializable, AttributeInterface
     public function __construct(
         #[IsAttribute] private ?string $name = null,
         private ?int $id = null,
-        #[IsAttribute(Key::class)] private array $keys = [],
+        #[IsAttribute(Key::class)] #[ObjectMapper(Key::class)] private array $keys = [],
         #[IsAttribute] private ?string $background = null
     ) {
     }
