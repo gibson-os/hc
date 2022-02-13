@@ -9,17 +9,24 @@ use GibsonOS\Core\Dto\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Event\AbstractEvent;
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\EventException;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\TypeParameter;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 abstract class AbstractHcEvent extends AbstractEvent
 {
@@ -368,16 +375,23 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     public function __construct(
         EventService $eventService,
+        ReflectionManager $reflectionManager,
         private TypeRepository $typeRepository,
         protected LoggerInterface $logger,
         private AbstractHcSlave $slaveService
     ) {
-        parent::__construct($eventService);
+        parent::__construct($eventService, $reflectionManager);
     }
 
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws WriteException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[Event\Method('Adresse schreiben')]
     public function writeAddress(

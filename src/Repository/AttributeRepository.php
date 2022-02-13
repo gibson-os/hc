@@ -418,7 +418,7 @@ class AttributeRepository extends AbstractRepository
         $separator = '#_#^#_#';
         $table = $this->getTable($this->attributeTableName);
         $parameters = array_values($keyNames);
-        array_push($parameters, $typeModel->getId() ?? 0, $type);
+        array_push($parameters, $typeModel->getId() ?? 0, lcfirst($type));
         $where =
             '`' . $this->attributeTableName . '`.`key` IN (' . $table->getParametersString($keyNames) . ') AND ' .
             '`' . $this->attributeTableName . '`.`type_id`=? AND ' .

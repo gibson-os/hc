@@ -11,6 +11,7 @@ use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\Parameter\Io\PortParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\SlaveParameter;
@@ -237,11 +238,12 @@ class IoEvent extends AbstractHcEvent
 
     public function __construct(
         EventService $eventService,
+        ReflectionManager $reflectionManager,
         TypeRepository $typeRepository,
         LoggerInterface $logger,
         private IoService $ioService
     ) {
-        parent::__construct($eventService, $typeRepository, $logger, $this->ioService);
+        parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->ioService);
     }
 
     /**
