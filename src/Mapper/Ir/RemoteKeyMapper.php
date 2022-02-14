@@ -3,46 +3,41 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Mapper\Ir;
 
-use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\MapperException;
-use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Mapper\ObjectMapperInterface;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
-use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
+use GibsonOS\Module\Hc\Mapper\AttributeMapperInterface;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
-use JsonException;
-use ReflectionException;
 
-class RemoteKeyMapper implements ObjectMapperInterface
+class RemoteKeyMapper implements AttributeMapperInterface
 {
     public function __construct(private AttributeRepository $attributeRepository, private IrFormatter $irFormatter)
     {
     }
 
-    /**
-     * @throws FactoryError
-     * @throws MapperException
-     * @throws SelectError
-     * @throws AttributeException
-     * @throws JsonException
-     * @throws ReflectionException
-     */
-    public function mapToObject(string $className, array $properties): object
+    public function mapToDatabase(float|object|array|bool|int|string|null $value): int
     {
-        $key = new $className($properties['protocol'], $properties['address'], $properties['command']);
+        errlog($value);
+        if (!$value instanceof Key) {
+            throw new MapperException(sprintf(
+                'Value for remote key mapper is no instance of "%s"!',
+                Key::class
+            ));
+        }
+        errlog($value->getSubId());
 
-        if (!$key instanceof Key) {
-            throw new MapperException(sprintf('Class "%s" is not "%s', $key::class, Key::class));
+        return $value->getSubId();
+    }
+
+    public function mapFromDatabase(int|object|bool|array|float|string|null $value): Key
+    {
+        if (!is_int($value)) {
+            throw new MapperException('Value for remote key mapper is no int!');
         }
 
+        $key = $this->irFormatter->getKeyBySubId($value);
         $this->attributeRepository->loadDto($key);
 
         return $key;
-    }
-
-    public function mapFromObject(object $object): int|float|string|bool|array|object|null
-    {
-        return null;
     }
 }

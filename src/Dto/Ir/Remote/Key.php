@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Dto\Ir\Remote;
 
 use GibsonOS\Core\Attribute\ObjectMapper;
+use GibsonOS\Module\Hc\Attribute\AttributeMapper;
 use GibsonOS\Module\Hc\Dto\Ir\Key as IrKey;
 use GibsonOS\Module\Hc\Mapper\Ir\RemoteKeyMapper;
 use JsonSerializable;
@@ -29,7 +30,7 @@ class Key implements JsonSerializable
         private int $borderRadiusBottomRight = 0,
         private ?string $background = null,
         private ?int $eventId = null,
-        #[ObjectMapper(IrKey::class, RemoteKeyMapper::class)] private array $keys = []
+        #[ObjectMapper(IrKey::class)] #[AttributeMapper(RemoteKeyMapper::class)] private array $keys = []
     ) {
     }
 

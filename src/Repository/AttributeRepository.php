@@ -11,19 +11,24 @@ use GibsonOS\Core\Exception\Model\DeleteError as ModelDeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Mapper\ObjectMapper;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Core\Service\DateTimeService;
+use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Attribute\AttributeMapper;
 use GibsonOS\Module\Hc\Attribute\IsAttribute;
 use GibsonOS\Module\Hc\Dto\AttributeInterface;
 use GibsonOS\Module\Hc\Exception\AttributeException;
+use GibsonOS\Module\Hc\Mapper\AttributeMapper as AttributeMapperMapper;
+use GibsonOS\Module\Hc\Mapper\AttributeMapperInterface;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
 use JsonException;
-use ReflectionClass;
+use ReflectionAttribute;
 use ReflectionException;
 use ReflectionProperty;
 
@@ -34,7 +39,9 @@ class AttributeRepository extends AbstractRepository
         #[GetTableName(Value::class)] private string $valueTableName,
         private TypeRepository $typeRepository,
         private DateTimeService $dateTimeService,
-        private ObjectMapper $objectMapper
+        private ObjectMapper $objectMapper,
+        private ReflectionManager $reflectionManager,
+        private ServiceManagerService $serviceManagerServices,
     ) {
     }
 
@@ -198,13 +205,13 @@ class AttributeRepository extends AbstractRepository
      * @throws SaveError
      * @throws SelectError
      * @throws ModelDeleteError
+     * @throws FactoryError
      */
     public function saveDto(AttributeInterface $dto): void
     {
         $getterPrefixes = ['get', 'is', 'has'];
         $keyNames = [];
-        $values = [];
-        $reflectionClass = new ReflectionClass($dto);
+        $reflectionClass = $this->reflectionManager->getReflectionClass($dto);
         $this->startTransaction();
 
         try {
@@ -215,16 +222,15 @@ class AttributeRepository extends AbstractRepository
                 ? null
                 : ($this->getMaxSubId($type, $typeName, $dto->getModule()) + 1)
             );
+            $properties = [];
 
             foreach ($reflectionClass->getProperties() as $reflectionProperty) {
-                $reflectionAttributes = $reflectionProperty->getAttributes(IsAttribute::class);
+                $attributeAttribute = $this->reflectionManager->getAttribute($reflectionProperty, IsAttribute::class);
 
-                if (count($reflectionAttributes) === 0) {
+                if ($attributeAttribute === null) {
                     continue;
                 }
 
-                /** @var IsAttribute $attributeAttribute */
-                $attributeAttribute = $reflectionAttributes[0]->newInstance();
                 $getter = null;
                 $propertyName = ucfirst($reflectionProperty->getName());
 
@@ -244,12 +250,28 @@ class AttributeRepository extends AbstractRepository
 
                 $keyName = $attributeAttribute->getName() ?? $reflectionProperty->getName();
                 $keyNames[$keyName] = $keyName;
-                $values[$keyName] = $dto->$getter();
+
+                $mapperAttribute = $this->reflectionManager->getAttribute(
+                    $reflectionProperty,
+                    AttributeMapper::class,
+                    ReflectionAttribute::IS_INSTANCEOF
+                );
+                $mapper = $this->serviceManagerServices->get(
+                    $mapperAttribute?->getAttributeMapper() ?? AttributeMapperMapper::class,
+                    AttributeMapperInterface::class
+                );
+
+                $values = $dto->$getter();
 
                 /** @psalm-suppress UndefinedMethod */
                 if ($reflectionProperty->getType()?->getName() !== 'array') {
-                    $values[$keyName] = [$values[$keyName]];
+                    $values = [$values];
                 }
+
+                $properties[$keyName] = [
+                    'values' => $values,
+                    'mapper' => $mapper,
+                ];
             }
 
             $attributes = $this->loadAttributes($type, $typeName, $keyNames, $subId);
@@ -273,22 +295,35 @@ class AttributeRepository extends AbstractRepository
             foreach ($attributes as $attribute) {
                 $key = $attribute->getKey();
 
+                if (!isset($properties[$key]['values']) || !is_array($properties[$key]['values'])) {
+                    foreach ($attribute->getValues() as $value) {
+                        $value->delete();
+                    }
+
+                    continue;
+                }
+
+                $property = $properties[$key];
+                $values = $properties[$key]['values'];
+
                 foreach ($attribute->getValues() as $value) {
-                    if (!isset($values[$key][$value->getOrder()])) {
+                    if (!isset($values[$value->getOrder()])) {
                         $value->delete();
 
                         continue;
                     }
 
-                    $newValue = $values[$key][$value->getOrder()];
+                    /** @var AttributeMapperInterface $mapper */
+                    $mapper = $property['mapper'];
+                    $newValue = $mapper->mapToDatabase($values[$value->getOrder()]);
                     $value
                         ->setValue(is_array($newValue) || is_object($newValue) ? JsonUtility::encode($newValue) : (string) $newValue)
                         ->save()
                     ;
-                    unset($values[$key][$value->getOrder()]);
+                    unset($values[$value->getOrder()]);
                 }
 
-                foreach ($values[$key] as $order => $value) {
+                foreach ($values as $order => $value) {
                     (new Value())
                         ->setAttribute($attribute)
                         ->setValue(is_array($value) || is_object($value) ? JsonUtility::encode($value) : (string) $value)
@@ -323,19 +358,16 @@ class AttributeRepository extends AbstractRepository
     public function loadDto(AttributeInterface $dto): AttributeInterface
     {
         $type = $this->typeRepository->getByHelperName($dto->getTypeName());
-        $reflectionClass = new ReflectionClass($dto);
-        /** @var array<string, array{setter: string, reflectionProperty: ReflectionProperty, attribute: IsAttribute}> $properties */
+        $reflectionClass = $this->reflectionManager->getReflectionClass($dto);
+        /** @var array<string, array{setter: string, reflectionProperty: ReflectionProperty, attribute: IsAttribute, mapper: AttributeMapperInterface}> $properties */
         $properties = [];
 
         foreach ($reflectionClass->getProperties() as $reflectionProperty) {
-            $reflectionAttributes = $reflectionProperty->getAttributes(IsAttribute::class);
+            $attributeAttribute = $this->reflectionManager->getAttribute($reflectionProperty, IsAttribute::class);
 
-            if (count($reflectionAttributes) === 0) {
+            if ($attributeAttribute === null) {
                 continue;
             }
-
-            /** @var IsAttribute $attributeAttribute */
-            $attributeAttribute = $reflectionAttributes[0]->newInstance();
 
             $keyName = $attributeAttribute->getName() ?? $reflectionProperty->getName();
             $setter = 'set' . ucfirst($reflectionProperty->getName());
@@ -348,10 +380,19 @@ class AttributeRepository extends AbstractRepository
                 ));
             }
 
+            $mapperAttribute = $this->reflectionManager->getAttribute(
+                $reflectionProperty,
+                AttributeMapper::class,
+                ReflectionAttribute::IS_INSTANCEOF
+            );
+
             $properties[$keyName] = [
                 'setter' => $setter,
                 'reflectionProperty' => $reflectionProperty,
                 'attribute' => $attributeAttribute,
+                'mapper' => $mapperAttribute === null
+                    ? null
+                    : $this->serviceManagerServices->get($mapperAttribute->getAttributeMapper()),
             ];
         }
 
@@ -373,18 +414,21 @@ class AttributeRepository extends AbstractRepository
             $reflectionProperty = $property['reflectionProperty'];
             /** @var IsAttribute $reflectionAttribute */
             $reflectionAttribute = $property['attribute'];
+            /** @var AttributeMapperInterface|null $mapper */
+            $mapper = $property['mapper'];
             /** @psalm-suppress UndefinedMethod */
             $typeName = $reflectionProperty->getType()?->getName();
             $propertyType = $reflectionAttribute->getType();
+            $mapValue = fn (Value $value) => match ($typeName) {
+                'int' => (int) $value->getValue(),
+                'float' => (float) $value->getValue(),
+                'bool' => (bool) $value->getValue(),
+                default => $propertyType === null
+                    ? $value->getValue()
+                    : $this->objectMapper->mapToObject($propertyType, JsonUtility::decode($value->getValue())),
+            };
             $mappedValues = array_map(
-                fn (Value $value) => match ($typeName) {
-                    'int' => (int) $value->getValue(),
-                    'float' => (float) $value->getValue(),
-                    'bool' => (bool) $value->getValue(),
-                    default => $propertyType === null
-                        ? $value->getValue()
-                        : $this->objectMapper->mapToObject($propertyType, JsonUtility::decode($value->getValue())),
-                },
+                fn (Value $value) => $mapper === null ? $mapValue($value) : $mapper->mapFromDatabase($mapValue($value)),
                 $attribute->getValues()
             );
 
