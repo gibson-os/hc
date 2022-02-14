@@ -15,18 +15,31 @@ class RemoteKeyMapper implements AttributeMapperInterface
     {
     }
 
-    public function mapToDatabase(float|object|array|bool|int|string|null $value): int
+    /**
+     * @throws MapperException
+     *
+     * @return int[]
+     */
+    public function mapToDatabase(float|object|array|bool|int|string|null $value): array
     {
-        errlog($value);
-        if (!$value instanceof Key) {
-            throw new MapperException(sprintf(
-                'Value for remote key mapper is no instance of "%s"!',
-                Key::class
-            ));
-        }
-        errlog($value->getSubId());
+        $newValues = [];
 
-        return $value->getSubId();
+        if (!is_array($value)) {
+            throw new MapperException('Value for remote key mapper is no array!');
+        }
+
+        foreach ($value as $key) {
+            if (!$key instanceof Key) {
+                throw new MapperException(sprintf(
+                    'Value for remote key mapper is no instance of "%s"!',
+                    Key::class
+                ));
+            }
+
+            $newValues[] = $key->getSubId();
+        }
+
+        return $newValues;
     }
 
     public function mapFromDatabase(int|object|bool|array|float|string|null $value): Key

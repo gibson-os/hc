@@ -231,21 +231,11 @@ class AttributeRepository extends AbstractRepository
                     continue;
                 }
 
-                $getter = null;
-                $propertyName = ucfirst($reflectionProperty->getName());
+                $values = $this->reflectionManager->getProperty($reflectionProperty, $dto);
 
-                foreach ($getterPrefixes as $getterPrefix) {
-                    if (!method_exists($dto, $getterPrefix . $propertyName)) {
-                        continue;
-                    }
-
-                    $getter = $getterPrefix . $propertyName;
-
-                    break;
-                }
-
-                if ($getter === null) {
-                    throw new AttributeException(sprintf('No getter found for property "%"!', $reflectionProperty->getName()));
+                /** @psalm-suppress UndefinedMethod */
+                if ($reflectionProperty->getType()?->getName() !== 'array') {
+                    $values = [$values];
                 }
 
                 $keyName = $attributeAttribute->getName() ?? $reflectionProperty->getName();
@@ -260,13 +250,6 @@ class AttributeRepository extends AbstractRepository
                     $mapperAttribute?->getAttributeMapper() ?? AttributeMapperMapper::class,
                     AttributeMapperInterface::class
                 );
-
-                $values = $dto->$getter();
-
-                /** @psalm-suppress UndefinedMethod */
-                if ($reflectionProperty->getType()?->getName() !== 'array') {
-                    $values = [$values];
-                }
 
                 $properties[$keyName] = [
                     'values' => $values,
@@ -324,6 +307,9 @@ class AttributeRepository extends AbstractRepository
                 }
 
                 foreach ($values as $order => $value) {
+                    /** @var AttributeMapperInterface $mapper */
+                    $mapper = $property['mapper'];
+                    $value = $mapper->mapToDatabase($values[$order]);
                     (new Value())
                         ->setAttribute($attribute)
                         ->setValue(is_array($value) || is_object($value) ? JsonUtility::encode($value) : (string) $value)
