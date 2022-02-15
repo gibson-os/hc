@@ -84,9 +84,9 @@ class IrController extends AbstractController
         array $keys
     ): AjaxResponse {
         $attributeRepository->deleteSubIds(array_map(
-            static fn (array $key) => $irFormatter->getSubId($key['protocol'], $key['address'], $key['command']),
+            static fn (array $key): int => $irFormatter->getSubId($key['protocol'], $key['address'], $key['command']),
             $keys
-        ));
+        ), Key::class);
 
         return $this->returnSuccess();
     }
@@ -208,6 +208,14 @@ class IrController extends AbstractController
         int $moduleId = null
     ): AjaxResponse {
         $attributeRepository->saveDto($remote);
+
+        return $this->returnSuccess();
+    }
+
+    #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
+    public function deleteRemotes(AttributeRepository $attributeRepository, array $remoteIds): AjaxResponse
+    {
+        $attributeRepository->deleteSubIds($remoteIds, Remote::class);
 
         return $this->returnSuccess();
     }

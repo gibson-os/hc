@@ -18,6 +18,46 @@ Ext.define('GibsonOS.module.hc.ir.remote.Grid', {
             remoteId: remote.get('id')
         });
     },
+    deleteFunction(remotes) {
+        const me = this;
+        let message = 'Möchten Sie die ' + remotes.length + ' Fernbedienungen wirklich löschen?';
+
+        if (remotes.length === 1) {
+            message = 'Möchten Sie die Fernbedienung ' + remotes[0].get('name') + ' wirklich löschen?';
+        }
+
+        GibsonOS.MessageBox.show({
+            title: 'Fernbedienung löschen?',
+            msg: message,
+            type: GibsonOS.MessageBox.type.QUESTION,
+            buttons: [{
+                text: 'Ja',
+                handler: function() {
+                    me.setLoading(true);
+                    let ids = [];
+
+                    Ext.iterate(remotes, (remote) => {
+                        ids.push(remote.get('id'));
+                    });
+
+                    GibsonOS.Ajax.request({
+                        url: baseDir + 'hc/ir/deleteRemotes',
+                        params: {
+                            'remoteIds[]': ids
+                        },
+                        success: function() {
+                            me.getStore().remove(remotes);
+                        },
+                        callback() {
+                            me.setLoading(false);
+                        }
+                    });
+                }
+            },{
+                text: 'Nein'
+            }]
+        });
+    },
     initComponent() {
         const me = this;
 

@@ -128,12 +128,18 @@ class AttributeRepository extends AbstractRepository
         return empty($count) ? 0 : (int) $count[0];
     }
 
-    public function deleteSubIds(array $ids): void
+    /**
+     * @param class-string $dtoClassName
+     */
+    public function deleteSubIds(array $ids, string $dtoClassName): void
     {
+        $reflectionClass = $this->reflectionManager->getReflectionClass($dtoClassName);
+
         $table = self::getTable($this->attributeTableName);
         $table
-            ->setWhere('`sub_id` IN (' . $table->getParametersString($ids) . ')')
+            ->setWhere('`sub_id` IN (' . $table->getParametersString($ids) . ') AND `type`=?')
             ->setWhereParameters($ids)
+            ->addWhereParameter(lcfirst($reflectionClass->getShortName()))
             ->deletePrepared()
         ;
     }
@@ -426,7 +432,11 @@ class AttributeRepository extends AbstractRepository
      */
     public function removeDtos(array $dtos): void
     {
-        $this->deleteSubIds(array_map(fn (AttributeInterface $dto): int => $dto->getSubId() ?? 0, $dtos));
+        $dto = reset($dtos);
+        $this->deleteSubIds(
+            array_map(fn (AttributeInterface $dto): int => $dto->getSubId() ?? 0, $dtos),
+            $dto::class
+        );
     }
 
     /**
