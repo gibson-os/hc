@@ -98,7 +98,11 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
                         me.getForm().setValues(data.key);
                         me.loadMask.hide();
                     } else {
-                        setTimeout(runRequest, 1000);
+                        if (!me.isVisible()) {
+                           return;
+                        }
+
+                        setTimeout(runRequest, 10);
                     }
                 }
             });

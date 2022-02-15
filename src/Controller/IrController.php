@@ -56,14 +56,13 @@ class IrController extends AbstractController
     }
 
     /**
-     * @throws AttributeException
      * @throws JsonException
      * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws DeleteError
-     *
-     * @return AjaxResponse
+     * @throws FactoryError
+     * @throws AttributeException
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function addKey(
@@ -102,11 +101,19 @@ class IrController extends AbstractController
         int $moduleId,
         int $lastLogId = null
     ): AjaxResponse {
-        try {
-            $log = $logRepository->getLastEntryByModuleId($moduleId, AbstractHcSlave::COMMAND_DATA_CHANGED);
-            $data = ['lastLogId' => $log->getId() ?? 0];
+        $data = ['lastLogId' => 0];
 
-            if ($lastLogId !== null && $log->getId() !== $lastLogId) {
+        for ($retry = 0; $retry < 10000; ++$retry) {
+            try {
+                $log = $logRepository->getLastEntryByModuleId($moduleId, AbstractHcSlave::COMMAND_DATA_CHANGED);
+                $data = ['lastLogId' => $log->getId() ?? 0];
+
+                if ($lastLogId === null || $log->getId() === $lastLogId) {
+                    $lastLogId = $log->getId();
+
+                    continue;
+                }
+
                 $data['key'] = $irFormatter->getKeys($log->getRawData())[0];
                 $name = $data['key']->getName();
 
@@ -119,9 +126,12 @@ class IrController extends AbstractController
 
                     throw $exception;
                 }
+
+                break;
+            } catch (SelectError) {
             }
-        } catch (SelectError) {
-            $data = ['lastLogId' => 0];
+
+            usleep(10);
         }
 
         return $this->returnSuccess($data);
@@ -151,6 +161,7 @@ class IrController extends AbstractController
      * @throws ReflectionException
      * @throws SelectError
      * @throws MapperException
+     * @throws FactoryError
      */
     #[CheckPermission(Permission::READ)]
     public function remote(AttributeRepository $attributeRepository, ?int $remoteId): AjaxResponse
@@ -162,6 +173,9 @@ class IrController extends AbstractController
         return $this->returnSuccess(new Remote());
     }
 
+    /**
+     * @throws SelectError
+     */
     #[CheckPermission(Permission::READ)]
     public function remotes(
         RemoteStore $remoteStore,
@@ -185,6 +199,7 @@ class IrController extends AbstractController
      * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
+     * @throws FactoryError
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function saveRemote(
@@ -205,8 +220,6 @@ class IrController extends AbstractController
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     *
-     * @return AjaxResponse
      */
     #[CheckPermission(Permission::WRITE)]
     public function sendRemoteKey(
