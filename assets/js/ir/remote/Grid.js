@@ -2,6 +2,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Grid', {
     extend: 'GibsonOS.module.core.component.grid.Panel',
     alias: ['widget.gosModuleIrRemoteGrid'],
     autoScroll: true,
+    multiSelect: true,
     addFunction() {
         const me = this;
 
