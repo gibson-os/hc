@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Repository;
 use Exception;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Model\DeleteError as ModelDeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
@@ -338,11 +337,9 @@ class AttributeRepository extends AbstractRepository
      * @param T $dto
      *
      * @throws JsonException
-     * @throws MapperException
      * @throws ReflectionException
      * @throws SelectError
      * @throws FactoryError
-     * @throws AttributeException
      *
      * @return T
      */

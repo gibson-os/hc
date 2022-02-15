@@ -11,7 +11,6 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -19,6 +18,7 @@ use GibsonOS\Core\Model\Event;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Module\Hc\Attribute\GetAttribute;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
 use GibsonOS\Module\Hc\Dto\Ir\Remote;
 use GibsonOS\Module\Hc\Exception\AttributeException;
@@ -153,23 +153,9 @@ class IrController extends AbstractController
         return $this->returnSuccess();
     }
 
-    /**
-     * @throws AttributeException
-     * @throws JsonException
-     * @throws ReflectionException
-     * @throws SelectError
-     * @throws MapperException
-     * @throws FactoryError
-     */
     #[CheckPermission(Permission::READ)]
-    public function remote(
-        AttributeRepository $attributeRepository,
-        #[GetObject(['id' => 'remoteId'])] Remote $remote
-    ): AjaxResponse {
-        if ($remote->getId() !== null) {
-            return $this->returnSuccess($attributeRepository->loadDto($remote));
-        }
-
+    public function remote(#[GetAttribute(['id' => 'remoteId'])] Remote $remote): AjaxResponse
+    {
         return $this->returnSuccess($remote);
     }
 
