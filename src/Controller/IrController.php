@@ -146,11 +146,9 @@ class IrController extends AbstractController
     public function send(
         IrService $irService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        int $protocol,
-        int $address,
-        int $command
+        #[GetObject] Key $key
     ): AjaxResponse {
-        $irService->sendKeys($module, [new Key($protocol, $address, $command)]);
+        $irService->sendKeys($module, [$key]);
 
         return $this->returnSuccess();
     }

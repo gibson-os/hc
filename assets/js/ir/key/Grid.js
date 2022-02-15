@@ -25,7 +25,7 @@ Ext.define('GibsonOS.module.hc.ir.key.Grid', {
                 moduleId: me.moduleId,
                 protocol: key.get('protocol'),
                 address: key.get('address'),
-                command: key.get('name'),
+                command: key.get('command'),
             },
             callback() {
                 me.setLoading(false);
