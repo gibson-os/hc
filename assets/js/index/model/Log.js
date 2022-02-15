@@ -17,7 +17,7 @@ Ext.define('GibsonOS.module.hc.index.model.Log', {
         type: 'string'
     },{
         name: 'direction',
-        type: 'int'
+        type: 'string'
     },{
         name: 'type',
         type: 'int'

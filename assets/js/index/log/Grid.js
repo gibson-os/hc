@@ -33,10 +33,10 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
             dataIndex: 'direction',
             width: 28,
             renderer: function(value) {
-                if (value === 1) {
-                    return '<img alt="Eingehend" src="' + baseDir + 'img/blank.gif" class="icon_system system_back" />';
+                if (value === 'input') {
+                    return '<img alt="Eingehend" title="Eingehend" src="' + baseDir + 'img/blank.gif" class="icon_system system_back" />';
                 } else {
-                    return '<img alt="Ausgehend" src="' + baseDir + 'img/blank.gif" class="icon_system system_next" />';
+                    return '<img alt="Ausgehend" title="Ausgehend" src="' + baseDir + 'img/blank.gif" class="icon_system system_next" />';
                 }
             }
         },{

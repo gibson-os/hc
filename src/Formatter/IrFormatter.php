@@ -106,7 +106,7 @@ class IrFormatter extends AbstractHcFormatter
             );
             $key
                 ->setName($this->getKeyName($key))
-                ->setProtocolName($this->irProtocols[$key->getProtocol()])
+                ->setProtocolName($this->irProtocols[$key->getProtocol()] ?? null)
             ;
 
             $keys[] = $key;
@@ -184,7 +184,7 @@ class IrFormatter extends AbstractHcFormatter
                 $this->renderBlock(
                     AbstractHcSlave::COMMAND_STATUS,
                     self::BLOCK_EXPLAIN,
-                    ['protocol' => $this->irProtocols[$key->getProtocol()]]
+                    ['protocol' => $this->irProtocols[$key->getProtocol()] ?? null]
                 ) ?? ''
             ))->setColor(Explain::COLOR_GREEN);
             $explains[] = (new Explain(
