@@ -3,13 +3,16 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Mapper;
 
+use GibsonOS\Core\Attribute\ObjectMapper;
 use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Module\Hc\Attribute\AttributeMapper as AttributeMapperAttribute;
 use JsonSerializable;
 use ReflectionAttribute;
 use ReflectionException;
+use ReflectionProperty;
 
 class AttributeMapper implements AttributeMapperInterface
 {
@@ -29,12 +32,13 @@ class AttributeMapper implements AttributeMapperInterface
             return $value;
         }
 
-        $reflectionClass = $this->reflectionManager->getReflectionClass($value);
         $newValue = $value->jsonSerialize();
 
         if (!is_array($newValue)) {
             return $newValue;
         }
+
+        $reflectionClass = $this->reflectionManager->getReflectionClass($value);
 
         foreach ($reflectionClass->getProperties() as $reflectionProperty) {
             $attributeMapperAttribute = $this->reflectionManager->getAttribute(
@@ -71,46 +75,57 @@ class AttributeMapper implements AttributeMapperInterface
     /**
      * @throws FactoryError
      * @throws ReflectionException
+     * @throws MapperException
      */
-    public function mapFromDatabase(float|object|array|bool|int|string|null $value): int|float|string|null|bool|array|object
-    {
-        return $this->map($value, fn (AttributeMapperInterface $mapper, $value) => $mapper->mapFromDatabase($value));
-    }
-
-    /**
-     * @throws FactoryError
-     * @throws ReflectionException
-     */
-    private function map(
-        float|object|array|bool|int|string|null $value,
-        callable $mapFunction
+    public function mapFromDatabase(
+        ReflectionProperty $reflectionProperty,
+        float|array|bool|int|string|null $value
     ): int|float|string|null|bool|array|object {
-        $newValues = is_array($value) ? $value : [$value];
+        if (!is_array($value)) {
+            return $value;
+        }
 
-        foreach ($newValues as &$newValue) {
-            if (!is_object($newValue)) {
+        $objectMapper = $this->reflectionManager->getAttribute($reflectionProperty, ObjectMapper::class);
+
+        if ($objectMapper === null) {
+            return $value;
+        }
+
+        /** @psalm-suppress UndefinedMethod */
+        $objectClassName = $objectMapper->getObjectClassName() ?? $reflectionProperty->getType()?->getName();
+
+        if ($objectClassName === null) {
+            throw new MapperException(sprintf(
+                'No mapper object class name found for property "%s" of class "%s"',
+                $reflectionProperty->getName(),
+                $reflectionProperty->getDeclaringClass()->getName()
+            ));
+        }
+
+        $reflectionClass = $this->reflectionManager->getReflectionClass($objectClassName);
+        $newValues = [];
+
+        foreach ($reflectionClass->getProperties() as $reflectionProperty) {
+            $attributeMapperAttribute = $this->reflectionManager->getAttribute(
+                $reflectionProperty,
+                AttributeMapperAttribute::class,
+                ReflectionAttribute::IS_INSTANCEOF
+            );
+            $mapper = $this;
+
+            if ($attributeMapperAttribute !== null) {
+                $mapper = $this->serviceManagerService->get($attributeMapperAttribute->getAttributeMapper());
+            }
+
+            $propertyName = $reflectionProperty->getName();
+
+            if (!array_key_exists($propertyName, $value)) {
                 continue;
             }
 
-            $reflectionClass = $this->reflectionManager->getReflectionClass($newValue::class);
-
-            foreach ($reflectionClass->getProperties() as $reflectionProperty) {
-                $attributeMapper = $this->reflectionManager->getAttribute(
-                    $reflectionProperty,
-                    AttributeMapperAttribute::class,
-                    ReflectionAttribute::IS_INSTANCEOF
-                );
-
-                if ($attributeMapper !== null) {
-                    $mapper = $this->serviceManagerService->get(
-                        $attributeMapper->getAttributeMapper(),
-                        AttributeMapperInterface::class
-                    );
-                    $newValue = $mapFunction($mapper, $newValue);
-                }
-            }
+            $newValues[$propertyName] = $mapper->mapFromDatabase($reflectionProperty, $value[$propertyName]);
         }
 
-        return is_array($value) ? $newValues : reset($newValues);
+        return $newValues;
     }
 }

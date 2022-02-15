@@ -3,11 +3,17 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Mapper\Ir;
 
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\MapperException;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
+use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
 use GibsonOS\Module\Hc\Mapper\AttributeMapperInterface;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
+use JsonException;
+use ReflectionException;
+use ReflectionProperty;
 
 class RemoteKeyMapper implements AttributeMapperInterface
 {
@@ -42,15 +48,34 @@ class RemoteKeyMapper implements AttributeMapperInterface
         return $newValues;
     }
 
-    public function mapFromDatabase(int|object|bool|array|float|string|null $value): Key
-    {
-        if (!is_int($value)) {
-            throw new MapperException('Value for remote key mapper is no int!');
+    /**
+     * @throws MapperException
+     * @throws FactoryError
+     * @throws SelectError
+     * @throws AttributeException
+     * @throws JsonException
+     * @throws ReflectionException
+     */
+    public function mapFromDatabase(
+        ReflectionProperty $reflectionProperty,
+        int|bool|array|float|string|null $value
+    ): array {
+        $keys = [];
+
+        if (!is_array($value)) {
+            throw new MapperException('Value for remote key mapper is no array!');
         }
 
-        $key = $this->irFormatter->getKeyBySubId($value);
-        $this->attributeRepository->loadDto($key);
+        foreach ($value as $subId) {
+            if (!is_int($subId)) {
+                throw new MapperException('Value for remote key mapper is no int!');
+            }
 
-        return $key;
+            $key = $this->irFormatter->getKeyBySubId($subId);
+            $this->attributeRepository->loadDto($key);
+            $keys[] = $key->jsonSerialize();
+        }
+
+        return $keys;
     }
 }

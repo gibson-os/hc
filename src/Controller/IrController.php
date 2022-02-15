@@ -162,13 +162,15 @@ class IrController extends AbstractController
      * @throws FactoryError
      */
     #[CheckPermission(Permission::READ)]
-    public function remote(AttributeRepository $attributeRepository, ?int $remoteId): AjaxResponse
-    {
-        if ($remoteId !== null) {
-            return $this->returnSuccess($attributeRepository->loadDto(new Remote(id: $remoteId)));
+    public function remote(
+        AttributeRepository $attributeRepository,
+        #[GetObject(['id' => 'remoteId'])] Remote $remote
+    ): AjaxResponse {
+        if ($remote->getId() !== null) {
+            return $this->returnSuccess($attributeRepository->loadDto($remote));
         }
 
-        return $this->returnSuccess(new Remote());
+        return $this->returnSuccess($remote);
     }
 
     /**

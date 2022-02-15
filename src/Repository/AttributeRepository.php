@@ -209,7 +209,6 @@ class AttributeRepository extends AbstractRepository
      */
     public function saveDto(AttributeInterface $dto): void
     {
-        $getterPrefixes = ['get', 'is', 'has'];
         $keyNames = [];
         $reflectionClass = $this->reflectionManager->getReflectionClass($dto);
         $this->startTransaction();
@@ -356,16 +355,6 @@ class AttributeRepository extends AbstractRepository
             }
 
             $keyName = $attributeAttribute->getName() ?? $reflectionProperty->getName();
-            $setter = 'set' . ucfirst($reflectionProperty->getName());
-
-            if (!method_exists($dto, $setter)) {
-                throw new AttributeException(sprintf(
-                    'No setter found for property "%s" of dto "%s"!',
-                    $reflectionProperty->getName(),
-                    $dto::class
-                ));
-            }
-
             $mapperAttribute = $this->reflectionManager->getAttribute(
                 $reflectionProperty,
                 AttributeMapper::class,
@@ -373,11 +362,10 @@ class AttributeRepository extends AbstractRepository
             );
 
             $properties[$keyName] = [
-                'setter' => $setter,
                 'reflectionProperty' => $reflectionProperty,
                 'attribute' => $attributeAttribute,
                 'mapper' => $mapperAttribute === null
-                    ? null
+                    ? $this->serviceManagerServices->get(AttributeMapperMapper::class)
                     : $this->serviceManagerServices->get($mapperAttribute->getAttributeMapper()),
             ];
         }
@@ -400,31 +388,34 @@ class AttributeRepository extends AbstractRepository
             $reflectionProperty = $property['reflectionProperty'];
             /** @var IsAttribute $reflectionAttribute */
             $reflectionAttribute = $property['attribute'];
-            /** @var AttributeMapperInterface|null $mapper */
+            /** @var AttributeMapperInterface $mapper */
             $mapper = $property['mapper'];
             /** @psalm-suppress UndefinedMethod */
             $typeName = $reflectionProperty->getType()?->getName();
             $propertyType = $reflectionAttribute->getType();
             $mapValue = fn (Value $value) => match ($typeName) {
-                'int' => (int) $value->getValue(),
-                'float' => (float) $value->getValue(),
-                'bool' => (bool) $value->getValue(),
+                'int' => (int) $mapper->mapFromDatabase($reflectionProperty, $value->getValue()),
+                'float' => (float) $mapper->mapFromDatabase($reflectionProperty, $value->getValue()),
+                'bool' => (bool) $mapper->mapFromDatabase($reflectionProperty, $value->getValue()),
                 default => $propertyType === null
-                    ? $value->getValue()
-                    : $this->objectMapper->mapToObject($propertyType, JsonUtility::decode($value->getValue())),
+                    ? $mapper->mapFromDatabase($reflectionProperty, $value->getValue())
+                    : $this->objectMapper->mapToObject(
+                        $propertyType,
+                        $mapper->mapFromDatabase($reflectionProperty, JsonUtility::decode($value->getValue())) ?? []
+                    ),
             };
             $mappedValues = array_map(
-                fn (Value $value) => $mapper === null ? $mapValue($value) : $mapper->mapFromDatabase($mapValue($value)),
+                fn (Value $value) => $mapValue($value),
                 $attribute->getValues()
             );
 
             if ($typeName === 'array') {
-                $dto->{$property['setter']}($mappedValues);
+                $this->reflectionManager->setProperty($property['reflectionProperty'], $dto, $mappedValues);
 
                 continue;
             }
 
-            $dto->{$property['setter']}(reset($mappedValues));
+            $this->reflectionManager->setProperty($property['reflectionProperty'], $dto, reset($mappedValues));
         }
 
         return $dto;
