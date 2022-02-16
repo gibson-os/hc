@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service;
 
-use GibsonOS\Core\Service\AbstractService;
-
-class TransformService extends AbstractService
+class TransformService
 {
     private const HERTZ_UNITS = ['Hz', 'kHz', 'MHz', 'GHz'];
 

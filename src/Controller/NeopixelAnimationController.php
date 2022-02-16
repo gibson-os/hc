@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Controller;
 
 use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
@@ -15,7 +16,7 @@ use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
-use GibsonOS\Module\Hc\Repository\ModuleRepository;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService as AnimationSequenceService;
@@ -30,15 +31,15 @@ class NeopixelAnimationController extends AbstractController
      * @throws Exception
      */
     #[CheckPermission(Permission::READ)]
-    public function index(AnimationAttributeService $animationService, ModuleRepository $moduleRepository, int $moduleId): AjaxResponse
-    {
-        $slave = $moduleRepository->getById($moduleId);
-
+    public function index(
+        AnimationAttributeService $animationService,
+        #[GetModel(['id' => 'moduleId'])] Module $module
+    ): AjaxResponse {
         return new AjaxResponse([
-            'pid' => $animationService->getPid($slave),
-            'started' => $animationService->getStarted($slave),
-            'steps' => $animationService->getSteps($slave),
-            'transmitted' => $animationService->isTransmitted($slave),
+            'pid' => $animationService->getPid($module),
+            'started' => $animationService->getStarted($module),
+            'steps' => $animationService->getSteps($module),
+            'transmitted' => $animationService->isTransmitted($module),
             'success' => true,
             'failure' => false,
         ]);
@@ -85,17 +86,14 @@ class NeopixelAnimationController extends AbstractController
     public function save(
         AnimationSequenceService $animationService,
         AnimationStore $animationStore,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         string $name,
         array $items,
         int $id = null
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-
         if (empty($id)) {
             try {
-                $animation = $animationService->getByName($slave, $name);
+                $animation = $animationService->getByName($module, $name);
 
                 new ImageExists(
                     (int) $animation->getId(),
@@ -110,12 +108,12 @@ class NeopixelAnimationController extends AbstractController
         }
 
         $animation = $animationService->save(
-            $slave,
+            $module,
             $name,
             $animationService->transformToTimeSteps($items),
             $id
         );
-        $animationStore->setModuleId($moduleId);
+        $animationStore->setModuleId($module->getId() ?? 0);
 
         return new AjaxResponse([
             'data' => $animationStore->getList(),
@@ -140,17 +138,15 @@ class NeopixelAnimationController extends AbstractController
         NeopixelService $neopixelService,
         AnimationSequenceService $animationSequenceService,
         AnimationAttributeService $animationAttributeService,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         array $items = []
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
         $steps = $animationSequenceService->transformToTimeSteps($items);
         $runtimes = $animationSequenceService->getRuntimes($steps);
-        $msPerStep = 1000 / $slave->getPwmSpeed();
+        $msPerStep = 1000 / $module->getPwmSpeed();
         $newLeds = [];
 
-        $neopixelService->writeSequenceNew($slave);
+        $neopixelService->writeSequenceNew($module);
 
         foreach ($steps as $time => $leds) {
             $oldLeds = $newLeds;
@@ -171,12 +167,12 @@ class NeopixelAnimationController extends AbstractController
                     $runtime = 65535;
                 }
 
-                $neopixelService->writeSequenceAddStep($slave, $runtime, $changedLeds);
+                $neopixelService->writeSequenceAddStep($module, $runtime, $changedLeds);
                 $changedLeds = [];
             } while ($runtime === 65535);
         }
 
-        $animationAttributeService->setSteps($slave, $steps, true);
+        $animationAttributeService->setSteps($module, $steps, true);
 
         return $this->returnSuccess();
     }
@@ -190,15 +186,13 @@ class NeopixelAnimationController extends AbstractController
     public function play(
         AnimationSequenceService $animationSequenceService,
         AnimationAttributeService $animationAttributeService,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         int $iterations,
         array $items = []
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
         $steps = $animationSequenceService->transformToTimeSteps($items);
-        $animationAttributeService->setSteps($slave, $steps, false);
-        $animationSequenceService->play($slave, $iterations);
+        $animationAttributeService->setSteps($module, $steps, false);
+        $animationSequenceService->play($module, $iterations);
 
         return $this->returnSuccess();
     }
@@ -211,12 +205,10 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function start(
         NeopixelService $neopixelService,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         int $iterations = 0
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-        $neopixelService->writeSequenceStart($slave, $iterations);
+        $neopixelService->writeSequenceStart($module, $iterations);
 
         return $this->returnSuccess();
     }
@@ -229,11 +221,9 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function pause(
         NeopixelService $neopixelService,
-        ModuleRepository $moduleRepository,
-        int $moduleId
+        #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-        $neopixelService->writeSequencePause($slave);
+        $neopixelService->writeSequencePause($module);
         //$animationService->setStarted($slave, false);
 
         return $this->returnSuccess();
@@ -248,12 +238,10 @@ class NeopixelAnimationController extends AbstractController
     public function stop(
         AnimationSequenceService $animationService,
         NeopixelService $neopixelService,
-        ModuleRepository $moduleRepository,
-        int $moduleId
+        #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-        $animationService->stop($slave);
-        $neopixelService->writeSequenceStop($slave);
+        $animationService->stop($module);
+        $neopixelService->writeSequenceStop($module);
 
         return $this->returnSuccess();
     }

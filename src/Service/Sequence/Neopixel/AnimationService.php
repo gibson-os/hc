@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Service\Sequence\Neopixel;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Service\CommandService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Command\Neopixel\PlayAnimationCommand;
@@ -19,7 +18,7 @@ use GibsonOS\Module\Hc\Repository\SequenceRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
 use JsonException;
 
-class AnimationService extends AbstractService
+class AnimationService
 {
     public const SEQUENCE_TYPE = 1;
 

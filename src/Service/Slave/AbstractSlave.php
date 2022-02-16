@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Service\Slave;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Log;
@@ -16,13 +15,18 @@ use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use Psr\Log\LoggerInterface;
 
-abstract class AbstractSlave extends AbstractService
+abstract class AbstractSlave
 {
     protected const MAX_DATA_LENGTH = 32;
 
     abstract public function handshake(Module $slave): Module;
 
-    public function __construct(protected MasterService $masterService, protected TransformService $transformService, private LogRepository $logRepository, protected LoggerInterface $logger)
+    public function __construct(
+        protected MasterService $masterService,
+        protected TransformService $transformService,
+        private LogRepository $logRepository,
+        protected LoggerInterface $logger
+    )
     {
     }
 

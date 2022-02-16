@@ -5,7 +5,6 @@ namespace GibsonOS\Module\Hc\Service\Master;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\DirectConnect;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -14,7 +13,7 @@ use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\MasterService;
 
-class DirectConnectService extends AbstractService
+class DirectConnectService
 {
     private const TYPE_SEQUENCE_NEW = 100;
 

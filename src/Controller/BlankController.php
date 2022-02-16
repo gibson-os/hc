@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Controller;
 
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
@@ -11,7 +12,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
-use GibsonOS\Module\Hc\Repository\ModuleRepository;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Slave\BlankService;
 use GibsonOS\Module\Hc\Service\TransformService;
 
@@ -33,14 +34,12 @@ class BlankController extends AbstractController
     public function read(
         BlankService $blankService,
         TransformService $transformService,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         int $command,
         string $dataFormat,
         int $length
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-        $data = $blankService->read($slave, $command, $length);
+        $data = $blankService->read($module, $command, $length);
         $data = match ($dataFormat) {
             self::DATA_FORMAT_HEX => $transformService->asciiToHex($data),
             self::DATA_FORMAT_BIN => $transformService->asciiToBin($data),
@@ -59,8 +58,7 @@ class BlankController extends AbstractController
     public function write(
         BlankService $blankService,
         TransformService $transformService,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         int $command,
         string $dataFormat,
         string $data,
@@ -80,12 +78,10 @@ class BlankController extends AbstractController
                 break;
         }
 
-        $slave = $moduleRepository->getById($moduleId);
-
         if ($isHcData) {
-            $blankService->write($slave, $command, $data);
+            $blankService->write($module, $command, $data);
         } else {
-            $blankService->writeRaw($slave, $command, $data);
+            $blankService->writeRaw($module, $command, $data);
         }
 
         return $this->returnSuccess($transformService->asciiToBin($data));

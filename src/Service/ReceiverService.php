@@ -9,13 +9,12 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use Psr\Log\LoggerInterface;
 
-class ReceiverService extends AbstractService
+class ReceiverService
 {
     public function __construct(private TransformService $transformService, private MasterService $masterService, private MasterMapper $masterMapper, private MasterRepository $masterRepository, private LoggerInterface $logger)
     {

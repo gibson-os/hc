@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Controller;
 
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
@@ -11,7 +12,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
-use GibsonOS\Module\Hc\Repository\ModuleRepository;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Store\Io\DirectConnectStore;
 use GibsonOS\Module\Hc\Store\Io\PortStore;
@@ -25,8 +26,7 @@ class IoController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function set(
         IoService $ioService,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         int $number,
         string $name,
         int $direction,
@@ -39,7 +39,7 @@ class IoController extends AbstractController
     ): AjaxResponse {
         $valueNames = array_map('trim', $valueNames);
         $ioService->setPort(
-            $moduleRepository->getById($moduleId),
+            $module,
             $number,
             $name,
             $direction,
@@ -69,11 +69,10 @@ class IoController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function toggle(
         IoService $ioService,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         int $number
     ): AjaxResponse {
-        $ioService->toggleValue($moduleRepository->getById($moduleId), $number);
+        $ioService->toggleValue($module, $number);
 
         return $this->returnSuccess();
     }
@@ -85,12 +84,11 @@ class IoController extends AbstractController
      * @throws SelectError
      */
     #[CheckPermission(Permission::WRITE)]
-    public function loadFromEeprom(IoService $ioService, ModuleRepository $moduleRepository, int $moduleId): AjaxResponse
+    public function loadFromEeprom(IoService $ioService, #[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
     {
-        $slave = $moduleRepository->getById($moduleId);
-        $ioService->readPortsFromEeprom($slave);
+        $ioService->readPortsFromEeprom($module);
 
-        return $this->returnSuccess($ioService->getPorts($slave));
+        return $this->returnSuccess($ioService->getPorts($module));
     }
 
     /**
@@ -99,9 +97,9 @@ class IoController extends AbstractController
      * @throws SelectError
      */
     #[CheckPermission(Permission::WRITE)]
-    public function saveToEeprom(IoService $ioService, ModuleRepository $moduleRepository, int $moduleId): AjaxResponse
+    public function saveToEeprom(IoService $ioService, #[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
     {
-        $ioService->writePortsToEeprom($moduleRepository->getById($moduleId));
+        $ioService->writePortsToEeprom($module);
 
         return $this->returnSuccess();
     }
@@ -116,14 +114,13 @@ class IoController extends AbstractController
     public function directConnects(
         IoService $ioService,
         DirectConnectStore $directConnectStore,
-        ModuleRepository $moduleRepository,
-        int $moduleId
+        #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $directConnectStore->setModuleId($moduleId);
+        $directConnectStore->setModuleId($module->getId() ?? 0);
 
         return new AjaxResponse([
             'data' => $directConnectStore->getList(),
-            'active' => $ioService->isDirectConnectActive($moduleRepository->getById($moduleId)),
+            'active' => $ioService->isDirectConnectActive($module),
         ]);
     }
 
@@ -134,8 +131,7 @@ class IoController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function saveDirectConnect(
         IoService $ioService,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         int $inputPort,
         int $inputPortValue,
         int $outputPort,
@@ -147,7 +143,7 @@ class IoController extends AbstractController
         int $addOrSub
     ): AjaxResponse {
         $ioService->saveDirectConnect(
-            $moduleRepository->getById($moduleId),
+            $module,
             $inputPort,
             $inputPortValue,
             $order,
@@ -169,12 +165,11 @@ class IoController extends AbstractController
     #[CheckPermission(Permission::DELETE)]
     public function deleteDirectConnect(
         IoService $ioService,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         int $inputPort,
         int $order
     ): AjaxResponse {
-        $ioService->deleteDirectConnect($moduleRepository->getById($moduleId), $inputPort, $order);
+        $ioService->deleteDirectConnect($module, $inputPort, $order);
 
         return $this->returnSuccess();
     }
@@ -186,11 +181,10 @@ class IoController extends AbstractController
     #[CheckPermission(Permission::DELETE)]
     public function resetDirectConnect(
         IoService $ioService,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         int $inputPort
     ): AjaxResponse {
-        $ioService->resetDirectConnect($moduleRepository->getById($moduleId), $inputPort);
+        $ioService->resetDirectConnect($module, $inputPort);
 
         return $this->returnSuccess();
     }
@@ -204,20 +198,17 @@ class IoController extends AbstractController
     #[CheckPermission(Permission::READ)]
     public function readDirectConnect(
         IoService $ioService,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         int $inputPort,
         int $order,
         bool $reset
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-
         try {
             if ($reset) {
-                $ioService->resetDirectConnect($slave, $inputPort, true);
+                $ioService->resetDirectConnect($module, $inputPort, true);
             }
 
-            return $this->returnSuccess($ioService->readDirectConnect($slave, $inputPort, $order));
+            return $this->returnSuccess($ioService->readDirectConnect($module, $inputPort, $order));
         } catch (ReceiveError $exception) {
             if ($exception->getCode() === IoService::DIRECT_CONNECT_READ_NOT_EXIST) {
                 return $this->returnSuccess();
@@ -235,10 +226,9 @@ class IoController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function defragmentDirectConnect(
         IoService $ioService,
-        ModuleRepository $moduleRepository,
-        int $moduleId
+        #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $ioService->defragmentDirectConnect($moduleRepository->getById($moduleId));
+        $ioService->defragmentDirectConnect($module);
 
         return $this->returnSuccess();
     }
@@ -251,11 +241,10 @@ class IoController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function activateDirectConnect(
         IoService $ioService,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         bool $activate
     ): AjaxResponse {
-        $ioService->activateDirectConnect($moduleRepository->getById($moduleId), $activate);
+        $ioService->activateDirectConnect($module, $activate);
 
         return $this->returnSuccess();
     }

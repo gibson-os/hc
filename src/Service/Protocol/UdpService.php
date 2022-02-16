@@ -7,7 +7,6 @@ use GibsonOS\Core\Exception\CreateError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\Server\SendError;
 use GibsonOS\Core\Exception\SetError;
-use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Service\UdpService as CoreUdpService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Exception\TransformException;
@@ -15,7 +14,7 @@ use GibsonOS\Module\Hc\Mapper\BusMessageMapper;
 use GibsonOS\Module\Hc\Service\MasterService;
 use Psr\Log\LoggerInterface;
 
-class UdpService extends AbstractService implements ProtocolInterface
+class UdpService implements ProtocolInterface
 {
     public const RECEIVE_PORT = 42000;
 

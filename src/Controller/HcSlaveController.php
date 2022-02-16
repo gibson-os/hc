@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Controller;
 
 use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
@@ -23,24 +24,17 @@ use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 
 class HcSlaveController extends AbstractController
 {
-    /**
-     * @throws SelectError
-     */
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
-    public function generalSettings(
-        ModuleRepository $moduleRepository,
-        int $moduleId
-    ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-
+    public function generalSettings(#[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
+    {
         return $this->returnSuccess([
-            'name' => $slave->getName(),
-            'hertz' => $slave->getHertz(),
-            'bufferSize' => $slave->getBufferSize(),
-            'deviceId' => $slave->getDeviceId(),
-            'typeId' => $slave->getTypeId(),
-            'address' => $slave->getAddress(),
-            'pwmSpeed' => $slave->getPwmSpeed(),
+            'name' => $module->getName(),
+            'hertz' => $module->getHertz(),
+            'bufferSize' => $module->getBufferSize(),
+            'deviceId' => $module->getDeviceId(),
+            'typeId' => $module->getTypeId(),
+            'address' => $module->getAddress(),
+            'pwmSpeed' => $module->getPwmSpeed(),
         ]);
     }
 
@@ -56,7 +50,7 @@ class HcSlaveController extends AbstractController
         SlaveFactory $slaveFactory,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         string $name,
         int $deviceId,
         int $typeId,
@@ -65,36 +59,35 @@ class HcSlaveController extends AbstractController
         bool $overwriteSlave = false,
         bool $deleteSlave = false
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($slaveFactory, $slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $module);
         $moduleRepository->startTransaction();
 
         try {
-            $slave
+            $module
                 ->setName($name)
                 ->save()
             ;
             $moduleRepository->commit();
             $moduleRepository->startTransaction();
 
-            if ($deviceId !== $slave->getDeviceId()) {
+            if ($deviceId !== $module->getDeviceId()) {
                 try {
                     $existingSlave = $moduleRepository->getByDeviceId($deviceId);
 
                     if ($overwriteSlave) {
-                        $slave->setType($existingSlave->getType());
-                        $slaveService = $this->getSlaveService($slaveFactory, $slave);
-                        $slaveService->onOverwriteExistingSlave($slave, $existingSlave);
-                        $moduleRepository->deleteByIds([(int) $slave->getId()]);
-                        $slave->setId((int) $existingSlave->getId());
-                        $typeId = $slave->getTypeId();
+                        $module->setType($existingSlave->getType());
+                        $slaveService = $this->getSlaveService($slaveFactory, $module);
+                        $slaveService->onOverwriteExistingSlave($module, $existingSlave);
+                        $moduleRepository->deleteByIds([$module->getId() ?? 0]);
+                        $module->setId((int) $existingSlave->getId());
+                        $typeId = $module->getTypeId();
                     // @todo log umschreiben?
                     } elseif ($deleteSlave) {
                         $moduleRepository->deleteByIds([(int) $existingSlave->getId()]);
                     } else {
                         $exception = new SetError('Device ID ' . $deviceId . ' ist schon in benutzung!');
                         $exception->setType(AbstractException::QUESTION);
-                        $exception->setExtraParameter('moduleId', $moduleId);
+                        $exception->setExtraParameter('moduleId', $module->getId() ?? 0);
                         $exception->addButton('Vorhandenes Modul überschreiben', 'overwriteSlave', true);
                         $exception->addButton('Vorhandenes Modul entfernen', 'deleteSlave', true);
                         $exception->addButton('Abbrechen');
@@ -105,25 +98,25 @@ class HcSlaveController extends AbstractController
                     // No existing slave
                 }
 
-                $slaveService->writeDeviceId($slave, $deviceId);
-                $slave->save();
+                $slaveService->writeDeviceId($module, $deviceId);
+                $module->save();
                 $moduleRepository->commit();
                 $moduleRepository->startTransaction();
             }
 
-            if ($address !== $slave->getAddress()) {
-                $slaveService->writeAddress($slave, $address);
-                $slave->save();
+            if ($address !== $module->getAddress()) {
+                $slaveService->writeAddress($module, $address);
+                $module->save();
                 $moduleRepository->commit();
                 $moduleRepository->startTransaction();
             }
 
-            if ($pwmSpeed !== $slave->getPwmSpeed()) {
+            if ($pwmSpeed !== $module->getPwmSpeed()) {
                 if ($pwmSpeed !== null) {
-                    $slaveService->writePwmSpeed($slave, $pwmSpeed);
+                    $slaveService->writePwmSpeed($module, $pwmSpeed);
                 }
 
-                $slave
+                $module
                     ->setPwmSpeed($pwmSpeed)
                     ->save()
                 ;
@@ -131,10 +124,10 @@ class HcSlaveController extends AbstractController
                 $moduleRepository->startTransaction();
             }
 
-            if ($typeId !== $slave->getTypeId()) {
+            if ($typeId !== $module->getTypeId()) {
                 $type = $typeRepository->getById($typeId);
-                $slaveService->writeTypeId($slave, $type);
-                $slave->save();
+                $slaveService->writeTypeId($module, $type);
+                $module->save();
                 $moduleRepository->commit();
             }
         } catch (AbstractException $exception) {
@@ -144,17 +137,17 @@ class HcSlaveController extends AbstractController
         }
 
         return $this->returnSuccess([
-            'id' => $slave->getId(),
-            'name' => $slave->getName(),
-            'type_id' => $slave->getTypeId(),
-            'address' => $slave->getAddress(),
-            'hertz' => $slave->getHertz(),
+            'id' => $module->getId(),
+            'name' => $module->getName(),
+            'type_id' => $module->getTypeId(),
+            'address' => $module->getAddress(),
+            'hertz' => $module->getHertz(),
             'offline' => false,
-            'added' => $slave->getAdded(),
-            'modified' => $slave->getModified(),
-            'type' => $slave->getType()->getName(),
-            'settings' => $slave->getType()->getUiSettings(),
-            'helper' => $slave->getType()->getHelper(),
+            'added' => $module->getAdded(),
+            'modified' => $module->getModified(),
+            'type' => $module->getType()->getName(),
+            'settings' => $module->getType()->getUiSettings(),
+            'helper' => $module->getType()->getHelper(),
         ]);
     }
 
@@ -169,16 +162,14 @@ class HcSlaveController extends AbstractController
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function eepromSettings(
         SlaveFactory $slaveFactory,
-        ModuleRepository $moduleRepository,
-        int $moduleId
+        #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($slaveFactory, $slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $module);
 
         return $this->returnSuccess([
-            'size' => $slave->getEepromSize(),
-            'free' => $slaveService->readEepromFree($slave),
-            'position' => $slaveService->readEepromPosition($slave),
+            'size' => $module->getEepromSize(),
+            'free' => $slaveService->readEepromFree($module),
+            'position' => $slaveService->readEepromPosition($module),
         ]);
     }
 
@@ -192,13 +183,11 @@ class HcSlaveController extends AbstractController
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function saveEepromSettings(
         SlaveFactory $slaveFactory,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         int $position
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($slaveFactory, $slave);
-        $slaveService->writeEepromPosition($slave, $position);
+        $slaveService = $this->getSlaveService($slaveFactory, $module);
+        $slaveService->writeEepromPosition($module, $position);
 
         return $this->returnSuccess();
     }
@@ -213,12 +202,10 @@ class HcSlaveController extends AbstractController
     #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
     public function eraseEeprom(
         SlaveFactory $slaveFactory,
-        ModuleRepository $moduleRepository,
-        int $moduleId
+        #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($slaveFactory, $slave);
-        $slaveService->writeEepromErase($slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $module);
+        $slaveService->writeEepromErase($module);
 
         return $this->returnSuccess();
     }
@@ -233,12 +220,10 @@ class HcSlaveController extends AbstractController
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function restart(
         SlaveFactory $slaveFactory,
-        ModuleRepository $moduleRepository,
-        int $moduleId
+        #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($slaveFactory, $slave);
-        $slaveService->writeRestart($slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $module);
+        $slaveService->writeRestart($module);
 
         return $this->returnSuccess();
     }
@@ -254,12 +239,10 @@ class HcSlaveController extends AbstractController
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function getStatusLeds(
         SlaveFactory $slaveFactory,
-        ModuleRepository $moduleRepository,
-        int $moduleId
+        #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($slaveFactory, $slave);
-        $activeLeds = $slaveService->readLedStatus($slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $module);
+        $activeLeds = $slaveService->readLedStatus($module);
         $leds = ['exist' => $activeLeds];
 
         foreach ($activeLeds as $led => $active) {
@@ -270,13 +253,13 @@ class HcSlaveController extends AbstractController
                 continue;
             }
 
-            $leds = array_merge($slaveService->readAllLeds($slave), $leds);
+            $leds = array_merge($slaveService->readAllLeds($module), $leds);
 
             break;
         }
 
         if ($activeLeds[AbstractHcSlave::RGB_LED_KEY]) {
-            foreach ($slaveService->readRgbLed($slave) as $rgbLed => $code) {
+            foreach ($slaveService->readRgbLed($module) as $rgbLed => $code) {
                 $leds[$rgbLed . 'Code'] = $code;
             }
         }
@@ -294,8 +277,7 @@ class HcSlaveController extends AbstractController
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function setStatusLeds(
         SlaveFactory $slaveFactory,
-        ModuleRepository $moduleRepository,
-        int $moduleId,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
         bool $power = false,
         bool $error = false,
         bool $connect = false,
@@ -310,11 +292,10 @@ class HcSlaveController extends AbstractController
         string $receiveCode = null,
         string $customCode = null
     ): AjaxResponse {
-        $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($slaveFactory, $slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $module);
 
         $slaveService->writeAllLeds(
-            $slave,
+            $module,
             $power,
             $error,
             $connect,
@@ -333,7 +314,7 @@ class HcSlaveController extends AbstractController
             $customCode !== null
         ) {
             $slaveService->writeRgbLed(
-                $slave,
+                $module,
                 $powerCode ?: '000',
                 $errorCode ?: '000',
                 $connectCode ?: '000',

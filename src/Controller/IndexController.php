@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -56,6 +57,7 @@ class IndexController extends AbstractController
      * @throws SaveError
      * @throws SelectError
      * @throws ReceiveError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
     public function logSend(SlaveFactory $slaveFactory, LogRepository $logRepository, int $id): AjaxResponse

@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Service\Sequence\Neopixel;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Module;
@@ -15,7 +14,7 @@ use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
 use GibsonOS\Module\Hc\Repository\SequenceRepository;
 use JsonException;
 
-class ImageService extends AbstractService
+class ImageService
 {
     public const SEQUENCE_TYPE = 0;
 

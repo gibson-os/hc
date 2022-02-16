@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Controller;
 
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
@@ -13,8 +14,8 @@ use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Store\SlaveStore;
@@ -28,45 +29,41 @@ class SlaveController extends AbstractController
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function add(
-        ModuleRepository $moduleRepository,
-        MasterRepository $masterRepository,
         TypeRepository $typeRepository,
         SlaveFactory $slaveFactory,
         DateTimeService $dateTimeService,
+        #[GetModel(['id' => 'masterId'])] Master $master,
+        #[GetModel(['address' => 'address', 'master_id' => 'masterId'])] ?Module $module,
         string $name,
         int $address,
-        int $masterId,
         int $typeId,
         bool $withHandshake
     ): AjaxResponse {
-        $master = $masterRepository->getById($masterId);
         $type = $typeRepository->getById($typeId);
 
-        try {
-            $slave = $moduleRepository->getByAddress($address, $masterId);
-
+        if ($module !== null) {
             return $this->returnFailure(sprintf(
                 'Unter der Adresse %d existiert bereits ein Modul (%s)',
                 $address,
-                $slave->getName()
+                $module->getName()
             ));
-        } catch (SelectError) {
-            $slave = (new Module())
-                ->setName($name)
-                ->setAddress($address)
-                ->setMaster($master)
-                ->setType($type)
-                ->setAdded($dateTimeService->get())
-            ;
-            $slave->save();
-
-            if ($withHandshake) {
-                $slaveService = $slaveFactory->get($type->getHelper());
-                $slaveService->handshake($slave);
-            }
-
-            return $this->returnSuccess($slave);
         }
+
+        $slave = (new Module())
+            ->setName($name)
+            ->setAddress($address)
+            ->setMaster($master)
+            ->setType($type)
+            ->setAdded($dateTimeService->get())
+        ;
+        $slave->save();
+
+        if ($withHandshake) {
+            $slaveService = $slaveFactory->get($type->getHelper());
+            $slaveService->handshake($slave);
+        }
+
+        return $this->returnSuccess($slave);
     }
 
     #[CheckPermission(Permission::READ)]

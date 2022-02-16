@@ -11,9 +11,7 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Service\AbstractService;
 use GibsonOS\Core\Service\DateTimeService;
-use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Mapper\MasterMapper;
@@ -29,7 +27,7 @@ use GibsonOS\Module\Hc\Service\Protocol\UdpService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use Psr\Log\LoggerInterface;
 
-class MasterService extends AbstractService
+class MasterService
 {
     public const TYPE_RECEIVE_RETURN = 0;
 
@@ -47,8 +45,6 @@ class MasterService extends AbstractService
 
     public function __construct(
         private SenderService $senderService,
-        private EventService $eventService,
-        private TransformService $transformService,
         private SlaveFactory $slaveFactory,
         private MasterMapper $masterMapper,
         private LogRepository $logRepository,
