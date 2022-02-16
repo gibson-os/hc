@@ -103,13 +103,14 @@ class IrController extends AbstractController
     ): AjaxResponse {
         $data = ['lastLogId' => 0];
 
-        for ($retry = 0; $retry < 2000; ++$retry) {
+        for ($retry = 0; $retry < 20000; ++$retry) {
             try {
                 $log = $logRepository->getLastEntryByModuleId($moduleId, AbstractHcSlave::COMMAND_DATA_CHANGED);
                 $data = ['lastLogId' => $log->getId() ?? 0];
 
                 if ($lastLogId === null || $log->getId() === $lastLogId) {
                     $lastLogId = $log->getId();
+                    usleep(10);
 
                     continue;
                 }
