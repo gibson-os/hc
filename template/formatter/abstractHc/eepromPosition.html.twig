@@ -1,5 +1,5 @@
 {% block command %}EEPROM Position{% endblock %}
 
-{% block text %}{{ data|asciiToUnsignedInt }} Bytes{% endblock %}
+{% block text %}Byte {{ data|asciiToUnsignedInt }}{% endblock %}
 
 {% block explain %}{{ block('command') }}: {{ block('text') }}{% endblock %}
