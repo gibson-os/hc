@@ -3,6 +3,7 @@ Ext.define('GibsonOS.module.hc.ir.store.Key', {
     alias: ['hcIrKeyStore'],
     autoLoad: true,
     model: 'GibsonOS.module.hc.ir.model.Key',
+    pageSize: 100,
     constructor(data) {
         const me = this;
 
