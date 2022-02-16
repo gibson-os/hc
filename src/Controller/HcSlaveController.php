@@ -15,7 +15,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\SetError;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
-use GibsonOS\Core\Service\ServiceManagerService;
+use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
@@ -53,7 +53,7 @@ class HcSlaveController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function saveGeneralSettings(
-        ServiceManagerService $serviceManagerService,
+        SlaveFactory $slaveFactory,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         int $moduleId,
@@ -66,7 +66,7 @@ class HcSlaveController extends AbstractController
         bool $deleteSlave = false
     ): AjaxResponse {
         $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($serviceManagerService, $slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $slave);
         $moduleRepository->startTransaction();
 
         try {
@@ -83,7 +83,7 @@ class HcSlaveController extends AbstractController
 
                     if ($overwriteSlave) {
                         $slave->setType($existingSlave->getType());
-                        $slaveService = $this->getSlaveService($serviceManagerService, $slave);
+                        $slaveService = $this->getSlaveService($slaveFactory, $slave);
                         $slaveService->onOverwriteExistingSlave($slave, $existingSlave);
                         $moduleRepository->deleteByIds([(int) $slave->getId()]);
                         $slave->setId((int) $existingSlave->getId());
@@ -168,12 +168,12 @@ class HcSlaveController extends AbstractController
      */
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function eepromSettings(
-        ServiceManagerService $serviceManagerService,
+        SlaveFactory $slaveFactory,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
         $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($serviceManagerService, $slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $slave);
 
         return $this->returnSuccess([
             'size' => $slave->getEepromSize(),
@@ -191,13 +191,13 @@ class HcSlaveController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function saveEepromSettings(
-        ServiceManagerService $serviceManagerService,
+        SlaveFactory $slaveFactory,
         ModuleRepository $moduleRepository,
         int $moduleId,
         int $position
     ): AjaxResponse {
         $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($serviceManagerService, $slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $slave);
         $slaveService->writeEepromPosition($slave, $position);
 
         return $this->returnSuccess();
@@ -212,12 +212,12 @@ class HcSlaveController extends AbstractController
      */
     #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
     public function eraseEeprom(
-        ServiceManagerService $serviceManagerService,
+        SlaveFactory $slaveFactory,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
         $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($serviceManagerService, $slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $slave);
         $slaveService->writeEepromErase($slave);
 
         return $this->returnSuccess();
@@ -232,12 +232,12 @@ class HcSlaveController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function restart(
-        ServiceManagerService $serviceManagerService,
+        SlaveFactory $slaveFactory,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
         $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($serviceManagerService, $slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $slave);
         $slaveService->writeRestart($slave);
 
         return $this->returnSuccess();
@@ -253,12 +253,12 @@ class HcSlaveController extends AbstractController
      */
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function getStatusLeds(
-        ServiceManagerService $serviceManagerService,
+        SlaveFactory $slaveFactory,
         ModuleRepository $moduleRepository,
         int $moduleId
     ): AjaxResponse {
         $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($serviceManagerService, $slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $slave);
         $activeLeds = $slaveService->readLedStatus($slave);
         $leds = ['exist' => $activeLeds];
 
@@ -293,7 +293,7 @@ class HcSlaveController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function setStatusLeds(
-        ServiceManagerService $serviceManagerService,
+        SlaveFactory $slaveFactory,
         ModuleRepository $moduleRepository,
         int $moduleId,
         bool $power = false,
@@ -311,7 +311,7 @@ class HcSlaveController extends AbstractController
         string $customCode = null
     ): AjaxResponse {
         $slave = $moduleRepository->getById($moduleId);
-        $slaveService = $this->getSlaveService($serviceManagerService, $slave);
+        $slaveService = $this->getSlaveService($slaveFactory, $slave);
 
         $slaveService->writeAllLeds(
             $slave,
@@ -349,12 +349,10 @@ class HcSlaveController extends AbstractController
     /**
      * @throws FactoryError
      */
-    private function getSlaveService(ServiceManagerService $serviceManagerService, Module $slave): AbstractHcSlave
+    private function getSlaveService(SlaveFactory $slaveFactory, Module $slave): AbstractHcSlave
     {
-        /** @var class-string $className */
-        $className = 'GibsonOS\\Module\\Hc\\Service\\Slave\\' . ucfirst($slave->getType()->getHelper()) . 'Service';
         /** @var AbstractHcSlave $service */
-        $service = $serviceManagerService->get($className);
+        $service = $slaveFactory->get($slave->getType()->getHelper());
 
         return $service;
     }

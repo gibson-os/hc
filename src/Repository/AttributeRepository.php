@@ -11,10 +11,10 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ReflectionManager;
+use GibsonOS\Core\Manager\ServiceManager;
 use GibsonOS\Core\Mapper\ObjectMapper;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Core\Service\DateTimeService;
-use GibsonOS\Core\Service\ServiceManagerService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Attribute\AttributeMapper;
 use GibsonOS\Module\Hc\Attribute\IsAttribute;
@@ -40,7 +40,7 @@ class AttributeRepository extends AbstractRepository
         private DateTimeService $dateTimeService,
         private ObjectMapper $objectMapper,
         private ReflectionManager $reflectionManager,
-        private ServiceManagerService $serviceManagerServices,
+        private ServiceManager $serviceManager,
     ) {
     }
 
@@ -250,7 +250,7 @@ class AttributeRepository extends AbstractRepository
                     AttributeMapper::class,
                     ReflectionAttribute::IS_INSTANCEOF
                 );
-                $mapper = $this->serviceManagerServices->get(
+                $mapper = $this->serviceManager->get(
                     $mapperAttribute?->getAttributeMapper() ?? AttributeMapperMapper::class,
                     AttributeMapperInterface::class
                 );
@@ -368,8 +368,8 @@ class AttributeRepository extends AbstractRepository
                 'reflectionProperty' => $reflectionProperty,
                 'attribute' => $attributeAttribute,
                 'mapper' => $mapperAttribute === null
-                    ? $this->serviceManagerServices->get(AttributeMapperMapper::class)
-                    : $this->serviceManagerServices->get($mapperAttribute->getAttributeMapper()),
+                    ? $this->serviceManager->get(AttributeMapperMapper::class)
+                    : $this->serviceManager->get($mapperAttribute->getAttributeMapper()),
             ];
         }
 

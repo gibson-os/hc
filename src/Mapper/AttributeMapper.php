@@ -7,7 +7,7 @@ use GibsonOS\Core\Attribute\ObjectMapper;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Manager\ReflectionManager;
-use GibsonOS\Core\Service\ServiceManagerService;
+use GibsonOS\Core\Manager\ServiceManager;
 use GibsonOS\Module\Hc\Attribute\AttributeMapper as AttributeMapperAttribute;
 use JsonSerializable;
 use ReflectionAttribute;
@@ -18,7 +18,7 @@ class AttributeMapper implements AttributeMapperInterface
 {
     public function __construct(
         private ReflectionManager $reflectionManager,
-        private ServiceManagerService $serviceManagerService
+        private ServiceManager $serviceManager
     ) {
     }
 
@@ -61,7 +61,7 @@ class AttributeMapper implements AttributeMapperInterface
                 continue;
             }
 
-            $attributeMapper = $this->serviceManagerService->get(
+            $attributeMapper = $this->serviceManager->get(
                 $attributeMapperAttribute->getAttributeMapper(),
                 AttributeMapperInterface::class
             );
@@ -114,7 +114,7 @@ class AttributeMapper implements AttributeMapperInterface
             $mapper = $this;
 
             if ($attributeMapperAttribute !== null) {
-                $mapper = $this->serviceManagerService->get($attributeMapperAttribute->getAttributeMapper());
+                $mapper = $this->serviceManager->get($attributeMapperAttribute->getAttributeMapper());
             }
 
             $propertyName = $reflectionProperty->getName();

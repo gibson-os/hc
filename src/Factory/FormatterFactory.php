@@ -5,7 +5,7 @@ namespace GibsonOS\Module\Hc\Factory;
 
 use Exception;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Service\ServiceManagerService;
+use GibsonOS\Core\Manager\ServiceManager;
 use GibsonOS\Module\Hc\Formatter\AbstractFormatter;
 use GibsonOS\Module\Hc\Formatter\FormatterInterface;
 use GibsonOS\Module\Hc\Formatter\MasterFormatter;
@@ -13,23 +13,20 @@ use GibsonOS\Module\Hc\Model\Log;
 
 class FormatterFactory
 {
-    public function __construct(private ServiceManagerService $serviceManagerService)
-    {
-    }
-
     /**
      * @throws Exception
      */
     public function get(Log $log): FormatterInterface
     {
         if (empty($log->getModuleId())) {
-            /** @var MasterFormatter $masterFormatter */
-            $masterFormatter = $this->serviceManagerService->get(MasterFormatter::class);
-
-            return $masterFormatter;
+            return $this->serviceManager->get(MasterFormatter::class);
         }
 
         return $this->getModuleFormatter($log);
+    }
+
+    public function __construct(private ServiceManager $serviceManager)
+    {
     }
 
     /**
@@ -50,7 +47,7 @@ class FormatterFactory
         ;
 
         /** @var AbstractFormatter $formatter */
-        $formatter = $this->serviceManagerService->get($className);
+        $formatter = $this->serviceManager->get($className);
 
         return $formatter;
     }
