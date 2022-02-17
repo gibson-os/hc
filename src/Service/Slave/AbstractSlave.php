@@ -26,8 +26,7 @@ abstract class AbstractSlave
         protected TransformService $transformService,
         private LogRepository $logRepository,
         protected LoggerInterface $logger
-    )
-    {
+    ) {
     }
 
     /**

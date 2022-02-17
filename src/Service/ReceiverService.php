@@ -16,8 +16,12 @@ use Psr\Log\LoggerInterface;
 
 class ReceiverService
 {
-    public function __construct(private TransformService $transformService, private MasterService $masterService, private MasterMapper $masterMapper, private MasterRepository $masterRepository, private LoggerInterface $logger)
-    {
+    public function __construct(
+        private MasterService $masterService,
+        private MasterMapper $masterMapper,
+        private MasterRepository $masterRepository,
+        private LoggerInterface $logger
+    ) {
     }
 
     /**
