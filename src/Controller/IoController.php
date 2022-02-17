@@ -12,6 +12,8 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Module\Hc\Attribute\GetAttribute;
+use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Store\Io\DirectConnectStore;
@@ -27,29 +29,23 @@ class IoController extends AbstractController
     public function set(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        int $number,
-        string $name,
-        int $direction,
-        int $pullUp,
-        int $delay,
-        int $pwm,
-        int $blink,
-        int $fade,
-        array $valueNames
+        #[GetAttribute(['fade' => 'fadeIn', 'module' => 'moduleId'])] Port $port,
     ): AjaxResponse {
-        $valueNames = array_map('trim', $valueNames);
-        $ioService->setPort(
-            $module,
-            $number,
-            $name,
-            $direction,
-            $pullUp,
-            $delay,
-            $pwm,
-            $blink,
-            $fade,
-            $valueNames
-        );
+//        $valueNames = array_map('trim', $valueNames);
+//        $ioService->setPort(
+//            $module,
+//            $number,
+//            $name,
+//            $direction,
+//            $pullUp,
+//            $delay,
+//            $pwm,
+//            $blink,
+//            $fade,
+//            $valueNames
+//        );
+
+        errlog($port);
 
         return $this->returnSuccess();
     }
@@ -70,6 +66,7 @@ class IoController extends AbstractController
     public function toggle(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetAttribute(['fade' => 'fadeIn'])] Port $port,
         int $number
     ): AjaxResponse {
         $ioService->toggleValue($module, $number);

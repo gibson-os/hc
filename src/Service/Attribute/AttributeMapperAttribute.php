@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Attribute;
 
 use GibsonOS\Core\Attribute\AttributeInterface;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\MapperException;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Mapper\ObjectMapper;
 use GibsonOS\Core\Service\Attribute\ObjectMapperAttribute;
@@ -12,6 +14,8 @@ use GibsonOS\Core\Service\RequestService;
 use GibsonOS\Module\Hc\Attribute\GetAttribute;
 use GibsonOS\Module\Hc\Dto\AttributeInterface as AttributeDtoInterface;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
+use JsonException;
+use ReflectionException;
 use ReflectionParameter;
 
 class AttributeMapperAttribute extends ObjectMapperAttribute
@@ -25,7 +29,14 @@ class AttributeMapperAttribute extends ObjectMapperAttribute
         parent::__construct($objectMapper, $requestService, $reflectionManager);
     }
 
-    public function replace(AttributeInterface $attribute, array $parameters, ReflectionParameter $reflectionParameter): mixed
+    /**
+     * @throws MapperException
+     * @throws FactoryError
+     * @throws SelectError
+     * @throws JsonException
+     * @throws ReflectionException
+     */
+    public function replace(AttributeInterface $attribute, array $parameters, ReflectionParameter $reflectionParameter): ?AttributeDtoInterface
     {
         if (!$attribute instanceof GetAttribute) {
             return null;
