@@ -10,6 +10,7 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use JsonSerializable;
 use mysqlDatabase;
@@ -61,8 +62,8 @@ class Log extends AbstractModel implements JsonSerializable
     #[Column(type: Column::TYPE_VARBINARY, length: 128)]
     private string $rawData = '';
 
-    #[Column(type: Column::TYPE_ENUM, values: ['input', 'output'])]
-    private string $direction;
+    #[Column]
+    private Direction $direction;
 
     #[Constraint]
     protected ?Module $module;
@@ -203,12 +204,12 @@ class Log extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getDirection(): string
+    public function getDirection(): Direction
     {
         return $this->direction;
     }
 
-    public function setDirection(string $direction): Log
+    public function setDirection(Direction $direction): Log
     {
         $this->direction = $direction;
 
