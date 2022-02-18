@@ -161,80 +161,8 @@ class IoService extends AbstractHcSlave
         $this->attributeRepository->startTransaction();
 
         try {
-            if ($this->attributeRepository->countByModule($module, self::ATTRIBUTE_TYPE_PORT)) {
-                foreach ($ports as $port) {
-                    $this->attributeRepository->saveDto($port);
-                }
-            } else {
-                foreach ($ports as $number => $port) {
-                    $number = (int) $number;
-                    $this->attributeRepository->addByModule(
-                        $module,
-                        ['IO ' . ($number + 1)],
-                        $number,
-                        self::ATTRIBUTE_PORT_KEY_NAME,
-                        self::ATTRIBUTE_TYPE_PORT
-                    );
-                    $this->attributeRepository->addByModule(
-                        $module,
-                        [(string) $port[self::ATTRIBUTE_PORT_KEY_VALUE]],
-                        $number,
-                        self::ATTRIBUTE_PORT_KEY_VALUE,
-                        self::ATTRIBUTE_TYPE_PORT
-                    );
-                    $this->attributeRepository->addByModule(
-                        $module,
-                        [
-                            0 => $port[self::ATTRIBUTE_PORT_KEY_DIRECTION] === self::DIRECTION_INPUT ? 'Zu' : 'Aus',
-                            1 => $port[self::ATTRIBUTE_PORT_KEY_DIRECTION] === self::DIRECTION_INPUT ? 'Offen' : 'An',
-                        ],
-                        $number,
-                        self::ATTRIBUTE_PORT_KEY_VALUE_NAMES,
-                        self::ATTRIBUTE_TYPE_PORT
-                    );
-                    $this->attributeRepository->addByModule(
-                        $module,
-                        [(string) $port[self::ATTRIBUTE_PORT_KEY_DIRECTION]],
-                        $number,
-                        self::ATTRIBUTE_PORT_KEY_DIRECTION,
-                        self::ATTRIBUTE_TYPE_PORT
-                    );
-                    $this->attributeRepository->addByModule(
-                        $module,
-                        [(string) ($port[self::ATTRIBUTE_PORT_KEY_PULL_UP] ?? 0)],
-                        $number,
-                        self::ATTRIBUTE_PORT_KEY_PULL_UP,
-                        self::ATTRIBUTE_TYPE_PORT
-                    );
-                    $this->attributeRepository->addByModule(
-                        $module,
-                        [(string) ($port[self::ATTRIBUTE_PORT_KEY_DELAY] ?? 0)],
-                        $number,
-                        self::ATTRIBUTE_PORT_KEY_DELAY,
-                        self::ATTRIBUTE_TYPE_PORT
-                    );
-                    $this->attributeRepository->addByModule(
-                        $module,
-                        [(string) ($port[self::ATTRIBUTE_PORT_KEY_PWM] ?? 0)],
-                        $number,
-                        self::ATTRIBUTE_PORT_KEY_PWM,
-                        self::ATTRIBUTE_TYPE_PORT
-                    );
-                    $this->attributeRepository->addByModule(
-                        $module,
-                        [(string) ($port[self::ATTRIBUTE_PORT_KEY_BLINK] ?? 0)],
-                        $number,
-                        self::ATTRIBUTE_PORT_KEY_BLINK,
-                        self::ATTRIBUTE_TYPE_PORT
-                    );
-                    $this->attributeRepository->addByModule(
-                        $module,
-                        [(string) ($port[self::ATTRIBUTE_PORT_KEY_FADE_IN] ?? 0)],
-                        $number,
-                        self::ATTRIBUTE_PORT_KEY_FADE_IN,
-                        self::ATTRIBUTE_TYPE_PORT
-                    );
-                }
+            foreach ($ports as $port) {
+                $this->attributeRepository->saveDto($port);
             }
         } catch (Throwable $exception) {
             $this->attributeRepository->rollback();
@@ -411,7 +339,7 @@ class IoService extends AbstractHcSlave
      * @throws SaveError
      * @throws SelectError
      *
-     * @array Port[]
+     * @return Port[]
      */
     private function readPorts(Module $module): array
     {

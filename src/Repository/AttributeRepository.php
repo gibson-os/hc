@@ -221,7 +221,7 @@ class AttributeRepository extends AbstractRepository
         }
 
         try {
-            $type = $this->typeRepository->getByHelperName($dto->getTypeName());
+            $type = $this->typeRepository->getByHelperName($this->getTypeName($dto::class));
             $typeName = lcfirst($reflectionClass->getShortName());
             $subId = $dto->getSubId() ?? (
                 $dto::SUB_ID_NULLABLE
@@ -351,7 +351,7 @@ class AttributeRepository extends AbstractRepository
      */
     public function loadDto(AttributeInterface $dto): AttributeInterface
     {
-        $type = $this->typeRepository->getByHelperName($dto->getTypeName());
+        $type = $this->typeRepository->getByHelperName($this->getTypeName($dto::class));
         $reflectionClass = $this->reflectionManager->getReflectionClass($dto);
         /** @var array<string, array{setter: string, reflectionProperty: ReflectionProperty, attribute: IsAttribute, mapper: AttributeMapperInterface}> $properties */
         $properties = [];
@@ -520,5 +520,15 @@ class AttributeRepository extends AbstractRepository
         }
 
         return $models;
+    }
+
+    /**
+     * @param class-string $dtoClassName
+     */
+    private function getTypeName(string $dtoClassName): string
+    {
+        $parts = explode('\\', $dtoClassName);
+
+        return ucfirst($parts[count($parts) - 2]);
     }
 }

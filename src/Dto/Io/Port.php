@@ -157,11 +157,6 @@ class Port implements JsonSerializable, AttributeInterface
         return $this->getNumber();
     }
 
-    public function getTypeName(): string
-    {
-        return 'io';
-    }
-
     public function getModule(): Module
     {
         return $this->module;

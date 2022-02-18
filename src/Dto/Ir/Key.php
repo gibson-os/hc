@@ -80,11 +80,6 @@ class Key implements JsonSerializable, AutoCompleteModelInterface, AttributeInte
         return $this->getProtocol() << 32 | $this->getAddress() << 16 | $this->getCommand();
     }
 
-    public function getTypeName(): string
-    {
-        return 'ir';
-    }
-
     public function getModule(): ?Module
     {
         return null;

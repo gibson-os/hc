@@ -11,7 +11,5 @@ interface AttributeInterface
 
     public function getSubId(): ?int;
 
-    public function getTypeName(): string;
-
     public function getModule(): ?Module;
 }

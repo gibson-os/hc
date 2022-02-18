@@ -84,11 +84,6 @@ class Remote implements JsonSerializable, AttributeInterface
         return $this->getId();
     }
 
-    public function getTypeName(): string
-    {
-        return 'ir';
-    }
-
     public function getModule(): ?Module
     {
         return null;
