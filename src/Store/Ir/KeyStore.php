@@ -7,6 +7,7 @@ use Generator;
 use GibsonOS\Core\Attribute\GetSetting;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Mapper\ObjectMapper;
 use GibsonOS\Core\Model\Setting;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Utility\JsonUtility;
@@ -32,11 +33,12 @@ class KeyStore extends AbstractAttributeStore
         private IrFormatter $irFormatter,
         #[GetSetting('irProtocols')] Setting $irProtocols,
         DateTimeService $dateTimeService,
+        ObjectMapper $objectMapper,
         #[GetTableName(Value::class)] string $valueTableName,
         #[GetTableName(Type::class)] string $typeTableName,
         mysqlDatabase $database = null
     ) {
-        parent::__construct($dateTimeService, $valueTableName, $typeTableName, $database);
+        parent::__construct($dateTimeService, $objectMapper, $valueTableName, $typeTableName, $database);
 
         $this->setKeys([IrService::KEY_ATTRIBUTE_NAME]);
         $this->irProtocols = JsonUtility::decode($irProtocols->getValue());

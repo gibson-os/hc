@@ -87,7 +87,7 @@ class IoService extends AbstractHcSlave
 
     public const ATTRIBUTE_PORT_KEY_FADE_IN = 'fade';
 
-    public const ATTRIBUTE_PORT_KEY_VALUE_NAMES = 'valueName';
+    public const ATTRIBUTE_PORT_KEY_VALUE_NAMES = 'valueNames';
 
     public const ATTRIBUTE_TYPE_DIRECT_CONNECT = 'directConnect';
 

@@ -104,7 +104,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
             }
         },{
             header: 'Zustand',
-            dataIndex: 'valueName',
+            dataIndex: 'valueNames',
             width: 150,
             renderer: function(value, metaData, record) {
                 return value[record.get('value')];

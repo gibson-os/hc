@@ -54,6 +54,29 @@ class AttributeMapperAttribute extends ObjectMapperAttribute
 
         if ($dto->getSubId() !== null) {
             $this->attributeRepository->loadDto($dto);
+            /**
+             * @psalm-suppress UndefinedMethod
+             *
+             * @var class-string $objectClassName
+             */
+            $objectClassName = $reflectionParameter->getType()?->getName();
+
+            if ($objectClassName === null) {
+                return $dto;
+            }
+
+            $properties = $this->getObjectParameters(
+                $attribute,
+                $objectClassName,
+                $parameters
+            );
+
+            foreach ($properties as $propertyName => $propertyValue) {
+                try {
+                    $this->objectMapper->setObjectValues($dto, [$propertyName => $propertyValue]);
+                } catch (ReflectionException) {
+                }
+            }
         }
 
         return $dto;

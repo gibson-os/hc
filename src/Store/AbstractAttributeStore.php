@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Store;
 use Generator;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Mapper\ObjectMapper;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Attribute;
@@ -28,6 +29,7 @@ abstract class AbstractAttributeStore extends AbstractDatabaseStore
 
     public function __construct(
         private DateTimeService $dateTimeService,
+        protected ObjectMapper $objectMapper,
         #[GetTableName(Value::class)] protected string $valueTableName,
         #[GetTableName(Type::class)] protected string $typeTableName,
         mysqlDatabase $database = null

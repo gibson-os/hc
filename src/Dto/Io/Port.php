@@ -40,7 +40,14 @@ class Port implements JsonSerializable, AttributeInterface
 
     public function getName(): string
     {
-        return $this->name ?? 'IO ' . $this->getNumber();
+        return $this->name ?? 'IO ' . ($this->getNumber() + 1);
+    }
+
+    public function setName(string $name): Port
+    {
+        $this->name = $name;
+
+        return $this;
     }
 
     public function getDirection(): int

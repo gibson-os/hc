@@ -28,7 +28,7 @@ Ext.define('GibsonOS.module.hc.io.model.Port', {
         name: 'fade',
         type: 'int'
     },{
-        name: 'valueName',
+        name: 'valueNames',
         type: 'array'
     }]
 });

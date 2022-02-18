@@ -11,6 +11,7 @@ use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Mapper\IoMapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
+use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
@@ -29,6 +30,7 @@ class IoFormatter extends AbstractHcFormatter
         TwigService $twigService,
         TypeRepository $typeRepository,
         private ValueRepository $valueRepository,
+        private AttributeRepository $attributeRepository,
         private LogRepository $logRepository,
         private IoMapper $ioMapper
     ) {
@@ -63,15 +65,7 @@ class IoFormatter extends AbstractHcFormatter
         $module = $log->getModule();
 
         if ($module !== null && $log->getCommand() !== null && $log->getCommand() < (int) $module->getConfig()) {
-            $name = $this->valueRepository->getByTypeId(
-                $module->getTypeId(),
-                $log->getCommand(),
-                [(int) $module->getId()],
-                IoService::ATTRIBUTE_TYPE_PORT,
-                IoService::ATTRIBUTE_PORT_KEY_NAME
-            );
-
-            return $name[0]->getValue();
+            return $this->attributeRepository->loadDto(new Port($module, $log->getCommand() ?? 0))->getName();
         }
 
         return parent::command($log);
@@ -150,33 +144,18 @@ class IoFormatter extends AbstractHcFormatter
                         '</tr>';
 
                 foreach ($changedPorts as $number => $port) {
-                    $name = $this->valueRepository->getByTypeId(
-                        $module->getTypeId(),
-                        (int) $number,
-                        [(int) $module->getId()],
-                        IoService::ATTRIBUTE_TYPE_PORT,
-                        IoService::ATTRIBUTE_PORT_KEY_NAME
-                    );
-                    $valueNames = $this->valueRepository->getByTypeId(
-                        $module->getTypeId(),
-                        (int) $number,
-                        [(int) $module->getId()],
-                        IoService::ATTRIBUTE_TYPE_PORT,
-                        IoService::ATTRIBUTE_PORT_KEY_VALUE_NAMES
-                    );
-
                     $return .=
                         '<tr>' .
-                            '<td>' . $name[0]->getValue() . '</td>' .
-                            '<td>' . ($port[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] === IoService::DIRECTION_INPUT ? 'Eingang' : 'Ausgang') . '</td>' .
-                            '<td>' . $valueNames[$port[IoService::ATTRIBUTE_PORT_KEY_VALUE]]->getValue() . '</td>' .
-                            ($port[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] === IoService::DIRECTION_INPUT
-                                ? '<td>' . ($port[IoService::ATTRIBUTE_PORT_KEY_PULL_UP] ? 'Ja' : 'Nein') . '</td>' .
-                                  '<td>' . $port[IoService::ATTRIBUTE_PORT_KEY_DELAY] . '</td>'
+                            '<td>' . $port->getName() . '</td>' .
+                            '<td>' . ($port->getDirection() === Port::DIRECTION_INPUT ? 'Eingang' : 'Ausgang') . '</td>' .
+                            '<td>' . $port->getValueNames()[(int) $port->isValue()] . '</td>' .
+                            ($port->getDirection() === Port::DIRECTION_INPUT
+                                ? '<td>' . ($port->hasPullUp() ? 'Ja' : 'Nein') . '</td>' .
+                                  '<td>' . $port->getDelay() . '</td>'
                                 : '') .
-                            ($port[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] === IoService::DIRECTION_OUTPUT
-                                ? '<td>' . (isset($port[IoService::ATTRIBUTE_PORT_KEY_PWM]) ? $port[IoService::ATTRIBUTE_PORT_KEY_PWM] : 0) . '</td>' .
-                                  '<td>' . (isset($port[IoService::ATTRIBUTE_PORT_KEY_BLINK]) ? $port[IoService::ATTRIBUTE_PORT_KEY_BLINK] : 0) . '</td>'
+                            ($port->getDirection() === Port::DIRECTION_OUTPUT
+                                ? '<td>' . $port->getPwm() . '</td>' .
+                                  '<td>' . $port->getBlink() . '</td>'
                                 : '') .
                         '</tr>';
                 }
@@ -346,6 +325,8 @@ class IoFormatter extends AbstractHcFormatter
      * @throws FactoryError
      * @throws JsonException
      * @throws ReflectionException
+     *
+     * @return Port[]
      */
     private function getChangedPorts(Log $log): array
     {
