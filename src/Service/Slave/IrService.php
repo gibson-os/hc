@@ -26,19 +26,19 @@ class IrService extends AbstractHcSlave
 
     public const REMOTE_ATTRIBUTE_KEYS = 'keys';
 
-    public function slaveHandshake(Module $slave): Module
+    public function slaveHandshake(Module $module): Module
     {
-        return $slave;
+        return $module;
     }
 
-    public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module
+    public function onOverwriteExistingSlave(Module $module, Module $existingSlave): Module
     {
         // @todo Fernbedienungen umschreiben
 
-        return $slave;
+        return $module;
     }
 
-    public function receive(Module $slave, BusMessage $busMessage): void
+    public function receive(Module $module, BusMessage $busMessage): void
     {
     }
 

@@ -6,11 +6,17 @@ namespace GibsonOS\Module\Hc\Service\Slave;
 use Exception;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\EventException;
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
+use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Event\IoEvent;
+use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Mapper\IoMapper;
 use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
@@ -24,7 +30,9 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 use Throwable;
 
 class IoService extends AbstractHcSlave
@@ -137,45 +145,45 @@ class IoService extends AbstractHcSlave
      * @throws SaveError
      * @throws Throwable
      */
-    public function slaveHandshake(Module $slave): Module
+    public function slaveHandshake(Module $module): Module
     {
-        if (empty($slave->getConfig())) {
-            $slave->setConfig(
+        if (empty($module->getConfig())) {
+            $module->setConfig(
                 (string) $this->transformService->asciiToUnsignedInt(
-                    $this->readConfig($slave, self::COMMAND_CONFIGURATION_READ_LENGTH)
+                    $this->readConfig($module, self::COMMAND_CONFIGURATION_READ_LENGTH)
                 )
             );
 
-            $slave->save();
+            $module->save();
         }
 
-        $ports = $this->readPorts($slave);
+        $ports = $this->readPorts($module);
         $this->attributeRepository->startTransaction();
 
         try {
-            if ($this->attributeRepository->countByModule($slave, self::ATTRIBUTE_TYPE_PORT)) {
-                foreach ($ports as $number => $port) {
-                    $this->updatePortAttributes($slave, $number, $port);
+            if ($this->attributeRepository->countByModule($module, self::ATTRIBUTE_TYPE_PORT)) {
+                foreach ($ports as $port) {
+                    $this->attributeRepository->saveDto($port);
                 }
             } else {
                 foreach ($ports as $number => $port) {
                     $number = (int) $number;
                     $this->attributeRepository->addByModule(
-                        $slave,
+                        $module,
                         ['IO ' . ($number + 1)],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_NAME,
                         self::ATTRIBUTE_TYPE_PORT
                     );
                     $this->attributeRepository->addByModule(
-                        $slave,
+                        $module,
                         [(string) $port[self::ATTRIBUTE_PORT_KEY_VALUE]],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_VALUE,
                         self::ATTRIBUTE_TYPE_PORT
                     );
                     $this->attributeRepository->addByModule(
-                        $slave,
+                        $module,
                         [
                             0 => $port[self::ATTRIBUTE_PORT_KEY_DIRECTION] === self::DIRECTION_INPUT ? 'Zu' : 'Aus',
                             1 => $port[self::ATTRIBUTE_PORT_KEY_DIRECTION] === self::DIRECTION_INPUT ? 'Offen' : 'An',
@@ -185,42 +193,42 @@ class IoService extends AbstractHcSlave
                         self::ATTRIBUTE_TYPE_PORT
                     );
                     $this->attributeRepository->addByModule(
-                        $slave,
+                        $module,
                         [(string) $port[self::ATTRIBUTE_PORT_KEY_DIRECTION]],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_DIRECTION,
                         self::ATTRIBUTE_TYPE_PORT
                     );
                     $this->attributeRepository->addByModule(
-                        $slave,
+                        $module,
                         [(string) ($port[self::ATTRIBUTE_PORT_KEY_PULL_UP] ?? 0)],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_PULL_UP,
                         self::ATTRIBUTE_TYPE_PORT
                     );
                     $this->attributeRepository->addByModule(
-                        $slave,
+                        $module,
                         [(string) ($port[self::ATTRIBUTE_PORT_KEY_DELAY] ?? 0)],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_DELAY,
                         self::ATTRIBUTE_TYPE_PORT
                     );
                     $this->attributeRepository->addByModule(
-                        $slave,
+                        $module,
                         [(string) ($port[self::ATTRIBUTE_PORT_KEY_PWM] ?? 0)],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_PWM,
                         self::ATTRIBUTE_TYPE_PORT
                     );
                     $this->attributeRepository->addByModule(
-                        $slave,
+                        $module,
                         [(string) ($port[self::ATTRIBUTE_PORT_KEY_BLINK] ?? 0)],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_BLINK,
                         self::ATTRIBUTE_TYPE_PORT
                     );
                     $this->attributeRepository->addByModule(
-                        $slave,
+                        $module,
                         [(string) ($port[self::ATTRIBUTE_PORT_KEY_FADE_IN] ?? 0)],
                         $number,
                         self::ATTRIBUTE_PORT_KEY_FADE_IN,
@@ -236,64 +244,82 @@ class IoService extends AbstractHcSlave
 
         $this->attributeRepository->commit();
 
-        return $slave;
+        return $module;
     }
 
-    public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module
+    public function onOverwriteExistingSlave(Module $module, Module $existingSlave): Module
     {
         // @todo IOs setzen
         // @todo direct connects schreiben
 
-        return $slave;
+        return $module;
     }
 
     /**
+     * @throws DeleteError
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws SelectError
      */
-    public function receive(Module $slave, BusMessage $busMessage): void
+    public function receive(Module $module, BusMessage $busMessage): void
     {
-        foreach ($this->ioMapper->getPortsAsArray($busMessage->getData() ?? '', (int) $slave->getConfig()) as $number => $port) {
-            $this->updatePortAttributes($slave, $number, $port);
+        foreach ($this->ioMapper->getPorts($module, $busMessage->getData() ?? '', (int) $module->getConfig()) as $port) {
+            $this->attributeRepository->saveDto($port);
         }
     }
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
      * @throws ReceiveError
      * @throws SaveError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws DeleteError
+     * @throws SelectError
+     * @throws AttributeException
+     * @throws JsonException
+     * @throws ReflectionException
      */
-    public function readPort(Module $slave, int $number): array
+    public function readPort(Port $port): Port
     {
-        $eventData = ['slave' => $slave, 'number' => $number];
-        $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_READ_PORT, $eventData);
-
-        $port = $this->ioMapper->getPortAsArray($this->read($slave, $number, self::COMMAND_PORT_LENGTH));
-        $this->updatePortAttributes($slave, $number, $port);
-
-        $eventData = array_merge($eventData, $port);
-        $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_PORT, $eventData);
+        $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_READ_PORT, $port->jsonSerialize());
+        $port = $this->ioMapper->getPort(
+            $port,
+            $this->read($port->getModule(), $port->getNumber(), self::COMMAND_PORT_LENGTH)
+        );
+        $this->attributeRepository->saveDto($port);
+        $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_PORT, $port->jsonSerialize());
 
         return $port;
     }
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
-    private function writePort(Module $slave, int $number, array $data): void
+    private function writePort(Port $port): void
     {
-        $eventData = $data;
-        $eventData['slave'] = $slave;
-        $eventData['number'] = $number;
-
-        $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_WRITE_PORT, $eventData);
-        $this->write($slave, $number, $this->ioMapper->getPortAsString($data));
-        $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_WRITE_PORT, $eventData);
+        $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_WRITE_PORT, $port->jsonSerialize());
+        $this->write($port->getModule(), $port->getNumber(), $this->ioMapper->getPortAsString($port));
+        $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_WRITE_PORT, $port->jsonSerialize());
     }
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readPortsFromEeprom(Module $slave): void
@@ -313,6 +339,11 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writePortsToEeprom(Module $slave): void
@@ -327,116 +358,24 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @throws Exception
-     */
-    private function completePortAttributes(Module $slave, int $number, array $data): array
-    {
-        $valueModels = $this->valueRepository->getByTypeId(
-            $slave->getTypeId(),
-            $number,
-            [(int) $slave->getId()],
-            self::ATTRIBUTE_TYPE_PORT
-        );
-
-        foreach ($valueModels as $valueModel) {
-            $key = $valueModel->getAttribute()->getKey();
-
-            if (isset($data[$key])) {
-                continue;
-            }
-
-            $data[$key] = $valueModel->getValue();
-        }
-
-        return $data;
-    }
-
-    /**
-     * @throws SaveError
-     * @throws Exception
-     */
-    private function updatePortAttributes(Module $slave, int $number, array $data): bool
-    {
-        $valueModels = $this->valueRepository->getByTypeId(
-            $slave->getTypeId(),
-            $number,
-            [(int) $slave->getId()],
-            self::ATTRIBUTE_TYPE_PORT
-        );
-
-        $hasChanges = false;
-
-        foreach ($valueModels as $valueModel) {
-            $key = $valueModel->getAttribute()->getKey();
-
-            if (!isset($data[$key])) {
-                continue;
-            }
-
-            $value = $data[$key];
-
-            if ($key === self::ATTRIBUTE_PORT_KEY_VALUE_NAMES) {
-                $value = $value[$valueModel->getOrder()];
-            }
-
-            $value = (string) $value;
-
-            if ($value === $valueModel->getValue()) {
-                continue;
-            }
-
-            $valueModel->setValue($value);
-            $valueModel->save();
-
-            if (
-                $key === self::ATTRIBUTE_PORT_KEY_VALUE_NAMES ||
-                $key === self::ATTRIBUTE_PORT_KEY_NAME
-            ) {
-                continue;
-            }
-
-            $hasChanges = true;
-        }
-
-        return $hasChanges;
-    }
-
-    /**
      * @throws AbstractException
      * @throws Exception
      */
-    public function toggleValue(Module $slave, int $number): void
+    public function toggleValue(Port $port): void
     {
-        $valueModels = $this->valueRepository->getByTypeId(
-            $slave->getTypeId(),
-            $number,
-            [(int) $slave->getId()],
-            self::ATTRIBUTE_TYPE_PORT
-        );
-        $data = [];
-
-        $this->valueRepository->startTransaction();
+        $this->attributeRepository->startTransaction();
 
         try {
-            foreach ($valueModels as $valueModel) {
-                $key = $valueModel->getAttribute()->getKey();
-
-                if ($key === self::ATTRIBUTE_PORT_KEY_VALUE) {
-                    $valueModel->setValue($valueModel->getValue() === '1' ? '0' : '1');
-                    $valueModel->save();
-                }
-
-                $data[$key] = $valueModel->getValue();
-            }
-
-            $this->writePort($slave, $number, $data);
+            $port->setValue(!$port->isValue());
+            $this->attributeRepository->saveDto($port);
+            $this->writePort($port);
         } catch (AbstractException $exception) {
-            $this->valueRepository->rollback();
+            $this->attributeRepository->rollback();
 
             throw $exception;
         }
 
-        $this->valueRepository->commit();
+        $this->attributeRepository->commit();
     }
 
     /**
@@ -445,78 +384,66 @@ class IoService extends AbstractHcSlave
      * @throws AbstractException
      * @throws Exception
      */
-    public function setPort(
-        Module $slave,
-        int $number,
-        string $name,
-        int $direction,
-        int $pullUp,
-        int $delay,
-        int $pwm,
-        int $blink,
-        int $fade,
-        array $valueNames
-    ): void {
-        $data = [
-            self::ATTRIBUTE_PORT_KEY_NAME => $name,
-            self::ATTRIBUTE_PORT_KEY_DIRECTION => $direction,
-            self::ATTRIBUTE_PORT_KEY_PULL_UP => $pullUp,
-            self::ATTRIBUTE_PORT_KEY_DELAY => $delay,
-            self::ATTRIBUTE_PORT_KEY_PWM => $pwm,
-            self::ATTRIBUTE_PORT_KEY_BLINK => $blink,
-            self::ATTRIBUTE_PORT_KEY_FADE_IN => $fade,
-            self::ATTRIBUTE_PORT_KEY_VALUE_NAMES => $valueNames,
-        ];
-
-        if ($fade) {
-            $data[self::ATTRIBUTE_PORT_KEY_VALUE] = 1;
-        }
-
-        $this->valueRepository->startTransaction();
+    public function setPort(Port $port): void
+    {
+        $this->attributeRepository->startTransaction();
 
         try {
-            if ($this->updatePortAttributes($slave, $number, $data)) {
-                $this->writePort($slave, $number, $this->completePortAttributes($slave, $number, $data));
-            }
-        } catch (AbstractException $exception) {
-            $this->valueRepository->rollback();
+            $this->attributeRepository->saveDto($port);
+            $this->writePort($port);
+        } catch (Exception $exception) {
+            $this->attributeRepository->rollback();
 
             throw $exception;
         }
 
-        $this->valueRepository->commit();
+        $this->attributeRepository->commit();
     }
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws SelectError
+     *
+     * @array Port[]
      */
-    private function readPorts(Module $slave): array
+    private function readPorts(Module $module): array
     {
-        $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_READ_PORTS, ['slave' => $slave]);
+        $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_READ_PORTS, ['slave' => $module]);
 
-        $config = (int) $slave->getConfig();
-        $length = ($config) * self::PORT_BYTE_LENGTH;
-        $data = $this->read($slave, self::COMMAND_STATUS, $length);
-        $ports = $this->ioMapper->getPortsAsArray($data, $config);
+        $config = (int) $module->getConfig();
+        $length = $config * self::PORT_BYTE_LENGTH;
+        $data = $this->read($module, self::COMMAND_STATUS, $length);
+        $ports = $this->ioMapper->getPorts($module, $data, $config);
 
-        $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_PORTS, ['slave' => $slave]);
+        $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_PORTS, ['slave' => $module]);
 
         return $ports;
     }
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws SelectError
      */
-    public function getPorts(Module $slave): array
+    public function getPorts(Module $module): array
     {
-        $ports = $this->readPorts($slave);
+        $ports = $this->readPorts($module);
 
-        foreach ($ports as $number => $port) {
-            $this->updatePortAttributes($slave, $number, $port);
+        foreach ($ports as $port) {
+            $this->attributeRepository->saveDto($port);
         }
 
         return $ports;

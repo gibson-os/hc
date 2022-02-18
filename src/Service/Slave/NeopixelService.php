@@ -94,26 +94,26 @@ class NeopixelService extends AbstractHcSlave
      * @throws SaveError
      * @throws Exception
      */
-    public function slaveHandshake(Module $slave): Module
+    public function slaveHandshake(Module $module): Module
     {
-        if ($slave->getConfig() === null) {
-            $config = $this->getConfig($slave);
-            $slave->setConfig(JsonUtility::encode($config));
+        if ($module->getConfig() === null) {
+            $config = $this->getConfig($module);
+            $module->setConfig(JsonUtility::encode($config));
         } else {
-            $config = JsonUtility::decode($slave->getConfig() ?? '[]');
+            $config = JsonUtility::decode($module->getConfig() ?? '[]');
         }
 
-        $config[self::CONFIG_COUNTS] = $this->readLedCounts($slave);
-        $slave->setConfig(JsonUtility::encode($config));
-        $slave->save();
+        $config[self::CONFIG_COUNTS] = $this->readLedCounts($module);
+        $module->setConfig(JsonUtility::encode($config));
+        $module->save();
 
         $id = 0;
         $leds = [];
 
         foreach ($config[self::CONFIG_COUNTS] as $channel => $count) {
             for ($i = 0; $i < $count; ++$i) {
-                $top = $this->ledService->getById($slave, $id, LedService::ATTRIBUTE_KEY_TOP);
-                $left = $this->ledService->getById($slave, $id, LedService::ATTRIBUTE_KEY_LEFT);
+                $top = $this->ledService->getById($module, $id, LedService::ATTRIBUTE_KEY_TOP);
+                $left = $this->ledService->getById($module, $id, LedService::ATTRIBUTE_KEY_LEFT);
 
                 $leds[$id] = (new Led())
                     ->setNumber($id)
@@ -125,13 +125,13 @@ class NeopixelService extends AbstractHcSlave
             }
         }
 
-        $this->ledService->deleteUnusedLeds($slave, $leds);
-        $this->ledService->saveLeds($slave, $leds);
+        $this->ledService->deleteUnusedLeds($module, $leds);
+        $this->ledService->saveLeds($module, $leds);
 
-        return $slave;
+        return $module;
     }
 
-    public function receive(Module $slave, BusMessage $busMessage): void
+    public function receive(Module $module, BusMessage $busMessage): void
     {
         // TODO: Implement receive() method.
     }
@@ -142,7 +142,7 @@ class NeopixelService extends AbstractHcSlave
      * @throws WriteException
      * @throws JsonException
      */
-    public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module
+    public function onOverwriteExistingSlave(Module $module, Module $existingSlave): Module
     {
         if (empty($existingSlave->getId())) {
             throw new GetError('Keine ID vorhanden!');
@@ -161,7 +161,7 @@ class NeopixelService extends AbstractHcSlave
             $usedLedsCount += $count;
         }
 
-        $config = $this->getConfig($slave);
+        $config = $this->getConfig($module);
 
         if ($config[self::CONFIG_CHANNELS] < $maxUsedChannel) {
             throw new LogicException(
@@ -178,20 +178,20 @@ class NeopixelService extends AbstractHcSlave
         }
 
         $config[self::CONFIG_COUNTS] = $existingConfig[self::CONFIG_COUNTS];
-        $this->writeLedCounts($slave, $config[self::CONFIG_COUNTS]);
+        $this->writeLedCounts($module, $config[self::CONFIG_COUNTS]);
 
         $this->ledStore->setModuleId($existingSlave->getId() ?? 0);
-        $this->writeSetLeds($slave, $this->ledStore->getList());
+        $this->writeSetLeds($module, $this->ledStore->getList());
         $channels = [];
 
         for ($channel = 0; $channel < $config[self::CONFIG_CHANNELS]; ++$channel) {
             $channels[$channel] = $config[self::CONFIG_COUNTS][$channel];
         }
 
-        $this->writeChannels($slave, $channels);
-        $slave->setConfig(JsonUtility::encode($config));
+        $this->writeChannels($module, $channels);
+        $module->setConfig(JsonUtility::encode($config));
 
-        return $slave;
+        return $module;
     }
 
     /**

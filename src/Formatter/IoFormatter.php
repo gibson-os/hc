@@ -4,8 +4,10 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Formatter;
 
 use Exception;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\TwigService;
+use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Mapper\IoMapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
@@ -14,6 +16,8 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
+use ReflectionException;
 use Throwable;
 
 class IoFormatter extends AbstractHcFormatter
@@ -307,7 +311,7 @@ class IoFormatter extends AbstractHcFormatter
         }
 
         if ($log->getType() === MasterService::TYPE_DATA && $log->getCommand() < (int) $module->getConfig()) {
-            $port = $this->ioMapper->getPortAsArray($log->getRawData());
+            $port = $this->ioMapper->getPort(new Port($module, $log->getCommand() ?? 0), $log->getRawData());
             $valueNames = $this->valueRepository->getByTypeId(
                 $module->getTypeId(),
                 $log->getCommand(),
@@ -318,17 +322,17 @@ class IoFormatter extends AbstractHcFormatter
 
             $return =
                 '<table>' .
-                '<tr><th>Richtung</th><td>' . ($port['direction'] == IoService::DIRECTION_INPUT ? 'Eingang' : 'Ausgang') . '</td></tr>' .
-                '<tr><th>Zustand</th><td>' . $valueNames[$port['value']]->getValue() . '</td></tr>';
+                '<tr><th>Richtung</th><td>' . ($port->getDirection() === Port::DIRECTION_INPUT ? 'Eingang' : 'Ausgang') . '</td></tr>' .
+                '<tr><th>Zustand</th><td>' . $port->getValueNames()[(int) $port->isValue()] . '</td></tr>';
 
-            if ($port['direction'] == IoService::DIRECTION_INPUT) {
+            if ($port->getDirection() === IoService::DIRECTION_INPUT) {
                 $return .=
-                    '<tr><th>PullUp</th><td>' . ($port['pullUp'] ? 'Ja' : 'Nein') . '</td></tr>' .
-                    '<tr><th>Verzögerung</th><td>' . $port['delay'] . '</td></tr>';
+                    '<tr><th>PullUp</th><td>' . ($port->hasPullUp() ? 'Ja' : 'Nein') . '</td></tr>' .
+                    '<tr><th>Verzögerung</th><td>' . $port->getDelay() . '</td></tr>';
             } else {
                 $return .=
-                    '<tr><th>PWM</th><td>' . $port['pwm'] . '</td></tr>' .
-                    '<tr><th>Blinken</th><td>' . $port['blink'] . '</td></tr>';
+                    '<tr><th>PWM</th><td>' . $port->getPwm() . '</td></tr>' .
+                    '<tr><th>Blinken</th><td>' . $port->getBlink() . '</td></tr>';
             }
 
             return $return . '</table>';
@@ -337,6 +341,12 @@ class IoFormatter extends AbstractHcFormatter
         return parent::render($log);
     }
 
+    /**
+     * @throws SelectError
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
+     */
     private function getChangedPorts(Log $log): array
     {
         $module = $log->getModule();
@@ -345,7 +355,7 @@ class IoFormatter extends AbstractHcFormatter
             return [];
         }
 
-        $ports = $this->ioMapper->getPortsAsArray($log->getRawData(), (int) $module->getConfig());
+        $ports = $this->ioMapper->getPorts($module, $log->getRawData(), (int) $module->getConfig());
 
         if ($log->getId() === 0) {
             return $ports;
@@ -363,50 +373,50 @@ class IoFormatter extends AbstractHcFormatter
             return $ports;
         }
 
-        $lastPorts = $this->ioMapper->getPortsAsArray($lastData, (int) $module->getConfig());
+        $lastPorts = $this->ioMapper->getPorts($module, $lastData, (int) $module->getConfig());
         $changedPorts = [];
 
         foreach ($ports as $number => $port) {
             $lastPort = $lastPorts[$number];
 
-            if ($lastPort[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] !== $port[IoService::ATTRIBUTE_PORT_KEY_DIRECTION]) {
+            if ($lastPort->getDirection() !== $port->getDirection()) {
                 $changedPorts[$number] = $port;
 
                 continue;
             }
 
-            if ($lastPort[IoService::ATTRIBUTE_PORT_KEY_VALUE] !== $port[IoService::ATTRIBUTE_PORT_KEY_VALUE]) {
+            if ($lastPort->isValue() !== $port->isValue()) {
                 $changedPorts[$number] = $port;
 
                 continue;
             }
 
-            if ($port[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] == IoService::DIRECTION_INPUT) {
-                if ($lastPort[IoService::ATTRIBUTE_PORT_KEY_DELAY] !== $port[IoService::ATTRIBUTE_PORT_KEY_DELAY]) {
+            if ($port->getDirection() === Port::DIRECTION_INPUT) {
+                if ($lastPort->getDelay() !== $port->getDelay()) {
                     $changedPorts[$number] = $port;
 
                     continue;
                 }
 
-                if ($lastPort[IoService::ATTRIBUTE_PORT_KEY_PULL_UP] !== $port[IoService::ATTRIBUTE_PORT_KEY_PULL_UP]) {
+                if ($lastPort->hasPullUp() !== $port->hasPullUp()) {
                     $changedPorts[$number] = $port;
 
                     continue;
                 }
             } else {
-                if ($lastPort[IoService::ATTRIBUTE_PORT_KEY_PWM] !== $port[IoService::ATTRIBUTE_PORT_KEY_PWM]) {
+                if ($lastPort->getPwm() !== $port->getPwm()) {
                     $changedPorts[$number] = $port;
 
                     continue;
                 }
 
-                if ($lastPort[IoService::ATTRIBUTE_PORT_KEY_FADE_IN] !== $port[IoService::ATTRIBUTE_PORT_KEY_FADE_IN]) {
+                if ($lastPort->getFadeIn() !== $port->getFadeIn()) {
                     $changedPorts[$number] = $port;
 
                     continue;
                 }
 
-                if ($lastPort[IoService::ATTRIBUTE_PORT_KEY_BLINK] !== $port[IoService::ATTRIBUTE_PORT_KEY_BLINK]) {
+                if ($lastPort->getBlink() !== $port->getBlink()) {
                     $changedPorts[$number] = $port;
 
                     continue;

@@ -9,16 +9,25 @@ use GibsonOS\Core\Dto\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Parameter\OptionParameter;
 use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\EventException;
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Dto\Parameter\Io\PortParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\SlaveParameter;
+use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 #[Event('I/O')]
 #[Event\Listener('port', 'slave', ['params' => [
@@ -250,6 +259,14 @@ class IoEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws DeleteError
+     * @throws SelectError
+     * @throws AttributeException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[Event\Method('Port lesen')]
     #[Event\ReturnValue(OptionParameter::class, 'Richtung', ['options' => [[
@@ -265,8 +282,8 @@ class IoEvent extends AbstractHcEvent
     public function readPort(
         #[Event\Parameter(SlaveParameter::class)] Module $slave,
         #[Event\Parameter(PortParameter::class)] int $port
-    ): array {
-        return $this->ioService->readPort($slave, $port);
+    ): Port {
+        return $this->ioService->readPort(new Port($slave, $port));
     }
 
     /**
@@ -333,7 +350,7 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Port setzen')]
     public function setPort(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(SlaveParameter::class)] Module $module,
         #[Event\Parameter(PortParameter::class)] int $port,
         #[Event\Parameter(StringParameter::class, 'Name')] string $name,
         #[Event\Parameter(OptionParameter::class, 'Richtung', ['options' => [[
@@ -347,18 +364,18 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(IntParameter::class, 'Fade In')] int $fadeIn,
         #[Event\Parameter(StringParameter::class, 'Werte Name')] string $valueNames,
     ): void {
-        $this->ioService->setPort(
-            $slave,
+        $this->ioService->setPort(new Port(
+            $module,
             $port,
             $name,
             $direction,
-            (int) $pullUp,
-            $delay,
+            $pullUp,
             $pwm,
             $blink,
-            $fadeIn,
-            explode(', ', $valueNames)
-        );
+            $delay,
+            fadeIn: $fadeIn,
+            valueNames: explode(', ', $valueNames)
+        ));
     }
 
     /**

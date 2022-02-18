@@ -7,6 +7,9 @@ use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\EventException;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -18,6 +21,8 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Store\Io\DirectConnectStore;
 use GibsonOS\Module\Hc\Store\Io\PortStore;
+use JsonException;
+use ReflectionException;
 
 class IoController extends AbstractController
 {
@@ -28,28 +33,23 @@ class IoController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function set(
         IoService $ioService,
+        // Required to get port attribute
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetAttribute(['fade' => 'fadeIn', 'module' => 'moduleId'])] Port $port,
+        #[GetAttribute(['fade' => 'fadeIn'])] Port $port,
     ): AjaxResponse {
-//        $valueNames = array_map('trim', $valueNames);
-//        $ioService->setPort(
-//            $module,
-//            $number,
-//            $name,
-//            $direction,
-//            $pullUp,
-//            $delay,
-//            $pwm,
-//            $blink,
-//            $fade,
-//            $valueNames
-//        );
-
-        errlog($port);
+        $ioService->setPort($port);
 
         return $this->returnSuccess();
     }
 
+    /**
+     * @param PortStore $portStore
+     * @param int       $moduleId
+     *
+     * @throws SelectError
+     *
+     * @return AjaxResponse
+     */
     #[CheckPermission(Permission::READ)]
     public function ports(PortStore $portStore, int $moduleId): AjaxResponse
     {
@@ -65,20 +65,31 @@ class IoController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function toggle(
         IoService $ioService,
+        // Required to get port attribute
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetAttribute(['fade' => 'fadeIn'])] Port $port,
-        int $number
+        #[GetAttribute(['fade' => 'fadeIn'])] Port $port
     ): AjaxResponse {
-        $ioService->toggleValue($module, $number);
+//        errlog($port);
+        $ioService->toggleValue($port);
 
         return $this->returnSuccess();
     }
 
     /**
+     * @param IoService $ioService
+     * @param Module    $module
+     *
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
+     *
+     * @return AjaxResponse
      */
     #[CheckPermission(Permission::WRITE)]
     public function loadFromEeprom(IoService $ioService, #[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse

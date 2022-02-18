@@ -116,17 +116,17 @@ class AbstractHcSlaveTest extends Unit
                 $this->slave = $slave;
             }
 
-            public function slaveHandshake(Module $slave): Module
+            public function slaveHandshake(Module $module): Module
             {
-                return $slave;
+                return $module;
             }
 
-            public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module
+            public function onOverwriteExistingSlave(Module $module, Module $existingSlave): Module
             {
-                return $slave;
+                return $module;
             }
 
-            public function receive(Module $slave, int $type, int $command, string $data): void
+            public function receive(Module $module, int $type, int $command, string $data): void
             {
             }
         };

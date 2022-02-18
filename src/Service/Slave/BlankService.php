@@ -9,17 +9,17 @@ use GibsonOS\Module\Hc\Model\Module;
 
 class BlankService extends AbstractHcSlave
 {
-    public function slaveHandshake(Module $slave): Module
+    public function slaveHandshake(Module $module): Module
     {
-        return $slave;
+        return $module;
     }
 
-    public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module
+    public function onOverwriteExistingSlave(Module $module, Module $existingSlave): Module
     {
-        return $slave;
+        return $module;
     }
 
-    public function receive(Module $slave, BusMessage $busMessage): void
+    public function receive(Module $module, BusMessage $busMessage): void
     {
         // TODO: Implement receive() method.
     }

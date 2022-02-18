@@ -3,83 +3,110 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Mapper;
 
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Module\Hc\Dto\Io\Port;
+use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
+use ReflectionException;
 
 class IoMapper
 {
-    public function __construct(private TransformService $transformService)
-    {
+    public function __construct(
+        private TransformService $transformService,
+        private AttributeRepository $attributeRepository
+    ) {
     }
 
-    public function getPortAsArray(string $data): array
+    public function getPort(Port $port, string $data): Port
     {
         $byte1 = $this->transformService->asciiToUnsignedInt($data, 0);
         $byte2 = $this->transformService->asciiToUnsignedInt($data, 1);
 
-        $port = [
-            IoService::ATTRIBUTE_PORT_KEY_DIRECTION => $byte1 & 1,
-            IoService::ATTRIBUTE_PORT_KEY_VALUE => $byte1 >> 2 & 1,
-        ];
+        $port
+            ->setDirection($byte1 & 1)
+            ->setValue(($byte1 >> 2 & 1) === 1)
+        ;
 
-        if ($port[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] == IoService::DIRECTION_INPUT) {
-            $port[IoService::ATTRIBUTE_PORT_KEY_DELAY] = ($byte1 >> 3) | $byte2;
-            $port[IoService::ATTRIBUTE_PORT_KEY_PULL_UP] = $byte1 >> 1 & 1;
+        if ($port->getDirection() === Port::DIRECTION_INPUT) {
+            $port
+                ->setDelay(($byte1 >> 3) | $byte2)
+                ->setPullUp(($byte1 >> 1 & 1) === 1)
+            ;
         } else {
-            $port[IoService::ATTRIBUTE_PORT_KEY_PWM] = $byte2;
-            $port[IoService::ATTRIBUTE_PORT_KEY_FADE_IN] = 0;
+            $port
+                ->setPwm($byte2)
+                ->setFadeIn(0)
+            ;
 
-            if ($port[IoService::ATTRIBUTE_PORT_KEY_VALUE]) {
-                $port[IoService::ATTRIBUTE_PORT_KEY_FADE_IN] = $port[IoService::ATTRIBUTE_PORT_KEY_PWM];
-                $port[IoService::ATTRIBUTE_PORT_KEY_PWM] = 0;
+            if ($port->isValue()) {
+                $port
+                    ->setFadeIn($port->getPwm())
+                    ->setPwm(0)
+                ;
             }
 
-            $port[IoService::ATTRIBUTE_PORT_KEY_BLINK] = $byte1 >> 3;
+            $port->setBlink($byte1 >> 3);
         }
 
         return $port;
     }
 
-    public function getPortsAsArray(string $data, int $portCount): array
+    /**
+     * @throws FactoryError
+     * @throws SelectError
+     * @throws JsonException
+     * @throws ReflectionException
+     *
+     * @return Port[]
+     */
+    public function getPorts(Module $module, string $data, int $portCount): array
     {
         $byteCount = 0;
         $ports = [];
 
         for ($i = 0; $i < $portCount; ++$i) {
-            $ports[$i] = $this->getPortAsArray(substr($data, $byteCount, 2));
+            $ports[$i] = $this->getPort(
+                $this->attributeRepository->loadDto(new Port($module, $i)),
+                substr($data, $byteCount, 2)
+            );
             $byteCount += 2;
         }
 
         return $ports;
     }
 
-    public function getPortAsString(array $data): string
+    public function getPortAsString(Port $port): string
     {
-        if ($data[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] == IoService::DIRECTION_INPUT) {
+        if ($port->getDirection() == Port::DIRECTION_INPUT) {
             return
                 chr(
-                    $data[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] |
-                    ($data[IoService::ATTRIBUTE_PORT_KEY_PULL_UP] << 1) |
-                    ($data[IoService::ATTRIBUTE_PORT_KEY_VALUE] << 2) |
-                    ($data[IoService::ATTRIBUTE_PORT_KEY_DELAY] << 3)
+                    $port->getDirection() |
+                    (((int) $port->hasPullUp()) << 1) |
+                    (((int) $port->isValue()) << 2) |
+                    ($port->getDelay() << 3)
                 ) .
-                chr($data[IoService::ATTRIBUTE_PORT_KEY_DELAY]);
+                chr($port->getDelay());
         }
-        $pwm = $data[IoService::ATTRIBUTE_PORT_KEY_PWM];
 
-        if ($data[IoService::ATTRIBUTE_PORT_KEY_VALUE]) {
-            $pwm = $data[IoService::ATTRIBUTE_PORT_KEY_FADE_IN];
+        $pwm = $port->getPwm();
+
+        if ($port->isValue()) {
+            $pwm = $port->getFadeIn();
         }
 
         return
             chr(
-                $data[IoService::ATTRIBUTE_PORT_KEY_DIRECTION] |
-                ($data[IoService::ATTRIBUTE_PORT_KEY_PULL_UP] << 1) |
-                ($data[IoService::ATTRIBUTE_PORT_KEY_VALUE] << 2) |
-                ($data[IoService::ATTRIBUTE_PORT_KEY_BLINK] << 3)
+                $port->getDirection() |
+                (((int) $port->hasPullUp()) << 1) |
+                (((int) $port->isValue()) << 2) |
+                ($port->getBlink() << 3)
             ) .
-            chr((int) $pwm)
-            ;
+            chr($pwm)
+        ;
     }
 
     public function getDirectConnectAsArray(string $data): array

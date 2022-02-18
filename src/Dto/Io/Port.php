@@ -6,8 +6,9 @@ namespace GibsonOS\Module\Hc\Dto\Io;
 use GibsonOS\Module\Hc\Attribute\IsAttribute;
 use GibsonOS\Module\Hc\Dto\AttributeInterface;
 use GibsonOS\Module\Hc\Model\Module;
+use JsonSerializable;
 
-class Port implements AttributeInterface
+class Port implements JsonSerializable, AttributeInterface
 {
     public const DIRECTION_INPUT = 0;
 
@@ -29,6 +30,7 @@ class Port implements AttributeInterface
         #[IsAttribute] private int $fadeIn = 0,
         #[IsAttribute] private array $valueNames = ['Zu', 'Offen'],
     ) {
+        $this->setValueNames($this->valueNames);
     }
 
     public function getNumber(): int
@@ -53,7 +55,7 @@ class Port implements AttributeInterface
         return $this;
     }
 
-    public function isPullUp(): bool
+    public function hasPullUp(): bool
     {
         return $this->pullUp;
     }
@@ -138,7 +140,7 @@ class Port implements AttributeInterface
      */
     public function setValueNames(array $valueNames): Port
     {
-        $this->valueNames = $valueNames;
+        $this->valueNames = array_map('trim', $valueNames);
 
         return $this;
     }
@@ -156,5 +158,21 @@ class Port implements AttributeInterface
     public function getModule(): Module
     {
         return $this->module;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'number' => $this->getNumber(),
+            'name' => $this->getName(),
+            'direction' => $this->getDirection(),
+            'pullUp' => $this->hasPullUp(),
+            'pwm' => $this->getPwm(),
+            'blink' => $this->getBlink(),
+            'delay' => $this->getDelay(),
+            'value' => $this->isValue(),
+            'fadeIn' => $this->getFadeIn(),
+            'valueNames' => $this->getValueNames(),
+        ];
     }
 }

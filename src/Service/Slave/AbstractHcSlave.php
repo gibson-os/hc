@@ -148,11 +148,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     public const RGB_LED_KEY = 'rgb';
 
-    abstract public function slaveHandshake(Module $slave): Module;
+    abstract public function slaveHandshake(Module $module): Module;
 
-    abstract public function onOverwriteExistingSlave(Module $slave, Module $existingSlave): Module;
+    abstract public function onOverwriteExistingSlave(Module $module, Module $existingSlave): Module;
 
-    abstract public function receive(Module $slave, BusMessage $busMessage): void;
+    abstract public function receive(Module $module, BusMessage $busMessage): void;
 
     /**
      * @return class-string

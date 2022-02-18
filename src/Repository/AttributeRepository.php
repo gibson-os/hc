@@ -19,7 +19,6 @@ use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Attribute\AttributeMapper;
 use GibsonOS\Module\Hc\Attribute\IsAttribute;
 use GibsonOS\Module\Hc\Dto\AttributeInterface;
-use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Mapper\AttributeMapper as AttributeMapperMapper;
 use GibsonOS\Module\Hc\Mapper\AttributeMapperInterface;
 use GibsonOS\Module\Hc\Model\Attribute;
@@ -204,19 +203,22 @@ class AttributeRepository extends AbstractRepository
     }
 
     /**
-     * @throws AttributeException
+     * @throws FactoryError
      * @throws JsonException
+     * @throws ModelDeleteError
      * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
-     * @throws ModelDeleteError
-     * @throws FactoryError
      */
     public function saveDto(AttributeInterface $dto): void
     {
         $keyNames = [];
         $reflectionClass = $this->reflectionManager->getReflectionClass($dto);
-        $this->startTransaction();
+        $transactionAlreadyStarted = $this->isTransaction();
+
+        if (!$transactionAlreadyStarted) {
+            $this->startTransaction();
+        }
 
         try {
             $type = $this->typeRepository->getByHelperName($dto->getTypeName());
@@ -323,12 +325,16 @@ class AttributeRepository extends AbstractRepository
                 }
             }
         } catch (Exception $exception) {
-            $this->rollback();
+            if (!$transactionAlreadyStarted) {
+                $this->rollback();
+            }
 
             throw $exception;
         }
 
-        $this->commit();
+        if (!$transactionAlreadyStarted) {
+            $this->commit();
+        }
     }
 
     /**
