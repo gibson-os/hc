@@ -87,6 +87,11 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
                 messageBox: {
                     buttonHandler() {
                         me.lastLogId = null;
+
+                        if (!me.isVisible()) {
+                            return;
+                        }
+
                         setTimeout(runRequest, 1000);
                     }
                 },
