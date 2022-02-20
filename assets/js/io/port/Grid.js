@@ -47,7 +47,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                     },
                     edit: function(editor, context) {
                         let record = context.record;
-                        let valueNames = record.get('valueName').split(',');
+                        let valueNames = record.get('valueNames').split(',');
 
                         if (valueNames.length !== 2) {
                             GibsonOS.MessageBox.show({
@@ -61,7 +61,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
 
                             me.plugins[0].startEdit(record, 2);
                         } else {
-                            record.set('valueName', valueNames);
+                            record.set('valueNames', valueNames);
                             me.setLoading(true);
 
                             GibsonOS.Ajax.request({
@@ -76,7 +76,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                                     pwm: record.get('pwm'),
                                     blink: record.get('blink'),
                                     fade: record.get('fade'),
-                                    'valueNames[]': record.get('valueName')
+                                    'valueNames[]': record.get('valueNames')
                                 },
                                 success: function() {
                                     record.commit();

@@ -69,7 +69,6 @@ class IoController extends AbstractController
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetAttribute(['fade' => 'fadeIn'])] Port $port
     ): AjaxResponse {
-//        errlog($port);
         $ioService->toggleValue($port);
 
         return $this->returnSuccess();
