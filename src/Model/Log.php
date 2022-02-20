@@ -27,10 +27,6 @@ use mysqlDatabase;
 #[Key(columns: ['module_id', 'master_id', 'id', 'command', 'direction'])]
 class Log extends AbstractModel implements JsonSerializable
 {
-    public const DIRECTION_INPUT = 'input';
-
-    public const DIRECTION_OUTPUT = 'output';
-
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 

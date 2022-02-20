@@ -7,8 +7,8 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Module\Hc\Dto\BusMessage;
+use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Exception\WriteException;
-use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
@@ -57,7 +57,7 @@ abstract class AbstractSlave
         ;
         $this->masterService->send($master, $busMessage);
         $this->masterService->receiveReceiveReturn($master, $busMessage);
-        $this->addLog($slave, $command, $data, Log::DIRECTION_OUTPUT);
+        $this->addLog($slave, $command, $data, Direction::OUTPUT);
     }
 
     /**
@@ -99,7 +99,7 @@ abstract class AbstractSlave
             $slave,
             $command,
             $receivedBusMessage->getData() ?? '',
-            Log::DIRECTION_INPUT
+            Direction::INPUT
         );
 
         return $receivedBusMessage->getData() ?? '';
@@ -108,7 +108,7 @@ abstract class AbstractSlave
     /**
      * @throws SaveError
      */
-    private function addLog(Module $slave, int $command, string $data, string $direction): void
+    private function addLog(Module $slave, int $command, string $data, Direction $direction): void
     {
         $this->logRepository->create(MasterService::TYPE_DATA, $data, $direction)
             ->setMaster($slave->getMaster())

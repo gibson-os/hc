@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Formatter;
 
+use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
@@ -34,7 +35,7 @@ abstract class AbstractFormatter implements FormatterInterface
         }
         if (
             $log->getType() == MasterService::TYPE_STATUS &&
-            $log->getDirection() === Log::DIRECTION_OUTPUT
+            $log->getDirection() === Direction::OUTPUT
         ) {
             return 'Status abfragen';
         }
@@ -55,7 +56,7 @@ abstract class AbstractFormatter implements FormatterInterface
 
         if (
             $log->getType() === MasterService::TYPE_STATUS &&
-            $log->getDirection() === Log::DIRECTION_OUTPUT
+            $log->getDirection() === Direction::OUTPUT
         ) {
             return true;
         }

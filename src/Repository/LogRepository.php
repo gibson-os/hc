@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Repository;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
+use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Model\Log;
 use mysqlTable;
 
@@ -15,7 +16,7 @@ class LogRepository extends AbstractRepository
     {
     }
 
-    public function create(int $type, string $data, string $direction): Log
+    public function create(int $type, string $data, Direction $direction): Log
     {
         return (new Log())
             ->setType($type)

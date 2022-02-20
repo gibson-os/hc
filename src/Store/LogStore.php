@@ -8,6 +8,7 @@ use Exception;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
+use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Factory\FormatterFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
@@ -171,7 +172,7 @@ class LogStore extends AbstractDatabaseStore
                 ->setId((int) $log['id'])
                 ->setAdded($this->dateTimeService->get((string) $log['added']))
                 ->setCommand($log['command'] === null ? null : (int) $log['command'])
-                ->setDirection((string) $log['direction'])
+                ->setDirection(Direction::from((string) $log['direction']))
                 ->setSlaveAddress((int) $log['address'])
             ;
 

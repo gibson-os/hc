@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Core\Utility\ArrayKeyUtility;
 use GibsonOS\Module\Hc\Constant\Rfmrhinetower as RfmrhinetowerConstant;
+use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\MasterService;
 
@@ -35,7 +36,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
 
         switch ($log->getType()) {
             case MasterService::TYPE_STATUS:
-                if ($log->getDirection() === Log::DIRECTION_INPUT) {
+                if ($log->getDirection() === Direction::INPUT) {
                     return $this->clockLogFormat($data);
                 }
 
@@ -64,7 +65,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
 
         switch ($log->getType()) {
             case MasterService::TYPE_STATUS:
-                if ($log->getDirection() === Log::DIRECTION_INPUT) {
+                if ($log->getDirection() === Direction::INPUT) {
                     return $this->ledLogFormat(mb_substr($data, 16));
                 }
 

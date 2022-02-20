@@ -13,9 +13,9 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
-use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Store\LogStore;
 
@@ -73,7 +73,7 @@ class IndexController extends AbstractController
         $command = $log->getCommand() ?? 0;
         $data = $log->getRawData();
 
-        if ($log->getDirection() === Log::DIRECTION_INPUT) {
+        if ($log->getDirection() === Direction::INPUT) {
             $slaveService->read($module, $command, strlen($data));
         } else {
             $slaveService->write($module, $command, $data);

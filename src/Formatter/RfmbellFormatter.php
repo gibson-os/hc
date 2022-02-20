@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Module\Hc\Constant\Rfmbell as RfmbellConstant;
+use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Model\Log;
 
 class RfmbellFormatter extends AbstractFormatter
@@ -20,7 +21,7 @@ class RfmbellFormatter extends AbstractFormatter
         for ($i = 0; $i < $length; ++$i) {
             $value = $this->transformService->hexToInt($log->getData(), $i);
 
-            if ($log->getDirection() === Log::DIRECTION_INPUT) {
+            if ($log->getDirection() === Direction::INPUT) {
                 // Eingang
                 switch ($i) {
                     case RfmbellConstant::BUTTON1:

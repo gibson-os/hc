@@ -13,9 +13,9 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
+use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Mapper\MasterMapper;
-use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -68,7 +68,7 @@ class MasterService
         $log = $this->logRepository->create(
             $busMessage->getType(),
             $data ?? '',
-            Log::DIRECTION_INPUT
+            Direction::INPUT
         )
             ->setMaster($master)
         ;

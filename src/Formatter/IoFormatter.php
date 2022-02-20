@@ -7,6 +7,7 @@ use Exception;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\TwigService;
+use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Mapper\IoMapper;
 use GibsonOS\Module\Hc\Model\Log;
@@ -79,7 +80,7 @@ class IoFormatter extends AbstractHcFormatter
             case IoService::COMMAND_DEFRAGMENT_DIRECT_CONNECT:
                 return 'Defragmentieren';
             case IoService::COMMAND_READ_DIRECT_CONNECT:
-                if ($log->getDirection() === Log::DIRECTION_OUTPUT) {
+                if ($log->getDirection() === Direction::OUTPUT) {
                     return null;
                 }
 
@@ -97,7 +98,7 @@ class IoFormatter extends AbstractHcFormatter
             case IoService::COMMAND_DIRECT_CONNECT_STATUS:
                 return $this->transformService->asciiToUnsignedInt($log->getRawData(), 0) ? 'Aktiv' : 'Inaktiv';
             case IoService::COMMAND_STATUS_IN_EEPROM:
-                if ($log->getDirection() == Log::DIRECTION_OUTPUT) {
+                if ($log->getDirection() == Direction::OUTPUT) {
                     return 'Standard gesetzt';
                 }
 
@@ -240,7 +241,7 @@ class IoFormatter extends AbstractHcFormatter
                         '</tr>' .
                     '</table>';
             case IoService::COMMAND_READ_DIRECT_CONNECT:
-                if ($log->getDirection() === Log::DIRECTION_OUTPUT) {
+                if ($log->getDirection() === Direction::OUTPUT) {
                     $this->directConnectReadInputPort = $this->transformService->asciiToUnsignedInt($log->getRawData(), 0);
                     $inputName = $this->valueRepository->getByTypeId(
                         $module->getTypeId(),
@@ -348,7 +349,7 @@ class IoFormatter extends AbstractHcFormatter
                 (int) $module->getId(),
                 $log->getCommand(),
                 $log->getType(),
-                $log->getDirection()
+                $log->getDirection()->value
             )->getRawData();
         } catch (SelectError) {
             return $ports;

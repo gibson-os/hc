@@ -5,6 +5,6 @@ namespace GibsonOS\Module\Hc\Dto;
 
 enum Direction: string
 {
-    case Input = 'input';
-    case Output = 'output';
+    case INPUT = 'input';
+    case OUTPUT = 'output';
 }
