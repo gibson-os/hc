@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Mapper;
 
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Module\Hc\Dto\Io\Direction;
 use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
@@ -27,11 +28,11 @@ class IoMapper
         $byte2 = $this->transformService->asciiToUnsignedInt($data, 1);
 
         $port
-            ->setDirection($byte1 & 1)
+            ->setDirection(Direction::from($byte1 & 1))
             ->setValue(($byte1 >> 2 & 1) === 1)
         ;
 
-        if ($port->getDirection() === Port::DIRECTION_INPUT) {
+        if ($port->getDirection() === Direction::INPUT) {
             $port
                 ->setDelay(($byte1 >> 3) | $byte2)
                 ->setPullUp(($byte1 >> 1 & 1) === 1)
@@ -81,10 +82,10 @@ class IoMapper
 
     public function getPortAsString(Port $port): string
     {
-        if ($port->getDirection() == Port::DIRECTION_INPUT) {
+        if ($port->getDirection() === Direction::INPUT) {
             return
                 chr(
-                    $port->getDirection() |
+                    $port->getDirection()->value |
                     (((int) $port->hasPullUp()) << 1) |
                     (((int) $port->isValue()) << 2) |
                     ($port->getDelay() << 3)
@@ -100,7 +101,7 @@ class IoMapper
 
         return
             chr(
-                $port->getDirection() |
+                $port->getDirection()->value |
                 (((int) $port->hasPullUp()) << 1) |
                 (((int) $port->isValue()) << 2) |
                 ($port->getBlink() << 3)

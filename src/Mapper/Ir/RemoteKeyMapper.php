@@ -58,7 +58,7 @@ class RemoteKeyMapper implements AttributeMapperInterface
      */
     public function mapFromDatabase(
         ReflectionProperty $reflectionProperty,
-        int|bool|array|float|string|null $value
+        int|bool|array|float|string|object|null $value
     ): array {
         $keys = [];
 

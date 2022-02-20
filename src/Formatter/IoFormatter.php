@@ -8,6 +8,7 @@ use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Module\Hc\Dto\Direction;
+use GibsonOS\Module\Hc\Dto\Io\Direction as IoDirection;
 use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Mapper\IoMapper;
 use GibsonOS\Module\Hc\Model\Log;
@@ -148,13 +149,13 @@ class IoFormatter extends AbstractHcFormatter
                     $return .=
                         '<tr>' .
                             '<td>' . $port->getName() . '</td>' .
-                            '<td>' . ($port->getDirection() === Port::DIRECTION_INPUT ? 'Eingang' : 'Ausgang') . '</td>' .
+                            '<td>' . ($port->getDirection() === IoDirection::INPUT ? 'Eingang' : 'Ausgang') . '</td>' .
                             '<td>' . $port->getValueNames()[(int) $port->isValue()] . '</td>' .
-                            ($port->getDirection() === Port::DIRECTION_INPUT
+                            ($port->getDirection() === IoDirection::INPUT
                                 ? '<td>' . ($port->hasPullUp() ? 'Ja' : 'Nein') . '</td>' .
                                   '<td>' . $port->getDelay() . '</td>'
                                 : '') .
-                            ($port->getDirection() === Port::DIRECTION_OUTPUT
+                            ($port->getDirection() === IoDirection::OUTPUT
                                 ? '<td>' . $port->getPwm() . '</td>' .
                                   '<td>' . $port->getBlink() . '</td>'
                                 : '') .
@@ -302,10 +303,10 @@ class IoFormatter extends AbstractHcFormatter
 
             $return =
                 '<table>' .
-                '<tr><th>Richtung</th><td>' . ($port->getDirection() === Port::DIRECTION_INPUT ? 'Eingang' : 'Ausgang') . '</td></tr>' .
+                '<tr><th>Richtung</th><td>' . ($port->getDirection() === IoDirection::INPUT ? 'Eingang' : 'Ausgang') . '</td></tr>' .
                 '<tr><th>Zustand</th><td>' . $port->getValueNames()[(int) $port->isValue()] . '</td></tr>';
 
-            if ($port->getDirection() === IoService::DIRECTION_INPUT) {
+            if ($port->getDirection() === IoDirection::INPUT) {
                 $return .=
                     '<tr><th>PullUp</th><td>' . ($port->hasPullUp() ? 'Ja' : 'Nein') . '</td></tr>' .
                     '<tr><th>Verzögerung</th><td>' . $port->getDelay() . '</td></tr>';
@@ -373,7 +374,7 @@ class IoFormatter extends AbstractHcFormatter
                 continue;
             }
 
-            if ($port->getDirection() === Port::DIRECTION_INPUT) {
+            if ($port->getDirection() === IoDirection::INPUT) {
                 if ($lastPort->getDelay() !== $port->getDelay()) {
                     $changedPorts[$number] = $port;
 

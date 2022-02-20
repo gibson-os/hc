@@ -29,6 +29,10 @@ class AttributeMapper implements AttributeMapperInterface
     public function mapToDatabase(float|object|array|bool|int|string|null $value): int|float|string|null|bool|array|object
     {
         if (!$value instanceof JsonSerializable) {
+            if (is_object($value) && enum_exists($value::class)) {
+                return $value->name;
+            }
+
             return $value;
         }
 
@@ -79,9 +83,13 @@ class AttributeMapper implements AttributeMapperInterface
      */
     public function mapFromDatabase(
         ReflectionProperty $reflectionProperty,
-        float|array|bool|int|string|null $value
+        float|array|bool|int|string|object|null $value
     ): int|float|string|null|bool|array|object {
         if (!is_array($value)) {
+            if (is_object($value) && enum_exists($value::class)) {
+                return $value->value;
+            }
+
             return $value;
         }
 

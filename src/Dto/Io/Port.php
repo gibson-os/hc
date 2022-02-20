@@ -10,10 +10,6 @@ use JsonSerializable;
 
 class Port implements JsonSerializable, AttributeInterface
 {
-    public const DIRECTION_INPUT = 0;
-
-    public const DIRECTION_OUTPUT = 1;
-
     /**
      * @param string[] $valueNames
      */
@@ -21,7 +17,7 @@ class Port implements JsonSerializable, AttributeInterface
         private Module $module,
         private int $number,
         #[IsAttribute] private ?string $name = null,
-        #[IsAttribute] private int $direction = self::DIRECTION_INPUT,
+        #[IsAttribute] private Direction $direction = Direction::INPUT,
         #[IsAttribute] private bool $pullUp = true,
         #[IsAttribute] private int $pwm = 0,
         #[IsAttribute] private int $blink = 0,
@@ -50,12 +46,12 @@ class Port implements JsonSerializable, AttributeInterface
         return $this;
     }
 
-    public function getDirection(): int
+    public function getDirection(): Direction
     {
         return $this->direction;
     }
 
-    public function setDirection(int $direction): Port
+    public function setDirection(Direction $direction): Port
     {
         $this->direction = $direction;
 

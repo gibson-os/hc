@@ -18,6 +18,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Module\Hc\Dto\Io\Direction;
 use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Dto\Parameter\Io\PortParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\SlaveParameter;
@@ -368,7 +369,7 @@ class IoEvent extends AbstractHcEvent
             $module,
             $port,
             $name,
-            $direction,
+            Direction::from($direction),
             $pullUp,
             $pwm,
             $blink,

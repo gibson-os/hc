@@ -11,6 +11,6 @@ interface AttributeMapperInterface
 
     public function mapFromDatabase(
         ReflectionProperty $reflectionProperty,
-        int|float|string|null|bool|array $value
+        int|float|string|null|bool|array|object $value
     ): int|float|string|null|bool|array|object;
 }
