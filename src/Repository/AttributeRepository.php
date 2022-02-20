@@ -419,12 +419,12 @@ class AttributeRepository extends AbstractRepository
             );
 
             if ($typeName === 'array') {
-                $this->reflectionManager->setProperty($property['reflectionProperty'], $dto, $mappedValues);
+                $this->reflectionManager->setProperty($reflectionProperty, $dto, $mappedValues);
 
                 continue;
             }
 
-            $this->reflectionManager->setProperty($property['reflectionProperty'], $dto, reset($mappedValues));
+            $this->reflectionManager->setProperty($reflectionProperty, $dto, reset($mappedValues));
         }
 
         return $dto;
