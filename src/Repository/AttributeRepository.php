@@ -402,16 +402,18 @@ class AttributeRepository extends AbstractRepository
             /** @psalm-suppress UndefinedMethod */
             $typeName = $reflectionProperty->getType()?->getName();
             $propertyType = $reflectionAttribute->getType();
-            $mapValue = fn (Value $value) => match ($typeName) {
-                'int' => (int) $mapper->mapFromDatabase($reflectionProperty, $value->getValue()),
-                'float' => (float) $mapper->mapFromDatabase($reflectionProperty, $value->getValue()),
-                'bool' => (bool) $mapper->mapFromDatabase($reflectionProperty, $value->getValue()),
-                default => $propertyType === null
-                    ? $mapper->mapFromDatabase($reflectionProperty, $value->getValue())
-                    : $this->objectMapper->mapToObject(
-                        $propertyType,
-                        $mapper->mapFromDatabase($reflectionProperty, JsonUtility::decode($value->getValue())) ?? []
-                    ),
+            $mapValue = function (Value $value) use ($typeName, $reflectionProperty, $mapper, $propertyType) {
+                $value = $value->getValue();
+
+                return match ($typeName) {
+                    'int', 'float', 'bool' => $mapper->mapFromDatabase($reflectionProperty, $value),
+                    default => $propertyType === null
+                        ? $mapper->mapFromDatabase($reflectionProperty, $value)
+                        : $this->objectMapper->mapToObject(
+                            $propertyType,
+                            $mapper->mapFromDatabase($reflectionProperty, JsonUtility::decode($value)) ?? []
+                        ),
+                };
             };
             $mappedValues = array_map(
                 fn (Value $value) => $mapValue($value),

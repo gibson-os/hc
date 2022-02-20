@@ -30,7 +30,7 @@ class AttributeMapper implements AttributeMapperInterface
     {
         if (!$value instanceof JsonSerializable) {
             if (is_object($value) && enum_exists($value::class)) {
-                return $value->name;
+                return $value->value;
             }
 
             return $value;
@@ -85,12 +85,26 @@ class AttributeMapper implements AttributeMapperInterface
         ReflectionProperty $reflectionProperty,
         float|array|bool|int|string|object|null $value
     ): int|float|string|null|bool|array|object {
-        if (!is_array($value)) {
-            if (is_object($value) && enum_exists($value::class)) {
-                return $value->value;
-            }
+        /** @psalm-suppress UndefinedMethod */
+        $typeName = $reflectionProperty->getType()?->getName();
 
-            return $value;
+        if (!is_array($value)) {
+            try {
+                $reflectionEnum = $this->reflectionManager->getReflectionEnum($typeName);
+
+                return $typeName::from(match ((string) $reflectionEnum->getBackingType()) {
+                    'int' => (int) $value,
+                    'float' => (float) $value,
+                    'string' => (string) $value,
+                });
+            } catch (ReflectionException) {
+                return match ($typeName) {
+                    'int' => (int) $value,
+                    'float' => (float) $value,
+                    'bool' => (bool) $value,
+                    default => $value
+                };
+            }
         }
 
         $objectMapper = $this->reflectionManager->getAttribute($reflectionProperty, ObjectMapper::class);
@@ -99,8 +113,7 @@ class AttributeMapper implements AttributeMapperInterface
             return $value;
         }
 
-        /** @psalm-suppress UndefinedMethod */
-        $objectClassName = $objectMapper->getObjectClassName() ?? $reflectionProperty->getType()?->getName();
+        $objectClassName = $objectMapper->getObjectClassName() ?? $typeName;
 
         if ($objectClassName === null) {
             throw new MapperException(sprintf(

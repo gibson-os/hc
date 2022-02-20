@@ -163,7 +163,7 @@ class Port implements JsonSerializable, AttributeInterface
         return [
             'number' => $this->getNumber(),
             'name' => $this->getName(),
-            'direction' => $this->getDirection(),
+            'direction' => $this->getDirection()->value,
             'pullUp' => $this->hasPullUp(),
             'pwm' => $this->getPwm(),
             'blink' => $this->getBlink(),
