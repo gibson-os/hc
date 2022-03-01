@@ -8,6 +8,7 @@ use Exception;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
@@ -22,6 +23,7 @@ class MasterRepository extends AbstractRepository
     private const FIRST_SLAVE_ADDRESS = 8;
 
     public function __construct(
+        private ModelManager $modelManager,
         #[GetTableName((Master::class))] private string $masterTableName,
         #[GetTableName((DefaultAddress::class))] private string $defaultAddressTableName,
         #[GetTableName((Module::class))] private string $moduleTableName,
@@ -74,7 +76,7 @@ class MasterRepository extends AbstractRepository
             ->setAddress($address)
             ->setSendPort($this->findFreePort())
             ->setAdded(new DateTime());
-        $model->save();
+        $this->modelManager->save($model);
 
         return $model;
     }

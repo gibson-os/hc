@@ -7,6 +7,7 @@ use Exception;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Attribute;
@@ -18,6 +19,7 @@ use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use JsonException;
 use OutOfRangeException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 class LedService
 {
@@ -57,8 +59,12 @@ class LedService
      */
     private array $ledsAttributes = [];
 
-    public function __construct(private AttributeRepository $attributeRepository, private ValueRepository $valueRepository, private LoggerInterface $logger)
-    {
+    public function __construct(
+        private AttributeRepository $attributeRepository,
+        private ValueRepository $valueRepository,
+        private LoggerInterface $logger,
+        private ModelManager $modelManager
+    ) {
     }
 
     /**
@@ -179,16 +185,16 @@ class LedService
                 (string) $value
             ));
 
-            (new ValueModel())
-                ->setAttribute($this->getLedAttribute($slave, $led->getNumber(), $attribute))
-                ->setOrder(0)
-                ->setValue((string) (
-                    ($attribute === self::ATTRIBUTE_KEY_LEFT || $attribute === self::ATTRIBUTE_KEY_TOP) && $value < 0
-                        ? 0
-                        : $value
-                ))
-                ->save()
-            ;
+            $this->modelManager->save(
+                (new ValueModel())
+                    ->setAttribute($this->getLedAttribute($slave, $led->getNumber(), $attribute))
+                    ->setOrder(0)
+                    ->setValue((string) (
+                        ($attribute === self::ATTRIBUTE_KEY_LEFT || $attribute === self::ATTRIBUTE_KEY_TOP) && $value < 0
+                            ? 0
+                            : $value
+                    ))
+            );
         }
     }
 
@@ -222,7 +228,9 @@ class LedService
     }
 
     /**
+     * @throws JsonException
      * @throws SaveError
+     * @throws ReflectionException
      */
     private function addAttribute(Module $slave, int $id, string $key): void
     {
@@ -233,7 +241,7 @@ class LedService
             ->setKey($key)
             ->setType(self::ATTRIBUTE_TYPE)
         ;
-        $this->ledsAttributes[$id][$key]->save();
+        $this->modelManager->save($this->ledsAttributes[$id][$key]);
     }
 
     /**

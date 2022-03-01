@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Service\Slave;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -13,7 +14,9 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 abstract class AbstractSlave
 {
@@ -25,7 +28,8 @@ abstract class AbstractSlave
         protected MasterService $masterService,
         protected TransformService $transformService,
         private LogRepository $logRepository,
-        protected LoggerInterface $logger
+        protected LoggerInterface $logger,
+        protected ModelManager $modelManager
     ) {
     }
 
@@ -107,15 +111,17 @@ abstract class AbstractSlave
 
     /**
      * @throws SaveError
+     * @throws JsonException
+     * @throws ReflectionException
      */
     private function addLog(Module $slave, int $command, string $data, Direction $direction): void
     {
-        $this->logRepository->create(MasterService::TYPE_DATA, $data, $direction)
-            ->setMaster($slave->getMaster())
-            ->setModule($slave)
-            ->setSlaveAddress($slave->getAddress())
-            ->setCommand($command)
-            ->save()
-        ;
+        $this->modelManager->save(
+            $this->logRepository->create(MasterService::TYPE_DATA, $data, $direction)
+                ->setMaster($slave->getMaster())
+                ->setModule($slave)
+                ->setSlaveAddress($slave->getAddress())
+                ->setCommand($command)
+        );
     }
 }

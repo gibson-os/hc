@@ -11,6 +11,7 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Event\AbstractHcEvent;
@@ -168,9 +169,10 @@ abstract class AbstractHcSlave extends AbstractSlave
         private MasterRepository $masterRepository,
         LogRepository $logRepository,
         private SlaveFactory $slaveFactory,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ModelManager $modelManager
     ) {
-        parent::__construct($masterService, $transformService, $logRepository, $logger);
+        parent::__construct($masterService, $transformService, $logRepository, $logger, $modelManager);
     }
 
     /**
@@ -344,6 +346,7 @@ abstract class AbstractHcSlave extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function writeRaw(Module $slave, int $command, string $data = ''): void
     {
@@ -393,7 +396,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readDeviceId(Module $slave): int
@@ -416,6 +424,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SaveError
      */
     public function writeDeviceId(Module $slave, int $deviceId): void
     {
@@ -437,7 +451,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readTypeId(Module $slave): int
@@ -455,8 +474,11 @@ abstract class AbstractHcSlave extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws DateTimeError
-     * @throws SaveError
+     * @throws EventException
      * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SaveError
      */
     public function writeTypeId(Module $slave, Type $type): AbstractSlave
     {
@@ -481,6 +503,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writeRestart(Module $slave): void
@@ -498,6 +525,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writePwmSpeed(Module $slave, int $speed): void
@@ -515,7 +547,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     protected function readConfig(Module $slave, int $length): string
@@ -529,7 +566,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readHertz(Module $slave): int
@@ -546,7 +588,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readPwmSpeed(Module $slave): int
@@ -563,7 +610,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readEepromSize(Module $slave): int
@@ -580,7 +632,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readEepromFree(Module $slave): int
@@ -597,7 +654,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readEepromPosition(Module $slave): int
@@ -614,6 +676,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writeEepromPosition(Module $slave, int $position): void
@@ -631,6 +698,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writeEepromErase(Module $slave): void
@@ -648,7 +720,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readBufferSize(Module $slave): int
@@ -665,7 +742,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readLedStatus(Module $slave): array
@@ -697,6 +779,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writePowerLed(Module $slave, bool $on): void
@@ -710,6 +797,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writeErrorLed(Module $slave, bool $on): void
@@ -723,6 +815,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writeConnectLed(Module $slave, bool $on): void
@@ -736,6 +833,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writeTransreceiveLed(Module $slave, bool $on): void
@@ -749,6 +851,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writeTransceiveLed(Module $slave, bool $on): void
@@ -762,6 +869,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writeReceiveLed(Module $slave, bool $on): void
@@ -775,6 +887,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writeCustomLed(Module $slave, bool $on): void
@@ -788,7 +905,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readPowerLed(Module $slave): bool
@@ -808,7 +930,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readErrorLed(Module $slave): bool
@@ -828,7 +955,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readConnectLed(Module $slave): bool
@@ -848,7 +980,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readTransreceiveLed(Module $slave): bool
@@ -868,7 +1005,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readTransceiveLed(Module $slave): bool
@@ -888,7 +1030,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readReceiveLed(Module $slave): bool
@@ -908,7 +1055,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readCustomLed(Module $slave): bool
@@ -928,6 +1080,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writeRgbLed(
@@ -978,7 +1135,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readRgbLed(Module $slave): array
@@ -1006,6 +1168,11 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function writeAllLeds(
@@ -1050,7 +1217,12 @@ abstract class AbstractHcSlave extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readAllLeds(Module $slave): array

@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Service\Sequence\Neopixel;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Module;
@@ -13,13 +14,17 @@ use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
 use GibsonOS\Module\Hc\Repository\SequenceRepository;
 use JsonException;
+use ReflectionException;
 
 class ImageService
 {
     public const SEQUENCE_TYPE = 0;
 
-    public function __construct(private SequenceRepository $sequenceRepository, private ElementRepository $elementRepository)
-    {
+    public function __construct(
+        private SequenceRepository $sequenceRepository,
+        private ElementRepository $elementRepository,
+        private ModelManager $modelManager
+    ) {
     }
 
     /**
@@ -36,6 +41,7 @@ class ImageService
      * @throws DeleteError
      * @throws SaveError
      * @throws JsonException
+     * @throws ReflectionException
      */
     public function save(Module $slave, string $name, array $leds, int $id = null): Sequence
     {
@@ -61,7 +67,7 @@ class ImageService
         }
 
         try {
-            $sequence->save();
+            $this->modelManager->save($sequence);
         } catch (SaveError $e) {
             $this->sequenceRepository->rollback();
 
@@ -74,7 +80,7 @@ class ImageService
         ;
 
         try {
-            $sequenceElement->save();
+            $this->modelManager->save($sequenceElement);
         } catch (SaveError $e) {
             $this->sequenceRepository->rollback();
 

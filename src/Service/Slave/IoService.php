@@ -10,8 +10,11 @@ use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
+use GibsonOS\Core\Exception\Repository\DeleteError as RepositoryDeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Exception\Repository\UpdateError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Io\Port;
@@ -119,7 +122,8 @@ class IoService extends AbstractHcSlave
         SlaveFactory $slaveFactory,
         private AttributeRepository $attributeRepository,
         private ValueRepository $valueRepository,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ModelManager $modelManager
     ) {
         parent::__construct(
             $masterService,
@@ -130,7 +134,8 @@ class IoService extends AbstractHcSlave
             $masterRepository,
             $logRepository,
             $slaveFactory,
-            $logger
+            $logger,
+            $modelManager
         );
     }
 
@@ -150,7 +155,7 @@ class IoService extends AbstractHcSlave
                 )
             );
 
-            $module->save();
+            $this->modelManager->save($module);
         }
 
         $ports = $this->readPorts($module);
@@ -427,7 +432,7 @@ class IoService extends AbstractHcSlave
 
                     $changed = true;
                     $valueModel->setValue((string) $value);
-                    $valueModel->save();
+                    $this->modelManager->save($valueModel);
                 }
             }
 
@@ -555,22 +560,30 @@ class IoService extends AbstractHcSlave
                     ->setType(self::ATTRIBUTE_TYPE_DIRECT_CONNECT)
                     ->setSubId($port)
                     ->setKey($key);
-                $attribute->save();
+                $this->modelManager->save($attribute);
             } else {
                 $attribute = $attributes[0];
             }
 
-            (new ValueModel())
-                ->setAttribute($attribute)
-                ->setValue((string) $value)
-                ->setOrder($order)
-                ->save()
-            ;
+            $this->modelManager->save(
+                (new ValueModel())
+                    ->setAttribute($attribute)
+                    ->setValue((string) $value)
+                    ->setOrder($order)
+            );
         }
     }
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SaveError
+     * @throws RepositoryDeleteError
+     * @throws UpdateError
      */
     public function deleteDirectConnect(Module $slave, int $port, int $order): void
     {
@@ -622,6 +635,13 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws RepositoryDeleteError
+     * @throws SaveError
      */
     public function resetDirectConnect(Module $slave, int $port, bool $databaseOnly = false): void
     {
@@ -665,6 +685,11 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function defragmentDirectConnect(Module $slave): void
@@ -680,6 +705,11 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function activateDirectConnect(Module $slave, bool $active = true): void
@@ -691,18 +721,23 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function isDirectConnectActive(Module $slave): bool
     {
         $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_IS_DIRECT_CONNECT_ACTIVE, ['slave' => $slave]);
 
-        $active = $this->transformService->asciiToUnsignedInt($this->read(
+        $active = (bool) $this->transformService->asciiToUnsignedInt($this->read(
             $slave,
             self::COMMAND_DIRECT_CONNECT_STATUS,
             self::COMMAND_DIRECT_CONNECT_STATUS_READ_LENGTH
-        )) ? true : false;
+        ));
 
         $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_IS_DIRECT_CONNECT_ACTIVE, ['slave' => $slave, 'active' => $active]);
 

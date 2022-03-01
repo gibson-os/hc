@@ -24,11 +24,6 @@ class KeyStore extends AbstractAttributeStore
 {
     private array $irProtocols;
 
-    /**
-     * @param Setting $irProtocols
-     * @param string  $valueTableName
-     * @param string  $typeTableName
-     */
     public function __construct(
         private IrFormatter $irFormatter,
         #[GetSetting('irProtocols')] Setting $irProtocols,

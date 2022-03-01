@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Service\Sequence\Neopixel;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\CommandService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Command\Neopixel\PlayAnimationCommand;
@@ -17,6 +18,7 @@ use GibsonOS\Module\Hc\Repository\Sequence\ElementRepository;
 use GibsonOS\Module\Hc\Repository\SequenceRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
 use JsonException;
+use ReflectionException;
 
 class AnimationService
 {
@@ -27,7 +29,8 @@ class AnimationService
         private ElementRepository $elementRepository,
         private CommandService $commandService,
         private LedMapper $ledMapper,
-        private AnimationAttributeService $animationAttributesService
+        private AnimationAttributeService $animationAttributesService,
+        private ModelManager $modelManager
     ) {
     }
 
@@ -60,6 +63,7 @@ class AnimationService
      * @throws DeleteError
      * @throws SaveError
      * @throws JsonException
+     * @throws ReflectionException
      */
     public function save(Module $slave, string $name, array $steps, int $id = null): Sequence
     {
@@ -85,7 +89,7 @@ class AnimationService
         }
 
         try {
-            $sequence->save();
+            $this->modelManager->save($sequence);
         } catch (SaveError $e) {
             $this->sequenceRepository->rollback();
 
@@ -100,7 +104,7 @@ class AnimationService
             ;
 
             try {
-                $sequenceElement->save();
+                $this->modelManager->save($sequenceElement);
             } catch (SaveError $e) {
                 $this->sequenceRepository->rollback();
 

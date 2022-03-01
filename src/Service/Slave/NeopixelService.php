@@ -105,7 +105,7 @@ class NeopixelService extends AbstractHcSlave
 
         $config[self::CONFIG_COUNTS] = $this->readLedCounts($module);
         $module->setConfig(JsonUtility::encode($config));
-        $module->save();
+        $this->modelManager->save($module);
 
         $id = 0;
         $leds = [];

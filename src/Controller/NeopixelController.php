@@ -11,6 +11,7 @@ use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Utility\JsonUtility;
@@ -25,6 +26,7 @@ use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Store\Neopixel\ImageStore;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
 use JsonException;
+use ReflectionException;
 
 class NeopixelController extends AbstractController
 {
@@ -71,12 +73,14 @@ class NeopixelController extends AbstractController
      * @throws JsonException
      * @throws SaveError
      * @throws SelectError
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function setLeds(
         NeopixelService $neopixelService,
         LedMapper $ledMapper,
         LedService $ledService,
+        ModelManager $modelManager,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         array $leds = []
     ): AjaxResponse {
@@ -89,7 +93,7 @@ class NeopixelController extends AbstractController
 
             $config['counts'] = $ledCounts;
             $module->setConfig(JsonUtility::encode($config));
-            $module->save();
+            $modelManager->save($module);
         }
 
         $ledService->saveLeds($module, $leds);

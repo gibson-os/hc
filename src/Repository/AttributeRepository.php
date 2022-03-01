@@ -10,6 +10,7 @@ use GibsonOS\Core\Exception\Model\DeleteError as ModelDeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Manager\ServiceManager;
 use GibsonOS\Core\Mapper\ObjectMapper;
@@ -40,6 +41,7 @@ class AttributeRepository extends AbstractRepository
         private ObjectMapper $objectMapper,
         private ReflectionManager $reflectionManager,
         private ServiceManager $serviceManager,
+        private ModelManager $modelManager
     ) {
     }
 
@@ -80,6 +82,7 @@ class AttributeRepository extends AbstractRepository
      *
      * @throws SaveError
      * @throws ReflectionException
+     * @throws JsonException
      */
     public function addByModule(
         Module $module,
@@ -94,15 +97,15 @@ class AttributeRepository extends AbstractRepository
             ->setSubId($subId)
             ->setKey($key)
         ;
-        $attribute->save();
+        $this->modelManager->save($attribute);
 
         foreach ($values as $order => $value) {
-            (new Value())
-                ->setAttribute($attribute)
-                ->setValue($value)
-                ->setOrder($order)
-                ->save()
-            ;
+            $this->modelManager->save(
+                (new Value())
+                    ->setAttribute($attribute)
+                    ->setValue($value)
+                    ->setOrder($order)
+            );
         }
     }
 
@@ -277,7 +280,7 @@ class AttributeRepository extends AbstractRepository
                     ->setKey($keyName)
                     ->setModule($dto->getModule())
                 ;
-                $attribute->save();
+                $this->modelManager->save($attribute);
                 $attributes[] = $attribute;
             }
 
@@ -305,10 +308,11 @@ class AttributeRepository extends AbstractRepository
                     /** @var AttributeMapperInterface $mapper */
                     $mapper = $property['mapper'];
                     $newValue = $mapper->mapToDatabase($values[$value->getOrder()]);
-                    $value
-                        ->setValue(is_array($newValue) || is_object($newValue) ? JsonUtility::encode($newValue) : (string) $newValue)
-                        ->save()
-                    ;
+                    $this->modelManager->save($value->setValue(
+                        is_array($newValue) || is_object($newValue)
+                            ? JsonUtility::encode($newValue)
+                            : (string) $newValue
+                    ));
                     unset($values[$value->getOrder()]);
                 }
 
@@ -316,12 +320,12 @@ class AttributeRepository extends AbstractRepository
                     /** @var AttributeMapperInterface $mapper */
                     $mapper = $property['mapper'];
                     $value = $mapper->mapToDatabase($values[$order]);
-                    (new Value())
-                        ->setAttribute($attribute)
-                        ->setValue(is_array($value) || is_object($value) ? JsonUtility::encode($value) : (string) $value)
-                        ->setOrder($order)
-                        ->save()
-                    ;
+                    $this->modelManager->save(
+                        (new Value())
+                            ->setAttribute($attribute)
+                            ->setValue(is_array($value) || is_object($value) ? JsonUtility::encode($value) : (string) $value)
+                            ->setOrder($order)
+                    );
                 }
             }
         } catch (Exception $exception) {
@@ -342,7 +346,6 @@ class AttributeRepository extends AbstractRepository
      *
      * @param T $dto
      *
-     * @throws JsonException
      * @throws ReflectionException
      * @throws SelectError
      * @throws FactoryError

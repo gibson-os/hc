@@ -14,6 +14,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\SetError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
@@ -50,6 +51,7 @@ class HcSlaveController extends AbstractController
         SlaveFactory $slaveFactory,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
+        ModelManager $modelManager,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         string $name,
         int $deviceId,
@@ -63,10 +65,7 @@ class HcSlaveController extends AbstractController
         $moduleRepository->startTransaction();
 
         try {
-            $module
-                ->setName($name)
-                ->save()
-            ;
+            $modelManager->save($module->setName($name));
             $moduleRepository->commit();
             $moduleRepository->startTransaction();
 
@@ -99,14 +98,14 @@ class HcSlaveController extends AbstractController
                 }
 
                 $slaveService->writeDeviceId($module, $deviceId);
-                $module->save();
+                $modelManager->save($module);
                 $moduleRepository->commit();
                 $moduleRepository->startTransaction();
             }
 
             if ($address !== $module->getAddress()) {
                 $slaveService->writeAddress($module, $address);
-                $module->save();
+                $modelManager->save($module);
                 $moduleRepository->commit();
                 $moduleRepository->startTransaction();
             }
@@ -116,10 +115,7 @@ class HcSlaveController extends AbstractController
                     $slaveService->writePwmSpeed($module, $pwmSpeed);
                 }
 
-                $module
-                    ->setPwmSpeed($pwmSpeed)
-                    ->save()
-                ;
+                $modelManager->save($module->setPwmSpeed($pwmSpeed));
                 $moduleRepository->commit();
                 $moduleRepository->startTransaction();
             }
@@ -127,7 +123,7 @@ class HcSlaveController extends AbstractController
             if ($typeId !== $module->getTypeId()) {
                 $type = $typeRepository->getById($typeId);
                 $slaveService->writeTypeId($module, $type);
-                $module->save();
+                $modelManager->save($module);
                 $moduleRepository->commit();
             }
         } catch (AbstractException $exception) {

@@ -5,12 +5,12 @@ namespace GibsonOS\Module\Hc\Service;
 
 use DateTime;
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Direction;
@@ -25,7 +25,9 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\Protocol\UdpService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 class MasterService
 {
@@ -52,13 +54,16 @@ class MasterService
         private TypeRepository $typeRepository,
         private LoggerInterface $logger,
         private MasterRepository $masterRepository,
-        private DateTimeService $dateTimeService
+        private DateTimeService $dateTimeService,
+        private ModelManager $modelManager
     ) {
     }
 
     /**
      * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      */
@@ -100,15 +105,12 @@ class MasterService
             $log->setCommand($command);
         }
 
-        $slave
-            ->setOffline(false)
-            ->setModified(new DateTime())
-            ->save()
-        ;
-        $log
-            ->setModule($slave)
-            ->save()
-        ;
+        $this->modelManager->save(
+            $slave
+                ->setOffline(false)
+                ->setModified(new DateTime())
+        );
+        $this->modelManager->save($log->setModule($slave));
     }
 
     /**
@@ -126,9 +128,10 @@ class MasterService
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
      * @throws GetError
      * @throws SaveError
+     * @throws JsonException
+     * @throws ReflectionException
      */
     public function handshake(ProtocolInterface $protocolService, BusMessage $busMessage): void
     {
@@ -141,11 +144,11 @@ class MasterService
 
         try {
             $master = $this->masterRepository->getByName($data, $protocolName);
-            $master
-                ->setAddress($busMessage->getMasterAddress())
-                ->setModified($this->dateTimeService->get())
-                ->save()
-            ;
+            $this->modelManager->save(
+                $master
+                    ->setAddress($busMessage->getMasterAddress())
+                    ->setModified($this->dateTimeService->get())
+            );
         } catch (SelectError) {
             $master = $this->masterRepository->add($data, $protocolName, $busMessage->getMasterAddress());
         }

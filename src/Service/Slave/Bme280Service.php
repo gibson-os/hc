@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Service\Slave;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Mapper\Bme280Mapper;
 use GibsonOS\Module\Hc\Model\Module;
@@ -50,9 +51,10 @@ class Bme280Service extends AbstractSlave
         TransformService $transformService,
         LogRepository $logRepository,
         private Bme280Mapper $bme280Mapper,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ModelManager $modelManager
     ) {
-        parent::__construct($masterService, $transformService, $logRepository, $logger);
+        parent::__construct($masterService, $transformService, $logRepository, $logger, $modelManager);
     }
 
     /**

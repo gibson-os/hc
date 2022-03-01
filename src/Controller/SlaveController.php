@@ -10,6 +10,7 @@ use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
@@ -32,6 +33,7 @@ class SlaveController extends AbstractController
         TypeRepository $typeRepository,
         SlaveFactory $slaveFactory,
         DateTimeService $dateTimeService,
+        ModelManager $modelManager,
         #[GetModel(['id' => 'masterId'])] Master $master,
         #[GetModel(['address' => 'address', 'master_id' => 'masterId'])] ?Module $module,
         string $name,
@@ -56,7 +58,7 @@ class SlaveController extends AbstractController
             ->setType($type)
             ->setAdded($dateTimeService->get())
         ;
-        $slave->save();
+        $modelManager->save($slave);
 
         if ($withHandshake) {
             $slaveService = $slaveFactory->get($type->getHelper());

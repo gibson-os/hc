@@ -4,10 +4,9 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Formatter;
 
 use Exception;
-use GibsonOS\Core\Exception\GetError;
+use GibsonOS\Core\Attribute\GetSetting;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\Setting;
-use GibsonOS\Core\Service\ModuleSettingService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Constant\Ethbridge as EthbridgeConstant;
 use GibsonOS\Module\Hc\Model\Log;
@@ -19,8 +18,8 @@ class EthbridgeFormatter extends AbstractFormatter
 {
     public function __construct(
         TransformService $transformService,
-        private ModuleSettingService $moduleSetting,
-        private ValueRepository $valueRepository
+        private ValueRepository $valueRepository,
+        #[GetSetting('ethbridgeIrProtocols')] private Setting $irProtocols
     ) {
         parent::__construct($transformService);
         $this->transformService = $transformService;
@@ -44,13 +43,7 @@ class EthbridgeFormatter extends AbstractFormatter
             case MasterService::TYPE_DATA:
                 switch ($this->transformService->hexToInt($data, 0)) {
                     case EthbridgeConstant::DATA_TYPE_IR:
-                        $irProtocols = $this->moduleSetting->getByRegistry('ethbridgeIrProtocols');
-
-                        if (!$irProtocols instanceof Setting) {
-                            throw new GetError('Protokolle konnten nicht geladen werden!');
-                        }
-
-                        $irProtocols = JsonUtility::decode($irProtocols->getValue());
+                        $irProtocols = JsonUtility::decode($this->irProtocols->getValue());
                         $irData = $this->getIrData($log);
 
                         if (empty($irData)) {

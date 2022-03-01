@@ -7,6 +7,7 @@ use Exception;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
@@ -14,6 +15,8 @@ use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
+use JsonException;
+use ReflectionException;
 
 class AnimationService
 {
@@ -27,8 +30,12 @@ class AnimationService
 
     private const ATTRIBUTE_KEY_TRANSMITTED = 'transmitted';
 
-    public function __construct(private AttributeRepository $attributeRepository, private ValueRepository $valueRepository, private LedMapper $ledMapper)
-    {
+    public function __construct(
+        private AttributeRepository $attributeRepository,
+        private ValueRepository $valueRepository,
+        private LedMapper $ledMapper,
+        private ModelManager $modelManager
+    ) {
     }
 
     /**
@@ -67,7 +74,7 @@ class AnimationService
         try {
             $value = $this->getValueModel($slave, self::ATTRIBUTE_KEY_STARTED)->getValue();
 
-            return $value === '' ? false : (bool) $value;
+            return !($value === '') && $value;
         } catch (SelectError) {
             return false;
         }
@@ -207,10 +214,12 @@ class AnimationService
      * @param string[] $values
      *
      * @throws SaveError
+     * @throws JsonException
+     * @throws ReflectionException
      */
     private function saveAttribute(Attribute $attribute, array $values): void
     {
-        $attribute->save();
+        $this->modelManager->save($attribute);
 
         foreach ($values as $index => $value) {
             $attributeValue = (new Attribute\Value())
@@ -218,7 +227,7 @@ class AnimationService
                 ->setOrder($index)
                 ->setValue($value)
             ;
-            $attributeValue->save();
+            $this->modelManager->save($attributeValue);
         }
     }
 }
