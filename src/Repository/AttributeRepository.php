@@ -289,7 +289,7 @@ class AttributeRepository extends AbstractRepository
 
                 if (!isset($properties[$key]['values']) || !is_array($properties[$key]['values'])) {
                     foreach ($attribute->getValues() as $value) {
-                        $value->delete();
+                        $this->modelManager->delete($value);
                     }
 
                     continue;
@@ -300,7 +300,7 @@ class AttributeRepository extends AbstractRepository
 
                 foreach ($attribute->getValues() as $value) {
                     if (!isset($values[$value->getOrder()])) {
-                        $value->delete();
+                        $this->modelManager->delete($value);
 
                         continue;
                     }
