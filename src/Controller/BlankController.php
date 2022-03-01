@@ -12,6 +12,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Slave\BlankService;
 use GibsonOS\Module\Hc\Service\TransformService;
@@ -53,6 +54,7 @@ class BlankController extends AbstractController
      * @throws AbstractException
      * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
     public function write(

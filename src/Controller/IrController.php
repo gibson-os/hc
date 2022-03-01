@@ -21,7 +21,6 @@ use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Attribute\GetAttribute;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
 use GibsonOS\Module\Hc\Dto\Ir\Remote;
-use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Exception\IrException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
 use GibsonOS\Module\Hc\Model\Module;
@@ -62,7 +61,6 @@ class IrController extends AbstractController
      * @throws SelectError
      * @throws DeleteError
      * @throws FactoryError
-     * @throws AttributeException
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function addKey(
@@ -180,7 +178,6 @@ class IrController extends AbstractController
     }
 
     /**
-     * @throws AttributeException
      * @throws DeleteError
      * @throws JsonException
      * @throws ReflectionException
@@ -215,6 +212,7 @@ class IrController extends AbstractController
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::WRITE)]
     public function sendRemoteKey(

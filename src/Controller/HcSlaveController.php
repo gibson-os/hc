@@ -9,6 +9,7 @@ use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -22,6 +23,8 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
+use JsonException;
+use ReflectionException;
 
 class HcSlaveController extends AbstractController
 {
@@ -153,7 +156,9 @@ class HcSlaveController extends AbstractController
      * @throws FactoryError
      * @throws ReceiveError
      * @throws SaveError
-     * @throws SelectError
+     * @throws EventException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function eepromSettings(
@@ -172,9 +177,11 @@ class HcSlaveController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
+     * @throws EventException
      * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function saveEepromSettings(
@@ -191,9 +198,11 @@ class HcSlaveController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
+     * @throws EventException
      * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      */
     #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
     public function eraseEeprom(
@@ -209,9 +218,11 @@ class HcSlaveController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
+     * @throws EventException
      * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function restart(
@@ -227,10 +238,12 @@ class HcSlaveController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
+     * @throws EventException
      * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      */
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function getStatusLeds(
@@ -266,9 +279,11 @@ class HcSlaveController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DateTimeError
+     * @throws EventException
      * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function setStatusLeds(
