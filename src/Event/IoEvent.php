@@ -271,8 +271,8 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Port lesen')]
     #[Event\ReturnValue(OptionParameter::class, 'Richtung', ['options' => [[
-        IoService::DIRECTION_INPUT => 'Eingang',
-        IoService::DIRECTION_OUTPUT => 'Ausgang',
+        0 => 'Eingang',
+        1 => 'Ausgang',
     ]]], IoService::ATTRIBUTE_PORT_KEY_DIRECTION)]
     #[Event\ReturnValue(className: IntParameter::class, title: 'Wert', key: IoService::ATTRIBUTE_PORT_KEY_VALUE)]
     #[Event\ReturnValue(className: IntParameter::class, title: 'Verzögerung', key: IoService::ATTRIBUTE_PORT_KEY_DELAY)]
@@ -355,8 +355,8 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)] int $port,
         #[Event\Parameter(StringParameter::class, 'Name')] string $name,
         #[Event\Parameter(OptionParameter::class, 'Richtung', ['options' => [[
-            IoService::DIRECTION_INPUT => 'Eingang',
-            IoService::DIRECTION_OUTPUT => 'Ausgang',
+            0 => 'Eingang',
+            1 => 'Ausgang',
         ]]])] int $direction,
         #[Event\Parameter(BoolParameter::class, 'PullUp')] bool $pullUp,
         #[Event\Parameter(IntParameter::class, 'Verzögerung')] int $delay,

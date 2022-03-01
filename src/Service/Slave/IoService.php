@@ -65,10 +65,6 @@ class IoService extends AbstractHcSlave
 
     public const PORT_BYTE_LENGTH = 2;
 
-    public const DIRECTION_INPUT = 0;
-
-    public const DIRECTION_OUTPUT = 1;
-
     public const ATTRIBUTE_TYPE_PORT = 'port';
 
     public const ATTRIBUTE_PORT_KEY_NAME = 'name';
