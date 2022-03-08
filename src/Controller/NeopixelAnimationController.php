@@ -224,7 +224,7 @@ class NeopixelAnimationController extends AbstractController
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
         $neopixelService->writeSequencePause($module);
-        //$animationService->setStarted($slave, false);
+        // $animationService->setStarted($slave, false);
 
         return $this->returnSuccess();
     }

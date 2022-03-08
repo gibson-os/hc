@@ -273,8 +273,8 @@ class LogStore extends AbstractDatabaseStore
     {
         return [
             'added' => '`hc_log`.`added`',
-            //'masterName' => '`hc_master`.`name`',
-            //'moduleName' => '`hc_module`.`name`',
+            // 'masterName' => '`hc_master`.`name`',
+            // 'moduleName' => '`hc_module`.`name`',
             'direction' => '`hc_log`.`direction`',
             'type' => '`hc_log`.`type`',
             'command' => '`hc_log`.`command`',

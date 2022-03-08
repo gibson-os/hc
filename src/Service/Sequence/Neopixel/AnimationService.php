@@ -52,7 +52,7 @@ class AnimationService
         $steps = [];
 
         foreach ($sequence->getElements() as $element) {
-            //$steps[$element->getOrder()] = Json::decode($element->getData());
+            // $steps[$element->getOrder()] = Json::decode($element->getData());
             $steps[] = JsonUtility::decode($element->getData());
         }
 

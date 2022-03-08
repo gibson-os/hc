@@ -288,7 +288,7 @@ class IoFormatter extends AbstractHcFormatter
                         ) .
                     '</table>';
             case IoService::COMMAND_STATUS_IN_EEPROM:
-                //return 'Status in EEPROM';
+                // return 'Status in EEPROM';
         }
 
         if ($log->getType() === MasterService::TYPE_DATA && $log->getCommand() < (int) $module->getConfig()) {

@@ -59,7 +59,7 @@ class KeyStore extends AbstractAttributeStore
         return [
             'name' => $this->getDefaultOrder(),
             'protocol' => '(`' . $this->tableName . '`.`sub_id` >> 32) & 255',
-            //'protocolName' => //@todo per json table die protokolle injecten
+            // 'protocolName' => //@todo per json table die protokolle injecten
             'address' => '(`' . $this->tableName . '`.`sub_id` >> 16) & 65535',
             'command' => '`' . $this->tableName . '`.`sub_id` & 65535',
         ];

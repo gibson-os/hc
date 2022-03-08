@@ -3,28 +3,30 @@ declare(strict_types=1);
 
 namespace Service;
 
-use DateTime;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Repository\LogRepository;
+use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\SenderService;
-use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\UnitTest\AbstractTest;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Log\LoggerInterface;
 
 class MasterServiceTest extends AbstractTest
 {
@@ -75,143 +77,79 @@ class MasterServiceTest extends AbstractTest
      */
     private $masterFormatter;
 
+    /**
+     * @var ObjectProphecy|MasterRepository
+     */
+    private $masterRepository;
+
     protected function _before(): void
     {
         $this->senderService = $this->prophesize(SenderService::class);
-        $this->eventService = $this->prophesize(EventService::class);
         $this->transformService = new TransformService();
         $this->slaveFactory = $this->prophesize(SlaveFactory::class);
-        $this->masterFormatter = $this->prophesize(MasterFormatter::class);
-        $this->logRepository = new LogRepository();
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);
+        $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
         $this->masterService = new MasterService(
             $this->senderService->reveal(),
-            $this->eventService->reveal(),
-            $this->transformService,
             $this->slaveFactory->reveal(),
-            $this->masterFormatter->reveal(),
-            $this->logRepository,
+            $this->serviceManager->get(MasterMapper::class),
+            $this->serviceManager->get(LogRepository::class),
             $this->moduleRepository->reveal(),
-            $this->typeRepository->reveal()
+            $this->typeRepository->reveal(),
+            $this->serviceManager->get(LoggerInterface::class),
+            $this->masterRepository->reveal(),
+            $this->serviceManager->get(DateTimeService::class),
+            $this->modelManager->reveal()
         );
     }
 
-    /**
-     * @dataProvider getReceiveData
-     */
-    public function testReceive(
-        string $data,
-        string $cleanData,
-        int $type,
-        int $address,
-        ?int $command,
-        ?Module $actualSlave,
-        Module $expectedSlave
-    ): void {
-        $getByAddressCall = $this->moduleRepository->getByAddress($address, (int) $expectedSlave->getMaster()->getId())
+    public function testReceiveNewSlaveWithoutAddress(): void
+    {
+        $this->expectException(ReceiveError::class);
+        $this->expectErrorMessage('Slave Address is null!');
+        $this->masterService->receive(new Master(), (new BusMessage('42.42.42.42', 3)));
+    }
+
+    public function testReceiveNewSlave(): void
+    {
+        $module = (new Module())->setType((new Type())->setHelper('prefect'));
+        $this->moduleRepository->getByAddress(42, 4200)
             ->shouldBeCalledOnce()
+            ->willReturn($module)
         ;
-
-        if ($actualSlave === null) {
-            $getByAddressCall->willThrow(SelectError::class);
-        } else {
-            $getByAddressCall->willReturn($actualSlave);
-        }
-
-        /** @var AbstractHcSlave|ObjectProphecy $slaveService */
-        $slaveService = $this->prophesize(AbstractHcSlave::class);
-        $getSlaveFactoryCall = $this->slaveFactory->get($expectedSlave->getType()->getHelper())
+        /** @var ObjectProphecy|AbstractSlave $moduleService */
+        $moduleService = $this->prophesize(AbstractSlave::class);
+        $moduleService->handshake($module)
             ->shouldBeCalledOnce()
-            ->willReturn($slaveService->reveal())
+            ->willReturn($module)
         ;
+        $this->slaveFactory->get('prefect')
+            ->shouldBeCalledOnce()
+            ->willReturn($moduleService->reveal())
+        ;
+        $this->modelManager->save(Argument::any())->shouldBeCalledTimes(2);
+        $this->modelManager->save(Argument::type(Module::class))->shouldBeCalledOnce();
+        $this->modelManager->save(Argument::type(Log::class))->shouldBeCalledOnce();
 
-        if ($type === 3) {
-            if ($expectedSlave->getTypeId() === 0) {
-                $getSlaveFactoryCall->shouldNotBeCalled();
-            }
-
-            if ($actualSlave === null) {
-                $getByDefaultAddressCall = $this->typeRepository->getByDefaultAddress($address)->shouldBeCalledOnce();
-
-                if ($expectedSlave->getTypeId() === 0) {
-                    $getByDefaultAddressCall->willThrow(SelectError::class);
-                    $this->expectException(SelectError::class);
-                } else {
-                    $getByDefaultAddressCall->willReturn($expectedSlave->getType());
-                    $this->moduleRepository->create('Neues Modul', $expectedSlave->getType())
-                        ->shouldBeCalledOnce()
-                        ->willReturn($expectedSlave)
-                    ;
-                }
-            }
-
-            if ($expectedSlave->getTypeId() !== 0) {
-                $slaveService->handshake($expectedSlave)
-                    ->shouldBeCalledOnce()
-                    ->willReturn($expectedSlave)
-                ;
-            }
-        } else {
-            if ($actualSlave === null) {
-                $this->expectException(SelectError::class);
-                $getSlaveFactoryCall->shouldNotBeCalled();
-            } else {
-                if ($expectedSlave->getTypeId() === 0) {
-                    $getSlaveFactoryCall->willReturn($this->prophesize(AbstractSlave::class));
-                    $this->expectException(ReceiveError::class);
-                } else {
-                    $slaveService->receive($expectedSlave, $type, $command, $cleanData)
-                        ->shouldBeCalledOnce()
-                    ;
-                }
-            }
-        }
-
-        $this->masterService->receive($expectedSlave->getMaster(), $type, $data);
+        $this->masterService->receive((new Master())->setId(4200), (new BusMessage('42.42.42.42', 3))->setSlaveAddress(42));
     }
 
     public function testSend(): void
     {
         $master = $this->prophesize(Master::class);
-        $this->senderService->send($master, 42, 'Herz aus Gold')
+        $master->getProtocol()
+            ->shouldBeCalledOnce()
+            ->willReturn('galaxy')
+        ;
+        $busMessage = (new BusMessage('42.42.42.42', MasterService::TYPE_DATA))
+            ->setData('Herz aus Gold')
+        ;
+        $this->senderService->send($busMessage, 'galaxy')
             ->shouldBeCalledOnce()
         ;
 
-        $this->masterService->send($master->reveal(), 42, 'Herz aus Gold');
-    }
-
-    public function testSetAddress(): void
-    {
-        $master = $this->prophesize(Master::class);
-        $master->getName()
-            ->shouldBeCalledOnce()
-            ->willReturn('Marvin')
-        ;
-        $master->setAddress(42)
-            ->shouldBeCalledOnce()
-            ->willReturn($master->reveal())
-        ;
-        $master->save()
-            ->shouldBeCalledOnce()
-        ;
-        $this->senderService->send($master->reveal(), 1, 'Marvin*')
-            ->shouldBeCalledOnce()
-        ;
-        $this->senderService->receiveReceiveReturn($master->reveal())
-            ->shouldBeCalledOnce()
-        ;
-
-        $log = $this->prophesize(Log::class);
-        $log->setMaster($master)
-            ->shouldBeCalledOnce()
-            ->willReturn($log->reveal())
-        ;
-        $log->save()
-            ->shouldBeCalledOnce()
-        ;
-
-        $this->masterService->setAddress($master->reveal(), 42);
+        $this->masterService->send($master->reveal(), $busMessage);
     }
 
     public function testScanBus(): void
@@ -263,96 +201,6 @@ class MasterServiceTest extends AbstractTest
             'Wrong Address' => [0, 7],
             'Wrong Command' => [42, 0],
             'All Wrong' => [0, 0],
-        ];
-    }
-
-    public function getReceiveData(): array
-    {
-        /** @var Master|ObjectProphecy $slave */
-        $master = $this->prophesize(Master::class);
-        $master->getId()->willReturn(4200);
-
-        /** @var Type|ObjectProphecy $slave */
-        $type = $this->prophesize(Type::class);
-        $type->getId()->willReturn(4242);
-        $type->getName()->willReturn('Ford Prefect');
-        $type->getHelper()->willReturn('ford');
-
-        /** @var Module|ObjectProphecy $slave */
-        $slave = $this->prophesize(Module::class);
-        $slave->getMaster()->willReturn($master->reveal());
-        $slave->getType()->willReturn($type->reveal());
-        $slave->getId()->willReturn(420);
-        $slave->getTypeId()->willReturn(4242);
-        $slave->getMasterId()->willReturn(4200);
-        $slave->setOffline(false)->willReturn($slave->reveal());
-        $slave->setModified(Argument::type(DateTime::class))->willReturn($slave->reveal());
-        $slave->setAddress(42)->willReturn($slave->reveal());
-        $slave->setMaster($master->reveal())->willReturn($slave->reveal());
-
-        /** @var Module|ObjectProphecy $slaveUnknownType */
-        $slaveUnknownType = $this->prophesize(Module::class);
-        $slaveUnknownType->getMaster()->willReturn($master->reveal());
-        $slaveUnknownType->getType()->willReturn($type->reveal());
-        $slaveUnknownType->getId()->willReturn(420);
-        $slaveUnknownType->getTypeId()->willReturn(0);
-        $slaveUnknownType->getName()->willReturn('Marvin');
-
-        return [
-            'Handshake with existing slave' => [
-                chr(7) . chr(0),
-                '',
-                3,
-                42,
-                null,
-                $slave->reveal(),
-                $slave->reveal(),
-            ],
-            'Handshake with new slave' => [
-                chr(7) . chr(0),
-                '',
-                3,
-                42,
-                null,
-                null,
-                $slave->reveal(),
-            ],
-            'Handshake with new slave and unknown type' => [
-                chr(7) . chr(0),
-                '',
-                3,
-                42,
-                null,
-                null,
-                $slaveUnknownType->reveal(),
-            ],
-            'Receive hc slave data unknown slave' => [
-                chr(7) . chr(0),
-                '',
-                255,
-                42,
-                201,
-                null,
-                $slave->reveal(),
-            ],
-            'Receive hc slave data unknown slave type' => [
-                chr(7) . chr(0),
-                '',
-                255,
-                42,
-                201,
-                $slaveUnknownType->reveal(),
-                $slaveUnknownType->reveal(),
-            ],
-            'Receive hc slave data' => [
-                chr(7) . chr(0),
-                '',
-                255,
-                42,
-                201,
-                $slave->reveal(),
-                $slave->reveal(),
-            ],
         ];
     }
 }

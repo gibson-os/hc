@@ -76,7 +76,7 @@ class BlankController extends AbstractController
 
                 break;
             case self::DATA_FORMAT_INT:
-                //$data = $transformService->intToAscii($data);
+                // $data = $transformService->intToAscii($data);
                 break;
         }
 
