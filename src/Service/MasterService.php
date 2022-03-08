@@ -84,7 +84,7 @@ class MasterService
             $slaveAddress = $busMessage->getSlaveAddress();
 
             if ($slaveAddress === null) {
-                throw new ReceiveError('Slave Address is null!');
+                throw new ReceiveError('Slave address is null!');
             }
 
             $this->logger->info(sprintf('New Slave %d', $slaveAddress));
@@ -249,8 +249,14 @@ class MasterService
      */
     private function slaveReceive(Master $master, BusMessage $busMessage): Module
     {
+        $slaveAddress = $busMessage->getSlaveAddress();
+
+        if ($slaveAddress === null) {
+            throw new ReceiveError('Slave address is null!');
+        }
+
         $slaveModel = $this->moduleRepository->getByAddress(
-            $busMessage->getSlaveAddress() ?? 0,
+            $slaveAddress ?? 0,
             $master->getId() ?? 0
         );
         $slave = $this->slaveFactory->get($slaveModel->getType()->getHelper());

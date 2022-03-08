@@ -1,21 +1,22 @@
 <?php
 declare(strict_types=1);
 
-namespace Service;
+namespace Gibson\Test\Unit\Service;
 
-use Codeception\Test\Unit;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
-use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\ReceiverService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use GibsonOS\UnitTest\AbstractTest;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Log\LoggerInterface;
 
-class ReceiverServiceTest extends Unit
+class ReceiverServiceTest extends AbstractTest
 {
     use ProphecyTrait;
 
@@ -30,9 +31,9 @@ class ReceiverServiceTest extends Unit
     private $masterService;
 
     /**
-     * @var ObjectProphecy|MasterFormatter
+     * @var ObjectProphecy|MasterMapper
      */
-    private $masterFormatter;
+    private $masterMapper;
 
     /**
      * @var ObjectProphecy|MasterRepository
@@ -48,13 +49,13 @@ class ReceiverServiceTest extends Unit
     {
         $this->transformService = new TransformService();
         $this->masterService = $this->prophesize(MasterService::class);
-        $this->masterFormatter = $this->prophesize(MasterFormatter::class);
+        $this->masterMapper = $this->prophesize(MasterMapper::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->receiverService = new ReceiverService(
-            $this->transformService,
             $this->masterService->reveal(),
-            $this->masterFormatter->reveal(),
-            $this->masterRepository->reveal()
+            $this->masterMapper->reveal(),
+            $this->masterRepository->reveal(),
+            $this->serviceManager->get(LoggerInterface::class)
         );
     }
 
@@ -70,18 +71,18 @@ class ReceiverServiceTest extends Unit
         ;
 
         if (!empty($data)) {
-            $this->masterFormatter->checksumEqual($data)
+            $this->masterMapper->checksumEqual($data)
                 ->shouldBeCalledOnce()
             ;
-            $this->masterFormatter->getMasterAddress($data)
+            $this->masterMapper->getMasterAddress($data)
                 ->shouldBeCalledOnce()
                 ->willReturn(42)
             ;
-            $this->masterFormatter->getType($data)
+            $this->masterMapper->getType($data)
                 ->shouldBeCalledOnce()
                 ->willReturn($type)
             ;
-            $this->masterFormatter->getData($data)
+            $this->masterMapper->getData($data)
                 ->shouldBeCalledOnce()
                 ->willReturn($cleanData)
             ;

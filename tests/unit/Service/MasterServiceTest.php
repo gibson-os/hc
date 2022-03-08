@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Service;
+namespace Gibson\Test\Unit\Service;
 
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Service\EventService;
@@ -19,6 +20,7 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\SenderService;
+use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\UnitTest\AbstractTest;
@@ -101,11 +103,96 @@ class MasterServiceTest extends AbstractTest
     public function testReceiveNewSlaveWithoutAddress(): void
     {
         $this->expectException(ReceiveError::class);
-        $this->expectErrorMessage('Slave Address is null!');
+        $this->expectErrorMessage('Slave address is null!');
         $this->masterService->receive(new Master(), (new BusMessage('42.42.42.42', 3)));
     }
 
-    public function testReceiveNewSlave(): void
+    public function testReceiveWithoutCommand(): void
+    {
+        $this->expectException(ReceiveError::class);
+        $this->expectErrorMessage('Command is null!');
+        $this->masterService->receive(new Master(), (new BusMessage('42.42.42.42', 255)));
+    }
+
+    public function testReceive(): void
+    {
+        $module = (new Module())
+            ->setType((new Type())->setHelper('prefect'))
+        ;
+        $this->moduleRepository->getByAddress(42, 7)
+            ->shouldBeCalledOnce()
+            ->willReturn($module)
+        ;
+        $busMessage = (new BusMessage('42.42.42.42', 255))
+            ->setCommand(24)
+            ->setSlaveAddress(42)
+        ;
+        /** @var ObjectProphecy|AbstractHcSlave $moduleService */
+        $moduleService = $this->prophesize(AbstractHcSlave::class);
+        $moduleService->receive($module, $busMessage)->shouldBeCalledOnce();
+        $this->slaveFactory->get('prefect')
+            ->shouldBeCalledOnce()
+            ->willReturn($moduleService->reveal())
+        ;
+        $this->modelManager->save(Argument::any())->shouldBeCalledTimes(2);
+        $this->modelManager->save(Argument::type(Module::class))->shouldBeCalledOnce();
+        $this->modelManager->save(Argument::type(Log::class))->shouldBeCalledOnce();
+
+        $this->masterService->receive((new Master())->setId(7), $busMessage);
+    }
+
+    public function testReceiveWithoutSlaveAddress(): void
+    {
+        $busMessage = (new BusMessage('42.42.42.42', 255))
+            ->setCommand(24)
+        ;
+        $this->expectException(ReceiveError::class);
+        $this->expectErrorMessage('Slave address is null!');
+
+        $this->masterService->receive((new Master())->setId(7), $busMessage);
+    }
+
+    public function testReceiveWithoutSlave(): void
+    {
+        $busMessage = (new BusMessage('42.42.42.42', 255))
+            ->setCommand(24)
+            ->setSlaveAddress(42)
+        ;
+        $this->moduleRepository->getByAddress(42, 7)
+            ->shouldBeCalledOnce()
+            ->willThrow(SelectError::class)
+        ;
+        $this->expectException(SelectError::class);
+
+        $this->masterService->receive((new Master())->setId(7), $busMessage);
+    }
+
+    public function testReceiveNoHcModule(): void
+    {
+        $module = (new Module())
+            ->setName('Marvin')
+            ->setType((new Type())->setName('Ford')->setHelper('prefect'))
+        ;
+        $this->moduleRepository->getByAddress(42, 7)
+            ->shouldBeCalledOnce()
+            ->willReturn($module)
+        ;
+        $busMessage = (new BusMessage('42.42.42.42', 255))
+            ->setCommand(24)
+            ->setSlaveAddress(42)
+        ;
+        /** @var ObjectProphecy|AbstractSlave $moduleService */
+        $moduleService = $this->prophesize(AbstractSlave::class);
+        $this->slaveFactory->get('prefect')
+            ->shouldBeCalledOnce()
+            ->willReturn($moduleService->reveal())
+        ;
+        $this->expectException(ReceiveError::class);
+
+        $this->masterService->receive((new Master())->setId(7), $busMessage);
+    }
+
+    public function testReceiveExistingSlave(): void
     {
         $module = (new Module())->setType((new Type())->setHelper('prefect'));
         $this->moduleRepository->getByAddress(42, 4200)
@@ -127,6 +214,76 @@ class MasterServiceTest extends AbstractTest
         $this->modelManager->save(Argument::type(Log::class))->shouldBeCalledOnce();
 
         $this->masterService->receive((new Master())->setId(4200), (new BusMessage('42.42.42.42', 3))->setSlaveAddress(42));
+    }
+
+    public function testReceiveNewSlave(): void
+    {
+        $type = (new Type())->setHelper('prefect');
+        $module = (new Module())->setType($type);
+        $this->moduleRepository->getByAddress(42, 4200)
+            ->shouldBeCalledOnce()
+            ->willThrow(SelectError::class)
+        ;
+        /** @var ObjectProphecy|AbstractSlave $moduleService */
+        $moduleService = $this->prophesize(AbstractSlave::class);
+        $moduleService->handshake(Argument::type(Module::class))
+            ->shouldBeCalledOnce()
+            ->willReturn($module)
+        ;
+        $this->slaveFactory->get('prefect')
+            ->shouldBeCalledOnce()
+            ->willReturn($moduleService->reveal())
+        ;
+        $this->typeRepository->getByDefaultAddress(42)
+            ->shouldBeCalledOnce()
+            ->willThrow(SelectError::class)
+        ;
+        $this->typeRepository->getByHelperName('blank')
+            ->shouldBeCalledOnce()
+            ->willReturn($type)
+        ;
+        $this->modelManager->save(Argument::any())->shouldBeCalledTimes(2);
+        $this->modelManager->save(Argument::type(Module::class))->shouldBeCalledOnce();
+        $this->modelManager->save(Argument::type(Log::class))->shouldBeCalledOnce();
+
+        $master = (new Master())
+            ->setId(4200)
+            ->setAddress('42.42.42.42')
+        ;
+        $this->masterService->receive($master, (new BusMessage('42.42.42.42', 3))->setSlaveAddress(42));
+    }
+
+    public function testReceiveNewSlaveWithDefaultAddress(): void
+    {
+        $type = (new Type())->setHelper('prefect');
+        $module = (new Module())->setType($type);
+        $this->moduleRepository->getByAddress(42, 4200)
+            ->shouldBeCalledOnce()
+            ->willThrow(SelectError::class)
+        ;
+        /** @var ObjectProphecy|AbstractSlave $moduleService */
+        $moduleService = $this->prophesize(AbstractSlave::class);
+        $moduleService->handshake(Argument::type(Module::class))
+            ->shouldBeCalledOnce()
+            ->willReturn($module)
+        ;
+        $this->slaveFactory->get('prefect')
+            ->shouldBeCalledOnce()
+            ->willReturn($moduleService->reveal())
+        ;
+        $this->typeRepository->getByDefaultAddress(42)
+            ->shouldBeCalledOnce()
+            ->willReturn($type)
+        ;
+        $this->modelManager->save(Argument::any())->shouldBeCalledTimes(2);
+        $this->modelManager->save(Argument::type(Module::class))->shouldBeCalledOnce();
+        $this->modelManager->save(Argument::type(Log::class))->shouldBeCalledOnce();
+
+        $master = (new Master())
+            ->setId(4200)
+            ->setAddress('42.42.42.42')
+        ;
+        $this->masterService->receive($master, (new BusMessage('42.42.42.42', 3))->setSlaveAddress(42));
     }
 
     public function testSend(): void
