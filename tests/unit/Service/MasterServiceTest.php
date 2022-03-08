@@ -17,7 +17,6 @@ use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Service\Formatter\MasterFormatter;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\SenderService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
@@ -71,11 +70,6 @@ class MasterServiceTest extends AbstractTest
      * @var MasterService
      */
     private $masterService;
-
-    /**
-     * @var ObjectProphecy|MasterFormatter
-     */
-    private $masterFormatter;
 
     /**
      * @var ObjectProphecy|MasterRepository
@@ -137,11 +131,7 @@ class MasterServiceTest extends AbstractTest
 
     public function testSend(): void
     {
-        $master = $this->prophesize(Master::class);
-        $master->getProtocol()
-            ->shouldBeCalledOnce()
-            ->willReturn('galaxy')
-        ;
+        $master = (new Master())->setProtocol('galaxy');
         $busMessage = (new BusMessage('42.42.42.42', MasterService::TYPE_DATA))
             ->setData('Herz aus Gold')
         ;
@@ -149,20 +139,24 @@ class MasterServiceTest extends AbstractTest
             ->shouldBeCalledOnce()
         ;
 
-        $this->masterService->send($master->reveal(), $busMessage);
+        $this->masterService->send($master, $busMessage);
     }
 
     public function testScanBus(): void
     {
-        $master = $this->prophesize(Master::class);
-        $this->senderService->send($master->reveal(), 5, '')
+        $master = (new Master())
+            ->setAddress('42.42.42.42s')
+            ->setSendPort(420042)
+            ->setProtocol('galaxy')
+        ;
+        $this->senderService->send(Argument::type(BusMessage::class), 'galaxy')
             ->shouldBeCalledOnce()
         ;
-        $this->senderService->receiveReceiveReturn($master->reveal())
+        $this->senderService->receiveReceiveReturn($master, Argument::type(BusMessage::class))
             ->shouldBeCalledOnce()
         ;
 
-        $this->masterService->scanBus($master->reveal());
+        $this->masterService->scanBus($master);
     }
 
     /**
@@ -170,14 +164,17 @@ class MasterServiceTest extends AbstractTest
      */
     public function testReceiveReadData(int $address, int $command): void
     {
-        $master = $this->prophesize(Master::class);
-        $this->senderService->receiveReadData($master->reveal(), 255)
-            ->shouldBeCalledOnce()
-            ->willReturn('Answer')
+        $master = (new Master())
+            ->setAddress('42.42.42.42')
         ;
-        $this->masterFormatter->getData('Answer')
+        $expectedBusMessage = (new BusMessage('42.42.42.42', 255))
+            ->setSlaveAddress($address)
+            ->setCommand($command)
+            ->setData(chr(42) . chr(7) . 'Handtuch')
+        ;
+        $this->senderService->receiveReadData($master, 255)
             ->shouldBeCalledOnce()
-            ->willReturn('**Handtuch')
+            ->willReturn($expectedBusMessage)
         ;
 
         if ($address !== 42) {
@@ -188,9 +185,14 @@ class MasterServiceTest extends AbstractTest
             }
         }
 
+        $busMessage = (new BusMessage('42.42.42.42', 255))
+            ->setSlaveAddress($address)
+            ->setCommand($command)
+        ;
+
         $this->assertEquals(
-            $this->masterService->receiveReadData($master->reveal(), 42, 255, 7),
-            'Handtuch'
+            $expectedBusMessage,
+            $this->masterService->receiveReadData($master, $busMessage)
         );
     }
 
