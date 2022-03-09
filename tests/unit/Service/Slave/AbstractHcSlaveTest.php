@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 namespace Gibson\Test\Unit\Service\Slave;
 
-use Codeception\Test\Unit;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
@@ -19,10 +20,12 @@ use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 use GibsonOS\Module\Hc\Service\TransformService;
+use GibsonOS\UnitTest\AbstractTest;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Log\LoggerInterface;
 
-class AbstractHcSlaveTest extends Unit
+class AbstractHcSlaveTest extends AbstractTest
 {
     use ProphecyTrait;
 
@@ -81,6 +84,8 @@ class AbstractHcSlaveTest extends Unit
      */
     private $master;
 
+    private LoggerInterface $logger;
+
     protected function _before(): void
     {
         $this->masterService = $this->prophesize(MasterService::class);
@@ -91,17 +96,29 @@ class AbstractHcSlaveTest extends Unit
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
         $this->slaveFactory = $this->prophesize(SlaveFactory::class);
+        $this->logger = $this->serviceManager->get(LoggerInterface::class);
         $this->slave = $this->prophesize(Module::class);
         $this->master = $this->prophesize(Master::class);
 
-        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService, $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->slaveFactory->reveal(), $this->slave->reveal()) extends AbstractHcSlave {
+        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService, $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->slaveFactory->reveal(), $this->logger, $this->modelManager->reveal(), $this->slave->reveal()) extends AbstractHcSlave {
             /**
              * @var Module
              */
             private $slave;
 
-            public function __construct(MasterService $masterService, TransformService $transformService, EventService $eventService, ModuleRepository $moduleRepository, TypeRepository $typeRepository, MasterRepository $masterRepository, LogRepository $logRepository, SlaveFactory $slaveFactory, Module $slave)
-            {
+            public function __construct(
+                MasterService $masterService,
+                TransformService $transformService,
+                EventService $eventService,
+                ModuleRepository $moduleRepository,
+                TypeRepository $typeRepository,
+                MasterRepository $masterRepository,
+                LogRepository $logRepository,
+                SlaveFactory $slaveFactory,
+                LoggerInterface $logger,
+                ModelManager $modelManager,
+                Module $slave
+            ) {
                 parent::__construct(
                     $masterService,
                     $transformService,
@@ -110,7 +127,9 @@ class AbstractHcSlaveTest extends Unit
                     $typeRepository,
                     $masterRepository,
                     $logRepository,
-                    $slaveFactory
+                    $slaveFactory,
+                    $logger,
+                    $modelManager
                 );
 
                 $this->slave = $slave;
@@ -126,7 +145,11 @@ class AbstractHcSlaveTest extends Unit
                 return $module;
             }
 
-            public function receive(Module $module, int $type, int $command, string $data): void
+            public function receive(Module $module, BusMessage $busMessage): void
+            {
+            }
+
+            protected function getEventClassName(): string
             {
             }
         };
