@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace Gibson\Test\Unit\Service;
 
-use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\ReceiverService;
-use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\UnitTest\AbstractTest;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -19,11 +19,6 @@ use Psr\Log\LoggerInterface;
 class ReceiverServiceTest extends AbstractTest
 {
     use ProphecyTrait;
-
-    /**
-     * @var TransformService
-     */
-    private $transformService;
 
     /**
      * @var ObjectProphecy|MasterService
@@ -47,7 +42,6 @@ class ReceiverServiceTest extends AbstractTest
 
     protected function _before(): void
     {
-        $this->transformService = new TransformService();
         $this->masterService = $this->prophesize(MasterService::class);
         $this->masterMapper = $this->prophesize(MasterMapper::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
@@ -59,86 +53,109 @@ class ReceiverServiceTest extends AbstractTest
         );
     }
 
-    /**
-     * @dataProvider getReceiveData
-     */
-    public function testReceive(?string $data, ?string $cleanData, int $type, bool $newMaster = false): void
+    public function testReceiveNoData(): void
     {
-        $protocol = $this->prophesize(ProtocolInterface::class);
-        $protocol->receive()
+        $protocolService = $this->prophesize(ProtocolInterface::class);
+        $protocolService->receive()
             ->shouldBeCalledOnce()
-            ->willReturn($data)
+            ->willReturn(null)
         ;
 
-        if (!empty($data)) {
-            $this->masterMapper->checksumEqual($data)
-                ->shouldBeCalledOnce()
-            ;
-            $this->masterMapper->getMasterAddress($data)
-                ->shouldBeCalledOnce()
-                ->willReturn(42)
-            ;
-            $this->masterMapper->getType($data)
-                ->shouldBeCalledOnce()
-                ->willReturn($type)
-            ;
-            $this->masterMapper->getData($data)
-                ->shouldBeCalledOnce()
-                ->willReturn($cleanData)
-            ;
-            $protocol->sendReceiveReturn(42)
-                ->shouldBeCalledOnce()
-            ;
-            $protocol->getName()
-                ->shouldBeCalledOnce()
-                ->willReturn('prefect')
-            ;
-
-            $master = $this->prophesize(Master::class);
-
-            if ($type === 1) {
-                $master->getAddress()
-                    ->shouldBeCalledOnce()
-                    ->willReturn(24)
-                ;
-                $master->setAddress(42)
-                    ->shouldBeCalledOnce()
-                ;
-                $getByNameCall = $this->masterRepository->getByName($cleanData, 'prefect')
-                    ->shouldBeCalledOnce()
-                ;
-
-                if ($newMaster) {
-                    $getByNameCall->willThrow(SelectError::class);
-                    $this->masterRepository->add($cleanData, 'prefect')
-                        ->shouldBeCalledOnce()
-                        ->willReturn($master->reveal())
-                    ;
-                } else {
-                    $getByNameCall->willReturn($master->reveal());
-                }
-            } else {
-                $this->masterRepository->getByAddress(42, 'prefect')
-                    ->shouldBeCalledOnce()
-                    ->willReturn($master->reveal())
-                ;
-                $this->masterService->receive($master->reveal(), $type, $cleanData)
-                    ->shouldBeCalledOnce()
-                ;
-            }
-        }
-
-        $this->receiverService->receive($protocol->reveal());
+        $this->receiverService->receive($protocolService->reveal());
     }
 
-    public function getReceiveData(): array
+    public function testReceiveDataEmpty(): void
     {
-        return [
-            'Data null' => [null, null, 255],
-            'Data empty' => ['', '',  255],
-            'Handshake' => ['Herz aus Gold', 'Unwarscheinlich', 1],
-            'Handshake new' => ['Herz aus Gold', 'Unwarscheinlich', 1, true],
-            'Receive' => ['Herz aus Gold', 'Unwarscheinlich', 255],
-        ];
+        $protocolService = $this->prophesize(ProtocolInterface::class);
+        $busMessage = new BusMessage('42.42.42.42', 255);
+        $protocolService->receive()
+            ->shouldBeCalledOnce()
+            ->willReturn($busMessage)
+        ;
+
+        $this->receiverService->receive($protocolService->reveal());
+    }
+
+    public function testReceiveDataEmptyString(): void
+    {
+        $protocolService = $this->prophesize(ProtocolInterface::class);
+        $busMessage = (new BusMessage('42.42.42.42', 255))->setData('');
+        $protocolService->receive()
+            ->shouldBeCalledOnce()
+            ->willReturn($busMessage)
+        ;
+
+        $this->receiverService->receive($protocolService->reveal());
+    }
+
+    public function testReceiveChecksumNotEqual(): void
+    {
+        $protocolService = $this->prophesize(ProtocolInterface::class);
+        $busMessage = (new BusMessage('42.42.42.42', MasterService::TYPE_HANDSHAKE))
+            ->setData('Arthur')
+        ;
+        $protocolService->receive()
+            ->shouldBeCalledOnce()
+            ->willReturn($busMessage)
+        ;
+        $this->masterMapper->checksumEqual($busMessage)
+            ->shouldBeCalledOnce()
+            ->willThrow(ReceiveError::class)
+        ;
+        $this->expectException(ReceiveError::class);
+
+        $this->receiverService->receive($protocolService->reveal());
+    }
+
+    public function testReceiveHandshake(): void
+    {
+        $protocolService = $this->prophesize(ProtocolInterface::class);
+        $busMessage = (new BusMessage('42.42.42.42', MasterService::TYPE_HANDSHAKE))
+            ->setData('Arthur')
+        ;
+        $protocolService->receive()
+            ->shouldBeCalledOnce()
+            ->willReturn($busMessage)
+        ;
+        $this->masterService->handshake($protocolService->reveal(), $busMessage)
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterMapper->checksumEqual($busMessage)
+            ->shouldBeCalledOnce()
+        ;
+
+        $this->receiverService->receive($protocolService->reveal());
+    }
+
+    public function testReceiveData(): void
+    {
+        $protocolService = $this->prophesize(ProtocolInterface::class);
+        $busMessage = (new BusMessage('42.42.42.42', 255))
+            ->setData('Arthur')
+        ;
+        $protocolService->receive()
+            ->shouldBeCalledOnce()
+            ->willReturn($busMessage)
+        ;
+        $protocolService->getName()
+            ->shouldBeCalledOnce()
+            ->willReturn('galaxy')
+        ;
+        $this->masterMapper->checksumEqual($busMessage)
+            ->shouldBeCalledOnce()
+        ;
+        $master = new Master();
+        $this->masterRepository->getByAddress('42.42.42.42', 'galaxy')
+            ->shouldBeCalledOnce()
+            ->willReturn($master)
+        ;
+        $this->masterMapper->extractSlaveDataFromMessage($busMessage)
+            ->shouldBeCalledOnce()
+        ;
+        $this->masterService->receive($master, $busMessage)
+            ->shouldBeCalledOnce()
+        ;
+
+        $this->receiverService->receive($protocolService->reveal());
     }
 }
