@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Gibson\Test\Unit\Service;
 
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\DateTimeService;
@@ -19,6 +20,7 @@ use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
+use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\SenderService;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
@@ -284,6 +286,75 @@ class MasterServiceTest extends AbstractTest
             ->setAddress('42.42.42.42')
         ;
         $this->masterService->receive($master, (new BusMessage('42.42.42.42', 3))->setSlaveAddress(42));
+    }
+
+    public function testHandshake(): void
+    {
+        /** @var ObjectProphecy|ProtocolInterface $protocolService */
+        $protocolService = $this->prophesize(ProtocolInterface::class);
+        $protocolService->getName()
+            ->shouldBeCalledOnce()
+            ->willReturn('galaxy')
+        ;
+        $master = (new Master())
+            ->setSendPort(420042)
+            ->setProtocol('galaxy')
+        ;
+        $this->masterRepository->getByName('Marvin', 'galaxy')
+            ->shouldBeCalledOnce()
+            ->willReturn($master)
+        ;
+        $busMessage = (new BusMessage('42.42.42.42', 255))
+            ->setData('Marvin')
+        ;
+        $this->modelManager->save(Argument::any())->shouldBeCalledOnce();
+        $this->modelManager->save($master)->shouldBeCalledOnce();
+
+        $this->masterService->handshake($protocolService->reveal(), $busMessage);
+    }
+
+    public function testHandshakeNoData(): void
+    {
+        /** @var ObjectProphecy|ProtocolInterface $protocolService */
+        $protocolService = $this->prophesize(ProtocolInterface::class);
+        $protocolService->getName()
+            ->shouldBeCalledOnce()
+            ->willReturn('galaxy')
+        ;
+        $busMessage = (new BusMessage('42.42.42.42', 255));
+
+        $this->expectException(GetError::class);
+        $this->expectErrorMessage('No master name transmitted!');
+
+        $this->masterService->handshake($protocolService->reveal(), $busMessage);
+    }
+
+    public function testHandshakeNewMaster(): void
+    {
+        /** @var ObjectProphecy|ProtocolInterface $protocolService */
+        $protocolService = $this->prophesize(ProtocolInterface::class);
+        $protocolService->getName()
+            ->shouldBeCalledOnce()
+            ->willReturn('galaxy')
+        ;
+        $master = (new Master())
+            ->setAddress('42.42.42.42')
+            ->setSendPort(420042)
+            ->setProtocol('galaxy')
+        ;
+        $this->masterRepository->getByName('Marvin', 'galaxy')
+            ->shouldBeCalledOnce()
+            ->willThrow(SelectError::class)
+        ;
+        $this->masterRepository->add('Marvin', 'galaxy', '42.42.42.42')
+            ->shouldBeCalledOnce()
+            ->willReturn($master)
+        ;
+        $busMessage = (new BusMessage('42.42.42.42', 255))
+            ->setData('Marvin')
+        ;
+
+        $this->masterService->handshake($protocolService->reveal(), $busMessage);
     }
 
     public function testSend(): void
