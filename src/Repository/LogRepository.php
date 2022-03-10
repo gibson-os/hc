@@ -116,7 +116,7 @@ class LogRepository extends AbstractRepository
     /**
      * @throws SelectError
      */
-    public function getPreviewEntryByModuleId(
+    public function getPreviousEntryByModuleId(
         int $id,
         int $moduleId,
         int $command = null,

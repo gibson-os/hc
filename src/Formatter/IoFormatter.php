@@ -345,7 +345,7 @@ class IoFormatter extends AbstractHcFormatter
         }
 
         try {
-            $lastData = $this->logRepository->getPreviewEntryByModuleId(
+            $lastData = $this->logRepository->getPreviousEntryByModuleId(
                 (int) $log->getId(),
                 (int) $module->getId(),
                 $log->getCommand(),
