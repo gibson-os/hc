@@ -188,6 +188,14 @@ class AbstractHcSlaveTest extends AbstractTest
         $this->slave->getAddress()
             ->shouldBeCalledTimes(19)
         ;
+        $this->master->getAddress()
+            ->shouldBeCalledOnce()
+            ->willReturn('42.42.42.42')
+        ;
+        $this->master->getSendPort()
+            ->shouldBeCalledOnce()
+            ->willReturn(420042)
+        ;
 
         $this->abstractHcSlave->handshake($this->slave->reveal());
     }
@@ -416,6 +424,10 @@ class AbstractHcSlaveTest extends AbstractTest
         ;
         $this->slave->getAddress()
             ->shouldBeCalledTimes(21)
+        ;
+        $this->master->getAddress()
+            ->shouldBeCalledOnce()
+            ->willReturn('42.42.42.42')
         ;
 
         $this->abstractHcSlave->handshake($this->slave->reveal());

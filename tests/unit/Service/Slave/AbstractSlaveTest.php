@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Gibson\Test\Unit\Service\Slave;
 
 use Codeception\Test\Unit;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
@@ -176,7 +177,7 @@ class AbstractSlaveTest extends Unit
         ;
         $masterService->receiveReadData($master->reveal(), $slaveAddress, $type, $command)
             ->shouldBeCalledOnce()
-            ->willReturn($data)
+            ->willReturn((new BusMessage('42.42.42.42', $type))->setData($data))
         ;
 
         self::prophesizeAddLog(
@@ -220,13 +221,6 @@ class AbstractSlaveTest extends Unit
         $log->setCommand($command)
             ->shouldBeCalledOnce()
             ->willReturn($log->reveal())
-        ;
-        $log->save()
-            ->shouldBeCalledOnce()
-        ;
-        $transformService->asciiToHex($data)
-            ->shouldBeCalledOnce()
-            ->willReturn($data)
         ;
         $logRepository->create($type, $data, $direction)
             ->shouldBeCalledOnce()

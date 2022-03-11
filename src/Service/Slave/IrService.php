@@ -5,10 +5,22 @@ namespace GibsonOS\Module\Hc\Service\Slave;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
+use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
 use GibsonOS\Module\Hc\Event\AbstractHcEvent;
+use GibsonOS\Module\Hc\Event\IrEvent;
+use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Formatter\IrFormatter;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Repository\LogRepository;
+use GibsonOS\Module\Hc\Repository\MasterRepository;
+use GibsonOS\Module\Hc\Repository\ModuleRepository;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
+use GibsonOS\Module\Hc\Service\MasterService;
+use GibsonOS\Module\Hc\Service\TransformService;
+use Psr\Log\LoggerInterface;
 
 class IrService extends AbstractHcSlave
 {
@@ -26,6 +38,33 @@ class IrService extends AbstractHcSlave
 
     public const REMOTE_ATTRIBUTE_KEYS = 'keys';
 
+    public function __construct(
+        MasterService $masterService,
+        TransformService $transformService,
+        EventService $eventService,
+        ModuleRepository $moduleRepository,
+        TypeRepository $typeRepository,
+        MasterRepository $masterRepository,
+        LogRepository $logRepository,
+        SlaveFactory $slaveFactory,
+        LoggerInterface $logger,
+        ModelManager $modelManager,
+        private IrFormatter $irFormatter
+    ) {
+        parent::__construct(
+            $masterService,
+            $transformService,
+            $eventService,
+            $moduleRepository,
+            $typeRepository,
+            $masterRepository,
+            $logRepository,
+            $slaveFactory,
+            $logger,
+            $modelManager
+        );
+    }
+
     public function slaveHandshake(Module $module): Module
     {
         return $module;
@@ -40,6 +79,9 @@ class IrService extends AbstractHcSlave
 
     public function receive(Module $module, BusMessage $busMessage): void
     {
+        foreach ($this->irFormatter->getKeys($busMessage->getData()) as $key) {
+            $this->eventService->fire($this->getEventClassName(), IrEvent::READ_IR, ['slave' => $module, 'key' => $key]);
+        }
     }
 
     /**
@@ -55,6 +97,8 @@ class IrService extends AbstractHcSlave
         if (count($keys) === 0) {
             return $this;
         }
+
+        $this->eventService->fire($this->getEventClassName(), IrEvent::BEFORE_WRITE_IR, ['slave' => $module]);
 
         $data = '';
         $i = 0;
@@ -74,6 +118,8 @@ class IrService extends AbstractHcSlave
         }
 
         $this->write($module, self::COMMAND_SEND, $data);
+
+        $this->eventService->fire($this->getEventClassName(), IrEvent::AFTER_WRITE_IR, ['slave' => $module]);
 
         return $this;
     }

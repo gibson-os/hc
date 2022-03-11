@@ -10,6 +10,7 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\BusMessage;
@@ -71,7 +72,8 @@ class NeopixelService extends AbstractHcSlave
         MasterRepository $masterRepository,
         LogRepository $logRepository,
         SlaveFactory $slaveFactory,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ModelManager $modelManager
     ) {
         parent::__construct(
             $masterService,
@@ -82,7 +84,8 @@ class NeopixelService extends AbstractHcSlave
             $masterRepository,
             $logRepository,
             $slaveFactory,
-            $logger
+            $logger,
+            $modelManager
         );
     }
 
