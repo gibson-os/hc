@@ -8,13 +8,13 @@ Ext.define('GibsonOS.module.hc.io.model.Port', {
         type: 'string'
     },{
         name: 'value',
-        type: 'int'
+        type: 'bool'
     },{
         name: 'direction',
         type: 'int'
     },{
         name: 'pullUp',
-        type: 'int'
+        type: 'bool'
     },{
         name: 'delay',
         type: 'int'

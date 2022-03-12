@@ -37,7 +37,7 @@ class NeopixelController extends AbstractController
     #[CheckPermission(Permission::READ)]
     public function index(LedStore $ledStore, #[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
     {
-        $ledStore->setModuleId($module->getId() ?? 0);
+        $ledStore->setModule($module);
 
         $config = JsonUtility::decode($module->getConfig() ?? '');
         $config['pwmSpeed'] = $module->getPwmSpeed();

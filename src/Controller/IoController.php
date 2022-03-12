@@ -10,6 +10,7 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -43,17 +44,20 @@ class IoController extends AbstractController
     }
 
     /**
-     * @param PortStore $portStore
-     * @param int       $moduleId
-     *
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SelectError
+     * @throws MapperException
      *
      * @return AjaxResponse
      */
     #[CheckPermission(Permission::READ)]
-    public function ports(PortStore $portStore, int $moduleId): AjaxResponse
-    {
-        $portStore->setModuleId($moduleId);
+    public function ports(
+        PortStore $portStore,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
+    ): AjaxResponse {
+        $portStore->setModule($module);
 
         return $this->returnSuccess($portStore->getList());
     }
@@ -123,7 +127,7 @@ class IoController extends AbstractController
         DirectConnectStore $directConnectStore,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $directConnectStore->setModuleId($module->getId() ?? 0);
+        $directConnectStore->setModule($module);
 
         return new AjaxResponse([
             'data' => $directConnectStore->getList(),

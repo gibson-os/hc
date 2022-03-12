@@ -11,6 +11,7 @@ use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
 use mysqlDatabase;
 
@@ -19,7 +20,7 @@ use mysqlDatabase;
  */
 abstract class AbstractAttributeStore extends AbstractDatabaseStore
 {
-    protected ?int $moduleId = null;
+    protected ?Module $module = null;
 
     protected array $keys = [];
 
@@ -53,8 +54,8 @@ abstract class AbstractAttributeStore extends AbstractDatabaseStore
         $this->addWhere('`' . $tableName . '`.`type`=?', [$this->getType()]);
         $this->addWhere('`' . $this->typeTableName . '`.`helper`=?', [$this->getTypeName()]);
 
-        if ($this->moduleId !== null) {
-            $this->addWhere('`' . $tableName . '`.`module_id`=?', [$this->moduleId]);
+        if ($this->module !== null) {
+            $this->addWhere('`' . $tableName . '`.`module_id`=?', [$this->module->getId() ?? 0]);
         }
 
         if (count($this->keys) > 0) {
@@ -136,9 +137,9 @@ abstract class AbstractAttributeStore extends AbstractDatabaseStore
         return array_values($attributes);
     }
 
-    public function setModuleId(?int $moduleId): AbstractAttributeStore
+    public function setModule(?Module $module): AbstractAttributeStore
     {
-        $this->moduleId = $moduleId;
+        $this->module = $module;
 
         return $this;
     }

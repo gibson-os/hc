@@ -8,6 +8,7 @@ use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Log;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Service\TransformService;
@@ -55,7 +56,7 @@ class NeopixelFormatter extends AbstractHcFormatter
                 $data = substr($data, 2);
                 // no break
             case NeopixelService::COMMAND_SET_LEDS:
-                $slaveLeds = $this->getLeds($log->getModuleId() ?? 0);
+                $slaveLeds = $this->getLeds($log->getModule());
 
                 $context = [
                     'slaveLeds' => $slaveLeds,
@@ -182,10 +183,12 @@ class NeopixelFormatter extends AbstractHcFormatter
     /**
      * @return Led[]
      */
-    private function getLeds(int $moduleId): array
+    private function getLeds(?Module $module): array
     {
+        $moduleId = $module?->getId() ?? 0;
+
         if (!isset($this->leds[$moduleId])) {
-            $this->ledStore->setModuleId($moduleId);
+            $this->ledStore->setModule($module);
             $this->leds[$moduleId] = $this->ledStore->getList();
         }
 

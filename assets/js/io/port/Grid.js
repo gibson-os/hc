@@ -107,7 +107,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
             dataIndex: 'valueNames',
             width: 150,
             renderer: function(value, metaData, record) {
-                return value[record.get('value')];
+                return value[record.get('value') ? 1 : 0];
             },
             editor: {
                 allowBlank: false
@@ -130,7 +130,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                         number: record.get('number')
                     },
                     success: function() {
-                        record.set('value', record.get('value') === 1 ? 0 : 1);
+                        record.set('value', record.get('value') === true ? 0 : 1);
                         record.commit();
                         me.setLoading(false);
                         me.getStore().gos.autoReload = true;
@@ -188,16 +188,16 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                     xtype: 'gosDataStore',
                     fields: [{
                         name: 'id',
-                        type: 'int'
+                        type: 'bool'
                     },{
                         name: 'name',
                         type: 'string'
                     }],
                     data: [{
-                        id: 1,
+                        id: true,
                         name: 'Ja'
                     },{
-                        id: 0,
+                        id: false,
                         name: 'Nein'
                     }]
                 }

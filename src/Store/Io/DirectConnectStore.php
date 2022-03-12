@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store\Io;
 
 use GibsonOS\Core\Attribute\GetTableName;
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Mapper\ObjectMapper;
 use GibsonOS\Core\Service\DateTimeService;
@@ -11,7 +13,9 @@ use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Store\AbstractAttributeStore;
+use JsonException;
 use mysqlDatabase;
+use ReflectionException;
 
 class DirectConnectStore extends AbstractAttributeStore
 {
@@ -38,12 +42,16 @@ class DirectConnectStore extends AbstractAttributeStore
 
     /**
      * @throws SelectError
+     * @throws FactoryError
+     * @throws MapperException
+     * @throws JsonException
+     * @throws ReflectionException
      *
      * @return array[]
      */
     public function getList(): array
     {
-        $this->portStore->setModuleId($this->moduleId);
+        $this->portStore->setModule($this->module);
         /** @var array $ports */
         $ports = $this->portStore->getList();
 
@@ -87,13 +95,6 @@ class DirectConnectStore extends AbstractAttributeStore
         ksort($list);
 
         return array_values($list);
-    }
-
-    public function setModuleId(?int $moduleId): DirectConnectStore
-    {
-        $this->moduleId = $moduleId;
-
-        return $this;
     }
 
     private function getInputElement(array $inputPort): array
