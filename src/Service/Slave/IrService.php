@@ -79,7 +79,7 @@ class IrService extends AbstractHcSlave
 
     public function receive(Module $module, BusMessage $busMessage): void
     {
-        foreach ($this->irFormatter->getKeys($busMessage->getData()) as $key) {
+        foreach ($this->irFormatter->getKeys($busMessage->getData() ?? '') as $key) {
             $this->eventService->fire($this->getEventClassName(), IrEvent::READ_IR, ['slave' => $module, 'key' => $key]);
         }
     }

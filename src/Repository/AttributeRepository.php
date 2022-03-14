@@ -402,8 +402,7 @@ class AttributeRepository extends AbstractRepository
             $reflectionAttribute = $property['attribute'];
             /** @var AttributeMapperInterface $mapper */
             $mapper = $property['mapper'];
-            /** @psalm-suppress UndefinedMethod */
-            $typeName = $reflectionProperty->getType()?->getName();
+            $typeName = $this->reflectionManager->getTypeName($reflectionProperty);
             $propertyType = $reflectionAttribute->getType();
             $mapValue = function (Value $value) use ($typeName, $reflectionProperty, $mapper, $propertyType) {
                 $value = $value->getValue();
@@ -414,7 +413,14 @@ class AttributeRepository extends AbstractRepository
                         ? $mapper->mapFromDatabase($reflectionProperty, $value)
                         : $this->objectMapper->mapToObject(
                             $propertyType,
-                            $mapper->mapFromDatabase($reflectionProperty, JsonUtility::decode($value)) ?? []
+                            (
+                                is_array($mappedProperties = $mapper->mapFromDatabase($reflectionProperty, JsonUtility::decode($value)))
+                                    ? $mappedProperties
+                                    : throw new ReflectionException(sprintf(
+                                        'Properties for "%s" is no array!',
+                                        $propertyType
+                                    ))
+                            )
                         ),
                 };
             };

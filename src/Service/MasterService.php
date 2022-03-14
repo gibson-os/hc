@@ -255,10 +255,7 @@ class MasterService
             throw new ReceiveError('Slave address is null!');
         }
 
-        $slaveModel = $this->moduleRepository->getByAddress(
-            $slaveAddress ?? 0,
-            $master->getId() ?? 0
-        );
+        $slaveModel = $this->moduleRepository->getByAddress($slaveAddress, $master->getId() ?? 0);
         $slave = $this->slaveFactory->get($slaveModel->getType()->getHelper());
 
         if (!$slave instanceof AbstractHcSlave) {
