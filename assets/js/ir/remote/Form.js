@@ -19,13 +19,13 @@ Ext.define('GibsonOS.module.hc.ir.remote.Form', {
             fieldLabel: 'Breite',
             name: 'width',
             minValue: 1,
-            maxValue: 10
+            maxValue: 25
         },{
             xtype: 'gosCoreComponentFormFieldNumberField',
             fieldLabel: 'Höhe',
             name: 'height',
             minValue: 1,
-            maxValue: 10
+            maxValue: 25
         },{
             xtype: 'gosCoreComponentFormFieldContainer',
             fieldLabel: 'Rahmen',
