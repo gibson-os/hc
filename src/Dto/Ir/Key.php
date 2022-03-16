@@ -62,6 +62,7 @@ class Key implements JsonSerializable, AutoCompleteModelInterface, AttributeInte
     public function jsonSerialize(): array
     {
         return [
+            'id' => $this->getSubId(),
             'protocol' => $this->getProtocol(),
             'address' => $this->getAddress(),
             'command' => $this->getCommand(),

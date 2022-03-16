@@ -131,7 +131,7 @@ class IrFormatter extends AbstractHcFormatter
         return $key;
     }
 
-    private function getKeyName(Key $key): ?string
+    public function getKeyName(Key $key): ?string
     {
         $subId = $this->getSubId($key->getProtocol(), $key->getAddress(), $key->getCommand());
 

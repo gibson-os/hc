@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\AutoComplete\Ir;
 
 use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
-use GibsonOS\Core\Exception\AutoCompleteException;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
@@ -52,26 +51,12 @@ class KeyAutoComplete implements AutoCompleteInterface
         return $keys;
     }
 
-    /**
-     * @throws SelectError
-     * @throws AutoCompleteException
-     */
     public function getById(string $id, array $parameters): AutoCompleteModelInterface
     {
-        $type = $this->typeRepository->getByHelperName('ir');
+        $key = $this->irFormatter->getKeyBySubId((int) $id);
+        $key->setName($this->irFormatter->getKeyName($key));
 
-        $values = $this->valueRepository->getByTypeId(
-            $type->getId() ?? 0,
-            (int) $id,
-            type: IrService::ATTRIBUTE_TYPE_KEY
-        );
-        $value = reset($values);
-
-        if (!$value instanceof Value) {
-            throw new AutoCompleteException(sprintf('Key with ID #%d not found', (int) $id));
-        }
-
-        return $this->irFormatter->getKeyBySubId($value->getAttribute()->getSubId() ?? 0);
+        return $key;
     }
 
     public function getModel(): string
