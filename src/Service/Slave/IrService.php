@@ -9,7 +9,6 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
-use GibsonOS\Module\Hc\Event\AbstractHcEvent;
 use GibsonOS\Module\Hc\Event\IrEvent;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
@@ -126,6 +125,6 @@ class IrService extends AbstractHcSlave
 
     protected function getEventClassName(): string
     {
-        return AbstractHcEvent::class;
+        return IrEvent::class;
     }
 }

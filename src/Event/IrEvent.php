@@ -6,15 +6,19 @@ namespace GibsonOS\Module\Hc\Event;
 use GibsonOS\Core\Attribute\Event;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
+use GibsonOS\Core\Manager\ReflectionManager;
+use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
 use GibsonOS\Module\Hc\Dto\Parameter\Ir\KeyParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
+use Psr\Log\LoggerInterface;
 
 #[Event('IR')]
 #[Event\ParameterOption('slave', 'typeHelper', 'ir')]
-class IrEvent
+class IrEvent extends AbstractHcEvent
 {
     #[Event\Trigger('Nach empfangen von IR Tasten', [
         ['key' => 'slave', 'className' => SlaveParameter::class],
@@ -32,8 +36,14 @@ class IrEvent
     ])]
     public const AFTER_WRITE_IR = 'afterReadPort';
 
-    public function __construct(private IrService $irService)
-    {
+    public function __construct(
+        EventService $eventService,
+        ReflectionManager $reflectionManager,
+        TypeRepository $typeRepository,
+        LoggerInterface $logger,
+        private IrService $irService
+    ) {
+        parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->irService);
     }
 
     /**
