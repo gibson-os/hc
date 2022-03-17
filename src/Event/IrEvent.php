@@ -24,17 +24,17 @@ class IrEvent extends AbstractHcEvent
         ['key' => 'slave', 'className' => SlaveParameter::class],
         ['key' => 'key', 'className' => KeyParameter::class],
     ])]
-    public const READ_IR = 'afterReadPort';
+    public const READ_IR = 'afterReadIr';
 
     #[Event\Trigger('Vor senden von IR Tasten', [
         ['key' => 'slave', 'className' => SlaveParameter::class],
     ])]
-    public const BEFORE_WRITE_IR = 'beforeReadPort';
+    public const BEFORE_WRITE_IR = 'beforeWriteIr';
 
     #[Event\Trigger('Nach senden von IR Tasten', [
         ['key' => 'slave', 'className' => SlaveParameter::class],
     ])]
-    public const AFTER_WRITE_IR = 'afterReadPort';
+    public const AFTER_WRITE_IR = 'afterWriteIr';
 
     public function __construct(
         EventService $eventService,
