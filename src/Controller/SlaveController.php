@@ -70,17 +70,17 @@ class SlaveController extends AbstractController
 
     #[CheckPermission(Permission::READ)]
     public function index(
-        ModuleStore $slaveStore,
+        ModuleStore $moduleStore,
         int $limit = 100,
         int $start = 0,
         array $sort = [],
         int $masterId = null
     ): AjaxResponse {
-        $slaveStore->setLimit($limit, $start);
-        $slaveStore->setSortByExt($sort);
-        $slaveStore->setMasterId($masterId);
+        $moduleStore->setLimit($limit, $start);
+        $moduleStore->setSortByExt($sort);
+        $moduleStore->setMasterId($masterId);
 
-        return $this->returnSuccess($slaveStore->getList(), $slaveStore->getCount());
+        return $this->returnSuccess($moduleStore->getList(), $moduleStore->getCount());
     }
 
     /**

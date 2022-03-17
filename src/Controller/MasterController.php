@@ -16,13 +16,16 @@ use GibsonOS\Module\Hc\Store\MasterStore;
 
 class MasterController extends AbstractController
 {
+    /**
+     * @throws SelectError
+     */
     #[CheckPermission(Permission::READ)]
     public function index(MasterStore $masterStore, int $start = 0, int $limit = 100, array $sort = []): AjaxResponse
     {
         $masterStore->setLimit($limit, $start);
         $masterStore->setSortByExt($sort);
 
-        return $this->returnSuccess($masterStore->getList(), $masterStore->getCount());
+        return $this->returnSuccess(iterator_to_array($masterStore->getList()), $masterStore->getCount());
     }
 
     /**
