@@ -19,7 +19,7 @@ use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Store\SlaveStore;
+use GibsonOS\Module\Hc\Store\ModuleStore;
 
 class SlaveController extends AbstractController
 {
@@ -70,7 +70,7 @@ class SlaveController extends AbstractController
 
     #[CheckPermission(Permission::READ)]
     public function index(
-        SlaveStore $slaveStore,
+        ModuleStore $slaveStore,
         int $limit = 100,
         int $start = 0,
         array $sort = [],

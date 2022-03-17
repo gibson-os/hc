@@ -9,7 +9,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
 use mysqlDatabase;
 
-class SlaveStore extends AbstractDatabaseStore
+class ModuleStore extends AbstractDatabaseStore
 {
     private ?int $masterId = null;
 
@@ -28,6 +28,11 @@ class SlaveStore extends AbstractDatabaseStore
     protected function getCountField(): string
     {
         return '`hc_module`.`id`';
+    }
+
+    protected function getDefaultOrder(): string
+    {
+        return '`hc_module`.`address`';
     }
 
     /**
@@ -83,7 +88,7 @@ class SlaveStore extends AbstractDatabaseStore
         return $this->table->connection->fetchAssocList();
     }
 
-    public function setMasterId(?int $masterId): SlaveStore
+    public function setMasterId(?int $masterId): ModuleStore
     {
         $this->masterId = $masterId;
 

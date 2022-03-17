@@ -26,4 +26,9 @@ class MasterStore extends AbstractDatabaseStore
             'modified' => '`modified`',
         ];
     }
+
+    protected function getDefaultOrder(): string
+    {
+        return '`name`';
+    }
 }
