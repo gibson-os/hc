@@ -16,7 +16,6 @@ Ext.define('GibsonOS.module.hc.ir.remote.App', {
             singleSelect: true,
             moduleId: me.moduleId,
             remoteId: me.remoteId,
-            selectedItemCls: 'hcIrRemoteKey',
         }];
 
         me.callParent();
