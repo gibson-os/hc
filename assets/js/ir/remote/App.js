@@ -31,13 +31,12 @@ Ext.define('GibsonOS.module.hc.ir.remote.App', {
             view.setHeight((data.height * view.gridSize) + (view.offsetTop * 2));
         });
         view.on('itemclick', (view, record) => {
-            console.log(record);
             me.setLoading(true);
 
             let keys = [];
 
             Ext.iterate(record.get('keys'), (key) => {
-                keys.push(key.get('id'));
+                keys.push(key.id);
             });
 
             GibsonOS.Ajax.request({
