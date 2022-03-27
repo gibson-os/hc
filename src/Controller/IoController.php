@@ -39,6 +39,7 @@ class IoController extends AbstractController
         #[GetAttribute(['fade' => 'fadeIn'])] Port $port,
     ): AjaxResponse {
         $ioService->setPort($port);
+        $ioService->pushUpdate($module, [$port]);
 
         return $this->returnSuccess();
     }
@@ -74,6 +75,7 @@ class IoController extends AbstractController
         #[GetAttribute(['fade' => 'fadeIn'])] Port $port
     ): AjaxResponse {
         $ioService->toggleValue($port);
+        $ioService->pushUpdate($module, [$port]);
 
         return $this->returnSuccess();
     }

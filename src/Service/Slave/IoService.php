@@ -15,6 +15,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Repository\UpdateError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Service\DevicePushService;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Io\Port;
@@ -114,16 +115,17 @@ class IoService extends AbstractHcSlave
         MasterService $masterService,
         TransformService $transformService,
         EventService $eventService,
-        private IoMapper $ioMapper,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
         LogRepository $logRepository,
         SlaveFactory $slaveFactory,
+        LoggerInterface $logger,
+        ModelManager $modelManager,
+        private IoMapper $ioMapper,
         private AttributeRepository $attributeRepository,
         private ValueRepository $valueRepository,
-        LoggerInterface $logger,
-        ModelManager $modelManager
+        private DevicePushService $devicePushService
     ) {
         parent::__construct(
             $masterService,
@@ -194,9 +196,27 @@ class IoService extends AbstractHcSlave
      */
     public function receive(Module $module, BusMessage $busMessage): void
     {
-        foreach ($this->ioMapper->getPorts($module, $busMessage->getData() ?? '', (int) $module->getConfig()) as $port) {
+        $ports = $this->ioMapper->getPorts($module, $busMessage->getData() ?? '', (int) $module->getConfig());
+
+        foreach ($ports as $port) {
             $this->attributeRepository->saveDto($port);
         }
+
+        $this->pushUpdate($module, $ports);
+    }
+
+    /**
+     * @param Port[] $ports
+     */
+    public function pushUpdate(Module $module, array $ports): void
+    {
+        $this->devicePushService->push(
+            'hc',
+            'io',
+            'index',
+            (string) $module->getId(),
+            $ports
+        );
     }
 
     /**
