@@ -272,12 +272,17 @@ class LogStore extends AbstractDatabaseStore
     protected function getOrderMapping(): array
     {
         return [
-            'added' => '`hc_log`.`added`',
+            'added' => '`hc_log`.`id`',
             // 'masterName' => '`hc_master`.`name`',
             // 'moduleName' => '`hc_module`.`name`',
             'direction' => '`hc_log`.`direction`',
             'type' => '`hc_log`.`type`',
             'command' => '`hc_log`.`command`',
         ];
+    }
+
+    protected function getDefaultOrder(): string
+    {
+        return '`hc_log`.`id` DESC';
     }
 }
