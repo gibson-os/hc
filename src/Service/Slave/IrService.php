@@ -10,6 +10,7 @@ use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Ir\Key;
 use GibsonOS\Module\Hc\Event\IrEvent;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
 use GibsonOS\Module\Hc\Model\Module;
@@ -86,8 +87,9 @@ class IrService extends AbstractHcSlave
     /**
      * @param Key[] $keys
      *
-     * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
+     * @throws AbstractException
      *
      * @return $this
      */

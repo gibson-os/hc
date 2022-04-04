@@ -21,6 +21,7 @@ use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Event\IoEvent;
 use GibsonOS\Module\Hc\Exception\AttributeException;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Mapper\IoMapper;
 use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
@@ -250,9 +251,8 @@ class IoService extends AbstractHcSlave
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     private function writePort(Port $port): void
     {
@@ -266,9 +266,7 @@ class IoService extends AbstractHcSlave
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
      * @throws SaveError
      */
     public function readPortsFromEeprom(Module $slave): void
@@ -291,9 +289,8 @@ class IoService extends AbstractHcSlave
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     public function writePortsToEeprom(Module $slave): void
     {
@@ -599,11 +596,10 @@ class IoService extends AbstractHcSlave
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
      * @throws SaveError
      * @throws RepositoryDeleteError
      * @throws UpdateError
+     * @throws WriteException
      */
     public function deleteDirectConnect(Module $slave, int $port, int $order): void
     {
@@ -658,10 +654,9 @@ class IoService extends AbstractHcSlave
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
      * @throws RepositoryDeleteError
      * @throws SaveError
+     * @throws WriteException
      */
     public function resetDirectConnect(Module $slave, int $port, bool $databaseOnly = false): void
     {
@@ -708,9 +703,8 @@ class IoService extends AbstractHcSlave
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     public function defragmentDirectConnect(Module $slave): void
     {
@@ -728,9 +722,8 @@ class IoService extends AbstractHcSlave
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     public function activateDirectConnect(Module $slave, bool $active = true): void
     {
@@ -744,9 +737,7 @@ class IoService extends AbstractHcSlave
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
      * @throws SaveError
      */
     public function isDirectConnectActive(Module $slave): bool
