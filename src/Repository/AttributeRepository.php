@@ -266,7 +266,7 @@ class AttributeRepository extends AbstractRepository
                 ];
             }
 
-            $attributes = $this->loadAttributes($type, $typeName, $keyNames, $subId);
+            $attributes = $this->loadAttributes($type, $typeName, $keyNames, $subId, $dto->getModule());
 
             foreach ($attributes as $attribute) {
                 unset($keyNames[$attribute->getKey()]);
@@ -386,7 +386,8 @@ class AttributeRepository extends AbstractRepository
             $type,
             $reflectionClass->getShortName(),
             array_keys($properties),
-            $dto->getSubId()
+            $dto->getSubId(),
+            $dto->getModule()
         );
 
         foreach ($attributes as $attribute) {
@@ -458,8 +459,13 @@ class AttributeRepository extends AbstractRepository
      *
      * @return Attribute[]
      */
-    private function loadAttributes(Type $typeModel, string $type, array $keyNames, int $subId = null): array
-    {
+    private function loadAttributes(
+        Type $typeModel,
+        string $type,
+        array $keyNames,
+        int $subId = null,
+        Module $module = null
+    ): array {
         $separator = '#_#^#_#';
         $table = $this->getTable($this->attributeTableName);
         $parameters = array_values($keyNames);
@@ -468,11 +474,16 @@ class AttributeRepository extends AbstractRepository
             '`' . $this->attributeTableName . '`.`key` IN (' . $table->getParametersString($keyNames) . ') AND ' .
             '`' . $this->attributeTableName . '`.`type_id`=? AND ' .
             '`' . $this->attributeTableName . '`.`type`=? AND ' .
-            '`' . $this->attributeTableName . '`.`sub_id`' . ($subId === null ? ' IS NULL' : '=?')
+            '`' . $this->attributeTableName . '`.`sub_id`' . ($subId === null ? ' IS NULL' : '=?') . ' AND ' .
+            '`' . $this->attributeTableName . '`.`module_id`' . ($module === null ? ' IS NULL' : '=?')
         ;
 
         if ($subId !== null) {
             $parameters[] = $subId;
+        }
+
+        if ($module !== null) {
+            $parameters[] = $module->getId();
         }
 
         $table
