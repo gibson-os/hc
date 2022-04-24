@@ -60,7 +60,7 @@ class Port implements JsonSerializable, AttributeInterface
 
     public function hasPullUp(): bool
     {
-        return $this->pullUp;
+        return $this->getDirection() === Direction::OUTPUT ? true : $this->pullUp;
     }
 
     public function setPullUp(bool $pullUp): Port
@@ -72,7 +72,7 @@ class Port implements JsonSerializable, AttributeInterface
 
     public function getPwm(): int
     {
-        return $this->pwm;
+        return $this->getDirection() === Direction::INPUT ? 0 : $this->pwm;
     }
 
     public function setPwm(int $pwm): Port
@@ -84,7 +84,7 @@ class Port implements JsonSerializable, AttributeInterface
 
     public function getBlink(): int
     {
-        return $this->blink;
+        return $this->getDirection() === Direction::INPUT ? 0 : $this->blink;
     }
 
     public function setBlink(int $blink): Port
@@ -96,7 +96,7 @@ class Port implements JsonSerializable, AttributeInterface
 
     public function getDelay(): int
     {
-        return $this->delay;
+        return $this->getDirection() === Direction::OUTPUT ? 0 : $this->delay;
     }
 
     public function setDelay(int $delay): Port
@@ -120,7 +120,7 @@ class Port implements JsonSerializable, AttributeInterface
 
     public function getFadeIn(): int
     {
-        return $this->fadeIn;
+        return $this->getDirection() === Direction::INPUT ? 0 : $this->fadeIn;
     }
 
     public function setFadeIn(int $fadeIn): Port

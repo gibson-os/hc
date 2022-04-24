@@ -25,7 +25,7 @@ Ext.define('GibsonOS.module.hc.io.model.Port', {
         name: 'blink',
         type: 'int'
     },{
-        name: 'fade',
+        name: 'fadeIn',
         type: 'int'
     },{
         name: 'valueNames',
