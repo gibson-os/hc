@@ -19,7 +19,9 @@ class SlaveAutoComplete implements AutoCompleteInterface
      */
     public function getByNamePart(string $namePart, array $parameters): array
     {
-        return $this->moduleRepository->findByName($namePart, (int) $parameters['typeId']);
+        $typeId = $parameters['typeId'] ?? null;
+
+        return $this->moduleRepository->findByName($namePart, $typeId === null ? $typeId : (int) $typeId);
     }
 
     /**
