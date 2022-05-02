@@ -36,7 +36,7 @@ class IoController extends AbstractController
         IoService $ioService,
         // Required to get port attribute
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetAttribute(['fadeIn' => 'fade'])] Port $port,
+        #[GetAttribute] Port $port,
     ): AjaxResponse {
         $ioService->setPort($port);
         $ioService->pushUpdate($module, [$port]);

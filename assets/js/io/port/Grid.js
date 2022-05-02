@@ -11,7 +11,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
             const pullUp = form.findField('pullUp');
             const delay = form.findField('delay');
             const pwm = form.findField('pwm');
-            const fade = form.findField('fade');
+            const fade = form.findField('fadeIn');
             const blink = form.findField('blink');
 
             if (direction === 0) {
@@ -75,7 +75,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                                     delay: record.get('delay'),
                                     pwm: record.get('pwm'),
                                     blink: record.get('blink'),
-                                    fade: record.get('fade'),
+                                    fadeIn: record.get('fadeIn'),
                                     'valueNames[]': record.get('valueNames')
                                 },
                                 success: function() {
@@ -224,7 +224,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
             }
         },{
             header: 'Einblenden',
-            dataIndex: 'fade',
+            dataIndex: 'fadeIn',
             width: 50,
             align: 'right',
             editor: {

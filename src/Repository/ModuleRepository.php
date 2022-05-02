@@ -40,7 +40,7 @@ class ModuleRepository extends AbstractRepository
      */
     public function findByName(string $name, int $typeId = null): array
     {
-        $this->logger->debug(sprintf('Find slave with name %d and type id %s', $name, $typeId ?? 0));
+        $this->logger->debug(sprintf('Find slave with name %s and type id %d', $name, $typeId ?? 0));
 
         $tableName = $this->moduleTableName;
         $table = self::getTable($tableName);

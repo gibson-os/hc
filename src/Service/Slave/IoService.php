@@ -334,6 +334,10 @@ class IoService extends AbstractHcSlave
     {
         $this->attributeRepository->startTransaction();
 
+        if ($port->getFadeIn() > 0) {
+            $port->setValue(true);
+        }
+
         try {
             $this->attributeRepository->saveDto($port);
             $this->writePort($port);
