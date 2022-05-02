@@ -3,12 +3,13 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Dto\Io;
 
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Attribute\IsAttribute;
 use GibsonOS\Module\Hc\Dto\AttributeInterface;
 use GibsonOS\Module\Hc\Model\Module;
 use JsonSerializable;
 
-class Port implements JsonSerializable, AttributeInterface
+class Port implements JsonSerializable, AttributeInterface, AutoCompleteModelInterface
 {
     /**
      * @param string[] $valueNames
@@ -161,6 +162,7 @@ class Port implements JsonSerializable, AttributeInterface
     public function jsonSerialize(): array
     {
         return [
+            'id' => $this->getNumber(),
             'number' => $this->getNumber(),
             'name' => $this->getName(),
             'direction' => $this->getDirection()->value,
@@ -172,5 +174,10 @@ class Port implements JsonSerializable, AttributeInterface
             'fadeIn' => $this->getFadeIn(),
             'valueNames' => $this->getValueNames(),
         ];
+    }
+
+    public function getAutoCompleteId(): string|int|float
+    {
+        return $this->getNumber();
     }
 }
