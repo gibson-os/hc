@@ -24,6 +24,7 @@ use GibsonOS\Module\Hc\Dto\Parameter\Io\PortParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
 use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use JsonException;
@@ -256,7 +257,8 @@ class IoEvent extends AbstractHcEvent
         ReflectionManager $reflectionManager,
         TypeRepository $typeRepository,
         LoggerInterface $logger,
-        private IoService $ioService
+        private IoService $ioService,
+        private AttributeRepository $attributeRepository
     ) {
         parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->ioService);
     }
@@ -382,6 +384,96 @@ class IoEvent extends AbstractHcEvent
             fadeIn: $fadeIn,
             valueNames: explode(', ', $valueNames)
         ));
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws ReflectionException
+     */
+    #[Event\Method('Port Zustand setzen')]
+    public function setValue(
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
+        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(BoolParameter::class, 'Zustand')] bool $value,
+    ): void {
+        $port = $this->attributeRepository->loadDto(new Port($module, $port));
+        $port->setValue($value);
+        $this->ioService->setPort($port);
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws ReflectionException
+     */
+    #[Event\Method('Port Fade In setzen')]
+    public function setFadeIn(
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
+        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(IntParameter::class, 'Fade In')] int $fadeIn,
+    ): void {
+        $port = $this->attributeRepository->loadDto(new Port($module, $port));
+        $port->setFadeIn($fadeIn);
+        $this->ioService->setPort($port);
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws ReflectionException
+     */
+    #[Event\Method('Port Blinken setzen')]
+    public function setBlink(
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
+        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(IntParameter::class, 'Blink')] int $blink,
+    ): void {
+        $port = $this->attributeRepository->loadDto(new Port($module, $port));
+        $port->setBlink($blink);
+        $this->ioService->setPort($port);
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws ReflectionException
+     */
+    #[Event\Method('Port PWM setzen')]
+    public function setPwm(
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
+        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(IntParameter::class, 'Fade In')] int $pwm,
+    ): void {
+        $port = $this->attributeRepository->loadDto(new Port($module, $port));
+        $port->setBlink($pwm);
+        $this->ioService->setPort($port);
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws ReflectionException
+     */
+    #[Event\Method('Port Delay setzen')]
+    public function setDelay(
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
+        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(IntParameter::class, 'Verzögerung')] int $delay,
+    ): void {
+        $port = $this->attributeRepository->loadDto(new Port($module, $port));
+        $port->setDelay($delay);
+        $this->ioService->setPort($port);
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws ReflectionException
+     */
+    #[Event\Method('Port PullUp setzen')]
+    public function setPullUp(
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
+        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(BoolParameter::class, 'PullUp')] bool $pullUp,
+    ): void {
+        $port = $this->attributeRepository->loadDto(new Port($module, $port));
+        $port->setPullUp($pullUp);
+        $this->ioService->setPort($port);
     }
 
     /**
