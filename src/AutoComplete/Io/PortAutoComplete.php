@@ -30,12 +30,13 @@ class PortAutoComplete implements AutoCompleteInterface
                 $slave->getTypeId(),
                 [IoService::ATTRIBUTE_PORT_KEY_NAME],
                 [$slave->getId()],
-                null,
+                true,
                 IoService::ATTRIBUTE_TYPE_PORT
             );
         } catch (SelectError) {
             $ports = [];
         }
+        errlog($ports);
 
         return $ports;
     }

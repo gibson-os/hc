@@ -9,13 +9,14 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Attribute;
+use JsonSerializable;
 
 /**
  * @method Attribute getAttribute()
  * @method Value     setAttribute(Attribute $attribute)
  */
 #[Table]
-class Value extends AbstractModel implements AutoCompleteModelInterface
+class Value extends AbstractModel implements AutoCompleteModelInterface, JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], primary: true)]
     private int $attributeId;
@@ -65,8 +66,17 @@ class Value extends AbstractModel implements AutoCompleteModelInterface
         return $this;
     }
 
-    public function getAutoCompleteId(): int
+    public function getAutoCompleteId(): string
     {
-        return $this->getAttributeId();
+        return $this->getAttributeId() . '_' . $this->getOrder();
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'attributeId' => $this->getAttributeId(),
+            'order' => $this->getOrder(),
+            'value' => $this->getValue(),
+        ];
     }
 }

@@ -262,7 +262,8 @@ class ValueRepository extends AbstractRepository
             )
             ->appendJoin('`hc_attribute_value` AS `values`', '`attribute`.`id`=`values`.`attribute_id`')
         ;
-
+        errlog($table->where);
+        errlog($table->getWhereParameters());
         if (!$table->selectPrepared(false, 'DISTINCT `attribute`.*, `values`.`value`, `values`.`order`')) {
             $exception = new SelectError('Keine Attribute gefunden!');
             $exception->setTable($table);
