@@ -15,8 +15,8 @@ use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
+use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\Neopixel\ImageParameter;
-use GibsonOS\Module\Hc\Dto\Parameter\SlaveParameter;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
@@ -27,11 +27,12 @@ use JsonException;
 use Psr\Log\LoggerInterface;
 
 #[Event('Neopixel')]
-#[Event\Listener('image', 'slave', ['params' => [
+#[Event\Listener('sequence', 'module', ['params' => [
     'paramKey' => 'moduleId',
     'recordKey' => 'id',
 ]])]
 #[Event\ParameterOption('slave', 'typeHelper', 'neopixel')]
+#[Event\ParameterOption('module', 'typeHelper', 'neopixel')]
 class NeopixelEvent extends AbstractHcEvent
 {
     public function __construct(
@@ -51,7 +52,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('LEDs setzen')]
     public function writeSetLeds(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $slave,
         array $leds
     ): void {
         $this->neopixelService->writeLeds($slave, $this->ledMapper->mapFromArrays($leds, true, false));
@@ -65,7 +66,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Channel schreiben')]
     public function writeChannel(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $slave,
         #[Event\Parameter(IntParameter::class, 'Channel')] int $channel,
         #[Event\Parameter(IntParameter::class, 'Länge')] int $length = 0
     ): void {
@@ -78,7 +79,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Sequenz starten')]
     public function writeSequenceStart(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $slave,
         #[Event\Parameter(IntParameter::class, 'Wiederholungen')] int $repeat = 0
     ): void {
         $this->neopixelService->writeSequenceStart($slave, $repeat);
@@ -90,7 +91,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Sequenz stoppen')]
     public function writeSequenceStop(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave
+        #[Event\Parameter(ModuleParameter::class)] Module $slave
     ): void {
         $this->neopixelService->writeSequenceStop($slave);
     }
@@ -101,7 +102,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Sequenz pausieren')]
     public function writeSequencePause(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave
+        #[Event\Parameter(ModuleParameter::class)] Module $slave
     ): void {
         $this->neopixelService->writeSequencePause($slave);
     }
@@ -112,7 +113,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Sequenz EEPROM Adresse schreiben')]
     public function writeSequenceEepromAddress(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $slave,
         #[Event\Parameter(IntParameter::class, 'Adresse')] int $address
     ): void {
         $this->neopixelService->writeSequenceEepromAddress($slave, $address);
@@ -125,7 +126,7 @@ class NeopixelEvent extends AbstractHcEvent
     #[Event\Method('Sequenz EEPROM Adresse lesen')]
     #[Event\ReturnValue(IntParameter::class, 'EEPROM Adresse')]
     public function readSequenceEepromAddress(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave
+        #[Event\Parameter(ModuleParameter::class)] Module $slave
     ): int {
         return $this->neopixelService->readSequenceEepromAddress($slave);
     }
@@ -136,7 +137,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Neue Sequenz übertragen')]
     public function writeSequenceNew(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave
+        #[Event\Parameter(ModuleParameter::class)] Module $slave
     ): void {
         $this->neopixelService->writeSequenceNew($slave);
     }
@@ -153,7 +154,7 @@ class NeopixelEvent extends AbstractHcEvent
 //        'range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1],
 //    ])]
     public function readLedCounts(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave
+        #[Event\Parameter(ModuleParameter::class)] Module $slave
     ): array {
         return $this->neopixelService->readLedCounts($slave);
     }
@@ -164,7 +165,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('LED Anzahl schreiben')]
     public function writeLedCounts(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $slave,
 //        #[Event\Parameter(className: CollectionParameter::class, options: [
 //            'className' => [IntParameter::class],
 //            'range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1],
@@ -186,7 +187,7 @@ class NeopixelEvent extends AbstractHcEvent
         'recordKey' => 'id',
     ]])]
     public function sendImage(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $slave,
         #[Event\Parameter(ImageParameter::class)] Sequence $sequence
     ): void {
         $elements = $sequence->getElements() ?? [];
@@ -198,7 +199,7 @@ class NeopixelEvent extends AbstractHcEvent
     }
 
     public function sendAnimation(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $slave,
         int $animationId
     ): void {
     }
@@ -209,7 +210,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Zufallsanzeige')]
     public function randomImage(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $slave,
         #[Event\Parameter(IntParameter::class, 'Start LED', ['range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1]])] int $start = 0,
         #[Event\Parameter(IntParameter::class, 'End LED', ['range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1]])] int $end = LedMapper::MAX_PROTOCOL_LEDS + 1,
         #[Event\Parameter(IntParameter::class, 'Rot von', ['range' => [0, 255]])] int $redFrom = 0,
@@ -264,7 +265,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Farbe setzen')]
     public function sendColor(
-        #[Event\Parameter(SlaveParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $slave,
         #[Event\Parameter(StringParameter::class, 'LEDs')] string $ledRanges,
         #[Event\Parameter(IntParameter::class, 'Rot', ['range' => [0, 255]])] int $red,
         #[Event\Parameter(IntParameter::class, 'Grün', ['range' => [0, 255]])] int $green,

@@ -8,12 +8,12 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\AutoComplete\SlaveAutoComplete;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 
-class SlaveParameter extends AutoCompleteParameter
+class ModuleParameter extends AutoCompleteParameter
 {
     public function __construct(
         SlaveAutoComplete $slaveAutoComplete,
         private TypeRepository $typeRepository,
-        string $title = 'Sklave'
+        string $title = 'Modul'
     ) {
         parent::__construct($title, $slaveAutoComplete);
     }
@@ -23,7 +23,7 @@ class SlaveParameter extends AutoCompleteParameter
      *
      * @return $this
      */
-    public function setTypeHelper(string $helperName): SlaveParameter
+    public function setTypeHelper(string $helperName): ModuleParameter
     {
         $type = $this->typeRepository->getByHelperName($helperName);
         $this->setParameter('typeId', $type->getId());
