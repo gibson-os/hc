@@ -289,9 +289,9 @@ class IoEvent extends AbstractHcEvent
     #[Event\ReturnValue(className: IntParameter::class, title: 'Blink', key: IoService::ATTRIBUTE_PORT_KEY_BLINK)]
     public function readPort(
         #[Event\Parameter(ModuleParameter::class)] Module $slave,
-        #[Event\Parameter(PortParameter::class)] int $port
+        #[Event\Parameter(PortParameter::class)] Port $port,
     ): Port {
-        return $this->ioService->readPort(new Port($slave, $port));
+        return $this->ioService->readPort($port);
     }
 
     /**
@@ -334,10 +334,10 @@ class IoEvent extends AbstractHcEvent
     #[Event\ReturnValue(className: BoolParameter::class, title: 'Es gibt weitere DirectConnects', key: 'hasMore')]
     public function readDirectConnect(
         #[Event\Parameter(ModuleParameter::class)] Module $slave,
-        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order
     ): array {
-        return $this->ioService->readDirectConnect($slave, $port, $order);
+        return $this->ioService->readDirectConnect($slave, $port->getNumber(), $order);
     }
 
     /**
@@ -359,7 +359,7 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Port setzen')]
     public function setPort(
         #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(StringParameter::class, 'Name')] string $name,
         #[Event\Parameter(OptionParameter::class, 'Richtung', ['options' => [[
             0 => 'Eingang',
@@ -372,18 +372,17 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(IntParameter::class, 'Fade In')] int $fadeIn,
         #[Event\Parameter(StringParameter::class, 'Werte Name')] string $valueNames,
     ): void {
-        $this->ioService->setPort(new Port(
-            $module,
-            $port,
-            $name,
-            Direction::from($direction),
-            $pullUp,
-            $pwm,
-            $blink,
-            $delay,
-            fadeIn: $fadeIn,
-            valueNames: explode(', ', $valueNames)
-        ));
+        $port
+            ->setName($name)
+            ->setDirection(Direction::from($direction))
+            ->setPullUp($pullUp)
+            ->setDelay($delay)
+            ->setPwm($pwm)
+            ->setBlink($blink)
+            ->setFadeIn($fadeIn)
+            ->setValueNames(explode(', ', $valueNames))
+        ;
+        $this->ioService->setPort($port);
     }
 
     /**
@@ -393,10 +392,10 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Port Zustand setzen')]
     public function setValue(
         #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(BoolParameter::class, 'Zustand')] bool $value,
     ): void {
-        $port = $this->attributeRepository->loadDto(new Port($module, $port));
+        $port = $this->attributeRepository->loadDto($port);
         $port->setValue($value);
         $this->ioService->setPort($port);
     }
@@ -408,10 +407,10 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Port Fade In setzen')]
     public function setFadeIn(
         #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Fade In')] int $fadeIn,
     ): void {
-        $port = $this->attributeRepository->loadDto(new Port($module, $port));
+        $port = $this->attributeRepository->loadDto($port);
         $port->setFadeIn($fadeIn);
         $this->ioService->setPort($port);
     }
@@ -423,10 +422,10 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Port Blinken setzen')]
     public function setBlink(
         #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Blink')] int $blink,
     ): void {
-        $port = $this->attributeRepository->loadDto(new Port($module, $port));
+        $port = $this->attributeRepository->loadDto($port);
         $port->setBlink($blink);
         $this->ioService->setPort($port);
     }
@@ -438,10 +437,10 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Port PWM setzen')]
     public function setPwm(
         #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Fade In')] int $pwm,
     ): void {
-        $port = $this->attributeRepository->loadDto(new Port($module, $port));
+        $port = $this->attributeRepository->loadDto($port);
         $port->setBlink($pwm);
         $this->ioService->setPort($port);
     }
@@ -453,10 +452,10 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Port Delay setzen')]
     public function setDelay(
         #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Verzögerung')] int $delay,
     ): void {
-        $port = $this->attributeRepository->loadDto(new Port($module, $port));
+        $port = $this->attributeRepository->loadDto($port);
         $port->setDelay($delay);
         $this->ioService->setPort($port);
     }
@@ -468,10 +467,10 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Port PullUp setzen')]
     public function setPullUp(
         #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(BoolParameter::class, 'PullUp')] bool $pullUp,
     ): void {
-        $port = $this->attributeRepository->loadDto(new Port($module, $port));
+        $port = $this->attributeRepository->loadDto($port);
         $port->setPullUp($pullUp);
         $this->ioService->setPort($port);
     }
@@ -497,7 +496,7 @@ class IoEvent extends AbstractHcEvent
     ]])]
     public function saveDirectConnect(
         #[Event\Parameter(ModuleParameter::class)] Module $slave,
-        #[Event\Parameter(PortParameter::class, 'Eingangsport')] int $port,
+        #[Event\Parameter(PortParameter::class, 'Eingangsport')] Port $port,
         #[Event\Parameter(IntParameter::class, 'Eingangsport geschloßen')] int $inputPortValue,
         #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order,
         #[Event\Parameter(PortParameter::class, 'Ausgangsport')] int $outputPort,
@@ -509,7 +508,7 @@ class IoEvent extends AbstractHcEvent
     ): void {
         $this->ioService->saveDirectConnect(
             $slave,
-            $port,
+            $port->getNumber(),
             $inputPortValue,
             $order,
             $outputPort,
@@ -527,10 +526,10 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('DirectConnect löschen')]
     public function deleteDirectConnect(
         #[Event\Parameter(ModuleParameter::class)] Module $slave,
-        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order
     ): void {
-        $this->ioService->deleteDirectConnect($slave, $port, $order);
+        $this->ioService->deleteDirectConnect($slave, $port->getNumber(), $order);
     }
 
     /**
@@ -539,10 +538,10 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Alle DirectConnects löschen')]
     public function resetDirectConnect(
         #[Event\Parameter(ModuleParameter::class)] Module $slave,
-        #[Event\Parameter(PortParameter::class)] int $port,
+        #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(BoolParameter::class, 'Nur Datenbank')] bool $databaseOnly
     ): void {
-        $this->ioService->resetDirectConnect($slave, $port, $databaseOnly);
+        $this->ioService->resetDirectConnect($slave, $port->getNumber(), $databaseOnly);
     }
 
     /**

@@ -12,12 +12,13 @@ use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 
+// @todo Alles irgendwie scheiße! Mapping ist doof. getModule ist doof. mal per id mal direkt drin. Alles doof!
 class PortAutoComplete implements AutoCompleteInterface
 {
     public function __construct(
-        private ModuleRepository $moduleRepository,
-        private ValueRepository $valueRepository,
-        private ObjectMapper $objectMapper
+        private readonly ModuleRepository $moduleRepository,
+        private readonly ValueRepository $valueRepository,
+        private readonly ObjectMapper $objectMapper
     ) {
     }
 
@@ -26,51 +27,25 @@ class PortAutoComplete implements AutoCompleteInterface
      */
     public function getByNamePart(string $namePart, array $parameters): array
     {
-        $slave = $this->getSlave($parameters);
-        $portsBySubId = [];
+        $module = $this->getModule($parameters);
 
         try {
             $ports = $this->valueRepository->findAttributesByValue(
                 $namePart . '*',
-                $slave->getTypeId(),
+                $module->getTypeId(),
                 [IoService::ATTRIBUTE_PORT_KEY_NAME],
-                [$slave->getId()],
+                [$module->getId()],
                 true,
                 IoService::ATTRIBUTE_TYPE_PORT
             );
 
-            foreach ($ports as $port) {
-                $subId = $port->getAttribute()->getSubId();
-
-                if (!isset($portsBySubId[$subId])) {
-                    $portsBySubId[$subId] = ['module' => $slave, 'number' => $subId];
-                }
-
-                $key = $port->getAttribute()->getKey();
-
-                if (!isset($portsBySubId[$subId][$key])) {
-                    $portsBySubId[$subId][$key] = $port->getValue();
-
-                    continue;
-                }
-
-                if (is_array($portsBySubId[$subId][$key])) {
-                    $portsBySubId[$subId][$key][] = $portsBySubId[$subId][$key];
-
-                    continue;
-                }
-
-                $portsBySubId[$subId][$key] = [$portsBySubId[$subId][$key]];
-            }
-
             $ports = array_map(
                 fn (array $port): Port => $this->objectMapper->mapToObject(Port::class, $port),
-                $portsBySubId
+                $this->getPortsBySubId($ports, $module)
             );
         } catch (SelectError) {
             $ports = [];
         }
-        errlog($ports);
 
         return $ports;
     }
@@ -80,16 +55,18 @@ class PortAutoComplete implements AutoCompleteInterface
      */
     public function getById(string $id, array $parameters): Port
     {
-        $slave = $this->getSlave($parameters);
+        $module = $this->getModule($parameters);
 
         $values = $this->valueRepository->getByTypeId(
-            $slave->getTypeId(),
+            $module->getTypeId(),
             (int) $id,
-            [$slave->getId() ?? 0],
+            [$module->getId() ?? 0],
             IoService::ATTRIBUTE_TYPE_PORT
         );
 
-        return $this->objectMapper->mapToObject(Port::class, $values);
+        $ports = $this->getPortsBySubId($values, $module);
+
+        return $this->objectMapper->mapToObject(Port::class, reset($ports));
     }
 
     public function getModel(): string
@@ -100,10 +77,43 @@ class PortAutoComplete implements AutoCompleteInterface
     /**
      * @throws SelectError
      */
-    private function getSlave(array $parameters): Module
+    private function getModule(array $parameters): Module
     {
-        errlog($parameters);
+        if ($parameters['module'] instanceof Module) {
+            return $parameters['module'];
+        }
 
         return $this->moduleRepository->getById((int) $parameters['moduleId']);
+    }
+
+    private function getPortsBySubId(array $ports, Module $module): array
+    {
+        $portsBySubId = [];
+
+        foreach ($ports as $port) {
+            $subId = $port->getAttribute()->getSubId();
+
+            if (!isset($portsBySubId[$subId])) {
+                $portsBySubId[$subId] = ['module' => $module, 'number' => $subId];
+            }
+
+            $key = $port->getAttribute()->getKey();
+
+            if (!isset($portsBySubId[$subId][$key])) {
+                $portsBySubId[$subId][$key] = $port->getValue();
+
+                continue;
+            }
+
+            if (is_array($portsBySubId[$subId][$key])) {
+                $portsBySubId[$subId][$key][] = $portsBySubId[$subId][$key];
+
+                continue;
+            }
+
+            $portsBySubId[$subId][$key] = [$portsBySubId[$subId][$key]];
+        }
+
+        return $portsBySubId;
     }
 }

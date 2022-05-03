@@ -69,7 +69,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "017bd64a59c874141d5be743b5f5c2334dabfe78"
+                "reference": "d60a79f5f6de30325779ba06124d1a2cf7ab561c"
             },
             "require": {
                 "ext-curl": "*",
@@ -139,7 +139,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2022-05-02T14:08:17+00:00"
+            "time": "2022-05-03T08:17:51+00:00"
         },
         {
             "name": "google/auth",
