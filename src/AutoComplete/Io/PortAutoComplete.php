@@ -106,12 +106,12 @@ class PortAutoComplete implements AutoCompleteInterface
             }
 
             if (is_array($portsBySubId[$subId][$key])) {
-                $portsBySubId[$subId][$key][] = $portsBySubId[$subId][$key];
+                $portsBySubId[$subId][$key][] = $port->getValue();
 
                 continue;
             }
 
-            $portsBySubId[$subId][$key] = [$portsBySubId[$subId][$key]];
+            $portsBySubId[$subId][$key] = [$port->getValue()];
         }
 
         return $portsBySubId;
