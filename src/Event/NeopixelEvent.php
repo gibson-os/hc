@@ -316,14 +316,14 @@ class NeopixelEvent extends AbstractHcEvent
 
         foreach ($this->getLedNumbers($module, $ledRanges) as $ledNumber) {
             $led = $this->attributeRepository->loadDto(new Led($module, $ledNumber));
-            $red = min($led->getRed() + $red, 255);
-            $green = min($led->getGreen() + $green, 255);
-            $blue = min($led->getBlue() + $blue, 255);
-            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $red, $green, $blue));
+            $ledRed = min($led->getRed() + $red, 255);
+            $ledGreen = min($led->getGreen() + $green, 255);
+            $ledBlue = min($led->getBlue() + $blue, 255);
+            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $ledRed, $ledGreen, $ledBlue));
             $leds[$ledNumber] = $led
-                ->setRed($red)
-                ->setGreen($green)
-                ->setBlue($blue)
+                ->setRed($ledRed)
+                ->setGreen($ledGreen)
+                ->setBlue($ledBlue)
                 ->setOnlyColor(true)
             ;
         }
@@ -349,14 +349,14 @@ class NeopixelEvent extends AbstractHcEvent
 
         foreach ($this->getLedNumbers($module, $ledRanges) as $ledNumber) {
             $led = $this->attributeRepository->loadDto(new Led($module, $ledNumber));
-            $red = max($led->getRed() - $red, 0);
-            $green = max($led->getGreen() - $green, 0);
-            $blue = max($led->getBlue() - $blue, 0);
-            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $red, $green, $blue));
+            $ledRed = max($led->getRed() - $red, 0);
+            $ledGreen = max($led->getGreen() - $green, 0);
+            $ledBlue = max($led->getBlue() - $blue, 0);
+            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $ledRed, $ledGreen, $ledBlue));
             $leds[$ledNumber] = $led
-                ->setRed($red)
-                ->setGreen($green)
-                ->setBlue($blue)
+                ->setRed($ledRed)
+                ->setGreen($ledGreen)
+                ->setBlue($ledBlue)
                 ->setOnlyColor(true)
             ;
         }
