@@ -284,7 +284,7 @@ class NeopixelEvent extends AbstractHcEvent
     ): void {
         $leds = [];
 
-        foreach ($this->getLedNumbers($ledRanges) as $ledNumber) {
+        foreach ($this->getLedNumbers($slave, $ledRanges) as $ledNumber) {
             $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $red, $green, $blue));
             $leds[$ledNumber] = (new Led(
                 $slave,
@@ -314,7 +314,7 @@ class NeopixelEvent extends AbstractHcEvent
     ): void {
         $leds = [];
 
-        foreach ($this->getLedNumbers($ledRanges) as $ledNumber) {
+        foreach ($this->getLedNumbers($module, $ledRanges) as $ledNumber) {
             $led = $this->attributeRepository->loadDto(new Led($module, $ledNumber));
             $red = min($led->getRed() + $red, 255);
             $green = min($led->getGreen() + $green, 255);
@@ -347,7 +347,7 @@ class NeopixelEvent extends AbstractHcEvent
     ): void {
         $leds = [];
 
-        foreach ($this->getLedNumbers($ledRanges) as $ledNumber) {
+        foreach ($this->getLedNumbers($module, $ledRanges) as $ledNumber) {
             $led = $this->attributeRepository->loadDto(new Led($module, $ledNumber));
             $red = max($led->getRed() + $red, 0);
             $green = max($led->getGreen() + $green, 0);
@@ -365,11 +365,20 @@ class NeopixelEvent extends AbstractHcEvent
     }
 
     /**
-     * @return array<int, int>
+     * @throws JsonException
+     *
+     * @return int[]
      */
-    private function getLedNumbers(string $leds): array
+    private function getLedNumbers(Module $module, string $leds): array
     {
         $this->logger->debug(sprintf('Get LED Numbers from %s', $leds));
+
+        if ($leds === '') {
+            $config = JsonUtility::decode($module->getConfig() ?? '[]');
+
+            return range(0, (int) (array_sum($config['counts']) - 1));
+        }
+
         $ledRanges = explode(',', $leds);
         $numbers = [];
 
@@ -388,6 +397,6 @@ class NeopixelEvent extends AbstractHcEvent
 
         ksort($numbers);
 
-        return $numbers;
+        return array_values($numbers);
     }
 }
