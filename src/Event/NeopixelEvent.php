@@ -72,11 +72,11 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Channel schreiben')]
     public function writeChannel(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
         #[Event\Parameter(IntParameter::class, 'Channel')] int $channel,
         #[Event\Parameter(IntParameter::class, 'Länge')] int $length = 0
     ): void {
-        $this->neopixelService->writeChannel($slave, $channel, $length);
+        $this->neopixelService->writeChannel($module, $channel, $length);
     }
 
     /**
@@ -85,10 +85,10 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Sequenz starten')]
     public function writeSequenceStart(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
         #[Event\Parameter(IntParameter::class, 'Wiederholungen')] int $repeat = 0
     ): void {
-        $this->neopixelService->writeSequenceStart($slave, $repeat);
+        $this->neopixelService->writeSequenceStart($module, $repeat);
     }
 
     /**
@@ -97,9 +97,9 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Sequenz stoppen')]
     public function writeSequenceStop(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave
+        #[Event\Parameter(ModuleParameter::class)] Module $module
     ): void {
-        $this->neopixelService->writeSequenceStop($slave);
+        $this->neopixelService->writeSequenceStop($module);
     }
 
     /**
@@ -108,9 +108,9 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Sequenz pausieren')]
     public function writeSequencePause(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave
+        #[Event\Parameter(ModuleParameter::class)] Module $module
     ): void {
-        $this->neopixelService->writeSequencePause($slave);
+        $this->neopixelService->writeSequencePause($module);
     }
 
     /**
@@ -119,10 +119,10 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Sequenz EEPROM Adresse schreiben')]
     public function writeSequenceEepromAddress(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
         #[Event\Parameter(IntParameter::class, 'Adresse')] int $address
     ): void {
-        $this->neopixelService->writeSequenceEepromAddress($slave, $address);
+        $this->neopixelService->writeSequenceEepromAddress($module, $address);
     }
 
     /**
@@ -132,9 +132,9 @@ class NeopixelEvent extends AbstractHcEvent
     #[Event\Method('Sequenz EEPROM Adresse lesen')]
     #[Event\ReturnValue(IntParameter::class, 'EEPROM Adresse')]
     public function readSequenceEepromAddress(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave
+        #[Event\Parameter(ModuleParameter::class)] Module $module
     ): int {
-        return $this->neopixelService->readSequenceEepromAddress($slave);
+        return $this->neopixelService->readSequenceEepromAddress($module);
     }
 
     /**
@@ -143,9 +143,9 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Neue Sequenz übertragen')]
     public function writeSequenceNew(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave
+        #[Event\Parameter(ModuleParameter::class)] Module $module
     ): void {
-        $this->neopixelService->writeSequenceNew($slave);
+        $this->neopixelService->writeSequenceNew($module);
     }
 
     /**
@@ -160,9 +160,9 @@ class NeopixelEvent extends AbstractHcEvent
 //        'range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1],
 //    ])]
     public function readLedCounts(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave
+        #[Event\Parameter(ModuleParameter::class)] Module $module
     ): array {
-        return $this->neopixelService->readLedCounts($slave);
+        return $this->neopixelService->readLedCounts($module);
     }
 
     /**
@@ -171,14 +171,14 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('LED Anzahl schreiben')]
     public function writeLedCounts(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
 //        #[Event\Parameter(className: CollectionParameter::class, options: [
 //            'className' => [IntParameter::class],
 //            'range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1],
 //        ])] array $counts
          array $counts
     ): void {
-        $this->neopixelService->writeLedCounts($slave, $counts);
+        $this->neopixelService->writeLedCounts($module, $counts);
     }
 
     /**
@@ -210,7 +210,7 @@ class NeopixelEvent extends AbstractHcEvent
     }
 
     public function sendAnimation(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
         int $animationId
     ): void {
     }
@@ -221,7 +221,7 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('Zufallsanzeige')]
     public function randomImage(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
         #[Event\Parameter(IntParameter::class, 'Start LED', ['range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1]])] int $start = 0,
         #[Event\Parameter(IntParameter::class, 'End LED', ['range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1]])] int $end = LedMapper::MAX_PROTOCOL_LEDS + 1,
         #[Event\Parameter(IntParameter::class, 'Rot von', ['range' => [0, 255]])] int $redFrom = 0,
@@ -257,7 +257,7 @@ class NeopixelEvent extends AbstractHcEvent
             $blue = mt_rand($blueFrom, $blueTo);
             $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $i - 1, $red, $green, $blue));
             $leds[$i - 1] = (new Led(
-                $slave,
+                $module,
                 $i - 1,
                 red: $red,
                 green: $green,
@@ -266,36 +266,58 @@ class NeopixelEvent extends AbstractHcEvent
             ))->setOnlyColor(true);
         }
 
-        $this->neopixelService->writeLeds($slave, $leds);
+        $this->neopixelService->writeLeds($module, $leds);
     }
 
     /**
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
+     * @throws JsonException
      */
     #[Event\Method('Farbe setzen')]
     public function sendColor(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
         #[Event\Parameter(StringParameter::class, 'LEDs')] string $ledRanges,
-        #[Event\Parameter(IntParameter::class, 'Rot', ['range' => [0, 255]])] int $red,
-        #[Event\Parameter(IntParameter::class, 'Grün', ['range' => [0, 255]])] int $green,
-        #[Event\Parameter(IntParameter::class, 'Blau', ['range' => [0, 255]])] int $blue
+        #[Event\Parameter(IntParameter::class, 'Rot', ['range' => [0, 255]])] int $red = 0,
+        #[Event\Parameter(IntParameter::class, 'Grün', ['range' => [0, 255]])] int $green = 0,
+        #[Event\Parameter(IntParameter::class, 'Blau', ['range' => [0, 255]])] int $blue = 0,
+        #[Event\Parameter(OptionParameter::class, 'Einblenden', ['options' => [[
+            0 => 'Nicht',
+            1 => 'Verdammt langsam',
+            2 => 'Extrem langsam',
+            3 => 'Sehr sehr langsam',
+            4 => 'Sehr langsam',
+            5 => 'Ganz langsam',
+            6 => 'Langsamer',
+            7 => 'Langsam',
+            8 => 'Normal',
+            9 => 'Schnell',
+            10 => 'Schneller',
+            11 => 'Ganz schnell',
+            12 => 'Sehr schnell',
+            13 => 'Sehr sehr schnell',
+            14 => 'Extrem schnell',
+            15 => 'Verdammt schnell',
+        ]]])] int $fadeIn = 0,
+        #[Event\Parameter(IntParameter::class, 'Blinken', ['range' => [0, 31]])] int $blink = 0,
     ): void {
         $leds = [];
 
-        foreach ($this->getLedNumbers($slave, $ledRanges) as $ledNumber) {
+        foreach ($this->getLedNumbers($module, $ledRanges) as $ledNumber) {
             $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $red, $green, $blue));
             $leds[$ledNumber] = (new Led(
-                $slave,
+                $module,
                 $ledNumber,
                 red: $red,
                 green: $green,
-                blue: $blue
+                blue: $blue,
+                fadeIn: $fadeIn,
+                blink: $blink
             ))->setOnlyColor(true);
         }
 
-        $this->neopixelService->writeLeds($slave, $leds);
+        $this->neopixelService->writeLeds($module, $leds);
     }
 
     /**
@@ -303,14 +325,33 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws DateTimeError
      * @throws SaveError
      * @throws ReflectionException
+     * @throws JsonException
      */
     #[Event\Method('Heller')]
     public function brighter(
         #[Event\Parameter(ModuleParameter::class)] Module $module,
         #[Event\Parameter(StringParameter::class, 'LEDs')] string $ledRanges,
-        #[Event\Parameter(IntParameter::class, 'Rot addieren', ['range' => [0, 255]])] int $red,
-        #[Event\Parameter(IntParameter::class, 'Grün addieren', ['range' => [0, 255]])] int $green,
-        #[Event\Parameter(IntParameter::class, 'Blau addieren', ['range' => [0, 255]])] int $blue
+        #[Event\Parameter(IntParameter::class, 'Rot addieren', ['range' => [0, 255]])] int $red = 0,
+        #[Event\Parameter(IntParameter::class, 'Grün addieren', ['range' => [0, 255]])] int $green = 0,
+        #[Event\Parameter(IntParameter::class, 'Blau addieren', ['range' => [0, 255]])] int $blue = 0,
+        #[Event\Parameter(OptionParameter::class, 'Einblenden', ['options' => [[
+            0 => 'Nicht',
+            1 => 'Verdammt langsam',
+            2 => 'Extrem langsam',
+            3 => 'Sehr sehr langsam',
+            4 => 'Sehr langsam',
+            5 => 'Ganz langsam',
+            6 => 'Langsamer',
+            7 => 'Langsam',
+            8 => 'Normal',
+            9 => 'Schnell',
+            10 => 'Schneller',
+            11 => 'Ganz schnell',
+            12 => 'Sehr schnell',
+            13 => 'Sehr sehr schnell',
+            14 => 'Extrem schnell',
+            15 => 'Verdammt schnell',
+        ]]])] int $fadeIn = 0
     ): void {
         $leds = [];
 
@@ -324,6 +365,7 @@ class NeopixelEvent extends AbstractHcEvent
                 ->setRed($ledRed)
                 ->setGreen($ledGreen)
                 ->setBlue($ledBlue)
+                ->setFadeIn($fadeIn)
                 ->setOnlyColor(true)
             ;
         }
@@ -343,7 +385,25 @@ class NeopixelEvent extends AbstractHcEvent
         #[Event\Parameter(StringParameter::class, 'LEDs')] string $ledRanges,
         #[Event\Parameter(IntParameter::class, 'Rot subtrahieren', ['range' => [0, 255]])] int $red,
         #[Event\Parameter(IntParameter::class, 'Grün subtrahieren', ['range' => [0, 255]])] int $green,
-        #[Event\Parameter(IntParameter::class, 'Blau subtrahieren', ['range' => [0, 255]])] int $blue
+        #[Event\Parameter(IntParameter::class, 'Blau subtrahieren', ['range' => [0, 255]])] int $blue,
+        #[Event\Parameter(OptionParameter::class, 'Einblenden', ['options' => [[
+            0 => 'Nicht',
+            1 => 'Verdammt langsam',
+            2 => 'Extrem langsam',
+            3 => 'Sehr sehr langsam',
+            4 => 'Sehr langsam',
+            5 => 'Ganz langsam',
+            6 => 'Langsamer',
+            7 => 'Langsam',
+            8 => 'Normal',
+            9 => 'Schnell',
+            10 => 'Schneller',
+            11 => 'Ganz schnell',
+            12 => 'Sehr schnell',
+            13 => 'Sehr sehr schnell',
+            14 => 'Extrem schnell',
+            15 => 'Verdammt schnell',
+        ]]])] int $fadeIn = 0
     ): void {
         $leds = [];
 
@@ -357,6 +417,7 @@ class NeopixelEvent extends AbstractHcEvent
                 ->setRed($ledRed)
                 ->setGreen($ledGreen)
                 ->setBlue($ledBlue)
+                ->setFadeIn($fadeIn)
                 ->setOnlyColor(true)
             ;
         }
