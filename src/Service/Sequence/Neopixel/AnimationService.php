@@ -141,7 +141,7 @@ class AnimationService
     /**
      * @return array<int, Led[]>
      */
-    public function transformToTimeSteps(array $items): array
+    public function transformToTimeSteps(Module $module, array $items): array
     {
         $times = [];
 
@@ -150,7 +150,7 @@ class AnimationService
                 $times[$item['time']] = [];
             }
 
-            $times[$item['time']][] = $this->ledMapper->mapFromArray($item, true, true);
+            $times[$item['time']][] = $this->ledMapper->mapFromArray($module, $item, true, true);
         }
 
         ksort($times, SORT_NUMERIC);

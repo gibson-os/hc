@@ -83,14 +83,15 @@ class AnimationService
     /**
      * @return array<int, Led[]>
      */
-    public function getSteps(Module $slave): array
+    public function getSteps(Module $module): array
     {
         try {
             $steps = [];
-            $values = $this->getValueModels($slave, self::ATTRIBUTE_KEY_STEPS);
+            $values = $this->getValueModels($module, self::ATTRIBUTE_KEY_STEPS);
 
             foreach ($values as $value) {
                 $steps[$value->getOrder()] = $this->ledMapper->mapFromArrays(
+                    $module,
                     JsonUtility::decode($value->getValue()),
                     true,
                     true

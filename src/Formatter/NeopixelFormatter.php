@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Formatter;
 use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
+use GibsonOS\Module\Hc\Exception\ModuleException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Module;
@@ -56,11 +57,17 @@ class NeopixelFormatter extends AbstractHcFormatter
                 $data = substr($data, 2);
                 // no break
             case NeopixelService::COMMAND_SET_LEDS:
-                $slaveLeds = $this->getLeds($log->getModule());
+                $module = $log->getModule();
+
+                if ($module === null) {
+                    throw new ModuleException(sprintf('No module set in log entry #%d', $log->getId() ?? 0));
+                }
+
+                $slaveLeds = $this->getLeds($module);
 
                 $context = [
                     'slaveLeds' => $slaveLeds,
-                    'logLeds' => $this->ledMapper->mapFromString($data),
+                    'logLeds' => $this->ledMapper->mapFromString($module, $data),
                     'maxTop' => (
                         empty($slaveLeds)
                             ? 0
@@ -183,9 +190,9 @@ class NeopixelFormatter extends AbstractHcFormatter
     /**
      * @return Led[]
      */
-    private function getLeds(?Module $module): array
+    private function getLeds(Module $module): array
     {
-        $moduleId = $module?->getId() ?? 0;
+        $moduleId = $module->getId() ?? 0;
 
         if (!isset($this->leds[$moduleId])) {
             $this->ledStore->setModule($module);

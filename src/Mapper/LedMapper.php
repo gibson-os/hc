@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Mapper;
 
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\TransformService;
 
@@ -50,12 +51,12 @@ class LedMapper
      *
      * @return Led[]
      */
-    public function mapFromArrays(array $data, bool $onlyColor, bool $forAnimation): array
+    public function mapFromArrays(Module $module, array $data, bool $onlyColor, bool $forAnimation): array
     {
         $leds = [];
 
         foreach ($data as $item) {
-            $leds[] = $this->mapFromArray($item, $onlyColor, $forAnimation);
+            $leds[] = $this->mapFromArray($module, $item, $onlyColor, $forAnimation);
         }
 
         return $leds;
@@ -64,31 +65,31 @@ class LedMapper
     /**
      * @param array{red: int, green: int, blue: int, fadeIn: int, blink: int} $data
      */
-    public function mapFromArray(array $data, bool $onlyColor, bool $forAnimation): Led
+    public function mapFromArray(Module $module, array $data, bool $onlyColor, bool $forAnimation): Led
     {
-        $led = (new Led())
-            ->setNumber($data[LedService::ATTRIBUTE_KEY_NUMBER] ?? 0)
-            ->setChannel($data[LedService::ATTRIBUTE_KEY_CHANNEL] ?? 0)
-            ->setRed($data[LedService::ATTRIBUTE_KEY_RED])
-            ->setGreen($data[LedService::ATTRIBUTE_KEY_GREEN])
-            ->setBlue($data[LedService::ATTRIBUTE_KEY_BLUE])
-            ->setFadeIn($data[LedService::ATTRIBUTE_KEY_FADE_IN])
-            ->setBlink($data[LedService::ATTRIBUTE_KEY_BLINK])
-            ->setTop($data[LedService::ATTRIBUTE_KEY_TOP] ?? 0)
-            ->setLeft($data[LedService::ATTRIBUTE_KEY_LEFT] ?? 0)
+        return (new Led(
+            $module,
+            $data[LedService::ATTRIBUTE_KEY_NUMBER] ?? 0,
+            $data[LedService::ATTRIBUTE_KEY_CHANNEL] ?? 0,
+            $data[LedService::ATTRIBUTE_KEY_TOP] ?? 0,
+            $data[LedService::ATTRIBUTE_KEY_LEFT] ?? 0,
+            $data[LedService::ATTRIBUTE_KEY_RED],
+            $data[LedService::ATTRIBUTE_KEY_GREEN],
+            $data[LedService::ATTRIBUTE_KEY_BLUE],
+            $data[LedService::ATTRIBUTE_KEY_FADE_IN],
+            $data[LedService::ATTRIBUTE_KEY_BLINK],
+        ))
             ->setLength($data['length'] ?? 0)
             ->setTime($data['time'] ?? 0)
             ->setOnlyColor($onlyColor)
             ->setForAnimation($forAnimation)
         ;
-
-        return $led;
     }
 
     /**
      * @return Led[]
      */
-    public function mapFromString(string $data): array
+    public function mapFromString(Module $module, string $data): array
     {
         $leds = [];
 
@@ -101,7 +102,7 @@ class LedMapper
                 $i += 2;
                 $endAddress = $this->transformService->asciiToUnsignedInt(substr($data, $i, 2));
                 $i += 2;
-                $led = $this->getLedByString($data, $i);
+                $led = $this->getLedByString($module, $data, $i);
 
                 for ($j = $startAddress; $j <= $endAddress; ++$j) {
                     $leds[$j] = $led;
@@ -118,7 +119,7 @@ class LedMapper
                     $i += 2;
                 }
 
-                $led = $this->getLedByString($data, $i);
+                $led = $this->getLedByString($module, $data, $i);
 
                 foreach ($groupAddresses as $groupAddress) {
                     $leds[$groupAddress] = $led;
@@ -127,21 +128,22 @@ class LedMapper
                 continue;
             }
 
-            $leds[$address] = $this->getLedByString($data, $i);
+            $leds[$address] = $this->getLedByString($module, $data, $i);
         }
 
         return $leds;
     }
 
-    private function getLedByString(string $data, int &$i): Led
+    private function getLedByString(Module $module, string $data, int &$i): Led
     {
-        return (new Led())
-            ->setRed($this->transformService->asciiToUnsignedInt($data, $i++))
-            ->setGreen($this->transformService->asciiToUnsignedInt($data, $i++))
-            ->setBlue($this->transformService->asciiToUnsignedInt($data, $i++))
-            ->setFadeIn($this->transformService->asciiToUnsignedInt($data, $i) >> 4)
-            ->setBlink($this->transformService->asciiToUnsignedInt($data, $i++) & 15)
-        ;
+        return new Led(
+            $module,
+            red: $this->transformService->asciiToUnsignedInt($data, $i++),
+            green: $this->transformService->asciiToUnsignedInt($data, $i++),
+            blue: $this->transformService->asciiToUnsignedInt($data, $i++),
+            fadeIn: $this->transformService->asciiToUnsignedInt($data, $i) >> 4,
+            blink: $this->transformService->asciiToUnsignedInt($data, $i++) & 15
+        );
     }
 
     /**

@@ -21,10 +21,12 @@ use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Sequence;
+use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 #[Event('Neopixel')]
 #[Event\Listener('sequence', 'module', ['params' => [
@@ -41,7 +43,8 @@ class NeopixelEvent extends AbstractHcEvent
         TypeRepository $typeRepository,
         LoggerInterface $logger,
         private NeopixelService $neopixelService,
-        private LedMapper $ledMapper
+        private LedMapper $ledMapper,
+        private AttributeRepository $attributeRepository,
     ) {
         parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->neopixelService);
     }
@@ -52,10 +55,13 @@ class NeopixelEvent extends AbstractHcEvent
      */
     #[Event\Method('LEDs setzen')]
     public function writeSetLeds(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
         array $leds
     ): void {
-        $this->neopixelService->writeLeds($slave, $this->ledMapper->mapFromArrays($leds, true, false));
+        $this->neopixelService->writeLeds(
+            $module,
+            $this->ledMapper->mapFromArrays($module, $leds, true, false)
+        );
     }
 
     /**
@@ -187,14 +193,19 @@ class NeopixelEvent extends AbstractHcEvent
         'recordKey' => 'id',
     ]])]
     public function sendImage(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave,
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
         #[Event\Parameter(ImageParameter::class)] Sequence $sequence
     ): void {
         $elements = $sequence->getElements() ?? [];
         $element = reset($elements);
         $this->neopixelService->writeLeds(
-            $slave,
-            $this->ledMapper->mapFromArrays(JsonUtility::decode($element->getData()), true, false)
+            $module,
+            $this->ledMapper->mapFromArrays(
+                $module,
+                JsonUtility::decode($element->getData()),
+                true,
+                false
+            )
         );
     }
 
@@ -245,14 +256,14 @@ class NeopixelEvent extends AbstractHcEvent
             $green = mt_rand($greenFrom, $greenTo);
             $blue = mt_rand($blueFrom, $blueTo);
             $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $i - 1, $red, $green, $blue));
-            $leds[$i - 1] = (new Led())
-                ->setNumber($i - 1)
-                ->setRed($red)
-                ->setGreen($green)
-                ->setBlue($blue)
-                ->setFadeIn($fadeIn)
-                ->setOnlyColor(true)
-            ;
+            $leds[$i - 1] = (new Led(
+                $slave,
+                $i - 1,
+                red: $red,
+                green: $green,
+                blue: $blue,
+                fadeIn: $fadeIn
+            ))->setOnlyColor(true);
         }
 
         $this->neopixelService->writeLeds($slave, $leds);
@@ -275,8 +286,41 @@ class NeopixelEvent extends AbstractHcEvent
 
         foreach ($this->getLedNumbers($ledRanges) as $ledNumber) {
             $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $red, $green, $blue));
-            $leds[$ledNumber] = (new Led())
-                ->setNumber($ledNumber)
+            $leds[$ledNumber] = (new Led(
+                $slave,
+                $ledNumber,
+                red: $red,
+                green: $green,
+                blue: $blue
+            ))->setOnlyColor(true);
+        }
+
+        $this->neopixelService->writeLeds($slave, $leds);
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws DateTimeError
+     * @throws SaveError
+     * @throws ReflectionException
+     */
+    #[Event\Method('Heller')]
+    public function brighter(
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
+        #[Event\Parameter(StringParameter::class, 'LEDs')] string $ledRanges,
+        #[Event\Parameter(IntParameter::class, 'Rot addieren', ['range' => [0, 255]])] int $red,
+        #[Event\Parameter(IntParameter::class, 'Grün addieren', ['range' => [0, 255]])] int $green,
+        #[Event\Parameter(IntParameter::class, 'Blau addieren', ['range' => [0, 255]])] int $blue
+    ): void {
+        $leds = [];
+
+        foreach ($this->getLedNumbers($ledRanges) as $ledNumber) {
+            $led = $this->attributeRepository->loadDto(new Led($module, $ledNumber));
+            $red = min($led->getRed() + $red, 255);
+            $green = min($led->getGreen() + $green, 255);
+            $blue = min($led->getBlue() + $blue, 255);
+            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $red, $green, $blue));
+            $leds[$ledNumber] = $led
                 ->setRed($red)
                 ->setGreen($green)
                 ->setBlue($blue)
@@ -284,7 +328,40 @@ class NeopixelEvent extends AbstractHcEvent
             ;
         }
 
-        $this->neopixelService->writeLeds($slave, $leds);
+        $this->neopixelService->writeLeds($module, $leds);
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws DateTimeError
+     * @throws SaveError
+     * @throws ReflectionException
+     */
+    #[Event\Method('Dunkler')]
+    public function darker(
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
+        #[Event\Parameter(StringParameter::class, 'LEDs')] string $ledRanges,
+        #[Event\Parameter(IntParameter::class, 'Rot subtrahieren', ['range' => [0, 255]])] int $red,
+        #[Event\Parameter(IntParameter::class, 'Grün subtrahieren', ['range' => [0, 255]])] int $green,
+        #[Event\Parameter(IntParameter::class, 'Blau subtrahieren', ['range' => [0, 255]])] int $blue
+    ): void {
+        $leds = [];
+
+        foreach ($this->getLedNumbers($ledRanges) as $ledNumber) {
+            $led = $this->attributeRepository->loadDto(new Led($module, $ledNumber));
+            $red = max($led->getRed() + $red, 0);
+            $green = max($led->getGreen() + $green, 0);
+            $blue = max($led->getBlue() + $blue, 0);
+            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $red, $green, $blue));
+            $leds[$ledNumber] = $led
+                ->setRed($red)
+                ->setGreen($green)
+                ->setBlue($blue)
+                ->setOnlyColor(true)
+            ;
+        }
+
+        $this->neopixelService->writeLeds($module, $leds);
     }
 
     /**

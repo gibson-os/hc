@@ -110,7 +110,7 @@ class NeopixelAnimationController extends AbstractController
         $animation = $animationService->save(
             $module,
             $name,
-            $animationService->transformToTimeSteps($items),
+            $animationService->transformToTimeSteps($module, $items),
             $id
         );
         $animationStore->setModuleId($module->getId() ?? 0);
@@ -141,7 +141,7 @@ class NeopixelAnimationController extends AbstractController
         #[GetModel(['id' => 'moduleId'])] Module $module,
         array $items = []
     ): AjaxResponse {
-        $steps = $animationSequenceService->transformToTimeSteps($items);
+        $steps = $animationSequenceService->transformToTimeSteps($module, $items);
         $runtimes = $animationSequenceService->getRuntimes($steps);
         $msPerStep = 1000 / $module->getPwmSpeed();
         $newLeds = [];
@@ -190,7 +190,7 @@ class NeopixelAnimationController extends AbstractController
         int $iterations,
         array $items = []
     ): AjaxResponse {
-        $steps = $animationSequenceService->transformToTimeSteps($items);
+        $steps = $animationSequenceService->transformToTimeSteps($module, $items);
         $animationAttributeService->setSteps($module, $steps, false);
         $animationSequenceService->play($module, $iterations);
 

@@ -118,12 +118,13 @@ class NeopixelService extends AbstractHcSlave
                 $top = $this->ledService->getById($module, $id, LedService::ATTRIBUTE_KEY_TOP);
                 $left = $this->ledService->getById($module, $id, LedService::ATTRIBUTE_KEY_LEFT);
 
-                $leds[$id] = (new Led())
-                    ->setNumber($id)
-                    ->setChannel($channel)
-                    ->setTop(count($top) === 1 ? (int) $top[0]->getValue() : ((int) $channel * 3))
-                    ->setLeft(count($left) === 1 ? (int) $left[0]->getValue() : ($i * 3))
-                ;
+                $leds[$id] = new Led(
+                    $module,
+                    $id,
+                    $channel,
+                    top: count($top) === 1 ? (int) $top[0]->getValue() : ((int) $channel * 3),
+                    left: count($left) === 1 ? (int) $left[0]->getValue() : ($i * 3)
+                );
                 ++$id;
             }
         }

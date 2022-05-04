@@ -3,28 +3,13 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Dto\Neopixel;
 
+use GibsonOS\Module\Hc\Attribute\IsAttribute;
+use GibsonOS\Module\Hc\Dto\AttributeInterface;
+use GibsonOS\Module\Hc\Model\Module;
 use JsonSerializable;
 
-class Led implements JsonSerializable
+class Led implements JsonSerializable, AttributeInterface
 {
-    private int $number = 0;
-
-    private int $channel = 0;
-
-    private int $top = 0;
-
-    private int $left = 0;
-
-    private int $red = 0;
-
-    private int $green = 0;
-
-    private int $blue = 0;
-
-    private int $fadeIn = 0;
-
-    private int $blink = 0;
-
     private int $length = 0;
 
     private int $time = 0;
@@ -32,6 +17,20 @@ class Led implements JsonSerializable
     private bool $onlyColor = false;
 
     private bool $forAnimation = false;
+
+    public function __construct(
+        private Module $module,
+        private int $number = 0,
+        #[IsAttribute] private int $channel = 0,
+        #[IsAttribute] private int $top = 0,
+        #[IsAttribute] private int $left = 0,
+        #[IsAttribute] private int $red = 0,
+        #[IsAttribute] private int $green = 0,
+        #[IsAttribute] private int $blue = 0,
+        #[IsAttribute] private int $fadeIn = 0,
+        #[IsAttribute] private int $blink = 0,
+    ) {
+    }
 
     public function getNumber(): int
     {
@@ -212,5 +211,15 @@ class Led implements JsonSerializable
         }
 
         return $json;
+    }
+
+    public function getSubId(): ?int
+    {
+        return $this->number;
+    }
+
+    public function getModule(): ?Module
+    {
+        return $this->module;
     }
 }

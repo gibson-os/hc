@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store\Neopixel;
 
 use GibsonOS\Module\Hc\Dto\Neopixel\Led;
+use GibsonOS\Module\Hc\Exception\ModuleException;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService as LedAttribute;
 use GibsonOS\Module\Hc\Store\AbstractAttributeStore;
 
@@ -20,10 +21,18 @@ class LedStore extends AbstractAttributeStore
     }
 
     /**
+     * @throws ModuleException
+     *
      * @return array<int, Led>
      */
     public function getList(): array
     {
+        $module = $this->module;
+
+        if ($module === null) {
+            throw new ModuleException('No module set!');
+        }
+
         $this->initTable();
         $this->table->setOrderBy('`hc_attribute`.`sub_id` ASC');
 
@@ -42,7 +51,7 @@ class LedStore extends AbstractAttributeStore
             $number = (int) $attribute->sub_id;
 
             if (!isset($list[$number])) {
-                $list[$number] = (new Led())->setNumber($number);
+                $list[$number] = new Led($module, $number);
             }
 
             $list[$number]->{'set' . ucfirst($attribute->key)}((int) $attribute->value);

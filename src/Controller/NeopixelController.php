@@ -61,7 +61,10 @@ class NeopixelController extends AbstractController
         #[GetModel(['id' => 'moduleId'])] Module $module,
         array $leds = []
     ): AjaxResponse {
-        $neopixelService->writeLeds($module, $ledMapper->mapFromArrays($leds, true, false));
+        $neopixelService->writeLeds(
+            $module,
+            $ledMapper->mapFromArrays($module, $leds, true, false)
+        );
 
         return $this->returnSuccess();
     }
@@ -84,7 +87,7 @@ class NeopixelController extends AbstractController
         #[GetModel(['id' => 'moduleId'])] Module $module,
         array $leds = []
     ): AjaxResponse {
-        $leds = $ledMapper->mapFromArrays($leds, false, false);
+        $leds = $ledMapper->mapFromArrays($module, $leds, false, false);
         $ledCounts = $ledService->getChannelCounts($module, $leds);
         $config = JsonUtility::decode($module->getConfig() ?? '[]');
 
@@ -179,7 +182,12 @@ class NeopixelController extends AbstractController
             }
         }
 
-        $image = $imageService->save($module, $name, $ledMapper->mapFromArrays($leds, true, false), $id);
+        $image = $imageService->save(
+            $module,
+            $name,
+            $ledMapper->mapFromArrays($module, $leds, true, false),
+            $id
+        );
         $imageStore->setModuleId($module->getId() ?? 0);
 
         return new AjaxResponse([
