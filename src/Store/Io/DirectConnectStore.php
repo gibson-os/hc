@@ -53,6 +53,7 @@ class DirectConnectStore extends AbstractAttributeStore
     public function getList(): array
     {
         $this->portStore->setModule($this->module);
+        /** @var array<int, Port> $ports */
         $ports = $this->portStore->getList();
 
         $this->initTable();

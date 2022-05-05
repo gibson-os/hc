@@ -200,7 +200,13 @@ class IoService extends AbstractHcSlave
         $ports = $this->ioMapper->getPorts($module, $busMessage->getData() ?? '', (int) $module->getConfig());
 
         foreach ($ports as $port) {
+            $eventParameters = $port->jsonSerialize();
+            $eventParameters['port'] = $port;
+            $eventParameters['module'] = $port->getModule();
+
+            $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_READ_PORT, $eventParameters);
             $this->attributeRepository->saveDto($port);
+            $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_PORT, $eventParameters);
         }
 
         $this->pushUpdate($module, $ports);
@@ -235,13 +241,16 @@ class IoService extends AbstractHcSlave
      */
     public function readPort(Port $port): Port
     {
-        $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_READ_PORT, $port->jsonSerialize());
+        $eventParameters = $port->jsonSerialize();
+        $eventParameters['port'] = $port;
+        $eventParameters['module'] = $port->getModule();
+        $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_READ_PORT, $eventParameters);
         $port = $this->ioMapper->getPort(
             $port,
             $this->read($port->getModule(), $port->getNumber(), self::COMMAND_PORT_LENGTH)
         );
         $this->attributeRepository->saveDto($port);
-        $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_PORT, $port->jsonSerialize());
+        $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_PORT, $eventParameters);
 
         return $port;
     }

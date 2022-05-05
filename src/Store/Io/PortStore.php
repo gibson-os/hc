@@ -48,7 +48,7 @@ class PortStore extends AbstractAttributeStore
      * @throws JsonException
      * @throws ReflectionException
      *
-     * @return Port[]
+     * @return array<int, Port>
      */
     public function getList(): array
     {
@@ -83,9 +83,11 @@ class PortStore extends AbstractAttributeStore
 
         $ports = [];
 
-        foreach ($list as $port) {
-            $ports[] = $this->objectMapper->mapToObject(Port::class, $port);
+        foreach ($list as $subId => $port) {
+            $ports[$subId] = $this->objectMapper->mapToObject(Port::class, $port);
         }
+
+        ksort($ports);
 
         return $ports;
     }

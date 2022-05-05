@@ -45,14 +45,40 @@ use ReflectionException;
 class IoEvent extends AbstractHcEvent
 {
     #[Event\Trigger('Vor auslesen eines Ports', [
-        ['key' => 'slave', 'className' => ModuleParameter::class],
+        ['key' => 'module', 'className' => ModuleParameter::class],
         ['key' => 'port', 'className' => PortParameter::class],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_NAME, 'className' => StringParameter::class, 'title' => 'Name'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_DIRECTION, 'className' => OptionParameter::class, 'options' => [
+            'options' => [[
+                0 => 'Eingang',
+                1 => 'Ausgang',
+            ]],
+        ], 'title' => 'Richtung'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_VALUE, 'className' => BoolParameter::class, 'title' => 'Zustand'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_PULL_UP, 'className' => BoolParameter::class, 'title' => 'PullUp'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_PWM, 'className' => IntParameter::class, 'title' => 'PWM'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_BLINK, 'className' => IntParameter::class, 'title' => 'Blinken'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_FADE_IN, 'className' => IntParameter::class, 'title' => 'Einblenden'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_DELAY, 'className' => IntParameter::class, 'title' => 'Verzögerung'],
     ])]
     public const BEFORE_READ_PORT = 'beforeReadPort';
 
     #[Event\Trigger('Nach auslesen eines Ports', [
-        ['key' => 'slave', 'className' => ModuleParameter::class],
+        ['key' => 'module', 'className' => ModuleParameter::class],
         ['key' => 'port', 'className' => PortParameter::class],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_NAME, 'className' => StringParameter::class, 'title' => 'Name'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_DIRECTION, 'className' => OptionParameter::class, 'options' => [
+            'options' => [[
+                0 => 'Eingang',
+                1 => 'Ausgang',
+            ]],
+        ], 'title' => 'Richtung'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_VALUE, 'className' => BoolParameter::class, 'title' => 'Zustand'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_PULL_UP, 'className' => BoolParameter::class, 'title' => 'PullUp'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_PWM, 'className' => IntParameter::class, 'title' => 'PWM'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_BLINK, 'className' => IntParameter::class, 'title' => 'Blinken'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_FADE_IN, 'className' => IntParameter::class, 'title' => 'Einblenden'],
+        ['key' => IoService::ATTRIBUTE_PORT_KEY_DELAY, 'className' => IntParameter::class, 'title' => 'Verzögerung'],
     ])]
     public const AFTER_READ_PORT = 'afterReadPort';
 
