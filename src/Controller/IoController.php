@@ -119,7 +119,13 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws MapperException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      */

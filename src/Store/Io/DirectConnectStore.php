@@ -9,6 +9,7 @@ use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Mapper\ObjectMapper;
 use GibsonOS\Core\Service\DateTimeService;
+use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
@@ -52,7 +53,6 @@ class DirectConnectStore extends AbstractAttributeStore
     public function getList(): array
     {
         $this->portStore->setModule($this->module);
-        /** @var array $ports */
         $ports = $this->portStore->getList();
 
         $this->initTable();
@@ -85,11 +85,11 @@ class DirectConnectStore extends AbstractAttributeStore
         }
 
         foreach ($ports as $port) {
-            if (isset($portsWithDirectConnect[$port['number']])) {
+            if (isset($portsWithDirectConnect[$port->getNumber()])) {
                 continue;
             }
 
-            $list[sprintf("%'.03d", $port['number']) . '000'] = $this->getInputElement($port);
+            $list[sprintf("%'.03d", $port->getNumber()) . '000'] = $this->getInputElement($port);
         }
 
         ksort($list);
@@ -97,13 +97,13 @@ class DirectConnectStore extends AbstractAttributeStore
         return array_values($list);
     }
 
-    private function getInputElement(array $inputPort): array
+    private function getInputElement(Port $inputPort): array
     {
         return [
-            'inputPort' => $inputPort['number'],
+            'inputPort' => $inputPort->getNumber(),
             'order' => 0,
-            'inputPortName' => $inputPort[IoService::ATTRIBUTE_PORT_KEY_NAME],
-            'valueNames' => $inputPort[IoService::ATTRIBUTE_PORT_KEY_VALUE_NAMES],
+            'inputPortName' => $inputPort->getName(),
+            'valueNames' => $inputPort->getValueNames(),
         ];
     }
 }
