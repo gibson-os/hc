@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Controller;
 
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetMappedModels;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
@@ -20,6 +21,7 @@ use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
@@ -49,6 +51,8 @@ class NeopixelController extends AbstractController
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
@@ -57,14 +61,10 @@ class NeopixelController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function showLeds(
         NeopixelService $neopixelService,
-        LedMapper $ledMapper,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        array $leds = []
+        #[GetMappedModels(Led::class)] array $leds = []
     ): AjaxResponse {
-        $neopixelService->writeLeds(
-            $module,
-            $ledMapper->mapFromArrays($module, $leds, true, false)
-        );
+        $neopixelService->writeLeds($module, $leds);
 
         return $this->returnSuccess();
     }

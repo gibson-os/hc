@@ -3,9 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Mapper;
 
-use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
+use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Service\TransformService;
 
 class LedMapper
@@ -44,46 +43,6 @@ class LedMapper
         }
 
         return $data;
-    }
-
-    /**
-     * @param array<int, array{red: int, green: int, blue: int, fadeIn: int, blink: int}> $data
-     *
-     * @return Led[]
-     */
-    public function mapFromArrays(Module $module, array $data, bool $onlyColor, bool $forAnimation): array
-    {
-        $leds = [];
-
-        foreach ($data as $item) {
-            $leds[] = $this->mapFromArray($module, $item, $onlyColor, $forAnimation);
-        }
-
-        return $leds;
-    }
-
-    /**
-     * @param array{red: int, green: int, blue: int, fadeIn: int, blink: int} $data
-     */
-    public function mapFromArray(Module $module, array $data, bool $onlyColor, bool $forAnimation): Led
-    {
-        return (new Led(
-            $module,
-            $data[LedService::ATTRIBUTE_KEY_NUMBER] ?? 0,
-            $data[LedService::ATTRIBUTE_KEY_CHANNEL] ?? 0,
-            $data[LedService::ATTRIBUTE_KEY_TOP] ?? 0,
-            $data[LedService::ATTRIBUTE_KEY_LEFT] ?? 0,
-            $data[LedService::ATTRIBUTE_KEY_RED],
-            $data[LedService::ATTRIBUTE_KEY_GREEN],
-            $data[LedService::ATTRIBUTE_KEY_BLUE],
-            $data[LedService::ATTRIBUTE_KEY_FADE_IN],
-            $data[LedService::ATTRIBUTE_KEY_BLINK],
-        ))
-            ->setLength($data['length'] ?? 0)
-            ->setTime($data['time'] ?? 0)
-            ->setOnlyColor($onlyColor)
-            ->setForAnimation($forAnimation)
-        ;
     }
 
     /**

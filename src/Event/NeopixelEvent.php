@@ -10,18 +10,20 @@ use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\Neopixel\ImageParameter;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
+use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use JsonException;
@@ -45,6 +47,7 @@ class NeopixelEvent extends AbstractHcEvent
         private NeopixelService $neopixelService,
         private LedMapper $ledMapper,
         private AttributeRepository $attributeRepository,
+        private LedRepository $ledRepository
     ) {
         parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->neopixelService);
     }
@@ -256,14 +259,15 @@ class NeopixelEvent extends AbstractHcEvent
             $green = mt_rand($greenFrom, $greenTo);
             $blue = mt_rand($blueFrom, $blueTo);
             $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $i - 1, $red, $green, $blue));
-            $leds[$i - 1] = (new Led(
-                $module,
-                $i - 1,
-                red: $red,
-                green: $green,
-                blue: $blue,
-                fadeIn: $fadeIn
-            ))->setOnlyColor(true);
+            $leds[$i - 1] = (new Led())
+                ->setModule($module)
+                ->setNumber($i - 1)
+                ->setRed($red)
+                ->setGreen($green)
+                ->setBlue($blue)
+                ->setFadeIn($fadeIn)
+                ->setOnlyColor(true)
+            ;
         }
 
         $this->neopixelService->writeLeds($module, $leds);
@@ -304,17 +308,14 @@ class NeopixelEvent extends AbstractHcEvent
     ): void {
         $leds = [];
 
-        foreach ($this->getLedNumbers($module, $ledRanges) as $ledNumber) {
-            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $red, $green, $blue));
-            $leds[$ledNumber] = (new Led(
-                $module,
-                $ledNumber,
-                red: $red,
-                green: $green,
-                blue: $blue,
-                fadeIn: $fadeIn,
-                blink: $blink
-            ))->setOnlyColor(true);
+        foreach ($this->getLedsByNumbersString($module, $ledRanges) as $led) {
+            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $led->getNumber(), $red, $green, $blue));
+            $leds[$led->getNumber()] = $led
+                ->setRed($red)
+                ->setGreen($green)
+                ->setBlue($blue)
+                ->setFadeIn($fadeIn)
+            ;
         }
 
         $this->neopixelService->writeLeds($module, $leds);
@@ -355,18 +356,16 @@ class NeopixelEvent extends AbstractHcEvent
     ): void {
         $leds = [];
 
-        foreach ($this->getLedNumbers($module, $ledRanges) as $ledNumber) {
-            $led = $this->attributeRepository->loadDto(new Led($module, $ledNumber));
+        foreach ($this->getLedsByNumbersString($module, $ledRanges) as $led) {
             $ledRed = min($led->getRed() + $red, 255);
             $ledGreen = min($led->getGreen() + $green, 255);
             $ledBlue = min($led->getBlue() + $blue, 255);
-            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $ledRed, $ledGreen, $ledBlue));
-            $leds[$ledNumber] = $led
+            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $led->getNumber(), $ledRed, $ledGreen, $ledBlue));
+            $leds[$led->getNumber()] = $led
                 ->setRed($ledRed)
                 ->setGreen($ledGreen)
                 ->setBlue($ledBlue)
                 ->setFadeIn($fadeIn)
-                ->setOnlyColor(true)
             ;
         }
 
@@ -407,18 +406,16 @@ class NeopixelEvent extends AbstractHcEvent
     ): void {
         $leds = [];
 
-        foreach ($this->getLedNumbers($module, $ledRanges) as $ledNumber) {
-            $led = $this->attributeRepository->loadDto(new Led($module, $ledNumber));
+        foreach ($this->getLedsByNumbersString($module, $ledRanges) as $led) {
             $ledRed = max($led->getRed() - $red, 0);
             $ledGreen = max($led->getGreen() - $green, 0);
             $ledBlue = max($led->getBlue() - $blue, 0);
-            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $ledNumber, $ledRed, $ledGreen, $ledBlue));
-            $leds[$ledNumber] = $led
+            $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $led->getNumber(), $ledRed, $ledGreen, $ledBlue));
+            $leds[$led->getNumber()] = $led
                 ->setRed($ledRed)
                 ->setGreen($ledGreen)
                 ->setBlue($ledBlue)
                 ->setFadeIn($fadeIn)
-                ->setOnlyColor(true)
             ;
         }
 
@@ -426,18 +423,19 @@ class NeopixelEvent extends AbstractHcEvent
     }
 
     /**
+     * @throws SelectError
      * @throws JsonException
      *
-     * @return int[]
+     * @return Led[]
      */
-    private function getLedNumbers(Module $module, string $leds): array
+    private function getLedsByNumbersString(Module $module, string $leds): array
     {
         $this->logger->debug(sprintf('Get LED Numbers from %s', $leds));
 
         if ($leds === '') {
             $config = JsonUtility::decode($module->getConfig() ?? '[]');
 
-            return range(0, (int) (array_sum($config['counts']) - 1));
+            return $this->ledRepository->getByNumbers($module, range(0, (int) (array_sum($config['counts']) - 1)));
         }
 
         $ledRanges = explode(',', $leds);
@@ -458,6 +456,6 @@ class NeopixelEvent extends AbstractHcEvent
 
         ksort($numbers);
 
-        return array_values($numbers);
+        return $this->ledRepository->getByNumbers($module, $numbers);
     }
 }

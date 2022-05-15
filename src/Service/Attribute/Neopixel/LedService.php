@@ -9,10 +9,10 @@ use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
@@ -23,37 +23,6 @@ use ReflectionException;
 
 class LedService
 {
-    public const ATTRIBUTE_TYPE = 'led';
-
-    public const ATTRIBUTE_KEY_NUMBER = 'number';
-
-    public const ATTRIBUTE_KEY_CHANNEL = 'channel';
-
-    public const ATTRIBUTE_KEY_RED = 'red';
-
-    public const ATTRIBUTE_KEY_GREEN = 'green';
-
-    public const ATTRIBUTE_KEY_BLUE = 'blue';
-
-    public const ATTRIBUTE_KEY_FADE_IN = 'fadeIn';
-
-    public const ATTRIBUTE_KEY_BLINK = 'blink';
-
-    public const ATTRIBUTE_KEY_TOP = 'top';
-
-    public const ATTRIBUTE_KEY_LEFT = 'left';
-
-    private const ATTRIBUTES = [
-        self::ATTRIBUTE_KEY_CHANNEL,
-        self::ATTRIBUTE_KEY_RED,
-        self::ATTRIBUTE_KEY_GREEN,
-        self::ATTRIBUTE_KEY_BLUE,
-        self::ATTRIBUTE_KEY_FADE_IN,
-        self::ATTRIBUTE_KEY_BLINK,
-        self::ATTRIBUTE_KEY_TOP,
-        self::ATTRIBUTE_KEY_LEFT,
-    ];
-
     /**
      * @var Attribute[][]
      */

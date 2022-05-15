@@ -14,15 +14,16 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\BusMessage;
-use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Event\NeopixelEvent;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
+use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\MasterService;
@@ -73,7 +74,8 @@ class NeopixelService extends AbstractHcSlave
         LogRepository $logRepository,
         SlaveFactory $slaveFactory,
         LoggerInterface $logger,
-        ModelManager $modelManager
+        ModelManager $modelManager,
+        private LedRepository $ledRepository
     ) {
         parent::__construct(
             $masterService,
@@ -110,22 +112,22 @@ class NeopixelService extends AbstractHcSlave
         $module->setConfig(JsonUtility::encode($config));
         $this->modelManager->save($module);
 
-        $id = 0;
-        $leds = [];
+        $leds = $this->ledRepository->getByModule($module);
+        $ledNumbers = array_flip(array_map(fn (Led $led): int => $led->getNumber(), $leds));
 
         foreach ($config[self::CONFIG_COUNTS] as $channel => $count) {
             for ($i = 0; $i < $count; ++$i) {
-                $top = $this->ledService->getById($module, $id, LedService::ATTRIBUTE_KEY_TOP);
-                $left = $this->ledService->getById($module, $id, LedService::ATTRIBUTE_KEY_LEFT);
+                if (isset($ledNumbers[$i])) {
+                    continue;
+                }
 
-                $leds[$id] = new Led(
-                    $module,
-                    $id,
-                    $channel,
-                    top: count($top) === 1 ? (int) $top[0]->getValue() : ((int) $channel * 3),
-                    left: count($left) === 1 ? (int) $left[0]->getValue() : ($i * 3)
-                );
-                ++$id;
+                $leds[] = (new Led())
+                    ->setModule($module)
+                    ->setNumber($i)
+                    ->setChannel($channel)
+                    ->setTop((int) $channel * 3)
+                    ->setLeft($i * 3)
+                ;
             }
         }
 

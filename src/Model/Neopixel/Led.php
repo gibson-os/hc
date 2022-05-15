@@ -1,15 +1,61 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Dto\Neopixel;
+namespace GibsonOS\Module\Hc\Model\Neopixel;
 
-use GibsonOS\Module\Hc\Attribute\IsAttribute;
-use GibsonOS\Module\Hc\Dto\AttributeInterface;
+use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Constraint;
+use GibsonOS\Core\Attribute\Install\Database\Key;
+use GibsonOS\Core\Attribute\Install\Database\Table;
+use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Module;
 use JsonSerializable;
 
-class Led implements JsonSerializable, AttributeInterface
+/**
+ * @method Module getModule()
+ * @method Led    setModule(Module $module)
+ */
+#[Table]
+class Led extends AbstractModel implements JsonSerializable
 {
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    private ?int $id = null;
+
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    #[Key]
+    private int $number = 0;
+
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    #[Key]
+    private int $channel = 0;
+
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $top = 0;
+
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $left = 0;
+
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    private int $red = 0;
+
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    private int $green = 0;
+
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    private int $blue = 0;
+
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    private int $fadeIn = 0;
+
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    private int $blink = 0;
+
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $moduleId;
+
+    #[Constraint]
+    private Module $module;
+
     private int $length = 0;
 
     private int $time = 0;
@@ -18,18 +64,16 @@ class Led implements JsonSerializable, AttributeInterface
 
     private bool $forAnimation = false;
 
-    public function __construct(
-        private Module $module,
-        private int $number = 0,
-        #[IsAttribute] private int $channel = 0,
-        #[IsAttribute] private int $top = 0,
-        #[IsAttribute] private int $left = 0,
-        #[IsAttribute] private int $red = 0,
-        #[IsAttribute] private int $green = 0,
-        #[IsAttribute] private int $blue = 0,
-        #[IsAttribute] private int $fadeIn = 0,
-        #[IsAttribute] private int $blink = 0,
-    ) {
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id): Led
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     public function getNumber(): int
@@ -140,6 +184,18 @@ class Led implements JsonSerializable, AttributeInterface
         return $this;
     }
 
+    public function getModuleId(): int
+    {
+        return $this->moduleId;
+    }
+
+    public function setModuleId(int $moduleId): Led
+    {
+        $this->moduleId = $moduleId;
+
+        return $this;
+    }
+
     public function getLength(): int
     {
         return $this->length;
@@ -211,15 +267,5 @@ class Led implements JsonSerializable, AttributeInterface
         }
 
         return $json;
-    }
-
-    public function getSubId(): ?int
-    {
-        return $this->number;
-    }
-
-    public function getModule(): ?Module
-    {
-        return $this->module;
     }
 }
