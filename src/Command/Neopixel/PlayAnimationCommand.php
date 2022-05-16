@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Command\Neopixel;
 
 use Exception;
 use GibsonOS\Core\Attribute\Command\Argument;
+use GibsonOS\Core\Attribute\GetEnv;
 use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\ArgumentError;
@@ -12,7 +13,7 @@ use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Service\EnvService;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
@@ -25,6 +26,7 @@ use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use JsonException;
 use mysqlDatabase;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 /**
  * @description Play not transferred neopixel animation
@@ -44,7 +46,8 @@ class PlayAnimationCommand extends AbstractCommand
         private LedService $ledService,
         private ModuleRepository $moduleRepository,
         private mysqlDatabase $mysqlDatabase,
-        private EnvService $envService,
+        private ModelManager $modelManager,
+        #[GetEnv('MYSQL_DATABASE')] private string $mysqlDatabaseName,
         LoggerInterface $logger
     ) {
         parent::__construct($logger);
@@ -77,7 +80,7 @@ class PlayAnimationCommand extends AbstractCommand
                     $newLeds[$led->getNumber()] = $led;
                 }
 
-                $this->mysqlDatabase->openDB($this->envService->getString('MYSQL_DATABASE'));
+                $this->mysqlDatabase->openDB($this->mysqlDatabaseName);
                 $changedLeds = $this->getChanges($slave, $newLeds);
                 $startTime += 1000000;
                 $this->sleepToTime($startTime);
@@ -126,6 +129,7 @@ class PlayAnimationCommand extends AbstractCommand
      * @throws SaveError
      * @throws WriteException
      * @throws JsonException
+     * @throws ReflectionException
      */
     private function writeLeds(Module $slave, NeopixelService $neopixelService, array &$leds, array &$changedSlaveLeds): void
     {
@@ -134,7 +138,11 @@ class PlayAnimationCommand extends AbstractCommand
         }
 
         $neopixelService->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
-        $this->ledService->saveLeds($slave, $changedSlaveLeds);
+
+        array_walk($changedSlaveLeds, function (Led $led) {
+            $this->modelManager->save($led);
+        });
+
         $lastChangedIds = $this->ledService->getLastIds($slave, $changedSlaveLeds);
 
         if (empty($lastChangedIds)) {
@@ -150,19 +158,5 @@ class PlayAnimationCommand extends AbstractCommand
                 $lastChangedIds
             )
         );
-    }
-
-    public function setSlaveId(int $slaveId): PlayAnimationCommand
-    {
-        $this->slaveId = $slaveId;
-
-        return $this;
-    }
-
-    public function setIterations(int $iterations): PlayAnimationCommand
-    {
-        $this->iterations = $iterations;
-
-        return $this;
     }
 }
