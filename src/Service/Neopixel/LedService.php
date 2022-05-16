@@ -7,12 +7,17 @@ use Exception;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
+use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use JsonException;
 use OutOfRangeException;
 
 class LedService
 {
+    public function __construct(private LedRepository $ledRepository)
+    {
+    }
+
     /**
      * @param Led[] $leds
      *
@@ -56,15 +61,19 @@ class LedService
     {
         $actualLeds = [];
         $config = JsonUtility::decode($module->getConfig() ?? '[]');
+        $leds = $this->ledRepository->getByModule($module);
+        $ledConfigCount = array_sum($config[NeopixelService::CONFIG_COUNTS]);
+        $ledCount = count($leds);
 
-        for ($i = 0; $i < array_sum($config[NeopixelService::CONFIG_COUNTS]); ++$i) {
-            $led = new Led($module, $i);
+        if ($ledCount === $ledConfigCount) {
+            return $leds;
+        }
 
-            foreach ($this->getById($module, $i) as $attributeValue) {
-                $led->{'set' . ucfirst($attributeValue->getAttribute()->getKey())}((int) $attributeValue->getValue());
-            }
-
-            $actualLeds[$i] = $led;
+        for ($i = $ledCount; $i < $ledConfigCount; ++$i) {
+            $actualLeds[$i] = (new Led())
+                ->setModule($module)
+                ->setNumber($i)
+            ;
         }
 
         return $actualLeds;

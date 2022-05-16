@@ -95,14 +95,14 @@ class LedMapper
 
     private function getLedByString(Module $module, string $data, int &$i): Led
     {
-        return new Led(
-            $module,
-            red: $this->transformService->asciiToUnsignedInt($data, $i++),
-            green: $this->transformService->asciiToUnsignedInt($data, $i++),
-            blue: $this->transformService->asciiToUnsignedInt($data, $i++),
-            fadeIn: $this->transformService->asciiToUnsignedInt($data, $i) >> 4,
-            blink: $this->transformService->asciiToUnsignedInt($data, $i++) & 15
-        );
+        return (new Led())
+            ->setModule($module)
+            ->setRed($this->transformService->asciiToUnsignedInt($data, $i++))
+            ->setGreen($this->transformService->asciiToUnsignedInt($data, $i++))
+            ->setBlue($this->transformService->asciiToUnsignedInt($data, $i++))
+            ->setFadeIn($this->transformService->asciiToUnsignedInt($data, $i) >> 4)
+            ->setBlink($this->transformService->asciiToUnsignedInt($data, $i++) & 15)
+        ;
     }
 
     /**

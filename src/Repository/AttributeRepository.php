@@ -455,6 +455,20 @@ class AttributeRepository extends AbstractRepository
     }
 
     /**
+     * @throws SelectError
+     *
+     * @return Attribute[]
+     */
+    public function getByType(Type $type, string $typeString): array
+    {
+        return $this->fetchAll(
+            '`type_id`=? AND `type`=?',
+            [$type->getId(), $typeString],
+            Attribute::class
+        );
+    }
+
+    /**
      * @throws Exception
      *
      * @return Attribute[]

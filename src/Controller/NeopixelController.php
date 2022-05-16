@@ -9,19 +9,22 @@ use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Mapper\ModelMapper;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
-use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
+use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Service\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
@@ -70,6 +73,8 @@ class NeopixelController extends AbstractController
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws AbstractException
      * @throws DateTimeError
      * @throws DeleteError
@@ -81,13 +86,12 @@ class NeopixelController extends AbstractController
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function setLeds(
         NeopixelService $neopixelService,
-        LedMapper $ledMapper,
         LedService $ledService,
         ModelManager $modelManager,
+        LedRepository $ledRepository,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        array $leds = []
+        #[GetMappedModels(Led::class)] array $leds = []
     ): AjaxResponse {
-        $leds = $ledMapper->mapFromArrays($module, $leds, false, false);
         $ledCounts = $ledService->getChannelCounts($module, $leds);
         $config = JsonUtility::decode($module->getConfig() ?? '[]');
 
@@ -99,8 +103,14 @@ class NeopixelController extends AbstractController
             $modelManager->save($module);
         }
 
-        $ledService->saveLeds($module, $leds);
-        $ledService->deleteUnusedLeds($module, $leds);
+        array_walk(
+            $leds,
+            function (Led $led) use ($modelManager): void {
+                $modelManager->save($led);
+            }
+        );
+
+        $ledRepository->deleteWithNumberBiggerAs($module, count($leds) - 1);
 
         return $this->returnSuccess();
     }
@@ -148,20 +158,28 @@ class NeopixelController extends AbstractController
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws DeleteError
      * @throws ImageExists
      * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
+     * @throws FactoryError
+     * @throws MapperException
+     *
+     * @return AjaxResponse
      */
     #[CheckPermission(Permission::WRITE, ['id' => Permission::WRITE + Permission::DELETE])]
     public function saveImage(
         ImageService $imageService,
         ImageStore $imageStore,
-        LedMapper $ledMapper,
+        ModelMapper $modelMapper,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         string $name,
         int $id = null,
+        #[GetMappedModels(Led::class)]
         array $leds = []
     ): AjaxResponse {
         if (empty($id)) {
@@ -182,12 +200,7 @@ class NeopixelController extends AbstractController
             }
         }
 
-        $image = $imageService->save(
-            $module,
-            $name,
-            $ledMapper->mapFromArrays($module, $leds, true, false),
-            $id
-        );
+        $image = $imageService->save($module, $name, $leds, $id);
         $imageStore->setModuleId($module->getId() ?? 0);
 
         return new AjaxResponse([

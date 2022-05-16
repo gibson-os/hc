@@ -137,7 +137,7 @@ class NeopixelService extends AbstractHcSlave
                     ->setModule($module)
                     ->setNumber($i)
                     ->setChannel($channel)
-                    ->setTop((int) $channel * 3)
+                    ->setTop($channel * 3)
                     ->setLeft($i * 3)
                 ;
                 $this->modelManager->save($newLed);
@@ -390,7 +390,7 @@ class NeopixelService extends AbstractHcSlave
      * @throws JsonException
      * @throws AbstractException
      *
-     * @return int[]
+     * @return array<int, int>
      */
     public function readLedCounts(Module $slave): array
     {
@@ -453,7 +453,12 @@ class NeopixelService extends AbstractHcSlave
             }, JsonUtility::decode($slave->getConfig() ?: JsonUtility::encode(['counts' => 0]))['counts']);
         }
 
-        $this->ledService->saveLeds($slave, $leds);
+        array_walk(
+            $leds,
+            function (Led $led): void {
+                $this->modelManager->save($led);
+            }
+        );
         $this->writeChannels(
             $slave,
             array_map(

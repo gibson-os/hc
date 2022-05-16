@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ReflectionManager;
+use GibsonOS\Core\Mapper\ModelMapper;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
@@ -22,7 +23,6 @@ use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Sequence;
-use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
@@ -46,13 +46,15 @@ class NeopixelEvent extends AbstractHcEvent
         LoggerInterface $logger,
         private NeopixelService $neopixelService,
         private LedMapper $ledMapper,
-        private AttributeRepository $attributeRepository,
-        private LedRepository $ledRepository
+        private LedRepository $ledRepository,
+        private ModelMapper $modelMapper,
     ) {
         parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->neopixelService);
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws AbstractException
      * @throws SaveError
      */
@@ -61,10 +63,7 @@ class NeopixelEvent extends AbstractHcEvent
         #[Event\Parameter(ModuleParameter::class)] Module $module,
         array $leds
     ): void {
-        $this->neopixelService->writeLeds(
-            $module,
-            $this->ledMapper->mapFromArrays($module, $leds, true, false)
-        );
+        $this->neopixelService->writeLeds($module, $leds);
     }
 
     /**
@@ -201,15 +200,16 @@ class NeopixelEvent extends AbstractHcEvent
     ): void {
         $elements = $sequence->getElements() ?? [];
         $element = reset($elements);
-        $this->neopixelService->writeLeds(
-            $module,
-            $this->ledMapper->mapFromArrays(
-                $module,
-                JsonUtility::decode($element->getData()),
-                true,
-                false
-            )
-        );
+        $leds = [];
+
+        foreach (JsonUtility::decode($element->getData()) as $led) {
+            $leds[] = $this->modelMapper->mapToObject(Led::class, $led)
+                ->setOnlyColor(true)
+                ->setForAnimation(true)
+            ;
+        }
+
+        $this->neopixelService->writeLeds($module, $leds);
     }
 
     public function sendAnimation(

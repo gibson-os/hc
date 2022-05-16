@@ -16,7 +16,7 @@ use JsonSerializable;
  * @method Led    setModule(Module $module)
  */
 #[Table]
-#[Key(columns: ['module_id', 'number'])]
+#[Key(unique: true, columns: ['module_id', 'number'])]
 #[Key(columns: ['module_id', 'channel'])]
 class Led extends AbstractModel implements JsonSerializable
 {
@@ -26,7 +26,7 @@ class Led extends AbstractModel implements JsonSerializable
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $number = 0;
 
-    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $channel = 0;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
@@ -35,26 +35,26 @@ class Led extends AbstractModel implements JsonSerializable
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $left = 0;
 
-    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $red = 0;
 
-    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $green = 0;
 
-    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $blue = 0;
 
-    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $fadeIn = 0;
 
-    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $blink = 0;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $moduleId;
 
     #[Constraint]
-    private Module $module;
+    protected Module $module;
 
     private int $length = 0;
 

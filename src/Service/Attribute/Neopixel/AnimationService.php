@@ -8,6 +8,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Mapper\ModelMapper;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Attribute;
@@ -34,7 +35,8 @@ class AnimationService
         private AttributeRepository $attributeRepository,
         private ValueRepository $valueRepository,
         private LedMapper $ledMapper,
-        private ModelManager $modelManager
+        private ModelManager $modelManager,
+        private ModelMapper $modelMapper
     ) {
     }
 
@@ -90,12 +92,15 @@ class AnimationService
             $values = $this->getValueModels($module, self::ATTRIBUTE_KEY_STEPS);
 
             foreach ($values as $value) {
-                $steps[$value->getOrder()] = $this->ledMapper->mapFromArrays(
-                    $module,
-                    JsonUtility::decode($value->getValue()),
-                    true,
-                    true
-                );
+                foreach (JsonUtility::decode($value->getValue()) as $ledData) {
+                    $steps[$value->getOrder()][] = $this->modelMapper->mapToObject(
+                        Led::class,
+                        [$module, ...$ledData]
+                    )
+                        ->setOnlyColor(true)
+                        ->setForAnimation(true)
+                    ;
+                }
             }
 
             return $steps;
