@@ -16,17 +16,17 @@ use JsonSerializable;
  * @method Led    setModule(Module $module)
  */
 #[Table]
+#[Key(columns: ['module_id', 'number'])]
+#[Key(columns: ['module_id', 'channel'])]
 class Led extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    #[Key]
     private int $number = 0;
 
     #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
-    #[Key]
     private int $channel = 0;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]

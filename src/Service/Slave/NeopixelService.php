@@ -25,8 +25,8 @@ use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\MasterService;
+use GibsonOS\Module\Hc\Service\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
 use JsonException;
@@ -112,27 +112,40 @@ class NeopixelService extends AbstractHcSlave
         $module->setConfig(JsonUtility::encode($config));
         $this->modelManager->save($module);
 
-        $leds = $this->ledRepository->getByModule($module);
-        $ledNumbers = array_flip(array_map(fn (Led $led): int => $led->getNumber(), $leds));
+        $leds = [];
+        $newLeds = [];
+
+        foreach ($this->ledRepository->getByModule($module) as $led) {
+            $leds[$led->getNumber()] = $led;
+        }
+
+        $i = 0;
 
         foreach ($config[self::CONFIG_COUNTS] as $channel => $count) {
-            for ($i = 0; $i < $count; ++$i) {
-                if (isset($ledNumbers[$i])) {
+            for (; $i < $count; ++$i) {
+                if (isset($leds[$i])) {
+                    if ($leds[$i]->getChannel() !== $channel) {
+                        $this->modelManager->save($leds[$i]->setChannel($channel));
+                    }
+
+                    $newLeds[] = $leds[$i];
+
                     continue;
                 }
 
-                $leds[] = (new Led())
+                $newLed = (new Led())
                     ->setModule($module)
                     ->setNumber($i)
                     ->setChannel($channel)
                     ->setTop((int) $channel * 3)
                     ->setLeft($i * 3)
                 ;
+                $this->modelManager->save($newLed);
+                $newLeds[] = $newLed;
             }
         }
 
-        $this->ledService->deleteUnusedLeds($module, $leds);
-        $this->ledService->saveLeds($module, $leds);
+        $this->ledRepository->deleteWithNumberBiggerAs($module, $i);
 
         return $module;
     }

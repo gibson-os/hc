@@ -3,10 +3,13 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Sequence\Neopixel;
 
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Mapper\ModelMapper;
 use GibsonOS\Core\Service\CommandService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Command\Neopixel\PlayAnimationCommand;
@@ -30,7 +33,8 @@ class AnimationService
         private CommandService $commandService,
         private LedMapper $ledMapper,
         private AnimationAttributeService $animationAttributesService,
-        private ModelManager $modelManager
+        private ModelManager $modelManager,
+        private ModelMapper $modelMapper
     ) {
     }
 
@@ -139,6 +143,11 @@ class AnimationService
     }
 
     /**
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws FactoryError
+     * @throws MapperException
+     *
      * @return array<int, Led[]>
      */
     public function transformToTimeSteps(Module $module, array $items): array
@@ -150,7 +159,10 @@ class AnimationService
                 $times[$item['time']] = [];
             }
 
-            $times[$item['time']][] = $this->ledMapper->mapFromArray($module, $item, true, true);
+            $times[$item['time']][] = $this->modelMapper->mapToObject(Led::class, $item)
+                ->setForAnimation(true)
+                ->setOnlyColor(true)
+            ;
         }
 
         ksort($times, SORT_NUMERIC);
