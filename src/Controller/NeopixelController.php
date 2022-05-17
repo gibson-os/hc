@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModels;
 use GibsonOS\Core\Attribute\GetModel;
@@ -66,7 +67,7 @@ class NeopixelController extends AbstractController
     public function showLeds(
         NeopixelService $neopixelService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModels(Led::class)] array $leds = []
+        #[GetMappedModels(Led::class, ['module_id' => 'module.id', 'number' => 'number'])] array $leds = []
     ): AjaxResponse {
         $neopixelService->writeLeds($module, $leds);
 
@@ -91,27 +92,36 @@ class NeopixelController extends AbstractController
         ModelManager $modelManager,
         LedRepository $ledRepository,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModels(Led::class)] array $leds = []
+        #[GetMappedModels(Led::class, ['module_id' => 'module.id', 'number' => 'number'])] array $leds = []
     ): AjaxResponse {
         $ledCounts = $ledService->getChannelCounts($module, $leds);
         $config = JsonUtility::decode($module->getConfig() ?? '[]');
+        $ledRepository->startTransaction();
 
-        if (count(array_diff_assoc($ledCounts, $config['counts']))) {
-            $neopixelService->writeLedCounts($module, $ledCounts);
+        try {
+            if (count(array_diff_assoc($ledCounts, $config['counts']))) {
+                $neopixelService->writeLedCounts($module, $ledCounts);
 
-            $config['counts'] = $ledCounts;
-            $module->setConfig(JsonUtility::encode($config));
-            $modelManager->save($module);
+                $config['counts'] = $ledCounts;
+                $module->setConfig(JsonUtility::encode($config));
+                $modelManager->save($module);
+            }
+
+            array_walk(
+                $leds,
+                function (Led $led) use ($modelManager): void {
+                    $modelManager->save($led);
+                }
+            );
+
+            $ledRepository->deleteWithNumberBiggerAs($module, count($leds) - 1);
+        } catch (Exception $exception) {
+            $ledRepository->rollback();
+
+            throw $exception;
         }
 
-        array_walk(
-            $leds,
-            function (Led $led) use ($modelManager): void {
-                $modelManager->save($led);
-            }
-        );
-
-        $ledRepository->deleteWithNumberBiggerAs($module, count($leds) - 1);
+        $ledRepository->commit();
 
         return $this->returnSuccess();
     }
@@ -180,8 +190,7 @@ class NeopixelController extends AbstractController
         #[GetModel(['id' => 'moduleId'])] Module $module,
         string $name,
         int $id = null,
-        #[GetMappedModels(Led::class)]
-        array $leds = []
+        #[GetMappedModels(Led::class, ['module_id' => 'module.id', 'number' => 'number'])] array $leds = []
     ): AjaxResponse {
         if (empty($id)) {
             try {
