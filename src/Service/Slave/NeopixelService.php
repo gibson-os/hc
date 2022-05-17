@@ -200,7 +200,7 @@ class NeopixelService extends AbstractHcSlave
         $this->writeLedCounts($module, $config[self::CONFIG_COUNTS]);
 
         $this->ledStore->setModule($existingSlave);
-        $this->writeSetLeds($module, $this->ledStore->getList());
+        $this->writeSetLeds($module, iterator_to_array($this->ledStore->getList()));
         $channels = [];
 
         for ($channel = 0; $channel < $config[self::CONFIG_CHANNELS]; ++$channel) {

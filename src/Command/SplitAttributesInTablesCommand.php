@@ -11,6 +11,9 @@ use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @description TEMP split attributes in tables
+ */
 class SplitAttributesInTablesCommand extends AbstractCommand
 {
     public function __construct(

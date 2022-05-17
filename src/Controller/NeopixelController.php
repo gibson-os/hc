@@ -38,6 +38,7 @@ class NeopixelController extends AbstractController
     /**
      * @throws JsonException
      * @throws SelectError
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::READ)]
     public function index(LedStore $ledStore, #[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
@@ -48,7 +49,7 @@ class NeopixelController extends AbstractController
         $config['pwmSpeed'] = $module->getPwmSpeed();
 
         return new AjaxResponse(array_merge($config, [
-            'data' => $ledStore->getList(),
+            'data' => iterator_to_array($ledStore->getList()),
             'total' => $ledStore->getCount(),
         ]));
     }

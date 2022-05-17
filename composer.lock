@@ -74,7 +74,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "2a66a45ffacc7a5c926ffa2ba76b073b1d2fe208"
+                "reference": "d25b3f972acb8b6506490acd033b5ae22c0e7752"
             },
             "require": {
                 "ext-curl": "*",
@@ -144,7 +144,7 @@
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2022-05-15T20:42:56+00:00"
+            "time": "2022-05-17T08:38:14+00:00"
         },
         {
             "name": "google/auth",
@@ -1078,16 +1078,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.4.0",
+            "version": "v3.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "ed19f4bf9d19c4ef920b5d8243910bd32e85b9ba"
+                "reference": "e939eae92386b69b49cfa4599dd9bead6bf4a342"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/ed19f4bf9d19c4ef920b5d8243910bd32e85b9ba",
-                "reference": "ed19f4bf9d19c4ef920b5d8243910bd32e85b9ba",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/e939eae92386b69b49cfa4599dd9bead6bf4a342",
+                "reference": "e939eae92386b69b49cfa4599dd9bead6bf4a342",
                 "shasum": ""
             },
             "require": {
@@ -1138,7 +1138,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.4.0"
+                "source": "https://github.com/twigphp/Twig/tree/v3.4.1"
             },
             "funding": [
                 {
@@ -1150,7 +1150,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-15T06:25:28+00:00"
+            "time": "2022-05-17T05:48:52+00:00"
         }
     ],
     "packages-dev": [
