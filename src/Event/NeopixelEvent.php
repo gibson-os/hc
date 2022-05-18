@@ -1,4 +1,5 @@
 <?php
+/** @noinspection PhpUnused */
 declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Event;
@@ -44,26 +45,27 @@ class NeopixelEvent extends AbstractHcEvent
         ReflectionManager $reflectionManager,
         TypeRepository $typeRepository,
         LoggerInterface $logger,
-        private NeopixelService $neopixelService,
-        private LedMapper $ledMapper,
-        private LedRepository $ledRepository,
-        private ModelMapper $modelMapper,
+        private readonly NeopixelService $neopixelService,
+        private readonly LedRepository $ledRepository,
+        private readonly ModelMapper $modelMapper,
     ) {
         parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->neopixelService);
     }
 
     /**
-     * @param Led[] $leds
-     *
      * @throws AbstractException
      * @throws SaveError
+     * @throws JsonException
      */
     #[Event\Method('LEDs setzen')]
     public function writeSetLeds(
         #[Event\Parameter(ModuleParameter::class)] Module $module,
-        array $leds
+        #[Event\Parameter(StringParameter::class, 'LEDs')] string $ledRanges,
     ): void {
-        $this->neopixelService->writeLeds($module, $leds);
+        $this->neopixelService->writeLeds(
+            $module,
+            $this->getLedsByNumbersString($module, $ledRanges)
+        );
     }
 
     /**
@@ -188,6 +190,7 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws DateTimeError
      * @throws SaveError
      * @throws JsonException
+     * @throws ReflectionException
      */
     #[Event\Method('Bild anzeigen')]
     #[Event\Listener('sequence', 'slave', ['params' => [
@@ -202,12 +205,12 @@ class NeopixelEvent extends AbstractHcEvent
         $element = reset($elements);
         $leds = [];
 
-        foreach (JsonUtility::decode($element->getData()) as $led) {
-            $leds[] = $this->modelMapper->mapToObject(Led::class, $led)
+        array_map(
+            fn (array $ledData): Led => $this->modelMapper->mapToObject(Led::class, $ledData)
                 ->setOnlyColor(true)
-                ->setForAnimation(true)
-            ;
-        }
+                ->setForAnimation(false),
+            JsonUtility::decode($element->getData())
+        );
 
         $this->neopixelService->writeLeds($module, $leds);
     }
@@ -259,6 +262,7 @@ class NeopixelEvent extends AbstractHcEvent
             $green = mt_rand($greenFrom, $greenTo);
             $blue = mt_rand($blueFrom, $blueTo);
             $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $i - 1, $red, $green, $blue));
+
             $leds[$i - 1] = (new Led())
                 ->setModule($module)
                 ->setNumber($i - 1)
@@ -315,6 +319,7 @@ class NeopixelEvent extends AbstractHcEvent
                 ->setGreen($green)
                 ->setBlue($blue)
                 ->setFadeIn($fadeIn)
+                ->setFadeIn($blink)
             ;
         }
 
@@ -325,7 +330,6 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
-     * @throws ReflectionException
      * @throws JsonException
      */
     #[Event\Method('Heller')]
@@ -366,6 +370,7 @@ class NeopixelEvent extends AbstractHcEvent
                 ->setGreen($ledGreen)
                 ->setBlue($ledBlue)
                 ->setFadeIn($fadeIn)
+                ->setOnlyColor(true)
             ;
         }
 
@@ -376,7 +381,7 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
-     * @throws ReflectionException
+     * @throws JsonException
      */
     #[Event\Method('Dunkler')]
     public function darker(

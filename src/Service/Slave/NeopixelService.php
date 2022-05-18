@@ -32,6 +32,7 @@ use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
 use JsonException;
 use LogicException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 class NeopixelService extends AbstractHcSlave
 {
@@ -65,9 +66,6 @@ class NeopixelService extends AbstractHcSlave
         MasterService $masterService,
         TransformService $transformService,
         EventService $eventService,
-        private LedMapper $ledMapper,
-        private LedService $ledService,
-        private LedStore $ledStore,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
@@ -75,7 +73,10 @@ class NeopixelService extends AbstractHcSlave
         SlaveFactory $slaveFactory,
         LoggerInterface $logger,
         ModelManager $modelManager,
-        private LedRepository $ledRepository
+        private readonly LedMapper $ledMapper,
+        private readonly LedService $ledService,
+        private readonly LedStore $ledStore,
+        private readonly LedRepository $ledRepository
     ) {
         parent::__construct(
             $masterService,
@@ -113,39 +114,38 @@ class NeopixelService extends AbstractHcSlave
         $this->modelManager->save($module);
 
         $leds = [];
-        $newLeds = [];
 
         foreach ($this->ledRepository->getByModule($module) as $led) {
             $leds[$led->getNumber()] = $led;
         }
 
-        $i = 0;
+        $number = 0;
 
         foreach ($config[self::CONFIG_COUNTS] as $channel => $count) {
-            for (; $i < $count; ++$i) {
-                if (isset($leds[$i])) {
-                    if ($leds[$i]->getChannel() !== $channel) {
-                        $this->modelManager->save($leds[$i]->setChannel($channel));
+            for ($i = 0; $i < $count; ++$i) {
+                if (isset($leds[$number])) {
+                    if ($leds[$number]->getChannel() !== $channel) {
+                        $this->modelManager->save($leds[$number]->setChannel($channel));
                     }
 
-                    $newLeds[] = $leds[$i];
+                    ++$number;
 
                     continue;
                 }
 
-                $newLed = (new Led())
+                $this->modelManager->save(
+                    (new Led())
                     ->setModule($module)
-                    ->setNumber($i)
+                    ->setNumber($number)
                     ->setChannel($channel)
                     ->setTop($channel * 3)
                     ->setLeft($i * 3)
-                ;
-                $this->modelManager->save($newLed);
-                $newLeds[] = $newLed;
+                );
+                ++$number;
             }
         }
 
-        $this->ledRepository->deleteWithNumberBiggerAs($module, $i);
+        $this->ledRepository->deleteWithNumberBiggerAs($module, $number);
 
         return $module;
     }
@@ -160,6 +160,7 @@ class NeopixelService extends AbstractHcSlave
      * @throws ReceiveError
      * @throws WriteException
      * @throws JsonException
+     * @throws ReflectionException
      */
     public function onOverwriteExistingSlave(Module $module, Module $existingSlave): Module
     {
@@ -289,6 +290,7 @@ class NeopixelService extends AbstractHcSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function writeSequenceStart(Module $slave, int $iterations = 0): NeopixelService
     {
@@ -300,6 +302,7 @@ class NeopixelService extends AbstractHcSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function writeSequenceStop(Module $slave): NeopixelService
     {
@@ -311,6 +314,7 @@ class NeopixelService extends AbstractHcSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function writeSequencePause(Module $slave): NeopixelService
     {
@@ -322,6 +326,7 @@ class NeopixelService extends AbstractHcSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function writeSequenceEepromAddress(Module $slave, int $address): NeopixelService
     {
@@ -351,6 +356,7 @@ class NeopixelService extends AbstractHcSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function writeSequenceNew(Module $slave): NeopixelService
     {
@@ -412,6 +418,7 @@ class NeopixelService extends AbstractHcSlave
      *
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function writeLedCounts(Module $slave, array $counts): NeopixelService
     {
@@ -514,13 +521,12 @@ class NeopixelService extends AbstractHcSlave
     private function getConfig(Module $slave): array
     {
         $config = $this->readConfig($slave, self::COMMAND_CONFIGURATION_READ_LENGTH);
-        $config = [
+
+        return [
             self::CONFIG_CHANNELS => $this->transformService->asciiToUnsignedInt($config, 0),
             self::CONFIG_MAX_LEDS => $this->transformService->asciiToUnsignedInt(substr($config, 1)),
             self::CONFIG_COUNTS => [],
         ];
-
-        return $config;
     }
 
     protected function getEventClassName(): string
