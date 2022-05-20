@@ -12,7 +12,7 @@ use GibsonOS\Module\Hc\Model\Neopixel\Led;
 
 class LedRepository extends AbstractRepository
 {
-    public function __construct(#[GetTableName(Led::class)] private string $ledTableName)
+    public function __construct(#[GetTableName(Led::class)] private readonly string $ledTableName)
     {
     }
 
@@ -75,6 +75,9 @@ class LedRepository extends AbstractRepository
         );
     }
 
+    /**
+     * @throws DeleteError
+     */
     public function deleteWithNumberBiggerAs(Module $module, int $number): void
     {
         $table = self::getTable($this->ledTableName);

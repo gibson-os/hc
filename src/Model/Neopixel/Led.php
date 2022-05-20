@@ -20,11 +20,10 @@ use JsonSerializable;
 #[Key(columns: ['module_id', 'channel'])]
 class Led extends AbstractModel implements JsonSerializable
 {
+    use LedTrait;
+
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
-
-    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $number = 0;
 
     #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $channel = 0;
@@ -34,21 +33,6 @@ class Led extends AbstractModel implements JsonSerializable
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $left = 0;
-
-    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $red = 0;
-
-    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $green = 0;
-
-    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $blue = 0;
-
-    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $fadeIn = 0;
-
-    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $blink = 0;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $moduleId;
@@ -72,18 +56,6 @@ class Led extends AbstractModel implements JsonSerializable
     public function setId(int $id): Led
     {
         $this->id = $id;
-
-        return $this;
-    }
-
-    public function getNumber(): int
-    {
-        return $this->number;
-    }
-
-    public function setNumber(int $number): Led
-    {
-        $this->number = $number;
 
         return $this;
     }
@@ -120,66 +92,6 @@ class Led extends AbstractModel implements JsonSerializable
     public function setLeft(int $left): Led
     {
         $this->left = $left;
-
-        return $this;
-    }
-
-    public function getRed(): int
-    {
-        return $this->red;
-    }
-
-    public function setRed(int $red): Led
-    {
-        $this->red = $red;
-
-        return $this;
-    }
-
-    public function getGreen(): int
-    {
-        return $this->green;
-    }
-
-    public function setGreen(int $green): Led
-    {
-        $this->green = $green;
-
-        return $this;
-    }
-
-    public function getBlue(): int
-    {
-        return $this->blue;
-    }
-
-    public function setBlue(int $blue): Led
-    {
-        $this->blue = $blue;
-
-        return $this;
-    }
-
-    public function getFadeIn(): int
-    {
-        return $this->fadeIn;
-    }
-
-    public function setFadeIn(int $fadeIn): Led
-    {
-        $this->fadeIn = $fadeIn;
-
-        return $this;
-    }
-
-    public function getBlink(): int
-    {
-        return $this->blink;
-    }
-
-    public function setBlink(int $blink): Led
-    {
-        $this->blink = $blink;
 
         return $this;
     }
