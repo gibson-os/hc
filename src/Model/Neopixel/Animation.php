@@ -35,7 +35,7 @@ class Animation extends AbstractModel
     #[Constraint]
     protected Module $module;
 
-    #[Constraint('animation', Led::class)]
+    #[Constraint('animation', Led::class, orderBy: '`id`')]
     protected array $steps = [];
 
     public function getId(): ?int

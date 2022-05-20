@@ -9,14 +9,17 @@ use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Neopixel\Image;
+use GibsonOS\Module\Hc\Model\Neopixel\Led as NeopixelLed;
 use GibsonOS\Module\Hc\Model\Neopixel\LedTrait;
 
 /**
- * @method Image getImage()
- * @method Led   setImage(Image $image)
+ * @method Image       getImage()
+ * @method Led         setImage(Image $image)
+ * @method NeopixelLed getLed()
+ * @method Led         setLed(NeopixelLed $led)
  */
 #[Table]
-#[Key(unique: true, columns: ['image_id', 'number'])]
+#[Key(unique: true, columns: ['image_id', 'led_id'])]
 class Led extends AbstractModel
 {
     use LedTrait;
@@ -27,8 +30,14 @@ class Led extends AbstractModel
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $imageId;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $ledId;
+
     #[Constraint]
     protected Image $image;
+
+    #[Constraint]
+    protected NeopixelLed $led;
 
     public function getId(): ?int
     {
@@ -50,6 +59,18 @@ class Led extends AbstractModel
     public function setImageId(int $imageId): Led
     {
         $this->imageId = $imageId;
+
+        return $this;
+    }
+
+    public function getLedId(): int
+    {
+        return $this->ledId;
+    }
+
+    public function setLedId(int $ledId): Led
+    {
+        $this->ledId = $ledId;
 
         return $this;
     }

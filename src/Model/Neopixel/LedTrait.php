@@ -7,9 +7,6 @@ use GibsonOS\Core\Attribute\Install\Database\Column;
 
 trait LedTrait
 {
-    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $number = 0;
-
     #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $red = 0;
 
@@ -24,18 +21,6 @@ trait LedTrait
 
     #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $blink = 0;
-
-    public function getNumber(): int
-    {
-        return $this->number;
-    }
-
-    public function setNumber(int $number): self
-    {
-        $this->number = $number;
-
-        return $this;
-    }
 
     public function getRed(): int
     {
