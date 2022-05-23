@@ -18,7 +18,7 @@ use GibsonOS\Module\Hc\Model\Neopixel\LedTrait;
  * @method Led         setLed(NeopixelLed $led)
  */
 #[Table]
-#[Key(unique: true, columns: ['animation_id', 'led_id'])]
+#[Key(unique: true, columns: ['step_id', 'number'])]
 class Led extends AbstractModel
 {
     use LedTrait;
@@ -30,12 +30,12 @@ class Led extends AbstractModel
     private int $stepId;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $ledId;
+    private int $length = 0;
 
     #[Constraint]
     protected Step $step;
 
-    #[Constraint]
+    #[Constraint(onDelete: null, ownColumn: 'number')]
     protected NeopixelLed $led;
 
     public function getId(): ?int
@@ -62,14 +62,14 @@ class Led extends AbstractModel
         return $this;
     }
 
-    public function getLedId(): int
+    public function getLength(): int
     {
-        return $this->ledId;
+        return $this->length;
     }
 
-    public function setLedId(int $ledId): Led
+    public function setLength(int $length): Led
     {
-        $this->ledId = $ledId;
+        $this->length = $length;
 
         return $this;
     }

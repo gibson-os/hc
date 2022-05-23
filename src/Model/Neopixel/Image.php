@@ -16,8 +16,8 @@ use GibsonOS\Module\Hc\Model\Neopixel\Image\Led;
  * @method Module getModule()
  * @method Image  setModule(Module $module)
  * @method Led[]  getLeds()
- * @method Image  setValues(Led[] $leds)
- * @method Image  addValues(Led[] $leds)
+ * @method Image  setLeds(Led[] $leds)
+ * @method Image  addLeds(Led[] $leds)
  */
 #[Table]
 #[Key(unique: true, columns: ['module_id', 'name'])]

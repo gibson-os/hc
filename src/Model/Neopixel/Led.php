@@ -25,9 +25,6 @@ class Led extends AbstractModel implements JsonSerializable
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
-    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $number = 0;
-
     #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $channel = 0;
 
@@ -43,10 +40,6 @@ class Led extends AbstractModel implements JsonSerializable
     #[Constraint]
     protected Module $module;
 
-    private int $length = 0;
-
-    private int $time = 0;
-
     private bool $onlyColor = false;
 
     private bool $forAnimation = false;
@@ -59,18 +52,6 @@ class Led extends AbstractModel implements JsonSerializable
     public function setId(int $id): Led
     {
         $this->id = $id;
-
-        return $this;
-    }
-
-    public function getNumber(): int
-    {
-        return $this->number;
-    }
-
-    public function setNumber(int $number): Led
-    {
-        $this->number = $number;
 
         return $this;
     }
@@ -123,30 +104,6 @@ class Led extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getLength(): int
-    {
-        return $this->length;
-    }
-
-    public function setLength(int $length): Led
-    {
-        $this->length = $length;
-
-        return $this;
-    }
-
-    public function getTime(): int
-    {
-        return $this->time;
-    }
-
-    public function setTime(int $time): Led
-    {
-        $this->time = $time;
-
-        return $this;
-    }
-
     public function isOnlyColor(): bool
     {
         return $this->onlyColor;
@@ -186,11 +143,6 @@ class Led extends AbstractModel implements JsonSerializable
             $json['channel'] = $this->getChannel();
             $json['left'] = $this->getLeft();
             $json['top'] = $this->getTop();
-        }
-
-        if ($this->isForAnimation()) {
-            $json['length'] = $this->getLength();
-            $json['time'] = $this->getTime();
         }
 
         return $json;

@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Repository\Neopixel;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Image;
 use GibsonOS\Module\Hc\Model\Sequence;
 
@@ -15,7 +16,15 @@ class ImageRepository extends AbstractRepository
      */
     public function getById(int $moduleId, int $id): Image
     {
-        return $this->fetchOne('`module`=? AND `id`=?', [$moduleId, $id], Image::class);
+        return $this->fetchOne('`module_id`=? AND `id`=?', [$moduleId, $id], Image::class);
+    }
+
+    /**
+     * @throws SelectError
+     */
+    public function getByName(Module $module, string $name): Image
+    {
+        return $this->fetchOne('`module_id`=? AND `name`=?', [$module->getId(), $name], Image::class);
     }
 
     /**

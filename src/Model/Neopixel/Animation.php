@@ -21,6 +21,8 @@ use GibsonOS\Module\Hc\Model\Neopixel\Animation\Step;
  */
 #[Table]
 #[Key(unique: true, columns: ['module_id', 'name'])]
+#[Key(unique: true, columns: ['module_id', 'started'])]
+#[Key(unique: true, columns: ['module_id', 'transmitted'])]
 class Animation extends AbstractModel
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
@@ -31,6 +33,15 @@ class Animation extends AbstractModel
 
     #[Column(length: 64)]
     private string $name;
+
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private ?int $pid = null;
+
+    #[Column]
+    private bool $started;
+
+    #[Column]
+    private bool $transmitted;
 
     #[Constraint]
     protected Module $module;
@@ -74,7 +85,43 @@ class Animation extends AbstractModel
         return $this;
     }
 
-    public function getAutoCompleteId(): string|int|float
+    public function getPid(): ?int
+    {
+        return $this->pid;
+    }
+
+    public function setPid(?int $pid): Animation
+    {
+        $this->pid = $pid;
+
+        return $this;
+    }
+
+    public function isStarted(): bool
+    {
+        return $this->started;
+    }
+
+    public function setStarted(bool $started): Animation
+    {
+        $this->started = $started;
+
+        return $this;
+    }
+
+    public function isTransmitted(): bool
+    {
+        return $this->transmitted;
+    }
+
+    public function setTransmitted(bool $transmitted): Animation
+    {
+        $this->transmitted = $transmitted;
+
+        return $this;
+    }
+
+    public function getAutoCompleteId(): int
     {
         return $this->getId() ?? 0;
     }

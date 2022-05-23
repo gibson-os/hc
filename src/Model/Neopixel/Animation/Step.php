@@ -25,6 +25,9 @@ class Step extends AbstractModel
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $time = 0;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $animationId;
+
     #[Constraint]
     protected Animation $animation;
 
@@ -51,6 +54,18 @@ class Step extends AbstractModel
     public function setTime(int $time): Step
     {
         $this->time = $time;
+
+        return $this;
+    }
+
+    public function getAnimationId(): int
+    {
+        return $this->animationId;
+    }
+
+    public function setAnimationId(int $animationId): Step
+    {
+        $this->animationId = $animationId;
 
         return $this;
     }

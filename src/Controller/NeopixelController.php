@@ -182,7 +182,7 @@ class NeopixelController extends AbstractController
         ImageStore $imageStore,
         ModelManager $modelManager,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModel(['name' => 'name'])] Image $image,
+        #[GetMappedModel(['name' => 'name'], ['module' => 'module'])] Image $image,
 //        #[GetMappedModels(ImageLed::class, ['image_id' => 'image.id', 'number' => 'number'])] array $leds = []
     ): AjaxResponse {
         if ($image->getId() !== null) {
