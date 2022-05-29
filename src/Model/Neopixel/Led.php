@@ -40,10 +40,6 @@ class Led extends AbstractModel implements JsonSerializable
     #[Constraint]
     protected Module $module;
 
-    private bool $onlyColor = false;
-
-    private bool $forAnimation = false;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -104,47 +100,18 @@ class Led extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function isOnlyColor(): bool
-    {
-        return $this->onlyColor;
-    }
-
-    public function setOnlyColor(bool $onlyColor): Led
-    {
-        $this->onlyColor = $onlyColor;
-
-        return $this;
-    }
-
-    public function isForAnimation(): bool
-    {
-        return $this->forAnimation;
-    }
-
-    public function setForAnimation(bool $forAnimation): Led
-    {
-        $this->forAnimation = $forAnimation;
-
-        return $this;
-    }
-
     public function jsonSerialize(): array
     {
-        $json = [
+        return [
             'number' => $this->getNumber(),
+            'channel' => $this->getChannel(),
+            'lef' => $this->getLeft(),
+            'top' => $this->getTop(),
             'red' => $this->getRed(),
             'green' => $this->getGreen(),
             'blue' => $this->getBlue(),
             'fadeIn' => $this->getFadeIn(),
             'blink' => $this->getBlink(),
         ];
-
-        if (!$this->isOnlyColor()) {
-            $json['channel'] = $this->getChannel();
-            $json['left'] = $this->getLeft();
-            $json['top'] = $this->getTop();
-        }
-
-        return $json;
     }
 }

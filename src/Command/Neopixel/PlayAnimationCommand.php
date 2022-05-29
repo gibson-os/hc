@@ -17,11 +17,12 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led as AnimationLed;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
+use GibsonOS\Module\Hc\Service\Neopixel\AnimationService as AnimationSequenceService;
 use GibsonOS\Module\Hc\Service\Neopixel\LedService;
-use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService as AnimationSequenceService;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use JsonException;
 use mysqlDatabase;
@@ -40,14 +41,14 @@ class PlayAnimationCommand extends AbstractCommand
     private int $iterations = 1;
 
     public function __construct(
-        private NeopixelService $neopixelService,
-        private AnimationAttributeService $animationAttributeService,
-        private AnimationSequenceService $animationSequenceService,
-        private LedService $ledService,
-        private ModuleRepository $moduleRepository,
-        private mysqlDatabase $mysqlDatabase,
-        private ModelManager $modelManager,
-        #[GetEnv('MYSQL_DATABASE')] private string $mysqlDatabaseName,
+        private readonly NeopixelService $neopixelService,
+        private readonly AnimationAttributeService $animationAttributeService,
+        private readonly AnimationSequenceService $animationSequenceService,
+        private readonly LedService $ledService,
+        private readonly ModuleRepository $moduleRepository,
+        private readonly mysqlDatabase $mysqlDatabase,
+        private readonly ModelManager $modelManager,
+        #[GetEnv('MYSQL_DATABASE')] private readonly string $mysqlDatabaseName,
         LoggerInterface $logger
     ) {
         parent::__construct($logger);
@@ -110,17 +111,29 @@ class PlayAnimationCommand extends AbstractCommand
     }
 
     /**
-     * @param Led[] $leds
+     * @param AnimationLed[] $leds
      *
      * @throws Exception
      *
-     * @return Led[]
+     * @return AnimationLed[]
      */
     private function getChanges(Module $slave, array &$leds): array
     {
         ksort($leds);
 
-        return $this->ledService->getChanges($this->ledService->getActualState($slave), $leds);
+        return $this->ledService->getChanges(
+            array_map(
+                fn (Led $led) => (new AnimationLed())
+                    ->setNumber($led->getNumber())
+                    ->setRed($led->getRed())
+                    ->setGreen($led->getGreen())
+                    ->setBlue($led->getBlue())
+                    ->setFadeIn($led->getFadeIn())
+                    ->setBlink($led->getBlink()),
+                $this->ledService->getActualState($slave)
+            ),
+            $leds
+        );
     }
 
     /**
@@ -131,15 +144,19 @@ class PlayAnimationCommand extends AbstractCommand
      * @throws JsonException
      * @throws ReflectionException
      */
-    private function writeLeds(Module $slave, NeopixelService $neopixelService, array &$leds, array &$changedSlaveLeds): void
-    {
+    private function writeLeds(
+        Module $slave,
+        NeopixelService $neopixelService,
+        array &$leds,
+        array &$changedSlaveLeds
+    ): void {
         if (empty($changedSlaveLeds)) {
             return;
         }
 
         $neopixelService->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
 
-        array_walk($changedSlaveLeds, function (Led $led) {
+        array_walk($changedSlaveLeds, function (AnimationLed $led) {
             $this->modelManager->save($led);
         });
 

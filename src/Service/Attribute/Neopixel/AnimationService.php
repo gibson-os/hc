@@ -10,10 +10,9 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Mapper\ModelMapper;
 use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Model\Neopixel\Led;
+use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use JsonException;
@@ -32,11 +31,10 @@ class AnimationService
     private const ATTRIBUTE_KEY_TRANSMITTED = 'transmitted';
 
     public function __construct(
-        private AttributeRepository $attributeRepository,
-        private ValueRepository $valueRepository,
-        private LedMapper $ledMapper,
-        private ModelManager $modelManager,
-        private ModelMapper $modelMapper
+        private readonly AttributeRepository $attributeRepository,
+        private readonly ValueRepository $valueRepository,
+        private readonly ModelManager $modelManager,
+        private readonly ModelMapper $modelMapper
     ) {
     }
 
@@ -96,10 +94,7 @@ class AnimationService
                     $steps[$value->getOrder()][] = $this->modelMapper->mapToObject(
                         Led::class,
                         [$module, ...$ledData]
-                    )
-                        ->setOnlyColor(true)
-                        ->setForAnimation(true)
-                    ;
+                    );
                 }
             }
 

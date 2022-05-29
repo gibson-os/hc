@@ -80,6 +80,7 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         $type = $this->typeRepository->getByHelperName('neopixel');
         $this->createLeds($type);
         $this->createImages($type);
+        $this->createAnimations($type);
     }
 
     /**
@@ -166,6 +167,12 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         }
     }
 
+    /**
+     * @throws SaveError
+     * @throws SelectError
+     * @throws ReflectionException
+     * @throws JsonException
+     */
     private function createAnimations(Type $type): void
     {
         foreach ($this->sequenceRepository->getByType($type, 1) as $sequence) {

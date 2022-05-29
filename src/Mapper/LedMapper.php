@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Mapper;
 
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led as AnimationLed;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Service\TransformService;
 
@@ -17,12 +18,12 @@ class LedMapper
 
     private const MIN_GROUP_LEDS = 2;
 
-    public function __construct(private TransformService $transformService)
+    public function __construct(private readonly TransformService $transformService)
     {
     }
 
     /**
-     * @param Led[] $leds
+     * @param Led[]|AnimationLed[] $leds
      *
      * @return string[]
      */
@@ -106,8 +107,10 @@ class LedMapper
     }
 
     /**
-     * @param Led[]                           $leds
-     * @param array{led: Led, numbers: int[]} $color
+     * @template T of Led|AnimationLed
+     *
+     * @param T[]                           $leds
+     * @param array{led: T, numbers: int[]} $color
      */
     private function getRangedColorStrings(array &$leds, array &$color): array
     {
@@ -161,7 +164,7 @@ class LedMapper
     }
 
     /**
-     * @param array{led: Led, numbers: int[]} $color
+     * @param array{led: Led|AnimationLed, numbers: int[]} $color
      */
     private function getSingleColorString(array $color): string
     {
@@ -179,7 +182,7 @@ class LedMapper
     }
 
     /**
-     * @param array{led: Led, numbers: int[]} $color
+     * @param array{led: Led|AnimationLed, numbers: int[]} $color
      *
      * @return string[]
      */
@@ -213,7 +216,7 @@ class LedMapper
         return $data;
     }
 
-    private function completeGroupedColorString(string $data, int $count, Led $led): string
+    private function completeGroupedColorString(string $data, int $count, Led|AnimationLed $led): string
     {
         $count += self::MAX_PROTOCOL_LEDS;
 
@@ -226,9 +229,11 @@ class LedMapper
     }
 
     /**
-     * @param Led[] $leds
+     * @template T of Led|AnimationLed
      *
-     * @return array<string, array{led: Led, numbers: int[]}>
+     * @param T[] $leds
+     *
+     * @return array<string, array{led: T, numbers: int[]}>
      */
     private function getColorsByLeds(array $leds): array
     {

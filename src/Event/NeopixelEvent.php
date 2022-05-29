@@ -86,6 +86,7 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Sequenz starten')]
     public function writeSequenceStart(
@@ -98,6 +99,7 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Sequenz stoppen')]
     public function writeSequenceStop(
@@ -109,6 +111,7 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Sequenz pausieren')]
     public function writeSequencePause(
@@ -120,6 +123,7 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Sequenz EEPROM Adresse schreiben')]
     public function writeSequenceEepromAddress(
@@ -144,6 +148,7 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Neue Sequenz übertragen')]
     public function writeSequenceNew(
@@ -172,6 +177,7 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('LED Anzahl schreiben')]
     public function writeLedCounts(
@@ -206,9 +212,7 @@ class NeopixelEvent extends AbstractHcEvent
         $leds = [];
 
         array_map(
-            fn (array $ledData): Led => $this->modelMapper->mapToObject(Led::class, $ledData)
-                ->setOnlyColor(true)
-                ->setForAnimation(false),
+            fn (array $ledData): Led => $this->modelMapper->mapToObject(Led::class, $ledData),
             JsonUtility::decode($element->getData())
         );
 
@@ -270,7 +274,6 @@ class NeopixelEvent extends AbstractHcEvent
                 ->setGreen($green)
                 ->setBlue($blue)
                 ->setFadeIn($fadeIn)
-                ->setOnlyColor(true)
             ;
         }
 
@@ -370,7 +373,6 @@ class NeopixelEvent extends AbstractHcEvent
                 ->setGreen($ledGreen)
                 ->setBlue($ledBlue)
                 ->setFadeIn($fadeIn)
-                ->setOnlyColor(true)
             ;
         }
 

@@ -5,24 +5,29 @@ namespace GibsonOS\Module\Hc\Controller;
 
 use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Animation;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
+use GibsonOS\Module\Hc\Service\Neopixel\AnimationService as AnimationSequenceService;
 use GibsonOS\Module\Hc\Service\Neopixel\LedService;
-use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService as AnimationSequenceService;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Store\Neopixel\AnimationStore;
 use JsonException;
+use ReflectionException;
 
 class NeopixelAnimationController extends AbstractController
 {
@@ -45,10 +50,17 @@ class NeopixelAnimationController extends AbstractController
         ]);
     }
 
+    /**
+     * @throws JsonException
+     * @throws SelectError
+     * @throws ReflectionException
+     */
     #[CheckPermission(Permission::READ)]
-    public function list(AnimationStore $animationStore, int $moduleId): AjaxResponse
-    {
-        $animationStore->setModuleId($moduleId);
+    public function list(
+        AnimationStore $animationStore,
+        #[GetModel] Module $module
+    ): AjaxResponse {
+        $animationStore->setModule($module);
 
         return $this->returnSuccess(
             $animationStore->getList(),
@@ -56,17 +68,12 @@ class NeopixelAnimationController extends AbstractController
         );
     }
 
-    /**
-     * @throws SelectError
-     * @throws JsonException
-     */
     #[CheckPermission(Permission::READ)]
-    public function load(AnimationSequenceService $animationService, int $id): AjaxResponse
+    public function load(#[GetModel] Animation $animation): AjaxResponse
     {
-        $steps = $animationService->getById($id);
         $items = [];
 
-        foreach ($steps as $step) {
+        foreach ($animation->getSteps() as $step) {
             foreach ($step as $item) {
                 $items[] = $item;
             }
@@ -76,44 +83,30 @@ class NeopixelAnimationController extends AbstractController
     }
 
     /**
-     * @throws DeleteError
      * @throws SaveError
      * @throws SelectError
      * @throws JsonException
-     * @throws JsonException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::WRITE, ['id' => Permission::WRITE + Permission::DELETE])]
     public function save(
-        AnimationSequenceService $animationService,
         AnimationStore $animationStore,
+        ModelManager $modelManager,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        string $name,
-        array $items,
-        int $id = null
+        #[GetMappedModel(['name' => 'name'], ['module' => 'module'])] Animation $animation
     ): AjaxResponse {
-        if (empty($id)) {
-            try {
-                $animation = $animationService->getByName($module, $name);
-
-                new ImageExists(
-                    (int) $animation->getId(),
-                    sprintf(
-                        'Es existiert schon eine Animation unter dem Namen "%s"' . PHP_EOL . 'Möchten Sie es überschreiben?',
-                        $name
-                    )
-                );
-            } catch (SelectError) {
-                // New Animation
-            }
+        if ($animation->getId() !== null) {
+            new ImageExists(
+                (int) $animation->getId(),
+                sprintf(
+                    'Es existiert schon eine Animation unter dem Namen "%s"' . PHP_EOL . 'Möchten Sie es überschreiben?',
+                    $animation->getName()
+                )
+            );
         }
 
-        $animation = $animationService->save(
-            $module,
-            $name,
-            $animationService->transformToTimeSteps($module, $items),
-            $id
-        );
-        $animationStore->setModuleId($module->getId() ?? 0);
+        $modelManager->save($animation);
+        $animationStore->setModule($animation->getModule());
 
         return new AjaxResponse([
             'data' => $animationStore->getList(),
@@ -126,11 +119,14 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
      * @throws DeleteError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
+     * @throws FactoryError
+     * @throws MapperException
      */
     #[CheckPermission(Permission::WRITE)]
     public function send(
@@ -141,7 +137,7 @@ class NeopixelAnimationController extends AbstractController
         #[GetModel(['id' => 'moduleId'])] Module $module,
         array $items = []
     ): AjaxResponse {
-        $steps = $animationSequenceService->transformToTimeSteps($module, $items);
+        $steps = $animationSequenceService->transformToTimeSteps($items);
         $runtimes = $animationSequenceService->getRuntimes($steps);
         $msPerStep = 1000 / $module->getPwmSpeed();
         $newLeds = [];
@@ -179,8 +175,12 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws DeleteError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
+     * @throws FactoryError
+     * @throws MapperException
      */
     #[CheckPermission(Permission::WRITE)]
     public function play(
@@ -190,7 +190,7 @@ class NeopixelAnimationController extends AbstractController
         int $iterations,
         array $items = []
     ): AjaxResponse {
-        $steps = $animationSequenceService->transformToTimeSteps($module, $items);
+        $steps = $animationSequenceService->transformToTimeSteps($items);
         $animationAttributeService->setSteps($module, $steps, false);
         $animationSequenceService->play($module, $iterations);
 
@@ -201,6 +201,7 @@ class NeopixelAnimationController extends AbstractController
      * @throws AbstractException
      * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
     public function start(
@@ -217,6 +218,7 @@ class NeopixelAnimationController extends AbstractController
      * @throws AbstractException
      * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
     public function pause(
@@ -233,6 +235,7 @@ class NeopixelAnimationController extends AbstractController
      * @throws AbstractException
      * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
     public function stop(

@@ -10,6 +10,7 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Neopixel\Led as NeopixelLed;
 use GibsonOS\Module\Hc\Model\Neopixel\LedTrait;
+use JsonSerializable;
 
 /**
  * @method Step        getStep()
@@ -19,7 +20,7 @@ use GibsonOS\Module\Hc\Model\Neopixel\LedTrait;
  */
 #[Table]
 #[Key(unique: true, columns: ['step_id', 'number'])]
-class Led extends AbstractModel
+class Led extends AbstractModel implements JsonSerializable
 {
     use LedTrait;
 
@@ -72,5 +73,18 @@ class Led extends AbstractModel
         $this->length = $length;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'number' => $this->getNumber(),
+            'red' => $this->getRed(),
+            'green' => $this->getGreen(),
+            'blue' => $this->getBlue(),
+            'fadeIn' => $this->getFadeIn(),
+            'blink' => $this->getBlink(),
+            'length' => $this->getLength(),
+        ];
     }
 }

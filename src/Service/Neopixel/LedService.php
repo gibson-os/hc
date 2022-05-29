@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Service\Neopixel;
 use Exception;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led as AnimationLed;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
@@ -14,7 +15,7 @@ use OutOfRangeException;
 
 class LedService
 {
-    public function __construct(private LedRepository $ledRepository)
+    public function __construct(private readonly LedRepository $ledRepository)
     {
     }
 
@@ -36,6 +37,9 @@ class LedService
         return $lastIds;
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getNumberById(Module $slave, int $id): int
     {
         $config = JsonUtility::decode((string) $slave->getConfig());
@@ -80,23 +84,17 @@ class LedService
     }
 
     /**
-     * @param Led[] $oldLeds
-     * @param Led[] $newLeds
+     * @template T of Led|AnimationLed
      *
-     * @return Led[]
+     * @param T[] $oldLeds
+     * @param T[] $newLeds
+     *
+     * @return T[]
      */
     public function getChanges(array $oldLeds, array $newLeds): array
     {
-        return array_udiff_assoc($newLeds, $oldLeds, static function (Led $newLed, Led $oldLed) {
-            $newLedOnlyColor = $newLed->isOnlyColor();
-            $oldLedOnlyColor = $oldLed->isOnlyColor();
-            $newLed->setOnlyColor(true);
-            $oldLed->setOnlyColor(true);
-            $count = count(array_diff_assoc($newLed->jsonSerialize(), $oldLed->jsonSerialize()));
-            $newLed->setOnlyColor($newLedOnlyColor);
-            $oldLed->setOnlyColor($oldLedOnlyColor);
-
-            return $count;
+        return array_udiff_assoc($newLeds, $oldLeds, static function (Led|AnimationLed $newLed, Led|AnimationLed $oldLed) {
+            return count(array_diff_assoc($newLed->jsonSerialize(), $oldLed->jsonSerialize()));
         });
     }
 
