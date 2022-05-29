@@ -43,19 +43,21 @@ class MasterService
 
     private const TYPE_SCAN_BUS = 5;
 
+    private const TYPE_ERROR = 127;
+
     public const TYPE_DATA = 255;
 
     public function __construct(
-        private SenderService $senderService,
-        private SlaveFactory $slaveFactory,
-        private MasterMapper $masterMapper,
-        private LogRepository $logRepository,
-        private ModuleRepository $moduleRepository,
-        private TypeRepository $typeRepository,
-        private LoggerInterface $logger,
-        private MasterRepository $masterRepository,
-        private DateTimeService $dateTimeService,
-        private ModelManager $modelManager
+        private readonly SenderService $senderService,
+        private readonly SlaveFactory $slaveFactory,
+        private readonly MasterMapper $masterMapper,
+        private readonly LogRepository $logRepository,
+        private readonly ModuleRepository $moduleRepository,
+        private readonly TypeRepository $typeRepository,
+        private readonly LoggerInterface $logger,
+        private readonly MasterRepository $masterRepository,
+        private readonly DateTimeService $dateTimeService,
+        private readonly ModelManager $modelManager
     ) {
     }
 
@@ -79,17 +81,18 @@ class MasterService
         ;
 
         $this->logger->info(sprintf('Receive type %d', $busMessage->getType()));
+        $module = null;
 
         if ($busMessage->getType() === self::TYPE_NEW_SLAVE) {
             $slaveAddress = $busMessage->getSlaveAddress();
 
             if ($slaveAddress === null) {
-                throw new ReceiveError('Slave address is null!');
+                throw new ReceiveError('Module address is null!');
             }
 
-            $this->logger->info(sprintf('New Slave %d', $slaveAddress));
-            $slave = $this->slaveHandshake($master, $slaveAddress);
-        } else {
+            $this->logger->info(sprintf('New Module %d', $slaveAddress));
+            $module = $this->slaveHandshake($master, $slaveAddress);
+        } elseif ($busMessage->getType() !== self::TYPE_ERROR) {
             $command = $busMessage->getCommand();
 
             if ($command === null) {
@@ -97,20 +100,23 @@ class MasterService
             }
 
             $this->logger->info(sprintf(
-                'Receive command %d for slave address %s',
+                'Receive command %d for module address %s',
                 $command,
                 $busMessage->getSlaveAddress() ?? 0
             ));
-            $slave = $this->slaveReceive($master, $busMessage);
+            $module = $this->moduleReceive($master, $busMessage);
             $log->setCommand($command);
         }
 
-        $this->modelManager->save(
-            $slave
-                ->setOffline(false)
-                ->setModified(new DateTime())
-        );
-        $this->modelManager->save($log->setModule($slave));
+        if ($module !== null) {
+            $this->modelManager->save(
+                $module
+                    ->setOffline(false)
+                    ->setModified(new DateTime())
+            );
+        }
+
+        $this->modelManager->save($log->setModule($module));
     }
 
     /**
@@ -247,7 +253,7 @@ class MasterService
      * @throws ReceiveError
      * @throws SelectError
      */
-    private function slaveReceive(Master $master, BusMessage $busMessage): Module
+    private function moduleReceive(Master $master, BusMessage $busMessage): Module
     {
         $slaveAddress = $busMessage->getSlaveAddress();
 

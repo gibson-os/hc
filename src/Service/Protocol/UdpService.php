@@ -24,8 +24,10 @@ class UdpService implements ProtocolInterface
 
     private string $ip = '0';
 
-    public function __construct(private BusMessageMapper $busMessageMapper, private LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly BusMessageMapper $busMessageMapper,
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     public function setIp(string $ip): UdpService
@@ -60,7 +62,7 @@ class UdpService implements ProtocolInterface
     public function receive(): ?BusMessage
     {
         try {
-            $this->logger->debug(sprintf('Receive message'));
+            $this->logger->debug('Receive message');
 
             return $this->busMessageMapper->mapFromUdpMessage(
                 $this->getReceiveServer()->receive(self::RECEIVE_LENGTH)
@@ -96,7 +98,7 @@ class UdpService implements ProtocolInterface
         $udpSendService = $this->createSendService($port ?? self::RECEIVE_PORT);
 
         try {
-            $this->logger->debug(sprintf('Receive read data UDP message'));
+            $this->logger->debug('Receive read data UDP message');
 
             $data = $udpSendService->receive(self::RECEIVE_LENGTH);
         } finally {
@@ -117,7 +119,7 @@ class UdpService implements ProtocolInterface
         $udpSendService = $this->createSendService($busMessage->getPort() ?? self::RECEIVE_PORT);
 
         try {
-            $this->logger->debug(sprintf('Receive receive return'));
+            $this->logger->debug('Receive receive return');
             $receivedBusMessage = $this->busMessageMapper->mapFromUdpMessage($udpSendService->receive(6));
         } catch (ReceiveError) {
             throw new ReceiveError('Receive return not received!');
