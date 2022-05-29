@@ -25,6 +25,9 @@ class Led extends AbstractModel implements JsonSerializable
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $number = 0;
+
     #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $channel = 0;
 
@@ -48,6 +51,18 @@ class Led extends AbstractModel implements JsonSerializable
     public function setId(int $id): Led
     {
         $this->id = $id;
+
+        return $this;
+    }
+
+    public function getNumber(): int
+    {
+        return $this->number;
+    }
+
+    public function setNumber(int $number): self
+    {
+        $this->number = $number;
 
         return $this;
     }
@@ -105,7 +120,7 @@ class Led extends AbstractModel implements JsonSerializable
         return [
             'number' => $this->getNumber(),
             'channel' => $this->getChannel(),
-            'lef' => $this->getLeft(),
+            'left' => $this->getLeft(),
             'top' => $this->getTop(),
             'red' => $this->getRed(),
             'green' => $this->getGreen(),

@@ -149,7 +149,7 @@ class NeopixelAnimationController extends AbstractController
             $newLeds = [];
 
             foreach ($leds as $led) {
-                $newLeds[$led->getNumber()] = $led;
+                $newLeds[$led->getLed()->getNumber()] = $led;
             }
 
             $changedLeds = $ledService->getChanges($oldLeds, $newLeds);

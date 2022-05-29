@@ -78,7 +78,7 @@ class PlayAnimationCommand extends AbstractCommand
                 $newLeds = [];
 
                 foreach ($leds as $led) {
-                    $newLeds[$led->getNumber()] = $led;
+                    $newLeds[$led->getLed()->getNumber()] = $led;
                 }
 
                 $this->mysqlDatabase->openDB($this->mysqlDatabaseName);
@@ -124,7 +124,7 @@ class PlayAnimationCommand extends AbstractCommand
         return $this->ledService->getChanges(
             array_map(
                 fn (Led $led) => (new AnimationLed())
-                    ->setNumber($led->getNumber())
+                    ->setLed($led)
                     ->setRed($led->getRed())
                     ->setGreen($led->getGreen())
                     ->setBlue($led->getBlue())

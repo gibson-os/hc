@@ -19,7 +19,7 @@ use JsonSerializable;
  * @method Led         setLed(NeopixelLed $led)
  */
 #[Table]
-#[Key(unique: true, columns: ['step_id', 'number'])]
+#[Key(unique: true, columns: ['step_id', 'led_id'])]
 class Led extends AbstractModel implements JsonSerializable
 {
     use LedTrait;
@@ -31,12 +31,15 @@ class Led extends AbstractModel implements JsonSerializable
     private int $stepId;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $ledId;
+
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $length = 0;
 
     #[Constraint]
     protected Step $step;
 
-    #[Constraint(onDelete: null, ownColumn: 'number')]
+    #[Constraint]
     protected NeopixelLed $led;
 
     public function getId(): ?int
@@ -63,6 +66,18 @@ class Led extends AbstractModel implements JsonSerializable
         return $this;
     }
 
+    public function getLedId(): int
+    {
+        return $this->ledId;
+    }
+
+    public function setLedId(int $ledId): Led
+    {
+        $this->ledId = $ledId;
+
+        return $this;
+    }
+
     public function getLength(): int
     {
         return $this->length;
@@ -78,7 +93,7 @@ class Led extends AbstractModel implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'number' => $this->getNumber(),
+            'ledId' => $this->getLedId(),
             'red' => $this->getRed(),
             'green' => $this->getGreen(),
             'blue' => $this->getBlue(),

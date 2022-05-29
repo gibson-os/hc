@@ -154,7 +154,10 @@ class SplitAttributesInTablesCommand extends AbstractCommand
             foreach (JsonUtility::decode($element->getData()) ?? [] as $ledData) {
                 $image->addLeds([
                     (new Image\Led())
-                        ->setNumber($ledData['number'])
+                        ->setLed($this->ledRepository->getByNumber(
+                            $this->getModule($sequence->getModuleId() ?? 0),
+                            $ledData['number']
+                        ))
                         ->setRed($ledData['red'])
                         ->setGreen($ledData['green'])
                         ->setBlue($ledData['blue'])
@@ -196,7 +199,10 @@ class SplitAttributesInTablesCommand extends AbstractCommand
                 foreach (JsonUtility::decode($element->getData()) ?? [] as $sequenceLed) {
                     $time = $sequenceLed['time'];
                     $leds[] = (new Animation\Led())
-                        ->setNumber($sequenceLed['led'])
+                        ->setLed($this->ledRepository->getByNumber(
+                            $this->getModule($sequence->getModuleId() ?? 0),
+                            $sequenceLed['led']
+                        ))
                         ->setRed($sequenceLed['red'])
                         ->setGreen($sequenceLed['green'])
                         ->setBlue($sequenceLed['blue'])
