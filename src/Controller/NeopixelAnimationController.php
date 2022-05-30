@@ -58,7 +58,7 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission(Permission::READ)]
     public function list(
         AnimationStore $animationStore,
-        #[GetModel] Module $module
+        #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
         $animationStore->setModule($module);
 

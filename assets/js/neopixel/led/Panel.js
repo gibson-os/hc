@@ -109,7 +109,9 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             listeners: {
                 select: (combo, records) => {
                     ledView.getStore().each((led) => {
-                        let imageLed = records[0].get('leds')[led.get('number')];
+                        const imageLed = Ext.Array.findBy(records[0].get('leds'), (itemLed) => {
+                            return led.get('id') === itemLed.ledId;
+                        });
 
                         led.set('deactivated', !imageLed);
 
@@ -159,14 +161,21 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 permission: GibsonOS.Permission.WRITE
             },
             save: name => {
-                let leds = {};
+                let leds = [];
 
                 ledView.getStore().each(led => {
                     if (led.get('deactivated')) {
                         return true;
                     }
 
-                    leds[led.get('number')] = led.getData();
+                    leds.push({
+                        red: led.get('red'),
+                        green: led.get('green'),
+                        blue: led.get('blue'),
+                        fadeIn: led.get('fadeIn'),
+                        blink: led.get('blink'),
+                        ledId: led.get('id'),
+                    });
                 });
 
                 GibsonOS.Ajax.request({

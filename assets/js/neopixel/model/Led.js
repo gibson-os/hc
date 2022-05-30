@@ -1,6 +1,9 @@
 Ext.define('GibsonOS.module.hc.neopixel.model.Led', {
     extend: 'GibsonOS.data.Model',
     fields: [{
+        name: 'id',
+        type: 'int'
+    },{
         name: 'number',
         type: 'int'
     },{

@@ -118,6 +118,7 @@ class Led extends AbstractModel implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
+            'id' => $this->getId(),
             'number' => $this->getNumber(),
             'channel' => $this->getChannel(),
             'left' => $this->getLeft(),

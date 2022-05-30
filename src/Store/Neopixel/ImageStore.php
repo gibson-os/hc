@@ -28,6 +28,6 @@ class ImageStore extends AbstractDatabaseStore
 
     protected function getDefaultOrder(): string
     {
-        return '`number`';
+        return '`name`';
     }
 }

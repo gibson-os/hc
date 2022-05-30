@@ -24,7 +24,6 @@ use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Image;
-use GibsonOS\Module\Hc\Model\Neopixel\Image\Led as ImageLed;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Service\Neopixel\LedService;
@@ -181,11 +180,11 @@ class NeopixelController extends AbstractController
     public function saveImage(
         ImageStore $imageStore,
         ModelManager $modelManager,
+        ?int $id,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetMappedModel(['name' => 'name'], ['module' => 'module'])] Image $image,
-//        #[GetMappedModels(ImageLed::class, ['image_id' => 'image.id', 'number' => 'number'])] array $leds = []
     ): AjaxResponse {
-        if ($image->getId() !== null) {
+        if ($image->getId() !== null && $image->getId() !== $id) {
             throw new ImageExists(
                 (int) $image->getId(),
                 sprintf(
