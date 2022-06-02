@@ -21,6 +21,7 @@ use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation;
+use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
 use GibsonOS\Module\Hc\Service\Neopixel\AnimationService as AnimationSequenceService;
 use GibsonOS\Module\Hc\Service\Neopixel\LedService;
@@ -37,17 +38,20 @@ class NeopixelAnimationController extends AbstractController
      */
     #[CheckPermission(Permission::READ)]
     public function index(
-        AnimationAttributeService $animationService,
+        AnimationRepository $animationRepository,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        return new AjaxResponse([
-            'pid' => $animationService->getPid($module),
-            'started' => $animationService->getStarted($module),
-            'steps' => $animationService->getSteps($module),
-            'transmitted' => $animationService->isTransmitted($module),
-            'success' => true,
-            'failure' => false,
-        ]);
+        try {
+            $animation = $animationRepository->getActive($module);
+        } catch (SelectError $e) {
+            $animation = new Animation();
+        }
+
+        $return = $animation->jsonSerialize();
+        $return['success'] = true;
+        $return['failure'] = false;
+
+        return new AjaxResponse($return);
     }
 
     /**
@@ -100,7 +104,7 @@ class NeopixelAnimationController extends AbstractController
                 (int) $animation->getId(),
                 sprintf(
                     'Es existiert schon eine Animation unter dem Namen "%s"' . PHP_EOL . 'Möchten Sie es überschreiben?',
-                    $animation->getName()
+                    $animation->getName() ?? 'NULL'
                 )
             );
         }

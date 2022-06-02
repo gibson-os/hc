@@ -93,7 +93,7 @@ class AnimationService
                 foreach (JsonUtility::decode($value->getValue()) as $ledData) {
                     $steps[$value->getOrder()][] = $this->modelMapper->mapToObject(
                         Led::class,
-                        [$module, ...$ledData]
+                        ['module' => $module, 'leds' => $ledData]
                     );
                 }
             }

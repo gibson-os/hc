@@ -8,6 +8,7 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation;
+use JsonSerializable;
 
 /**
  * @method Animation getAnimation()
@@ -17,7 +18,7 @@ use GibsonOS\Module\Hc\Model\Neopixel\Animation;
  * @method Step      addLeds(Led[] $leds)
  */
 #[Table]
-class Step extends AbstractModel
+class Step extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
@@ -68,5 +69,13 @@ class Step extends AbstractModel
         $this->animationId = $animationId;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'time' => $this->getTime(),
+            'leds' => $this->getLeds(),
+        ];
     }
 }

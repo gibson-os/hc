@@ -11,6 +11,7 @@ use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Step;
+use JsonSerializable;
 
 /**
  * @method Module    getModule()
@@ -23,7 +24,7 @@ use GibsonOS\Module\Hc\Model\Neopixel\Animation\Step;
 #[Key(unique: true, columns: ['module_id', 'name'])]
 #[Key(unique: true, columns: ['module_id', 'started'])]
 #[Key(unique: true, columns: ['module_id', 'transmitted'])]
-class Animation extends AbstractModel
+class Animation extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
@@ -32,16 +33,16 @@ class Animation extends AbstractModel
     private int $moduleId;
 
     #[Column(length: 64)]
-    private string $name;
+    private ?string $name = null;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $pid = null;
 
     #[Column]
-    private bool $started;
+    private bool $started = false;
 
     #[Column]
-    private bool $transmitted;
+    private bool $transmitted = false;
 
     #[Constraint]
     protected Module $module;
@@ -73,12 +74,12 @@ class Animation extends AbstractModel
         return $this;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): Animation
+    public function setName(?string $name): Animation
     {
         $this->name = $name;
 
@@ -124,5 +125,17 @@ class Animation extends AbstractModel
     public function getAutoCompleteId(): int
     {
         return $this->getId() ?? 0;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'pid' => $this->getPid(),
+            'steps' => $this->getSteps(),
+            'started' => $this->isStarted(),
+            'transmitted' => $this->isTransmitted(),
+        ];
     }
 }
