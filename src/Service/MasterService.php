@@ -107,16 +107,20 @@ class MasterService
             $module = $this->moduleReceive($master, $busMessage);
             $log->setCommand($command);
         } else {
-            $lastLogEntry = $this->logRepository->getLastEntryByMasterId(
-                $master->getId() ?? 0,
-                direction: Direction::INPUT
-            );
+            try {
+                $lastLogEntry = $this->logRepository->getLastEntryByMasterId(
+                    $master->getId() ?? 0,
+                    direction: Direction::INPUT
+                );
 
-            if (
-                $lastLogEntry->getType() === self::TYPE_ERROR &&
-                $lastLogEntry->getRawData() === $data ?? ''
-            ) {
-                return;
+                if (
+                    $lastLogEntry->getType() === self::TYPE_ERROR &&
+                    $lastLogEntry->getRawData() === ($data ?? '')
+                ) {
+                    return;
+                }
+            } catch (SelectError) {
+                // do nothing
             }
         }
 
