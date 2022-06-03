@@ -198,7 +198,7 @@ class SplitAttributesInTablesCommand extends AbstractCommand
 
                 foreach (JsonUtility::decode($element->getData()) ?? [] as $sequenceLed) {
                     $time = $sequenceLed['time'];
-                    $leds[] = (new Animation\Led())
+                    $animation->addLeds([(new Animation\Led())
                         ->setLed($this->ledRepository->getByNumber(
                             $this->getModule($sequence->getModuleId() ?? 0),
                             $sequenceLed['led']
@@ -209,13 +209,9 @@ class SplitAttributesInTablesCommand extends AbstractCommand
                         ->setFadeIn($sequenceLed['fadeIn'])
                         ->setBlink($sequenceLed['blink'])
                         ->setLength($sequenceLed['length'])
-                    ;
+                        ->setTime($time),
+                    ]);
                 }
-
-                $animation->addSteps([(new Animation\Step())
-                    ->setTime($time)
-                    ->setLeds($leds),
-                ]);
             }
 
             $this->modelManager->save($animation);

@@ -288,7 +288,9 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                         url: baseDir + 'hc/neopixelAnimation/play',
                         params: {
                             moduleId: me.hcModuleId,
-                            items: Ext.encode(me.getLeds()),
+                            // @todo animation id einsetzen
+                            id: 0,
+                            steps: Ext.encode(me.getLeds()),
                             iterations: me.down('#hcNeopixelAnimationPanelAnimationIterations').getValue()
                         },
                         success: () => {

@@ -34,8 +34,8 @@ use ReflectionException;
  */
 class PlayAnimationCommand extends AbstractCommand
 {
-    #[Argument('Neopixel slave ID')]
-    private int $slaveId;
+    #[Argument('Neopixel module ID')]
+    private int $moduleId;
 
     #[Argument('How often the animation should be repeated. 0 = infinity')]
     private int $iterations = 1;
@@ -65,10 +65,10 @@ class PlayAnimationCommand extends AbstractCommand
      */
     protected function run(): int
     {
-        $slave = $this->moduleRepository->getById($this->slaveId);
-        $this->animationSequenceService->stop($slave);
-        $this->animationAttributeService->setPid($slave, getmypid());
-        $steps = $this->animationAttributeService->getSteps($slave);
+        $module = $this->moduleRepository->getById($this->moduleId);
+        $this->animationSequenceService->stop($module);
+        $this->animationAttributeService->setPid($module, getmypid());
+        $steps = $this->animationAttributeService->getSteps($module);
         $runtimes = $this->animationSequenceService->getRuntimes($steps);
         $this->mysqlDatabase->closeDB();
         $startTime = (int) (microtime(true) * 1000000);
@@ -82,10 +82,10 @@ class PlayAnimationCommand extends AbstractCommand
                 }
 
                 $this->mysqlDatabase->openDB($this->mysqlDatabaseName);
-                $changedLeds = $this->getChanges($slave, $newLeds);
+                $changedLeds = $this->getChanges($module, $newLeds);
                 $startTime += 1000000;
                 $this->sleepToTime($startTime);
-                $this->writeLeds($slave, $this->neopixelService, $newLeds, $changedLeds);
+                $this->writeLeds($module, $this->neopixelService, $newLeds, $changedLeds);
                 $this->mysqlDatabase->closeDB();
 
                 $startTime += ($runtimes[$time] * 1000) - 1000000;

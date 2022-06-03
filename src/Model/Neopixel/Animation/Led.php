@@ -8,18 +8,19 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Module\Hc\Model\Neopixel\Animation;
 use GibsonOS\Module\Hc\Model\Neopixel\Led as NeopixelLed;
 use GibsonOS\Module\Hc\Model\Neopixel\LedTrait;
 use JsonSerializable;
 
 /**
- * @method Step        getStep()
- * @method Led         setStep(Step $step)
+ * @method Animation   getAnimation()
+ * @method Led         setAnimation(Animation $animation)
  * @method NeopixelLed getLed()
  * @method Led         setLed(NeopixelLed $led)
  */
 #[Table]
-#[Key(unique: true, columns: ['step_id', 'led_id'])]
+#[Key(unique: true, columns: ['animation_id', 'led_id', 'time'])]
 class Led extends AbstractModel implements JsonSerializable
 {
     use LedTrait;
@@ -28,16 +29,19 @@ class Led extends AbstractModel implements JsonSerializable
     private ?int $id = null;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $stepId;
+    private int $animationId;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $ledId;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $time = 0;
+
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $length = 0;
 
     #[Constraint]
-    protected Step $step;
+    protected Animation $animation;
 
     #[Constraint]
     protected NeopixelLed $led;
@@ -54,14 +58,14 @@ class Led extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getStepId(): int
+    public function getAnimationId(): int
     {
-        return $this->stepId;
+        return $this->animationId;
     }
 
-    public function setStepId(int $stepId): Led
+    public function setAnimationId(int $animationId): Led
     {
-        $this->stepId = $stepId;
+        $this->animationId = $animationId;
 
         return $this;
     }
@@ -74,6 +78,18 @@ class Led extends AbstractModel implements JsonSerializable
     public function setLedId(int $ledId): Led
     {
         $this->ledId = $ledId;
+
+        return $this;
+    }
+
+    public function getTime(): int
+    {
+        return $this->time;
+    }
+
+    public function setTime(int $time): Led
+    {
+        $this->time = $time;
 
         return $this;
     }
@@ -99,6 +115,7 @@ class Led extends AbstractModel implements JsonSerializable
             'blue' => $this->getBlue(),
             'fadeIn' => $this->getFadeIn(),
             'blink' => $this->getBlink(),
+            'time' => $this->getTime(),
             'length' => $this->getLength(),
         ];
     }

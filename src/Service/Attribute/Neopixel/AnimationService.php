@@ -39,48 +39,6 @@ class AnimationService
     }
 
     /**
-     * @throws Exception
-     */
-    public function getPid(Module $slave): ?int
-    {
-        try {
-            $value = $this->getValueModel($slave, self::ATTRIBUTE_KEY_PID)->getValue();
-
-            return $value === '' ? null : (int) $value;
-        } catch (SelectError) {
-            return null;
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function isTransmitted(Module $slave): bool
-    {
-        try {
-            $value = $this->getValueModel($slave, self::ATTRIBUTE_KEY_TRANSMITTED)->getValue();
-
-            return $value === 'true';
-        } catch (SelectError) {
-            return false;
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function getStarted(Module $slave): bool
-    {
-        try {
-            $value = $this->getValueModel($slave, self::ATTRIBUTE_KEY_STARTED)->getValue();
-
-            return !($value === '') && $value;
-        } catch (SelectError) {
-            return false;
-        }
-    }
-
-    /**
      * @return array<int, Led[]>
      */
     public function getSteps(Module $module): array
@@ -144,21 +102,6 @@ class AnimationService
         );
 
         $this->attributeRepository->commit();
-    }
-
-    /**
-     * @throws Exception
-     * @throws SelectError
-     */
-    private function getValueModel(Module $slave, string $key): Attribute\Value
-    {
-        $valueModels = $this->getValueModels($slave, $key);
-
-        if (empty($valueModels)) {
-            throw new SelectError(sprintf('Atrribut Wert für "%s" nicht gefunden.', $key));
-        }
-
-        return reset($valueModels);
     }
 
     /**

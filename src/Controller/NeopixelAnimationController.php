@@ -23,7 +23,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation;
 use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
 use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
-use GibsonOS\Module\Hc\Service\Neopixel\AnimationService as AnimationSequenceService;
+use GibsonOS\Module\Hc\Service\Neopixel\AnimationService;
 use GibsonOS\Module\Hc\Service\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Store\Neopixel\AnimationStore;
@@ -75,15 +75,7 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission(Permission::READ)]
     public function load(#[GetModel] Animation $animation): AjaxResponse
     {
-        $items = [];
-
-        foreach ($animation->getSteps() as $step) {
-            foreach ($step as $item) {
-                $items[] = $item;
-            }
-        }
-
-        return $this->returnSuccess($items);
+        return $this->returnSuccess($animation);
     }
 
     /**
@@ -136,9 +128,10 @@ class NeopixelAnimationController extends AbstractController
     public function send(
         LedService $ledService,
         NeopixelService $neopixelService,
-        AnimationSequenceService $animationSequenceService,
+        AnimationService $animationSequenceService,
         AnimationAttributeService $animationAttributeService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetMappedModel(['id' => 'id'], ['module' => 'module'])] Animation $animation,
         array $items = []
     ): AjaxResponse {
         $steps = $animationSequenceService->transformToTimeSteps($items);
@@ -188,9 +181,10 @@ class NeopixelAnimationController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE)]
     public function play(
-        AnimationSequenceService $animationSequenceService,
+        AnimationService $animationSequenceService,
         AnimationAttributeService $animationAttributeService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetMappedModel(['id' => 'id'], ['module' => 'module'])] Animation $animation,
         int $iterations,
         array $items = []
     ): AjaxResponse {
@@ -243,7 +237,7 @@ class NeopixelAnimationController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE)]
     public function stop(
-        AnimationSequenceService $animationService,
+        AnimationService $animationService,
         NeopixelService $neopixelService,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {

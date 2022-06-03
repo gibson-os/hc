@@ -10,15 +10,14 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led;
-use GibsonOS\Module\Hc\Model\Neopixel\Animation\Step;
 use JsonSerializable;
 
 /**
  * @method Module    getModule()
  * @method Animation setModule(Module $module)
- * @method Step[]    getSteps()
- * @method Animation setSteps(Step[] $steps)
- * @method Animation addSteps(Step[] $steps)
+ * @method Led[]     getLeds()
+ * @method Animation setLeds(Led[] $leds)
+ * @method Animation addLeds(Led[] $leds)
  */
 #[Table]
 #[Key(unique: true, columns: ['module_id', 'name'])]
@@ -48,7 +47,7 @@ class Animation extends AbstractModel implements JsonSerializable
     protected Module $module;
 
     #[Constraint('animation', Led::class, orderBy: '`id`')]
-    protected array $steps = [];
+    protected array $leds = [];
 
     public function getId(): ?int
     {
@@ -133,7 +132,7 @@ class Animation extends AbstractModel implements JsonSerializable
             'id' => $this->getId(),
             'name' => $this->getName(),
             'pid' => $this->getPid(),
-            'steps' => $this->getSteps(),
+            'leds' => $this->getLeds(),
             'started' => $this->isStarted(),
             'transmitted' => $this->isTransmitted(),
         ];
