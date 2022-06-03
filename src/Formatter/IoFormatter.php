@@ -350,7 +350,7 @@ class IoFormatter extends AbstractHcFormatter
                 (int) $module->getId(),
                 $log->getCommand(),
                 $log->getType(),
-                $log->getDirection()->value
+                $log->getDirection()
             )->getRawData();
         } catch (SelectError) {
             return $ports;

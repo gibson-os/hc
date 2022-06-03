@@ -106,6 +106,18 @@ class MasterService
             ));
             $module = $this->moduleReceive($master, $busMessage);
             $log->setCommand($command);
+        } else {
+            $lastLogEntry = $this->logRepository->getLastEntryByMasterId(
+                $master->getId() ?? 0,
+                direction: Direction::INPUT
+            );
+
+            if (
+                $lastLogEntry->getType() === self::TYPE_ERROR &&
+                $lastLogEntry->getRawData() === $data ?? ''
+            ) {
+                return;
+            }
         }
 
         if ($module !== null) {

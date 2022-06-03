@@ -12,7 +12,7 @@ use mysqlTable;
 
 class LogRepository extends AbstractRepository
 {
-    public function __construct(#[GetTableName(Log::class)] private string $logTableName)
+    public function __construct(#[GetTableName(Log::class)] private readonly string $logTableName)
     {
     }
 
@@ -40,7 +40,7 @@ class LogRepository extends AbstractRepository
         int $moduleId,
         int $command = null,
         int $type = null,
-        string $direction = null
+        Direction $direction = null
     ): Log {
         $table = $this->getTable($this->logTableName);
         $table
@@ -67,7 +67,7 @@ class LogRepository extends AbstractRepository
         int $masterId,
         int $command = null,
         int $type = null,
-        string $direction = null
+        Direction $direction = null
     ): Log {
         $table = $this->getTable($this->logTableName);
         $table
@@ -91,7 +91,7 @@ class LogRepository extends AbstractRepository
         mysqlTable $table,
         int $command = null,
         int $type = null,
-        string $direction = null
+        Direction $direction = null
     ): string {
         $where = '';
 
@@ -107,7 +107,7 @@ class LogRepository extends AbstractRepository
 
         if ($direction !== null) {
             $where .= ' AND `direction`=?';
-            $table->addWhereParameter($direction);
+            $table->addWhereParameter($direction->value);
         }
 
         return $where;
@@ -121,7 +121,7 @@ class LogRepository extends AbstractRepository
         int $moduleId,
         int $command = null,
         int $type = null,
-        string $direction = null
+        Direction $direction = null
     ): Log {
         $table = $this->getTable($this->logTableName);
         $table
