@@ -255,7 +255,6 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         let panel = me.down('gosModuleHcNeopixelColorPanel');
         let view = me.down('gosModuleHcNeopixelLedView');
 
-        console.log('add color actions');
         panel.addAction({
             itemId: 'hcNeopixelLedColorFillButton',
             iconCls: 'icon_system system_brush',
@@ -489,7 +488,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 ledAddItemContextMenu.add(button);
             }
 
-            me.down('gosModuleHcNeopixelAnimationView').updateTemplate(jsonData.data.length);
+            me.down('gosModuleHcNeopixelAnimationView').updateTemplate(jsonData.data);
         });
     },
     saveLeds() {
