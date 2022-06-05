@@ -4,6 +4,9 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
     layout: 'border',
     enableContextMenu: true,
     enableKeyEvents: true,
+    requiredPermission: {
+        task: 'neopixelAnimation',
+    },
     initComponent() {
         let me = this;
         let animationView = new GibsonOS.module.hc.neopixel.animation.View({
@@ -287,6 +290,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                     GibsonOS.Ajax.request({
                         url: baseDir + 'hc/neopixelAnimation/play',
                         params: {
+                            id: 0,
                             moduleId: me.hcModuleId,
                             leds: Ext.encode(me.getLeds()),
                             iterations: me.down('#hcNeopixelAnimationPanelAnimationIterations').getValue()
@@ -355,7 +359,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             addToItemContextMenu: false,
             addToContainerContextMenu: false,
             requiredPermission: {
-                action: 'animation',
+                action: 'list',
                 permission: GibsonOS.Permission.READ
             },
             store: {
@@ -409,7 +413,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             addToItemContextMenu: false,
             addToContainerContextMenu: false,
             requiredPermission: {
-                action: 'saveAnimation',
+                action: 'save',
                 permission: GibsonOS.Permission.WRITE
             },
             listeners: {
@@ -426,7 +430,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             addToItemContextMenu: false,
             addToContainerContextMenu: false,
             requiredPermission: {
-                action: 'saveAnimation',
+                action: 'save',
                 permission: GibsonOS.Permission.WRITE
             },
             save: name => {

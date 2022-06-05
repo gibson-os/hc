@@ -184,13 +184,12 @@ class NeopixelAnimationController extends AbstractController
         AnimationService $animationSequenceService,
         AnimationAttributeService $animationAttributeService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModel(['id' => 'id'], ['module' => 'module'])] Animation $animation,
+        #[GetMappedModel(mapping: ['module' => 'module'])] Animation $animation,
         int $iterations,
-        array $items = []
     ): AjaxResponse {
-        $steps = $animationSequenceService->transformToTimeSteps($items);
-        $animationAttributeService->setSteps($module, $steps, false);
-        $animationSequenceService->play($module, $iterations);
+//        $steps = $animationSequenceService->transformToTimeSteps($items);
+//        $animationAttributeService->setSteps($module, $steps, false);
+//        $animationSequenceService->play($module, $iterations);
 
         return $this->returnSuccess();
     }
