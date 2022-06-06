@@ -33,7 +33,6 @@ use ReflectionException;
 class NeopixelAnimationController extends AbstractController
 {
     /**
-     * @throws SelectError
      * @throws Exception
      */
     #[CheckPermission(Permission::READ)]
@@ -43,13 +42,14 @@ class NeopixelAnimationController extends AbstractController
     ): AjaxResponse {
         try {
             $animation = $animationRepository->getActive($module);
-        } catch (SelectError $e) {
+        } catch (SelectError) {
             $animation = new Animation();
         }
 
         $return = $animation->jsonSerialize();
         $return['success'] = true;
         $return['failure'] = false;
+        $return['leds'] = $animation->getLeds();
 
         return new AjaxResponse($return);
     }
@@ -102,7 +102,7 @@ class NeopixelAnimationController extends AbstractController
         }
 
         $modelManager->save($animation);
-        $animationStore->setModule($animation->getModule());
+        $animationStore->setModule($module);
 
         return new AjaxResponse([
             'data' => $animationStore->getList(),

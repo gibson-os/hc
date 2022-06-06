@@ -129,7 +129,7 @@ class Animation extends AbstractModel implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'id' => $this->getId(),
+            'id' => $this->getId() ?? 0,
             'name' => $this->getName(),
             'pid' => $this->getPid(),
             'started' => $this->isStarted(),

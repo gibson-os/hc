@@ -205,7 +205,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                                         return false;
                                     }
 
-                                    me.down('#hcNeopixelLedPanelSaveImageButton').save(name, true);
+                                    me.down('#hcNeopixelLedPanelSaveImageButton').save(name);
                                 }
                             );
                         }

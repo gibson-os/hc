@@ -208,6 +208,42 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             colorForm.down('#hcNeopixelLedColorTime').enable();
         });
     },
+    checkSaved(callback) {
+        const me = this;
+        const animationView = me.down('gosModuleHcNeopixelAnimationView');
+        const animationName = me.down('#hcNeopixelAnimationPanelAnimationName');
+        const store = animationView.getStore();
+
+        if (store.getModifiedRecords().length || store.getRemovedRecords().length) {
+            GibsonOS.MessageBox.show({
+                title: 'Speichern?',
+                msg: 'Möchtest du die Animation vorher speichern?',
+                type: GibsonOS.MessageBox.type.QUESTION,
+                buttons: [{
+                    text: 'Ja',
+                    handler() {
+                        if (!animationName.getValue()) {
+                            GibsonOS.MessageBox.show({
+                                title: 'Kein Name!',
+                                msg: 'Bitte trage zuerst einen Namen ein!',
+                                type: GibsonOS.MessageBox.type.ERROR,
+                                buttons: [{
+                                    text: 'OK'
+                                }]
+                            });
+
+                            return false;
+                        }
+                        me.down('#hcNeopixelAnimationPanelSaveAnimationButton').save(animationName.getValue(), callback);
+                    }
+                },{
+                    text: 'Nein'
+                }]
+            });
+        }
+
+        callback();
+    },
     addActions() {
         const me = this;
 
@@ -238,18 +274,21 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             iconCls: 'icon_system system_upload',
             listeners: {
                 click: () => {
-                    me.setLoading(true);
+                    me.checkSaved(() => {
+                        me.setLoading(true);
 
-                    GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/neopixelAnimation/send',
-                        params: {
-                            moduleId: me.hcModuleId,
-                            leds: Ext.encode(me.getLeds()),
-                        },
-                        success: () => {
-                            me.setLoading(false);
-                            me.enableAction('#hcNeopixelAnimationPlayTransmitted');
-                        }
+                        GibsonOS.Ajax.request({
+                            url: baseDir + 'hc/neopixelAnimation/send',
+                            params: {
+                                id: me.down('#hcNeopixelAnimationPanelAnimationLoad').getValue(),
+                                moduleId: me.hcModuleId,
+                                leds: Ext.encode(me.getLeds()),
+                            },
+                            success: () => {
+                                me.setLoading(false);
+                                me.enableAction('#hcNeopixelAnimationPlayTransmitted');
+                            }
+                        });
                     });
                 }
             }
@@ -285,21 +324,23 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 iconCls: 'icon_system system_play',
                 text: 'Unübertragene Animation abspielen',
                 handler: () => {
-                    me.setLoading(true);
+                    me.checkSaved(() => {
+                        me.setLoading(true);
 
-                    GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/neopixelAnimation/play',
-                        params: {
-                            id: 0,
-                            moduleId: me.hcModuleId,
-                            leds: Ext.encode(me.getLeds()),
-                            iterations: me.down('#hcNeopixelAnimationPanelAnimationIterations').getValue()
-                        },
-                        success: () => {
-                            me.setLoading(false);
-                            me.enableAction('#hcNeopixelAnimationPause');
-                            me.enableAction('#hcNeopixelAnimationStop');
-                        }
+                        GibsonOS.Ajax.request({
+                            url: baseDir + 'hc/neopixelAnimation/play',
+                            params: {
+                                id: me.down('#hcNeopixelAnimationPanelAnimationLoad').getValue(),
+                                moduleId: me.hcModuleId,
+                                leds: Ext.encode(me.getLeds()),
+                                iterations: me.down('#hcNeopixelAnimationPanelAnimationIterations').getValue()
+                            },
+                            success: () => {
+                                me.setLoading(false);
+                                me.enableAction('#hcNeopixelAnimationPause');
+                                me.enableAction('#hcNeopixelAnimationStop');
+                            }
+                        });
                     });
                 }
             }]
@@ -398,6 +439,8 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                                 store.add(item);
                                 setLeds.push(item.ledId);
                             });
+
+                            store.commitChanges();
                         }
                     });
                 }
@@ -433,7 +476,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 action: 'save',
                 permission: GibsonOS.Permission.WRITE
             },
-            save: name => {
+            save(name, callback = null) {
                 me.setLoading(true);
 
                 GibsonOS.Ajax.request({
@@ -444,13 +487,20 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                         leds: Ext.encode(me.getLeds())
                     },
                     success: response => {
-                        let loadField = me.down('#hcNeopixelAnimationPanelAnimationLoad');
-                        let data = Ext.decode(response.responseText);
+                        const loadField = me.down('#hcNeopixelAnimationPanelAnimationLoad');
+                        const data = Ext.decode(response.responseText);
+                        const animationView = me.down('gosModuleHcNeopixelAnimationView');
+                        const store = animationView.getStore();
 
                         loadField.getStore().loadData(data.data);
                         loadField.setValue(data.id);
+                        store.commitChanges();
 
                         me.setLoading(false);
+
+                        if (typeof callback === 'function') {
+                            callback();
+                        }
                     },
                     failure: response => {
                         let data = Ext.decode(response.responseText).data;
@@ -463,7 +513,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                                         return false;
                                     }
 
-                                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').save(name, true);
+                                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').save(name, callback);
                                 }
                             );
                         }
