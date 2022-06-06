@@ -132,7 +132,6 @@ class Animation extends AbstractModel implements JsonSerializable
             'id' => $this->getId(),
             'name' => $this->getName(),
             'pid' => $this->getPid(),
-            'leds' => $this->getLeds(),
             'started' => $this->isStarted(),
             'transmitted' => $this->isTransmitted(),
         ];

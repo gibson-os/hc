@@ -75,7 +75,7 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission(Permission::READ)]
     public function load(#[GetModel] Animation $animation): AjaxResponse
     {
-        return $this->returnSuccess($animation);
+        return $this->returnSuccess($animation->getLeds());
     }
 
     /**
