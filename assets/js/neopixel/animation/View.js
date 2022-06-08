@@ -8,7 +8,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.View', {
     initComponent: function() {
         let me = this;
 
-        me.store = new GibsonOS.module.hc.neopixel.store.animation.View();
+        me.store = new GibsonOS.module.hc.neopixel.store.Animation();
         me.tpl = new Ext.XTemplate(
             '<div class="hcNeopixelAnimationViewHeader">',
                 '<div class="hcNeopixelAnimationViewHeaderTime">Zeit</div>',

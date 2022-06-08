@@ -8,6 +8,7 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led;
 use JsonSerializable;
@@ -21,9 +22,7 @@ use JsonSerializable;
  */
 #[Table]
 #[Key(unique: true, columns: ['module_id', 'name'])]
-#[Key(unique: true, columns: ['module_id', 'started'])]
-#[Key(unique: true, columns: ['module_id', 'transmitted'])]
-class Animation extends AbstractModel implements JsonSerializable
+class Animation extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

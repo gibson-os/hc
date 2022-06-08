@@ -16,6 +16,7 @@ use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
+use GibsonOS\Core\Service\ProcessService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -88,11 +89,12 @@ class NeopixelAnimationController extends AbstractController
     public function save(
         AnimationStore $animationStore,
         ModelManager $modelManager,
+        ?int $id,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetMappedModel(['name' => 'name'], ['module' => 'module'])] Animation $animation
     ): AjaxResponse {
-        if ($animation->getId() !== null) {
-            new ImageExists(
+        if ($animation->getId() !== null && $animation->getId() !== $id) {
+            throw new ImageExists(
                 (int) $animation->getId(),
                 sprintf(
                     'Es existiert schon eine Animation unter dem Namen "%s"' . PHP_EOL . 'Möchten Sie es überschreiben?',
@@ -171,25 +173,39 @@ class NeopixelAnimationController extends AbstractController
     }
 
     /**
-     * @throws DeleteError
      * @throws JsonException
      * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
-     * @throws FactoryError
-     * @throws MapperException
      */
     #[CheckPermission(Permission::WRITE)]
     public function play(
-        AnimationService $animationSequenceService,
-        AnimationAttributeService $animationAttributeService,
+        ModelManager $modelManager,
+        AnimationRepository $animationRepository,
+        ProcessService $processService,
+        AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetMappedModel(mapping: ['module' => 'module'])] Animation $animation,
         int $iterations,
     ): AjaxResponse {
-//        $steps = $animationSequenceService->transformToTimeSteps($items);
-//        $animationAttributeService->setSteps($module, $steps, false);
-//        $animationSequenceService->play($module, $iterations);
+        try {
+            $activeAnimation = $animationRepository->getActive($module);
+            $pid = $activeAnimation->getPid() ?? 0;
+            $activeAnimation
+                ->setPid(null)
+                ->setStarted(false)
+            ;
+            $modelManager->save($activeAnimation);
+            $processService->kill($pid);
+        } catch (SelectError) {
+            // do nothing
+        }
+
+        $animation
+            ->setName($animation->getName() ?? '')
+            ->setStarted(true)
+        ;
+        $modelManager->save($animation);
+        $animationService->play($module, $iterations);
 
         return $this->returnSuccess();
     }

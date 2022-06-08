@@ -7,7 +7,6 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Image;
-use GibsonOS\Module\Hc\Model\Sequence;
 
 class ImageRepository extends AbstractRepository
 {
@@ -24,20 +23,24 @@ class ImageRepository extends AbstractRepository
      */
     public function getByName(Module $module, string $name): Image
     {
-        return $this->fetchOne('`module_id`=? AND `name`=?', [$module->getId(), $name], Image::class);
+        return $this->fetchOne(
+            '`module_id`=? AND `name`=?',
+            [$module->getId(), $name],
+            Image::class
+        );
     }
 
     /**
      * @throws SelectError
      *
-     * @return Sequence[]
+     * @return Image[]
      */
     public function findByName(int $moduleId, string $name): array
     {
         return $this->fetchAll(
             '`module_id`=? AND `name` REGEXP ?',
             [$moduleId, $this->getRegexString($name)],
-            Sequence::class
+            Image::class
         );
     }
 }

@@ -211,38 +211,46 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
     checkSaved(callback) {
         const me = this;
         const animationView = me.down('gosModuleHcNeopixelAnimationView');
-        const animationName = me.down('#hcNeopixelAnimationPanelAnimationName');
+        const animationName = me.down('#hcNeopixelAnimationPanelAnimationAutoComplete');
         const store = animationView.getStore();
 
-        if (store.getModifiedRecords().length || store.getRemovedRecords().length) {
-            GibsonOS.MessageBox.show({
-                title: 'Speichern?',
-                msg: 'Möchtest du die Animation vorher speichern?',
-                type: GibsonOS.MessageBox.type.QUESTION,
-                buttons: [{
-                    text: 'Ja',
-                    handler() {
-                        if (!animationName.getValue()) {
-                            GibsonOS.MessageBox.show({
-                                title: 'Kein Name!',
-                                msg: 'Bitte trage zuerst einen Namen ein!',
-                                type: GibsonOS.MessageBox.type.ERROR,
-                                buttons: [{
-                                    text: 'OK'
-                                }]
-                            });
+        if (!store.getModifiedRecords().length && !store.getRemovedRecords().length) {
+            callback(true);
 
-                            return false;
-                        }
-                        me.down('#hcNeopixelAnimationPanelSaveAnimationButton').save(animationName.getValue(), callback);
-                    }
-                },{
-                    text: 'Nein'
-                }]
-            });
+            return;
         }
 
-        callback();
+        GibsonOS.MessageBox.show({
+            title: 'Speichern?',
+            msg: 'Möchtest du die Animation vorher speichern?',
+            type: GibsonOS.MessageBox.type.QUESTION,
+            buttons: [{
+                text: 'Ja',
+                handler() {
+                    if (!animationName.getRawValue()) {
+                        GibsonOS.MessageBox.show({
+                            title: 'Kein Name!',
+                            msg: 'Bitte trage zuerst einen Namen ein!',
+                            type: GibsonOS.MessageBox.type.ERROR,
+                            buttons: [{
+                                text: 'OK'
+                            }]
+                        });
+
+                        return false;
+                    }
+
+                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').save(animationName.getRawValue(), () => {
+                        callback(true);
+                    });
+                }
+            },{
+                text: 'Nein',
+                handler() {
+                    callback(false);
+                }
+            }]
+        });
     },
     addActions() {
         const me = this;
@@ -274,13 +282,13 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             iconCls: 'icon_system system_upload',
             listeners: {
                 click: () => {
-                    me.checkSaved(() => {
+                    me.checkSaved((saved) => {
                         me.setLoading(true);
 
                         GibsonOS.Ajax.request({
                             url: baseDir + 'hc/neopixelAnimation/send',
                             params: {
-                                id: me.down('#hcNeopixelAnimationPanelAnimationLoad').getValue(),
+                                id: saved ? me.down('#hcNeopixelAnimationPanelAnimationAutoComplete').getValue() : 0,
                                 moduleId: me.hcModuleId,
                                 leds: Ext.encode(me.getLeds()),
                             },
@@ -324,13 +332,13 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 iconCls: 'icon_system system_play',
                 text: 'Unübertragene Animation abspielen',
                 handler: () => {
-                    me.checkSaved(() => {
+                    me.checkSaved((saved) => {
                         me.setLoading(true);
 
                         GibsonOS.Ajax.request({
                             url: baseDir + 'hc/neopixelAnimation/play',
                             params: {
-                                id: me.down('#hcNeopixelAnimationPanelAnimationLoad').getValue(),
+                                id: saved ? me.down('#hcNeopixelAnimationPanelAnimationAutoComplete').getValue() : 0,
                                 moduleId: me.hcModuleId,
                                 leds: Ext.encode(me.getLeds()),
                                 iterations: me.down('#hcNeopixelAnimationPanelAnimationIterations').getValue()
@@ -392,22 +400,30 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
         });
         me.addAction({xtype: 'tbseparator'});
         me.addAction({
-            xtype: 'gosFormComboBox',
+            xtype: 'gosModuleCoreParameterTypeAutoComplete',
             hideLabel: true,
             width: 150,
+            enableKeyEvents: true,
             emptyText: 'Animation laden',
-            itemId: 'hcNeopixelAnimationPanelAnimationLoad',
+            itemId: 'hcNeopixelAnimationPanelAnimationAutoComplete',
             addToItemContextMenu: false,
             addToContainerContextMenu: false,
             requiredPermission: {
                 action: 'list',
                 permission: GibsonOS.Permission.READ
             },
-            store: {
-                type: 'gosModuleHcNeopixelAnimationsStore'
+            parameterObject: {
+                config: {
+                    model: 'GibsonOS.module.hc.neopixel.model.Animation',
+                    autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Neopixel\\AnimationAutoComplete',
+                    parameters: {
+                        moduleId: me.hcModuleId
+                    }
+                }
             },
             listeners: {
                 select: (combo, records) => {
+                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').setDisabled(!combo.getRawValue().length);
                     ledPosition = 0;
 
                     GibsonOS.Ajax.request({
@@ -443,25 +459,9 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                             store.commitChanges();
                         }
                     });
-                }
-            }
-        });
-        me.addAction({
-            xtype: 'gosFormTextfield',
-            hideLabel: true,
-            width: 75,
-            enableKeyEvents: true,
-            emptyText: 'Name',
-            itemId: 'hcNeopixelAnimationPanelAnimationName',
-            addToItemContextMenu: false,
-            addToContainerContextMenu: false,
-            requiredPermission: {
-                action: 'save',
-                permission: GibsonOS.Permission.WRITE
-            },
-            listeners: {
-                keyup: (field) => {
-                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').setDisabled(!field.getValue().length);
+                },
+                keyup: (combo) => {
+                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').setDisabled(!combo.getRawValue().length);
                 }
             }
         });
@@ -487,7 +487,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                         leds: Ext.encode(me.getLeds())
                     },
                     success: response => {
-                        const loadField = me.down('#hcNeopixelAnimationPanelAnimationLoad');
+                        const loadField = me.down('#hcNeopixelAnimationPanelAnimationAutoComplete');
                         const data = Ext.decode(response.responseText);
                         const animationView = me.down('gosModuleHcNeopixelAnimationView');
                         const store = animationView.getStore();
@@ -522,13 +522,12 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             },
             listeners: {
                 click() {
-                    let name = me.down('#hcNeopixelAnimationPanelAnimationName').getValue();
-                    this.save(name);
+                    this.save(me.down('#hcNeopixelAnimationPanelAnimationAutoComplete').getRawValue());
                 }
             }
         });
 
-        let animationStore = me.down('#hcNeopixelAnimationPanelAnimationLoad').getStore();
+        let animationStore = me.down('#hcNeopixelAnimationPanelAnimationAutoComplete').getStore();
         animationStore.getProxy().setExtraParam('moduleId', me.hcModuleId);
         animationStore.load();
     },
