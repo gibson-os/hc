@@ -43,10 +43,22 @@ class AnimationRepository extends AbstractRepository
     /**
      * @throws SelectError
      */
-    public function getActive(Module $module): Animation
+    public function getStarted(Module $module): Animation
     {
         return $this->fetchOne(
             '`module_id`=? AND `started`=?',
+            [$module->getId(), 1],
+            Animation::class
+        );
+    }
+
+    /**
+     * @throws SelectError
+     */
+    public function getTransmitted(Module $module): Animation
+    {
+        return $this->fetchOne(
+            '`module_id`=? AND `transmitted`=?',
             [$module->getId(), 1],
             Animation::class
         );

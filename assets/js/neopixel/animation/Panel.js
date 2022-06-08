@@ -121,7 +121,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 store.add(step);
             });
 
-            if (jsonData.transmitted) {
+            if (jsonData.transmitted.transmitted) {
                 me.enableAction('#hcNeopixelAnimationPlayTransmitted');
             }
 

@@ -16,7 +16,6 @@ use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
-use GibsonOS\Core\Service\ProcessService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -42,15 +41,22 @@ class NeopixelAnimationController extends AbstractController
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
         try {
-            $animation = $animationRepository->getActive($module);
+            $startedAnimation = $animationRepository->getStarted($module);
         } catch (SelectError) {
-            $animation = new Animation();
+            $startedAnimation = new Animation();
         }
 
-        $return = $animation->jsonSerialize();
+        try {
+            $transmittedAnimation = $animationRepository->getTransmitted($module);
+        } catch (SelectError) {
+            $transmittedAnimation = new Animation();
+        }
+
+        $return = $startedAnimation->jsonSerialize();
         $return['success'] = true;
         $return['failure'] = false;
-        $return['leds'] = $animation->getLeds();
+        $return['leds'] = $startedAnimation->getLeds();
+        $return['transmitted'] = $transmittedAnimation;
 
         return new AjaxResponse($return);
     }
@@ -173,56 +179,41 @@ class NeopixelAnimationController extends AbstractController
     }
 
     /**
+     * @throws AbstractException
      * @throws JsonException
      * @throws ReflectionException
      * @throws SaveError
+     * @throws SelectError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
     public function play(
-        ModelManager $modelManager,
-        AnimationRepository $animationRepository,
-        ProcessService $processService,
         AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetMappedModel(mapping: ['module' => 'module'])] Animation $animation,
         int $iterations,
     ): AjaxResponse {
-        try {
-            $activeAnimation = $animationRepository->getActive($module);
-            $pid = $activeAnimation->getPid() ?? 0;
-            $activeAnimation
-                ->setPid(null)
-                ->setStarted(false)
-            ;
-            $modelManager->save($activeAnimation);
-            $processService->kill($pid);
-        } catch (SelectError) {
-            // do nothing
-        }
-
-        $animation
-            ->setName($animation->getName() ?? '')
-            ->setStarted(true)
-        ;
-        $modelManager->save($animation);
-        $animationService->play($module, $iterations);
+        $animation->setName($animation->getName() ?? '');
+        $animationService->play($animation, $iterations);
 
         return $this->returnSuccess();
     }
 
     /**
      * @throws AbstractException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
     public function start(
-        NeopixelService $neopixelService,
+        AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         int $iterations = 0
     ): AjaxResponse {
-        $neopixelService->writeSequenceStart($module, $iterations);
+        $animationService->start($module, $iterations);
 
         return $this->returnSuccess();
     }
@@ -246,6 +237,8 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
@@ -253,12 +246,11 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function stop(
         AnimationService $animationService,
-        NeopixelService $neopixelService,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $animationService->stop($module);
-        $neopixelService->writeSequenceStop($module);
-
-        return $this->returnSuccess();
+        return $animationService->stop($module)
+            ? $this->returnSuccess()
+            : $this->returnFailure('No animation stopped.')
+        ;
     }
 }

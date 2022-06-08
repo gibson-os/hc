@@ -22,6 +22,8 @@ use JsonSerializable;
  */
 #[Table]
 #[Key(unique: true, columns: ['module_id', 'name'])]
+#[Key(columns: ['module_id', 'active'])]
+#[Key(columns: ['module_id', 'transmitted'])]
 class Animation extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
