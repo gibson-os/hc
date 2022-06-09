@@ -42,6 +42,9 @@ class Animation extends AbstractModel implements JsonSerializable, AutoCompleteM
     private bool $started = false;
 
     #[Column]
+    private bool $paused = false;
+
+    #[Column]
     private bool $transmitted = false;
 
     #[Constraint]
@@ -106,6 +109,18 @@ class Animation extends AbstractModel implements JsonSerializable, AutoCompleteM
     public function setStarted(bool $started): Animation
     {
         $this->started = $started;
+
+        return $this;
+    }
+
+    public function isPaused(): bool
+    {
+        return $this->paused;
+    }
+
+    public function setPaused(bool $paused): Animation
+    {
+        $this->paused = $paused;
 
         return $this;
     }

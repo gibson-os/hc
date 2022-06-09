@@ -20,8 +20,8 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led as AnimationLed;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
-use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
-use GibsonOS\Module\Hc\Service\Neopixel\AnimationService as AnimationSequenceService;
+use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
+use GibsonOS\Module\Hc\Service\Neopixel\AnimationService;
 use GibsonOS\Module\Hc\Service\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use JsonException;
@@ -42,8 +42,8 @@ class PlayAnimationCommand extends AbstractCommand
 
     public function __construct(
         private readonly NeopixelService $neopixelService,
-        private readonly AnimationAttributeService $animationAttributeService,
-        private readonly AnimationSequenceService $animationSequenceService,
+        private readonly AnimationService $animationService,
+        private readonly AnimationRepository $animationRepository,
         private readonly LedService $ledService,
         private readonly ModuleRepository $moduleRepository,
         private readonly mysqlDatabase $mysqlDatabase,
@@ -66,10 +66,13 @@ class PlayAnimationCommand extends AbstractCommand
     protected function run(): int
     {
         $module = $this->moduleRepository->getById($this->moduleId);
-        $this->animationSequenceService->stop($module);
-        $this->animationAttributeService->setPid($module, getmypid());
-        $steps = $this->animationAttributeService->getSteps($module);
-        $runtimes = $this->animationSequenceService->getRuntimes($steps);
+        $animation = $this->animationRepository->getStarted($module)
+            ->setPid(getmypid())
+        ;
+        $this->modelManager->save($animation);
+
+        $steps = $this->animationService->transformToTimeSteps($animation);
+        $runtimes = $this->animationService->getRuntimes($steps);
         $this->mysqlDatabase->closeDB();
         $startTime = (int) (microtime(true) * 1000000);
 
