@@ -22,10 +22,7 @@ use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation;
 use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
-use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
 use GibsonOS\Module\Hc\Service\Neopixel\AnimationService;
-use GibsonOS\Module\Hc\Service\Neopixel\LedService;
-use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Store\Neopixel\AnimationStore;
 use JsonException;
 use ReflectionException;
@@ -90,6 +87,7 @@ class NeopixelAnimationController extends AbstractController
      * @throws SelectError
      * @throws JsonException
      * @throws ReflectionException
+     * @throws ImageExists
      */
     #[CheckPermission(Permission::WRITE, ['id' => Permission::WRITE + Permission::DELETE])]
     public function save(
@@ -134,46 +132,12 @@ class NeopixelAnimationController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE)]
     public function send(
-        LedService $ledService,
-        NeopixelService $neopixelService,
-        AnimationService $animationSequenceService,
-        AnimationAttributeService $animationAttributeService,
+        AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetMappedModel(['id' => 'id'], ['module' => 'module'])] Animation $animation,
         array $items = []
     ): AjaxResponse {
-        $steps = $animationSequenceService->transformToTimeSteps($items);
-        $runtimes = $animationSequenceService->getRuntimes($steps);
-        $msPerStep = 1000 / $module->getPwmSpeed();
-        $newLeds = [];
-
-        $neopixelService->writeSequenceNew($module);
-
-        foreach ($steps as $time => $leds) {
-            $oldLeds = $newLeds;
-            $newLeds = [];
-
-            foreach ($leds as $led) {
-                $newLeds[$led->getLed()->getNumber()] = $led;
-            }
-
-            $changedLeds = $ledService->getChanges($oldLeds, $newLeds);
-            $pwmSteps = (int) ceil($msPerStep * $runtimes[$time]);
-
-            do {
-                $runtime = $pwmSteps;
-
-                if ($runtime > 65535) {
-                    $pwmSteps -= 65535;
-                    $runtime = 65535;
-                }
-
-                $neopixelService->writeSequenceAddStep($module, $runtime, $changedLeds);
-                $changedLeds = [];
-            } while ($runtime === 65535);
-        }
-
-        $animationAttributeService->setSteps($module, $steps, true);
+        $animationService->send($animation);
 
         return $this->returnSuccess();
     }
@@ -220,17 +184,18 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
     public function pause(
-        NeopixelService $neopixelService,
+        AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $neopixelService->writeSequencePause($module);
-        // $animationService->setStarted($slave, false);
+        $animationService->pause($module);
 
         return $this->returnSuccess();
     }

@@ -22,7 +22,7 @@ use JsonSerializable;
  */
 #[Table]
 #[Key(unique: true, columns: ['module_id', 'name'])]
-#[Key(columns: ['module_id', 'active'])]
+#[Key(columns: ['module_id', 'started'])]
 #[Key(columns: ['module_id', 'transmitted'])]
 class Animation extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
@@ -40,6 +40,9 @@ class Animation extends AbstractModel implements JsonSerializable, AutoCompleteM
 
     #[Column]
     private bool $started = false;
+
+    #[Column]
+    private bool $paused = false;
 
     #[Column]
     private bool $transmitted = false;
@@ -106,6 +109,18 @@ class Animation extends AbstractModel implements JsonSerializable, AutoCompleteM
     public function setStarted(bool $started): Animation
     {
         $this->started = $started;
+
+        return $this;
+    }
+
+    public function isPaused(): bool
+    {
+        return $this->paused;
+    }
+
+    public function setPaused(bool $paused): Animation
+    {
+        $this->paused = $paused;
 
         return $this;
     }
