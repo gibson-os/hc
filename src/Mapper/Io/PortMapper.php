@@ -1,24 +1,21 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Mapper;
+namespace GibsonOS\Module\Hc\Mapper\Io;
 
-use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Dto\Io\Direction;
-use GibsonOS\Module\Hc\Dto\Io\Port;
+use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Repository\AttributeRepository;
+use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
-use JsonException;
-use ReflectionException;
 
-class IoMapper
+class PortMapper
 {
     public function __construct(
-        private TransformService $transformService,
-        private AttributeRepository $attributeRepository
+        private readonly TransformService $transformService,
+        private readonly PortRepository $portRepository,
     ) {
     }
 
@@ -57,23 +54,17 @@ class IoMapper
     }
 
     /**
-     * @throws FactoryError
      * @throws SelectError
-     * @throws JsonException
-     * @throws ReflectionException
      *
      * @return Port[]
      */
-    public function getPorts(Module $module, string $data, int $portCount): array
+    public function getPorts(Module $module, string $data): array
     {
         $byteCount = 0;
         $ports = [];
 
-        for ($i = 0; $i < $portCount; ++$i) {
-            $ports[$i] = $this->getPort(
-                $this->attributeRepository->loadDto(new Port($module, $i)),
-                substr($data, $byteCount, 2)
-            );
+        foreach ($this->portRepository->getByModule($module) as $port) {
+            $ports[] = $this->getPort($port, substr($data, $byteCount, 2));
             $byteCount += 2;
         }
 

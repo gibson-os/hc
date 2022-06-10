@@ -19,12 +19,13 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\Io\Direction;
-use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Dto\Parameter\Io\PortParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
 use GibsonOS\Module\Hc\Exception\AttributeException;
+use GibsonOS\Module\Hc\Exception\WriteException;
+use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Repository\AttributeRepository;
+use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use JsonException;
@@ -283,8 +284,8 @@ class IoEvent extends AbstractHcEvent
         ReflectionManager $reflectionManager,
         TypeRepository $typeRepository,
         LoggerInterface $logger,
-        private IoService $ioService,
-        private AttributeRepository $attributeRepository
+        private readonly IoService $ioService,
+        private readonly PortRepository $portRepository,
     ) {
         parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->ioService);
     }
@@ -334,14 +335,12 @@ class IoEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
-     * @throws ReceiveError
-     * @throws SaveError
      */
     #[Event\Method('Ports auslesen')]
     public function getPorts(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave
+        #[Event\Parameter(ModuleParameter::class)] Module $module
     ): array {
-        return $this->ioService->getPorts($slave);
+        return $this->portRepository->getByModule($module);
     }
 
     /**
@@ -413,7 +412,6 @@ class IoEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
-     * @throws ReflectionException
      */
     #[Event\Method('Port Zustand setzen')]
     public function setValue(
@@ -421,14 +419,12 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(BoolParameter::class, 'Zustand')] bool $value,
     ): void {
-        $port = $this->attributeRepository->loadDto($port);
         $port->setValue($value);
         $this->ioService->setPort($port);
     }
 
     /**
      * @throws AbstractException
-     * @throws ReflectionException
      */
     #[Event\Method('Port Fade In setzen')]
     public function setFadeIn(
@@ -436,14 +432,12 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Fade In')] int $fadeIn,
     ): void {
-        $port = $this->attributeRepository->loadDto($port);
         $port->setFadeIn($fadeIn);
         $this->ioService->setPort($port);
     }
 
     /**
      * @throws AbstractException
-     * @throws ReflectionException
      */
     #[Event\Method('Port Blinken setzen')]
     public function setBlink(
@@ -451,14 +445,12 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Blink')] int $blink,
     ): void {
-        $port = $this->attributeRepository->loadDto($port);
         $port->setBlink($blink);
         $this->ioService->setPort($port);
     }
 
     /**
      * @throws AbstractException
-     * @throws ReflectionException
      */
     #[Event\Method('Port PWM setzen')]
     public function setPwm(
@@ -466,14 +458,12 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Fade In')] int $pwm,
     ): void {
-        $port = $this->attributeRepository->loadDto($port);
         $port->setBlink($pwm);
         $this->ioService->setPort($port);
     }
 
     /**
      * @throws AbstractException
-     * @throws ReflectionException
      */
     #[Event\Method('Port Delay setzen')]
     public function setDelay(
@@ -481,14 +471,16 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Verzögerung')] int $delay,
     ): void {
-        $port = $this->attributeRepository->loadDto($port);
         $port->setDelay($delay);
         $this->ioService->setPort($port);
     }
 
     /**
+     * @param Module $module
+     * @param Port   $port
+     * @param bool   $pullUp
+     *
      * @throws AbstractException
-     * @throws ReflectionException
      */
     #[Event\Method('Port PullUp setzen')]
     public function setPullUp(
@@ -496,7 +488,6 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(BoolParameter::class, 'PullUp')] bool $pullUp,
     ): void {
-        $port = $this->attributeRepository->loadDto($port);
         $port->setPullUp($pullUp);
         $this->ioService->setPort($port);
     }
@@ -504,6 +495,7 @@ class IoEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Ports in EEPROM schreiben')]
     public function writePortsToEeprom(
@@ -548,6 +540,7 @@ class IoEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
+     * @throws WriteException
      */
     #[Event\Method('DirectConnect löschen')]
     public function deleteDirectConnect(
@@ -560,6 +553,7 @@ class IoEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
+     * @throws WriteException
      */
     #[Event\Method('Alle DirectConnects löschen')]
     public function resetDirectConnect(
@@ -573,6 +567,7 @@ class IoEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('DirectConnect defragmentieren')]
     public function defragmentDirectConnect(
@@ -583,7 +578,11 @@ class IoEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
+     * @throws DateTimeError
+     * @throws EventException
+     * @throws FactoryError
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('DirectConnect de-/aktivieren')]
     public function activateDirectConnect(

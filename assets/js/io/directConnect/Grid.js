@@ -60,7 +60,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                         me.setLoading(true);
 
                         GibsonOS.Ajax.request({
-                            url: baseDir + 'hc/io/saveDirectConnect',
+                            url: baseDir + 'hc/ioDirectConnect/save',
                             params:  {
                                 moduleId: me.gos.data.module.id,
                                 inputPort: record.get('inputPort'),
@@ -358,7 +358,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                                 me.setLoading(true);
 
                                 GibsonOS.Ajax.request({
-                                    url: baseDir + 'hc/io/deleteDirectConnect',
+                                    url: baseDir + 'hc/ioDirectConnect/delete',
                                     params: {
                                         moduleId: me.gos.data.module.id,
                                         inputPort: record.get('inputPort'),
@@ -417,7 +417,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                                 me.setLoading(true);
 
                                 GibsonOS.Ajax.request({
-                                    url: baseDir + 'hc/io/resetDirectConnect',
+                                    url: baseDir + 'hc/ioDirectConnect/reset',
                                     params: {
                                         moduleId: me.gos.data.module.id,
                                         inputPort: record.get('inputPort'),
@@ -453,7 +453,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                     me.setLoading(true);
 
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/io/activateDirectConnect',
+                        url: baseDir + 'hc/ioDirectConnect/activate',
                         params: {
                             moduleId: me.gos.data.module.id,
                             activate: pressed
@@ -481,7 +481,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                     }
 
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/io/readDirectConnect',
+                        url: baseDir + 'hc/ioDirectConnect/read',
                         params:  {
                             moduleId: me.gos.data.module.id,
                             inputPort: port,
@@ -533,7 +533,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                             me.setLoading(true);
 
                             GibsonOS.Ajax.request({
-                                url: baseDir + 'hc/io/defragmentDirectConnect',
+                                url: baseDir + 'hc/ioDirectConnect/defragment',
                                 params: {
                                     moduleId: me.gos.data.module.id
                                 },

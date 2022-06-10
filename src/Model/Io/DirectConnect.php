@@ -7,15 +7,16 @@ use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use JsonSerializable;
 
 /**
- * @method Port          getInput()
- * @method DirectConnect setInput()
- * @method Port          getOutput()
- * @method DirectConnect setOutput()
+ * @method Port          getInputPort()
+ * @method DirectConnect setInputPort(Port $port)
+ * @method Port          getOutputPort()
+ * @method DirectConnect setOutputPort(Port $port)
  */
 #[Table]
-class DirectConnect extends AbstractModel
+class DirectConnect extends AbstractModel implements JsonSerializable
 {
     use PortTrait;
 
@@ -23,19 +24,19 @@ class DirectConnect extends AbstractModel
     private ?int $id = null;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $inputId;
+    private int $inputPortId;
 
     #[Column]
     private bool $inputValue = false;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $outputId;
+    private int $outputPortId;
 
-    #[Constraint(name: 'fkHc_io_direct_connectHc_io_input_port', ownColumn: 'input_id')]
-    protected Port $input;
+    #[Constraint(name: 'fkHc_io_direct_connectHc_io_input_port', ownColumn: 'input_port_id')]
+    protected Port $inputPort;
 
-    #[Constraint(name: 'fkHc_io_direct_connectHc_io_output_port', ownColumn: 'output_id')]
-    protected Port $output;
+    #[Constraint(name: 'fkHc_io_direct_connectHc_io_output_port', ownColumn: 'output_port_id')]
+    protected Port $outputPort;
 
     public function getId(): ?int
     {
@@ -49,14 +50,14 @@ class DirectConnect extends AbstractModel
         return $this;
     }
 
-    public function getInputId(): int
+    public function getInputPortId(): int
     {
-        return $this->inputId;
+        return $this->inputPortId;
     }
 
-    public function setInputId(int $inputId): DirectConnect
+    public function setInputPortId(int $inputPortId): DirectConnect
     {
-        $this->inputId = $inputId;
+        $this->inputPortId = $inputPortId;
 
         return $this;
     }
@@ -73,15 +74,29 @@ class DirectConnect extends AbstractModel
         return $this;
     }
 
-    public function getOutputId(): int
+    public function getOutputPortId(): int
     {
-        return $this->outputId;
+        return $this->outputPortId;
     }
 
-    public function setOutputId(int $outputId): DirectConnect
+    public function setOutputPortId(int $outputPortId): DirectConnect
     {
-        $this->outputId = $outputId;
+        $this->outputPortId = $outputPortId;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'inputValue' => $this->isInputValue(),
+            'value' => $this->isValue(),
+            'pwm' => $this->getPwm(),
+            'blink' => $this->getBlink(),
+            'fadeIn' => $this->getFadeIn(),
+            'inputPort' => $this->getInputPort(),
+            'outputPort' => $this->getOutputPort(),
+        ];
     }
 }

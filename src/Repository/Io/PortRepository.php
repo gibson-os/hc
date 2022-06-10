@@ -20,12 +20,29 @@ class PortRepository extends AbstractRepository
 
     /**
      * @throws SelectError
+     */
+    public function getByNumber(Module $module, int $number): Port
+    {
+        return $this->fetchOne(
+            '`module_id`=? AND `number`=?',
+            [$module->getId() ?? 0, $number],
+            Port::class
+        );
+    }
+
+    /**
+     * @throws SelectError
      *
      * @return Port[]
      */
     public function getByModule(Module $module): array
     {
-        return $this->fetchAll('`module_id`=?', [$module->getId()], Port::class);
+        return $this->fetchAll(
+            '`module_id`=?',
+            [$module->getId()],
+            Port::class,
+            orderBy: '`number`'
+        );
     }
 
     /**

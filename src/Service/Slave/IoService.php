@@ -18,17 +18,18 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\DevicePushService;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
-use GibsonOS\Module\Hc\Dto\Io\Port;
 use GibsonOS\Module\Hc\Event\IoEvent;
 use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
-use GibsonOS\Module\Hc\Mapper\IoMapper;
+use GibsonOS\Module\Hc\Mapper\Io\PortMapper;
 use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
 use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
+use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
+use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
@@ -123,10 +124,11 @@ class IoService extends AbstractHcSlave
         SlaveFactory $slaveFactory,
         LoggerInterface $logger,
         ModelManager $modelManager,
-        private IoMapper $ioMapper,
-        private AttributeRepository $attributeRepository,
-        private ValueRepository $valueRepository,
-        private DevicePushService $devicePushService
+        private readonly PortMapper $ioMapper,
+        private readonly AttributeRepository $attributeRepository,
+        private readonly ValueRepository $valueRepository,
+        private readonly DevicePushService $devicePushService,
+        private readonly PortRepository $portRepository,
     ) {
         parent::__construct(
             $masterService,
@@ -162,19 +164,19 @@ class IoService extends AbstractHcSlave
         }
 
         $ports = $this->readPorts($module);
-        $this->attributeRepository->startTransaction();
+        $this->portRepository->startTransaction();
 
         try {
             foreach ($ports as $port) {
-                $this->attributeRepository->saveDto($port);
+                $this->modelManager->save($port);
             }
         } catch (Throwable $exception) {
-            $this->attributeRepository->rollback();
+            $this->portRepository->rollback();
 
             throw $exception;
         }
 
-        $this->attributeRepository->commit();
+        $this->portRepository->commit();
 
         return $module;
     }
@@ -188,8 +190,6 @@ class IoService extends AbstractHcSlave
     }
 
     /**
-     * @throws DeleteError
-     * @throws FactoryError
      * @throws JsonException
      * @throws ReflectionException
      * @throws SaveError
@@ -197,7 +197,7 @@ class IoService extends AbstractHcSlave
      */
     public function receive(Module $module, BusMessage $busMessage): void
     {
-        $ports = $this->ioMapper->getPorts($module, $busMessage->getData() ?? '', (int) $module->getConfig());
+        $ports = $this->ioMapper->getPorts($module, $busMessage->getData() ?? '');
 
         foreach ($ports as $port) {
             $eventParameters = $port->jsonSerialize();
@@ -205,7 +205,7 @@ class IoService extends AbstractHcSlave
             $eventParameters['module'] = $port->getModule();
 
             $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_READ_PORT, $eventParameters);
-            $this->attributeRepository->saveDto($port);
+            $this->modelManager->save($port);
             $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_PORT, $eventParameters);
         }
 
@@ -249,7 +249,7 @@ class IoService extends AbstractHcSlave
             $port,
             $this->read($port->getModule(), $port->getNumber(), self::COMMAND_PORT_LENGTH)
         );
-        $this->attributeRepository->saveDto($port);
+        $this->modelManager->save($port);
         $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_PORT, $eventParameters);
 
         return $port;
@@ -318,19 +318,19 @@ class IoService extends AbstractHcSlave
      */
     public function toggleValue(Port $port): void
     {
-        $this->attributeRepository->startTransaction();
+        $this->portRepository->startTransaction();
 
         try {
             $port->setValue(!$port->isValue());
-            $this->attributeRepository->saveDto($port);
+            $this->modelManager->save($port);
             $this->writePort($port);
         } catch (AbstractException $exception) {
-            $this->attributeRepository->rollback();
+            $this->portRepository->rollback();
 
             throw $exception;
         }
 
-        $this->attributeRepository->commit();
+        $this->portRepository->commit();
     }
 
     /**
@@ -341,22 +341,22 @@ class IoService extends AbstractHcSlave
      */
     public function setPort(Port $port): void
     {
-        $this->attributeRepository->startTransaction();
+        $this->portRepository->startTransaction();
 
         if ($port->getFadeIn() > 0) {
             $port->setValue(true);
         }
 
         try {
-            $this->attributeRepository->saveDto($port);
+            $this->modelManager->save($port);
             $this->writePort($port);
         } catch (Exception $exception) {
-            $this->attributeRepository->rollback();
+            $this->portRepository->rollback();
 
             throw $exception;
         }
 
-        $this->attributeRepository->commit();
+        $this->portRepository->commit();
     }
 
     /**
@@ -364,9 +364,7 @@ class IoService extends AbstractHcSlave
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      *
@@ -379,31 +377,9 @@ class IoService extends AbstractHcSlave
         $config = (int) $module->getConfig();
         $length = $config * self::PORT_BYTE_LENGTH;
         $data = $this->read($module, self::COMMAND_STATUS, $length);
-        $ports = $this->ioMapper->getPorts($module, $data, $config);
+        $ports = $this->ioMapper->getPorts($module, $data);
 
         $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_PORTS, ['slave' => $module]);
-
-        return $ports;
-    }
-
-    /**
-     * @throws AbstractException
-     * @throws DateTimeError
-     * @throws EventException
-     * @throws FactoryError
-     * @throws JsonException
-     * @throws ReceiveError
-     * @throws ReflectionException
-     * @throws SaveError
-     * @throws SelectError
-     */
-    public function getPorts(Module $module): array
-    {
-        $ports = $this->readPorts($module);
-
-        foreach ($ports as $port) {
-            $this->attributeRepository->saveDto($port);
-        }
 
         return $ports;
     }
@@ -543,19 +519,19 @@ class IoService extends AbstractHcSlave
                 throw new ReceiveError('Es existiert kein DirectConnect Befehl!', self::DIRECT_CONNECT_READ_NOT_EXIST);
             }
 
-            $this->attributeRepository->startTransaction();
+            $this->portRepository->startTransaction();
 
             try {
                 $directConnect = $this->ioMapper->getDirectConnectAsArray($data);
                 $directConnect['hasMore'] = $lastByte === 255;
                 $this->createDirectConnectAttributes($slave, $port, $directConnect, $order);
             } catch (AbstractException $exception) {
-                $this->attributeRepository->rollback();
+                $this->portRepository->rollback();
 
                 throw $exception;
             }
 
-            $this->attributeRepository->commit();
+            $this->portRepository->commit();
             $directConnect['hasMore'] = (bool) (($this->transformService->asciiToUnsignedInt($data, 3) >> 5) & 1);
 
             break;
