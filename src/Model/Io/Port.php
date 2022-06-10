@@ -19,11 +19,20 @@ class Port extends AbstractModel
     #[Column]
     private Direction $direction = Direction::INPUT;
 
+    #[Column(Column::TYPE_VARCHAR, length: 64)]
+    private string $name;
+
     #[Column]
     private bool $pullUp = true;
 
     #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $delay = 0;
+
+    /**
+     * @var string[]
+     */
+    #[Column]
+    private array $valueNames = ['Offen', 'Zu'];
 
     public function getId(): ?int
     {
@@ -49,6 +58,18 @@ class Port extends AbstractModel
         return $this;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): Port
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
     public function isPullUp(): bool
     {
         return $this->pullUp;
@@ -69,6 +90,24 @@ class Port extends AbstractModel
     public function setDelay(int $delay): self
     {
         $this->delay = $delay;
+
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getValueNames(): array
+    {
+        return $this->valueNames;
+    }
+
+    /**
+     * @param string[] $valueNames
+     */
+    public function setValueNames(array $valueNames): Port
+    {
+        $this->valueNames = $valueNames;
 
         return $this;
     }

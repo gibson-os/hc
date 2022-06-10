@@ -11,6 +11,8 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Mapper\ModelMapper;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Dto\Io\Direction;
+use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation;
 use GibsonOS\Module\Hc\Model\Neopixel\Image;
@@ -63,6 +65,7 @@ class SplitAttributesInTablesCommand extends AbstractCommand
     protected function run(): int
     {
         $this->splitNeopixel();
+        $this->splitIo();
 
         return self::SUCCESS;
     }
@@ -81,6 +84,16 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         $this->createLeds($type);
         $this->createImages($type);
         $this->createAnimations($type);
+    }
+
+    /**
+     * @throws SelectError
+     */
+    private function splitIo(): void
+    {
+        $type = $this->typeRepository->getByHelperName('io');
+        $this->createIos($type);
+        $this->createDirectConnects($type);
     }
 
     /**
@@ -216,6 +229,28 @@ class SplitAttributesInTablesCommand extends AbstractCommand
 
             $this->modelManager->save($animation);
         }
+    }
+
+    private function createIos(Type $type): void
+    {
+        foreach ($this->attributeRepository->getByType($type, 'port') as $portAttribute) {
+            $port = (new Port())
+                ->setDirection(Direction::from((int) $portAttribute['direction']))
+                ->setName($portAttribute['name'])
+                ->setPullUp((bool) ((int) $portAttribute['pullUp']))
+                ->setDelay((int) $portAttribute['delay'])
+                ->setPwm((int) $portAttribute['pwm'])
+                ->setBlink((int) $portAttribute['blink'])
+                ->setValue((bool) ((int) $portAttribute['value']))
+                ->setFadeIn((int) $portAttribute['fade'])
+                ->setValueNames(JsonUtility::decode($portAttribute['valueNames']))
+            ;
+            $this->modelManager->save($port);
+        }
+    }
+
+    private function createDirectConnects(Type $type): void
+    {
     }
 
     /**
