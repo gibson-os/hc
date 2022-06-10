@@ -34,7 +34,6 @@ class IoController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function set(
         IoService $ioService,
-        // Required to get port attribute
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetAttribute] Port $port,
     ): AjaxResponse {

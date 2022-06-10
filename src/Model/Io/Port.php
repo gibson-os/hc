@@ -8,8 +8,10 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Dto\Io\Direction;
 use GibsonOS\Module\Hc\Model\Module;
+use JsonSerializable;
 
 /**
  * @method Module getModule()
@@ -17,7 +19,7 @@ use GibsonOS\Module\Hc\Model\Module;
  */
 #[Table]
 #[Key(unique: true, columns: ['module_id', 'number'])]
-class Port extends AbstractModel
+class Port extends AbstractModel implements AutoCompleteModelInterface, JsonSerializable
 {
     use PortTrait;
 
@@ -30,7 +32,7 @@ class Port extends AbstractModel
     #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $number;
 
-    #[Column(Column::TYPE_VARCHAR, length: 64)]
+    #[Column(type: Column::TYPE_VARCHAR, length: 64)]
     private string $name;
 
     #[Column]
@@ -99,7 +101,7 @@ class Port extends AbstractModel
         return $this;
     }
 
-    public function isPullUp(): bool
+    public function hasPullUp(): bool
     {
         return $this->pullUp;
     }
@@ -151,5 +153,27 @@ class Port extends AbstractModel
         $this->moduleId = $moduleId;
 
         return $this;
+    }
+
+    public function getAutoCompleteId(): int
+    {
+        return $this->getId() ?? 0;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'number' => $this->getNumber(),
+            'direction' => $this->getDirection()->value,
+            'pullUp' => $this->hasPullUp(),
+            'delay' => $this->getDelay(),
+            'value' => $this->isValue(),
+            'valueNames' => $this->getValueNames(),
+            'pwm' => $this->getPwm(),
+            'blink' => $this->getBlink(),
+            'fadeIn' => $this->getFadeIn(),
+        ];
     }
 }

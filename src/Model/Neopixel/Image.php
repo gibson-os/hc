@@ -75,7 +75,7 @@ class Image extends AbstractModel implements AutoCompleteModelInterface, JsonSer
         return $this;
     }
 
-    public function getAutoCompleteId(): string|int|float
+    public function getAutoCompleteId(): int
     {
         return $this->getId() ?? 0;
     }

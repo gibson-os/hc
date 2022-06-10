@@ -135,7 +135,7 @@ class Master extends AbstractModel implements JsonSerializable, AutoCompleteMode
 
     public function getAutoCompleteId(): int
     {
-        return (int) $this->getId();
+        return $this->getId() ?? 0;
     }
 
     public function jsonSerialize(): array

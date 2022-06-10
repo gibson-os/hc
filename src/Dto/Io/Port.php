@@ -176,7 +176,7 @@ class Port implements JsonSerializable, AttributeInterface, AutoCompleteModelInt
         ];
     }
 
-    public function getAutoCompleteId(): string|int|float
+    public function getAutoCompleteId(): int
     {
         return $this->getNumber();
     }
