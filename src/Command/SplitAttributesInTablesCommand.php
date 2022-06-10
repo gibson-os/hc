@@ -11,7 +11,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Mapper\ModelMapper;
 use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Module\Hc\Dto\Io\Direction;
+use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation;
@@ -19,6 +19,7 @@ use GibsonOS\Module\Hc\Model\Neopixel\Image;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
+use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
 use GibsonOS\Module\Hc\Repository\Neopixel\ImageRepository;
@@ -50,6 +51,7 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         private readonly LedRepository $ledRepository,
         private readonly ImageRepository $imageRepository,
         private readonly AnimationRepository $animationRepository,
+        private readonly PortRepository $portRepository
     ) {
         parent::__construct($logger);
     }
@@ -92,7 +94,7 @@ class SplitAttributesInTablesCommand extends AbstractCommand
     private function splitIo(): void
     {
         $type = $this->typeRepository->getByHelperName('io');
-        $this->createIos($type);
+        $this->createPorts($type);
         $this->createDirectConnects($type);
     }
 
@@ -164,12 +166,12 @@ class SplitAttributesInTablesCommand extends AbstractCommand
             ;
             $element = $sequence->getElements()[0];
 
-            foreach (JsonUtility::decode($element->getData()) ?? [] as $ledData) {
+            foreach (JsonUtility::decode($element->getData()) ?? [] as $number => $ledData) {
                 $image->addLeds([
                     (new Image\Led())
                         ->setLed($this->ledRepository->getByNumber(
                             $this->getModule($sequence->getModuleId() ?? 0),
-                            $ledData['number']
+                            $number
                         ))
                         ->setRed($ledData['red'])
                         ->setGreen($ledData['green'])
@@ -206,9 +208,6 @@ class SplitAttributesInTablesCommand extends AbstractCommand
             ;
 
             foreach ($sequence->getElements() as $element) {
-                $leds = [];
-                $time = 0;
-
                 foreach (JsonUtility::decode($element->getData()) ?? [] as $sequenceLed) {
                     $time = $sequenceLed['time'];
                     $animation->addLeds([(new Animation\Led())
@@ -231,21 +230,45 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         }
     }
 
-    private function createIos(Type $type): void
+    private function createPorts(Type $type): void
     {
+        $ports = [];
+
         foreach ($this->attributeRepository->getByType($type, 'port') as $portAttribute) {
-            $port = (new Port())
-                ->setDirection(Direction::from((int) $portAttribute['direction']))
-                ->setName($portAttribute['name'])
-                ->setPullUp((bool) ((int) $portAttribute['pullUp']))
-                ->setDelay((int) $portAttribute['delay'])
-                ->setPwm((int) $portAttribute['pwm'])
-                ->setBlink((int) $portAttribute['blink'])
-                ->setValue((bool) ((int) $portAttribute['value']))
-                ->setFadeIn((int) $portAttribute['fade'])
-                ->setValueNames(JsonUtility::decode($portAttribute['valueNames']))
-            ;
-            $this->modelManager->save($port);
+            $moduleId = $portAttribute->getModuleId() ?? 0;
+            $number = $portAttribute->getSubId() ?? 0;
+
+            if (!isset($ports[$moduleId])) {
+                $ports[$moduleId] = [];
+            }
+
+            if (!isset($ports[$moduleId][$number])) {
+                $ports[$moduleId][$number] = [
+                    'module' => $portAttribute->getModule(),
+                    'number' => $number,
+                ];
+            }
+
+            $key = $portAttribute->getKey();
+
+            if ($key === 'valueName') {
+                continue;
+            }
+
+            $ports[$moduleId][$number][$key] = match ($key) {
+                'valueNames' => array_map(
+                    fn (Value $value): string => $value->getValue(),
+                    $portAttribute->getValues(),
+                ),
+                'name' => $portAttribute->getValues()[0]->getValue(),
+                default => (int) $portAttribute->getValues()[0]->getValue()
+            };
+        }
+
+        foreach ($ports as $modulePorts) {
+            foreach ($modulePorts as $port) {
+                $this->modelManager->save($this->modelMapper->mapToObject(Port::class, $port));
+            }
         }
     }
 

@@ -42,7 +42,7 @@ class DirectConnect extends AbstractModel
         return $this->id;
     }
 
-    public function setId(?int $id): DirectConnect
+    public function setId(int $id): DirectConnect
     {
         $this->id = $id;
 

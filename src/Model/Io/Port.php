@@ -4,11 +4,19 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model\Io;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Constraint;
+use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Dto\Io\Direction;
+use GibsonOS\Module\Hc\Model\Module;
 
+/**
+ * @method Module getModule()
+ * @method Port   setModule(Module $module)
+ */
 #[Table]
+#[Key(unique: true, columns: ['module_id', 'number'])]
 class Port extends AbstractModel
 {
     use PortTrait;
@@ -18,6 +26,9 @@ class Port extends AbstractModel
 
     #[Column]
     private Direction $direction = Direction::INPUT;
+
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $number;
 
     #[Column(Column::TYPE_VARCHAR, length: 64)]
     private string $name;
@@ -34,12 +45,18 @@ class Port extends AbstractModel
     #[Column]
     private array $valueNames = ['Offen', 'Zu'];
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $moduleId;
+
+    #[Constraint]
+    protected Module $module;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(?int $id): Port
+    public function setId(int $id): Port
     {
         $this->id = $id;
 
@@ -54,6 +71,18 @@ class Port extends AbstractModel
     public function setDirection(Direction $direction): self
     {
         $this->direction = $direction;
+
+        return $this;
+    }
+
+    public function getNumber(): int
+    {
+        return $this->number;
+    }
+
+    public function setNumber(int $number): Port
+    {
+        $this->number = $number;
 
         return $this;
     }
@@ -108,6 +137,18 @@ class Port extends AbstractModel
     public function setValueNames(array $valueNames): Port
     {
         $this->valueNames = $valueNames;
+
+        return $this;
+    }
+
+    public function getModuleId(): int
+    {
+        return $this->moduleId;
+    }
+
+    public function setModuleId(int $moduleId): Port
+    {
+        $this->moduleId = $moduleId;
 
         return $this;
     }

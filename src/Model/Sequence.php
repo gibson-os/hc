@@ -19,6 +19,8 @@ use mysqlDatabase;
  * @method Type      getTypeModel()
  * @method Module    getModule()
  * @method Element[] getElements()
+ * @method Sequence  addElements(Element[] $elements)
+ * @method Sequence  setElements(Element[] $elements)
  */
 #[Table]
 #[Key(columns: ['module_id', 'type'])]
@@ -53,7 +55,7 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
      * @var Element[]|null
      */
     #[Constraint('sequence', Element::class)]
-    protected ?array $elements = null;
+    protected array $elements = [];
 
     public function __construct(mysqlDatabase $database = null)
     {
@@ -152,23 +154,6 @@ class Sequence extends AbstractModel implements JsonSerializable, AutoCompleteMo
         }
 
         $this->setModuleId($moduleId);
-
-        return $this;
-    }
-
-    /**
-     * @param Element[] $elements
-     */
-    public function setElements(?array $elements): Sequence
-    {
-        $this->elements = $elements;
-
-        return $this;
-    }
-
-    public function addElement(Element $element): Sequence
-    {
-        $this->elements[] = $element;
 
         return $this;
     }
