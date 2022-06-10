@@ -18,17 +18,19 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\DevicePushService;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
+use GibsonOS\Module\Hc\Dto\Io\DirectConnect as DirectConnectDto;
 use GibsonOS\Module\Hc\Event\IoEvent;
 use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Mapper\Io\DirectConnectMapper;
 use GibsonOS\Module\Hc\Mapper\Io\PortMapper;
-use GibsonOS\Module\Hc\Model\Attribute as AttributeModel;
-use GibsonOS\Module\Hc\Model\Attribute\Value as ValueModel;
+use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
+use GibsonOS\Module\Hc\Repository\Io\DirectConnectRepository;
 use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
@@ -125,10 +127,12 @@ class IoService extends AbstractHcSlave
         LoggerInterface $logger,
         ModelManager $modelManager,
         private readonly PortMapper $ioMapper,
+        private readonly DirectConnectMapper $directConnectMapper,
         private readonly AttributeRepository $attributeRepository,
         private readonly ValueRepository $valueRepository,
         private readonly DevicePushService $devicePushService,
         private readonly PortRepository $portRepository,
+        private readonly DirectConnectRepository $directConnectRepository,
     ) {
         parent::__construct(
             $masterService,
@@ -388,88 +392,30 @@ class IoService extends AbstractHcSlave
      * @throws AbstractException
      * @throws Exception
      */
-    public function saveDirectConnect(
-        Module $slave,
-        int $inputPort,
-        int $inputValue,
-        int $order,
-        int $outputPort,
-        int $outputValue,
-        ?int $pwm,
-        ?int $blink,
-        ?int $fadeIn,
-        int $addOrSub
-    ): void {
-        $data = [
-            self::ATTRIBUTE_DIRECT_CONNECT_KEY_INPUT_PORT_VALUE => $inputValue,
-            self::ATTRIBUTE_DIRECT_CONNECT_KEY_OUTPUT_PORT => $outputPort,
-            self::ATTRIBUTE_DIRECT_CONNECT_KEY_VALUE => $outputValue,
-            self::ATTRIBUTE_DIRECT_CONNECT_KEY_PWM => $pwm,
-            self::ATTRIBUTE_DIRECT_CONNECT_KEY_BLINK => $blink,
-            self::ATTRIBUTE_DIRECT_CONNECT_KEY_FADE_IN => $fadeIn,
-            self::ATTRIBUTE_DIRECT_CONNECT_KEY_ADD_OR_SUB => $addOrSub,
-        ];
-        $valueModels = $this->valueRepository->getByTypeId(
-            $slave->getTypeId(),
-            $inputPort,
-            [(int) $slave->getId()],
-            self::ATTRIBUTE_TYPE_DIRECT_CONNECT,
-            null,
-            (string) $order
-        );
-        $changed = false;
-        $new = false;
-
-        $this->valueRepository->startTransaction();
+    public function saveDirectConnect(Module $module, DirectConnect $directConnect): void
+    {
+        $this->directConnectRepository->startTransaction();
 
         try {
-            if (!count($valueModels)) {
-                $new = true;
-                $changed = true;
+            $new = $directConnect->getId() === null;
+            $this->modelManager->save($directConnect);
 
-                $this->createDirectConnectAttributes($slave, $inputPort, $data, $order);
-            } else {
-                foreach ($valueModels as $valueModel) {
-                    $value = $data[$valueModel->getAttribute()->getKey()];
-
-                    if ($valueModel->getValue() == $value) {
-                        continue;
-                    }
-
-                    $changed = true;
-                    $valueModel->setValue((string) $value);
-                    $this->modelManager->save($valueModel);
-                }
-            }
-
-            $eventData = $data;
+            $eventData = $directConnect->jsonSerialize();
             $eventData['slave'] = $this;
 
-            if ($changed) {
-                $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_SAVE_DIRECT_CONNECT, $eventData);
-                $this->eventService->fire(
-                    $this->getEventClassName(),
-                    $new ? IoEvent::BEFORE_ADD_DIRECT_CONNECT : IoEvent::BEFORE_SET_DIRECT_CONNECT,
-                    $eventData
-                );
+            $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_SAVE_DIRECT_CONNECT, $eventData);
+            $this->eventService->fire(
+                $this->getEventClassName(),
+                $new ? IoEvent::BEFORE_ADD_DIRECT_CONNECT : IoEvent::BEFORE_SET_DIRECT_CONNECT,
+                $eventData
+            );
 
-                $this->write(
-                    $slave,
-                    $new ? self::COMMAND_ADD_DIRECT_CONNECT : self::COMMAND_SET_DIRECT_CONNECT,
-                    $this->getDeviceIdAsString($slave->getDeviceId() ?? 0) .
-                    $this->ioMapper->getDirectConnectAsString(
-                        $inputPort,
-                        $inputValue,
-                        $outputPort,
-                        $outputValue,
-                        $pwm ?? 0,
-                        $blink ?? 0,
-                        $fadeIn ?? 0,
-                        $addOrSub,
-                        $new ? null : $order
-                    )
-                );
-            }
+            $this->write(
+                $module,
+                $new ? self::COMMAND_ADD_DIRECT_CONNECT : self::COMMAND_SET_DIRECT_CONNECT,
+                $this->getDeviceIdAsString($module->getDeviceId() ?? 0) .
+                $this->directConnectMapper->getDirectConnectAsString($directConnect)
+            );
         } catch (AbstractException $exception) {
             $this->valueRepository->rollback();
 
@@ -492,7 +438,7 @@ class IoService extends AbstractHcSlave
      * @throws SaveError
      * @throws Exception
      */
-    public function readDirectConnect(Module $slave, int $port, int $order): array
+    public function readDirectConnect(Module $slave, int $port, int $order): DirectConnectDto
     {
         $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_READ_DIRECT_CONNECT, [
             'slave' => $slave,
@@ -500,7 +446,8 @@ class IoService extends AbstractHcSlave
             'order' => $order,
         ]);
 
-        $directConnect = ['hasMore' => false];
+        $directConnect = new DirectConnect();
+        $hasMore = false;
 
         for ($i = 0;; ++$i) {
             $this->write($slave, self::COMMAND_READ_DIRECT_CONNECT, chr($port) . chr($order));
@@ -522,9 +469,8 @@ class IoService extends AbstractHcSlave
             $this->portRepository->startTransaction();
 
             try {
-                $directConnect = $this->ioMapper->getDirectConnectAsArray($data);
-                $directConnect['hasMore'] = $lastByte === 255;
-                $this->createDirectConnectAttributes($slave, $port, $directConnect, $order);
+                $directConnect = $this->directConnectMapper->getDirectConnect($data);
+                $this->modelManager->save($directConnect);
             } catch (AbstractException $exception) {
                 $this->portRepository->rollback();
 
@@ -532,52 +478,18 @@ class IoService extends AbstractHcSlave
             }
 
             $this->portRepository->commit();
-            $directConnect['hasMore'] = (bool) (($this->transformService->asciiToUnsignedInt($data, 3) >> 5) & 1);
+            $hasMore = (bool) (($this->transformService->asciiToUnsignedInt($data, 3) >> 5) & 1);
 
             break;
         }
 
-        $eventData = $directConnect;
+        $eventData = $directConnect->jsonSerialize();
         $eventData['slave'] = $slave;
         $eventData['port'] = $port;
         $eventData['order'] = $order;
         $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_DIRECT_CONNECT, $eventData);
 
-        return $directConnect;
-    }
-
-    /**
-     * @throws SaveError
-     * @throws Exception
-     */
-    private function createDirectConnectAttributes(Module $slave, int $port, array $data, int $order = 0): void
-    {
-        foreach ($data as $key => $value) {
-            $attributes = $this->attributeRepository->getByModule(
-                $slave,
-                $port,
-                $key,
-                self::ATTRIBUTE_TYPE_DIRECT_CONNECT
-            );
-
-            if (!isset($attributes[0])) {
-                $attribute = (new AttributeModel())
-                    ->setModule($slave)
-                    ->setType(self::ATTRIBUTE_TYPE_DIRECT_CONNECT)
-                    ->setSubId($port)
-                    ->setKey($key);
-                $this->modelManager->save($attribute);
-            } else {
-                $attribute = $attributes[0];
-            }
-
-            $this->modelManager->save(
-                (new ValueModel())
-                    ->setAttribute($attribute)
-                    ->setValue((string) $value)
-                    ->setOrder($order)
-            );
-        }
+        return new DirectConnectDto($directConnect, $hasMore);
     }
 
     /**
@@ -590,48 +502,35 @@ class IoService extends AbstractHcSlave
      * @throws UpdateError
      * @throws WriteException
      */
-    public function deleteDirectConnect(Module $slave, int $port, int $order): void
+    public function deleteDirectConnect(Module $module, DirectConnect $directConnect): void
     {
+        $number = $directConnect->getInputPort()->getNumber();
+        $order = $directConnect->getOrder();
         $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_DELETE_DIRECT_CONNECT, [
-            'slave' => $slave,
-            'port' => $port,
+            'slave' => $module,
+            'port' => $number,
             'order' => $order,
         ]);
 
-        $this->valueRepository->startTransaction();
+        $this->directConnectRepository->startTransaction();
 
         try {
-            $this->valueRepository->deleteBySubId(
-                $port,
-                $slave->getTypeId(),
-                [(int) $slave->getId()],
-                self::ATTRIBUTE_TYPE_DIRECT_CONNECT,
-                null,
-                (string) $order
-            );
-            $this->valueRepository->updateOrder(
-                $slave->getTypeId(),
-                $order,
-                -1,
-                [(int) $slave->getId()],
-                self::ATTRIBUTE_TYPE_DIRECT_CONNECT,
-                $port
-            );
-
+            $this->modelManager->delete($directConnect);
+            $this->directConnectRepository->updateOrder($directConnect);
             $this->write(
-                $slave,
+                $module,
                 self::COMMAND_DELETE_DIRECT_CONNECT,
-                $this->getDeviceIdAsString($slave->getDeviceId() ?? 0) . chr($port) . chr($order)
+                $this->getDeviceIdAsString($module->getDeviceId() ?? 0) . chr($number) . chr($order)
             );
-        } catch (AbstractException $exception) {
+        } catch (Exception $exception) {
             $this->valueRepository->rollback();
 
             throw $exception;
         }
 
         $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_DELETE_DIRECT_CONNECT, [
-            'slave' => $slave,
-            'port' => $port,
+            'slave' => $module,
+            'port' => $number,
             'order' => $order,
         ]);
 

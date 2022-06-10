@@ -18,13 +18,16 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
 use GibsonOS\Module\Hc\Dto\Io\Direction;
 use GibsonOS\Module\Hc\Dto\Parameter\Io\PortParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
 use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Exception\WriteException;
+use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Repository\Io\DirectConnectRepository;
 use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
@@ -286,6 +289,7 @@ class IoEvent extends AbstractHcEvent
         LoggerInterface $logger,
         private readonly IoService $ioService,
         private readonly PortRepository $portRepository,
+        private readonly DirectConnectRepository $directConnectRepository,
     ) {
         parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->ioService);
     }
@@ -362,7 +366,7 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order
     ): array {
-        return $this->ioService->readDirectConnect($slave, $port->getNumber(), $order);
+        return $this->ioService->readDirectConnect($slave, $port->getNumber(), $order)->getDirectConnect()->jsonSerialize();
     }
 
     /**
@@ -514,10 +518,10 @@ class IoEvent extends AbstractHcEvent
     ]])]
     public function saveDirectConnect(
         #[Event\Parameter(ModuleParameter::class)] Module $slave,
-        #[Event\Parameter(PortParameter::class, 'Eingangsport')] Port $port,
-        #[Event\Parameter(IntParameter::class, 'Eingangsport geschloßen')] int $inputPortValue,
+        #[Event\Parameter(PortParameter::class, 'Eingangsport')] Port $inputPort,
+        #[Event\Parameter(BoolParameter::class, 'Eingangsport geschloßen')] bool $inputValue,
         #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order,
-        #[Event\Parameter(PortParameter::class, 'Ausgangsport')] int $outputPort,
+        #[Event\Parameter(PortParameter::class, 'Ausgangsport')] Port $outputPort,
         #[Event\Parameter(BoolParameter::class, 'Ausgangsport An')] bool $value,
         #[Event\Parameter(IntParameter::class, 'Ausgangsport PWM')] int $pwm,
         #[Event\Parameter(IntParameter::class, 'Ausgangsport Blinken')] int $blink,
@@ -526,15 +530,16 @@ class IoEvent extends AbstractHcEvent
     ): void {
         $this->ioService->saveDirectConnect(
             $slave,
-            $port->getNumber(),
-            $inputPortValue,
-            $order,
-            $outputPort,
-            (int) $value,
-            $pwm,
-            $blink,
-            $fadeIn,
-            $addOrSub
+            (new DirectConnect())
+                ->setInputPort($inputPort)
+                ->setOutputPort($outputPort)
+                ->setInputValue($inputValue)
+                ->setOrder($order)
+                ->setValue($value)
+                ->setPwm($pwm)
+                ->setBlink($blink)
+                ->setFadeIn($fadeIn)
+                ->setAddOrSub(AddOrSub::from($addOrSub))
         );
     }
 
@@ -548,7 +553,7 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order
     ): void {
-        $this->ioService->deleteDirectConnect($slave, $port->getNumber(), $order);
+        $this->ioService->deleteDirectConnect($slave, $this->directConnectRepository->getByOrder($port, $order));
     }
 
     /**

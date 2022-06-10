@@ -121,6 +121,11 @@ class DirectConnectStore extends AbstractDatabaseStore
 
     protected function setWheres(): void
     {
-        $this->addWhere('`' . $this->directConnectTableName . '`.`module_id`=?', [$this->module->getId()]);
+        $this->addWhere('`input_port`.`module_id`=?', [$this->module->getId()]);
+    }
+
+    protected function getDefaultOrder(): string
+    {
+        return '`input_port`.`number`, `' . $this->directConnectTableName . '`.`order`';
     }
 }

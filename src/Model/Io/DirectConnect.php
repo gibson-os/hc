@@ -5,8 +5,10 @@ namespace GibsonOS\Module\Hc\Model\Io;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
+use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
 use JsonSerializable;
 
 /**
@@ -16,6 +18,7 @@ use JsonSerializable;
  * @method DirectConnect setOutputPort(Port $port)
  */
 #[Table]
+#[Key(unique: true, columns: ['input_port_id', 'order'])]
 class DirectConnect extends AbstractModel implements JsonSerializable
 {
     use PortTrait;
@@ -31,6 +34,12 @@ class DirectConnect extends AbstractModel implements JsonSerializable
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $outputPortId;
+
+    #[Column(type: Column::TYPE_TINYINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $order = 0;
+
+    #[Column]
+    private AddOrSub $addOrSub = AddOrSub::SET;
 
     #[Constraint(name: 'fkHc_io_direct_connectHc_io_input_port', ownColumn: 'input_port_id')]
     protected Port $inputPort;
@@ -86,6 +95,30 @@ class DirectConnect extends AbstractModel implements JsonSerializable
         return $this;
     }
 
+    public function getOrder(): int
+    {
+        return $this->order;
+    }
+
+    public function setOrder(int $order): DirectConnect
+    {
+        $this->order = $order;
+
+        return $this;
+    }
+
+    public function getAddOrSub(): AddOrSub
+    {
+        return $this->addOrSub;
+    }
+
+    public function setAddOrSub(AddOrSub $addOrSub): DirectConnect
+    {
+        $this->addOrSub = $addOrSub;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         return [
@@ -95,6 +128,8 @@ class DirectConnect extends AbstractModel implements JsonSerializable
             'pwm' => $this->getPwm(),
             'blink' => $this->getBlink(),
             'fadeIn' => $this->getFadeIn(),
+            'order' => $this->getOrder(),
+            'addOrSub' => $this->getAddOrSub()->value,
             'inputPort' => $this->getInputPort(),
             'outputPort' => $this->getOutputPort(),
         ];

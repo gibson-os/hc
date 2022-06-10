@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Controller;
 
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
@@ -17,6 +18,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\WriteException;
+use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Store\Io\DirectConnectStore;
@@ -59,28 +61,9 @@ class IoDirectConnectController extends AbstractController
     public function save(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        int $inputPort,
-        int $inputPortValue,
-        int $outputPort,
-        int $order,
-        int $pwm,
-        int $blink,
-        int $fadeIn,
-        int $value,
-        int $addOrSub
+        #[GetMappedModel] DirectConnect $directConnect,
     ): AjaxResponse {
-        $ioService->saveDirectConnect(
-            $module,
-            $inputPort,
-            $inputPortValue,
-            $order,
-            $outputPort,
-            $value,
-            $pwm,
-            $blink,
-            $fadeIn,
-            $addOrSub
-        );
+        $ioService->saveDirectConnect($module, $directConnect);
 
         return $this->returnSuccess();
     }
@@ -94,10 +77,9 @@ class IoDirectConnectController extends AbstractController
     public function delete(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        int $inputPort,
-        int $order
+        #[GetModel(['id' => 'id', 'module_id' => 'moduleId'])] DirectConnect $directConnect
     ): AjaxResponse {
-        $ioService->deleteDirectConnect($module, $inputPort, $order);
+        $ioService->deleteDirectConnect($module, $directConnect);
 
         return $this->returnSuccess();
     }
