@@ -16,6 +16,8 @@ class PortAutoComplete implements AutoCompleteInterface
 
     /**
      * @throws SelectError
+     *
+     * @return Port[]
      */
     public function getByNamePart(string $namePart, array $parameters): array
     {

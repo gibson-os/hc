@@ -7,15 +7,16 @@ use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Key as KeyAttribute;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Dto\Ir\Protocol;
 use JsonSerializable;
 
 #[Table]
 #[KeyAttribute(unique: true, columns: ['protocol', 'address', 'command'])]
-class Key extends AbstractModel implements JsonSerializable
+class Key extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
-    private ?int $id;
+    private ?int $id = null;
 
     #[Column]
     private Protocol $protocol;
@@ -27,6 +28,7 @@ class Key extends AbstractModel implements JsonSerializable
     private int $command;
 
     #[Column(type: Column::TYPE_VARCHAR, length: 64)]
+    #[KeyAttribute(true)]
     private string $name;
 
     public function getId(): ?int
@@ -99,5 +101,10 @@ class Key extends AbstractModel implements JsonSerializable
             'address' => $this->getAddress(),
             'protocolName' => $this->getProtocol()->getName(),
         ];
+    }
+
+    public function getAutoCompleteId(): int
+    {
+        return $this->getId() ?? 0;
     }
 }

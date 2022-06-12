@@ -24,7 +24,7 @@ use JsonSerializable;
 class Button extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
-    private ?int $id;
+    private ?int $id = null;
 
     #[Column(type: Column::TYPE_VARCHAR, length: 64)]
     private string $name;

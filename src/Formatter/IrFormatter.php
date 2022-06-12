@@ -3,49 +3,33 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Formatter;
 
-use Exception;
-use GibsonOS\Core\Attribute\GetSetting;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Model\Setting;
 use GibsonOS\Core\Service\TwigService;
-use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
-use GibsonOS\Module\Hc\Dto\Ir\Key;
+use GibsonOS\Module\Hc\Dto\Ir\Protocol;
+use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Log;
-use GibsonOS\Module\Hc\Model\Type;
-use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
+use GibsonOS\Module\Hc\Repository\Ir\KeyRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
 use GibsonOS\Module\Hc\Service\TransformService;
-use JsonException;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 
 class IrFormatter extends AbstractHcFormatter
 {
-    private array $irProtocols;
-
-    private Type $type;
-
-    private array $keyNames = [];
-
     /**
-     * @throws SelectError
-     * @throws JsonException
+     * @param KeyRepository $keyRepository
      */
     public function __construct(
         TransformService $transformService,
         TwigService $twigService,
         TypeRepository $typeRepository,
-        #[GetSetting('irProtocols', 'hc')] Setting $irProtocols,
-        private ValueRepository $valueRepository
+        private readonly KeyRepository $keyRepository,
     ) {
         parent::__construct($transformService, $twigService, $typeRepository);
-
-        $this->irProtocols = JsonUtility::decode($irProtocols->getValue());
-        $this->type = $this->typeRepository->getByHelperName('ir');
     }
 
     /**
@@ -97,63 +81,30 @@ class IrFormatter extends AbstractHcFormatter
         $keys = [];
 
         for ($i = 0; $i < strlen($data); $i += 5) {
-            $key = new Key(
-                $this->transformService->asciiToUnsignedInt($data, $i),
+            $protocol = Protocol::from($this->transformService->asciiToUnsignedInt($data, $i));
+            $command =
                 ($this->transformService->asciiToUnsignedInt($data, $i + 1) << 8) |
-                $this->transformService->asciiToUnsignedInt($data, $i + 2),
-                ($this->transformService->asciiToUnsignedInt($data, $i + 3) << 8) |
-                $this->transformService->asciiToUnsignedInt($data, $i + 4),
-            );
-            $key
-                ->setName($this->getKeyName($key))
-                ->setProtocolName($this->irProtocols[$key->getProtocol()] ?? null)
+                $this->transformService->asciiToUnsignedInt($data, $i + 2)
             ;
+            $address =
+                ($this->transformService->asciiToUnsignedInt($data, $i + 3) << 8) |
+                $this->transformService->asciiToUnsignedInt($data, $i + 4)
+            ;
+
+            try {
+                $key = $this->keyRepository->getByProtocolAddressAndCommand($protocol, $command, $address);
+            } catch (SelectError) {
+                $key = (new Key())
+                    ->setProtocol($protocol)
+                    ->setCommand($command)
+                    ->setAddress($address)
+                ;
+            }
 
             $keys[] = $key;
         }
 
         return $keys;
-    }
-
-    public function getSubId(int $protocol, int $address, int $command): int
-    {
-        return $protocol << 32 | $address << 16 | $command;
-    }
-
-    public function getKeyBySubId(int $subId): Key
-    {
-        $key = new Key(
-            $subId >> 32,
-            ($subId >> 16) & 0xFFFF,
-            $subId & 0xFFFF,
-        );
-
-        return $key;
-    }
-
-    public function getKeyName(Key $key): ?string
-    {
-        $subId = $this->getSubId($key->getProtocol(), $key->getAddress(), $key->getCommand());
-
-        if (!array_key_exists($subId, $this->keyNames)) {
-            $this->keyNames[$subId] = null;
-
-            try {
-                $keyNames = $this->valueRepository->getByTypeId(
-                    $this->type->getId() ?? 0,
-                    $subId,
-                    type: IrService::ATTRIBUTE_TYPE_KEY,
-                    key: IrService::KEY_ATTRIBUTE_NAME
-                );
-
-                if (count($keyNames) !== 0) {
-                    $this->keyNames[$subId] = $keyNames[0]->getValue();
-                }
-            } catch (Exception) {
-            }
-        }
-
-        return $this->keyNames[$subId];
     }
 
     protected function getTemplates(): array
@@ -184,7 +135,7 @@ class IrFormatter extends AbstractHcFormatter
                 $this->renderBlock(
                     AbstractHcSlave::COMMAND_STATUS,
                     self::BLOCK_EXPLAIN,
-                    ['protocol' => $this->irProtocols[$key->getProtocol()] ?? null]
+                    ['protocol' => $key->getProtocol()->getName()]
                 ) ?? ''
             ))->setColor(Explain::COLOR_GREEN);
             $explains[] = (new Explain(

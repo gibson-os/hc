@@ -20,11 +20,14 @@ use JsonSerializable;
 class Remote extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
-    private ?int $id;
+    private ?int $id = null;
 
     #[Column(type: Column::TYPE_VARCHAR, length: 64)]
     #[KeyAttribute(true)]
     private string $name;
+
+    #[Column(type: Column::TYPE_VARCHAR, length: 6)]
+    private ?string $background;
 
     #[Constraint('remote', Button::class)]
     protected array $buttons = [];
@@ -53,11 +56,24 @@ class Remote extends AbstractModel implements JsonSerializable
         return $this;
     }
 
+    public function getBackground(): ?string
+    {
+        return $this->background;
+    }
+
+    public function setBackground(?string $background): Remote
+    {
+        $this->background = $background;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
+            'background' => $this->getBackground(),
         ];
     }
 }

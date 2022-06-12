@@ -22,7 +22,7 @@ use JsonSerializable;
 class Key extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
-    private ?int $id;
+    private ?int $id = null;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $buttonId;

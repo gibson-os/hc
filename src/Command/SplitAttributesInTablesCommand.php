@@ -11,8 +11,12 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Mapper\ModelMapper;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Dto\Ir\Protocol;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
+use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
+use GibsonOS\Module\Hc\Model\Ir\Key;
+use GibsonOS\Module\Hc\Model\Ir\Remote;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation;
 use GibsonOS\Module\Hc\Model\Neopixel\Image;
@@ -20,6 +24,8 @@ use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\Io\PortRepository;
+use GibsonOS\Module\Hc\Repository\Ir\KeyRepository;
+use GibsonOS\Module\Hc\Repository\Ir\RemoteRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
 use GibsonOS\Module\Hc\Repository\Neopixel\ImageRepository;
@@ -51,7 +57,9 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         private readonly LedRepository $ledRepository,
         private readonly ImageRepository $imageRepository,
         private readonly AnimationRepository $animationRepository,
-        private readonly PortRepository $portRepository
+        private readonly KeyRepository $keyRepository,
+        private readonly RemoteRepository $remoteRepository,
+        private readonly PortRepository $portRepository,
     ) {
         parent::__construct($logger);
     }
@@ -68,6 +76,7 @@ class SplitAttributesInTablesCommand extends AbstractCommand
     {
         $this->splitNeopixel();
         $this->splitIo();
+        $this->splitIr();
 
         return self::SUCCESS;
     }
@@ -89,6 +98,11 @@ class SplitAttributesInTablesCommand extends AbstractCommand
     }
 
     /**
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws MapperException
+     * @throws ReflectionException
+     * @throws SaveError
      * @throws SelectError
      */
     private function splitIo(): void
@@ -96,6 +110,21 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         $type = $this->typeRepository->getByHelperName('io');
         $this->createPorts($type);
         $this->createDirectConnects($type);
+    }
+
+    /**
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws MapperException
+     * @throws ReflectionException
+     * @throws SaveError
+     * @throws SelectError
+     */
+    private function splitIr(): void
+    {
+        $type = $this->typeRepository->getByHelperName('ir');
+        $this->createIrKeys($type);
+        $this->createRemotes($type);
     }
 
     /**
@@ -230,6 +259,14 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         }
     }
 
+    /**
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws MapperException
+     * @throws ReflectionException
+     * @throws SaveError
+     * @throws SelectError
+     */
     private function createPorts(Type $type): void
     {
         $ports = [];
@@ -272,8 +309,139 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         }
     }
 
+    /**
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws MapperException
+     * @throws ReflectionException
+     * @throws SaveError
+     * @throws SelectError
+     */
     private function createDirectConnects(Type $type): void
     {
+        $directConnects = [];
+
+        foreach ($this->attributeRepository->getByType($type, 'directConnect') as $directConnect) {
+            $inputPortNumber = $directConnect->getSubId() ?? 0;
+            $key = $directConnect->getKey();
+            $module = $this->getModule($directConnect->getModuleId() ?? 0);
+            $inputPort = $this->portRepository->getByNumber($module, $inputPortNumber);
+
+            if (!isset($directConnects[$inputPortNumber])) {
+                $directConnects[$inputPortNumber] = [];
+            }
+
+            foreach ($directConnect->getValues() as $i => $value) {
+                if (!isset($directConnects[$inputPortNumber][$i])) {
+                    $directConnects[$inputPortNumber][$i] = [
+                        'module' => $module,
+                        'inputPort' => $inputPort,
+                        'order' => $i,
+                    ];
+                }
+
+                $value = (int) $value->getValue();
+
+                if ($key === 'outputPort') {
+                    $value = $this->portRepository->getByNumber($module, $value);
+                } elseif ($key === 'inputPortValue') {
+                    $key = 'inputValue';
+                    $value = (bool) $value;
+                } elseif ($key === 'value') {
+                    $value = (bool) $value;
+                }
+
+                $directConnects[$inputPortNumber][$i][$key] = $value;
+            }
+        }
+
+        foreach ($directConnects as $inputPortDirectConnects) {
+            foreach ($inputPortDirectConnects as $directConnect) {
+                $this->modelManager->save($this->modelMapper->mapToObject(DirectConnect::class, $directConnect));
+            }
+        }
+    }
+
+    /**
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SaveError
+     * @throws SelectError
+     */
+    private function createIrKeys(Type $type): void
+    {
+        foreach ($this->attributeRepository->getByType($type, 'key') as $keyAttribute) {
+            $subId = $keyAttribute->getSubId() ?? 0;
+            $keyAttribute->getValues();
+
+            $key = (new Key())
+                ->setName($keyAttribute->getValues()[0]->getValue())
+                ->setProtocol(Protocol::from($subId >> 32))
+                ->setAddress(($subId >> 16) & 0xFFFF)
+                ->setCommand($subId & 0xFFFF)
+            ;
+            $this->modelManager->save($key);
+        }
+    }
+
+    /**
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws MapperException
+     * @throws ReflectionException
+     * @throws SaveError
+     * @throws SelectError
+     */
+    private function createRemotes(Type $type): void
+    {
+        $remotes = [];
+
+        foreach ($this->attributeRepository->getByType($type, 'remote') as $remoteAttribute) {
+            $subId = $remoteAttribute->getSubId() ?? 0;
+            $key = $remoteAttribute->getKey();
+            $values = $remoteAttribute->getValues();
+
+            if (!isset($remotes[$subId])) {
+                $remotes[$subId] = [];
+            }
+
+            if ($key !== 'keys') {
+                $remotes[$subId][$key] = $values[0]->getValue();
+
+                continue;
+            }
+
+            $buttons = [];
+
+            foreach ($values as $key) {
+                $button = JsonUtility::decode($key->getValue());
+
+                foreach ($button['keys'] as &$buttonKey) {
+                    $irKey = $this->keyRepository->getByProtocolAddressAndCommand(
+                        Protocol::from($buttonKey >> 32),
+                        ($buttonKey >> 16) & 0xFFFF,
+                        $buttonKey & 0xFFFF,
+                    );
+                    $buttonKey = $irKey;
+                }
+
+                $buttons[] = $button;
+            }
+
+            $remotes[$subId]['buttons'] = $buttons;
+        }
+
+        foreach ($remotes as $remote) {
+            try {
+                $name = $remote['name'];
+
+                if (is_string($name)) {
+                    $this->remoteRepository->getByName($name);
+                }
+            } catch (SelectError) {
+                $this->modelManager->save($this->modelMapper->mapToObject(Remote::class, $remote));
+            }
+        }
     }
 
     /**

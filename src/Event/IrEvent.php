@@ -8,9 +8,10 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
-use GibsonOS\Module\Hc\Dto\Ir\Key;
 use GibsonOS\Module\Hc\Dto\Parameter\Ir\KeyParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
+use GibsonOS\Module\Hc\Exception\WriteException;
+use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
@@ -42,7 +43,7 @@ class IrEvent extends AbstractHcEvent
         ReflectionManager $reflectionManager,
         TypeRepository $typeRepository,
         LoggerInterface $logger,
-        private IrService $irService
+        private readonly IrService $irService
     ) {
         parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->irService);
     }
@@ -50,6 +51,7 @@ class IrEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Taste senden')]
     public function sendKey(
