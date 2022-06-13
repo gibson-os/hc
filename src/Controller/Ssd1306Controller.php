@@ -16,12 +16,23 @@ use GibsonOS\Module\Hc\Mapper\Ssd1306\PixelMapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Slave\Ssd1306Service;
 use GibsonOS\Module\Hc\Store\Ssd1306\PixelStore;
+use JsonException;
+use ReflectionException;
 
 class Ssd1306Controller extends AbstractController
 {
+    /**
+     * @throws SelectError
+     * @throws JsonException
+     * @throws ReflectionException
+     */
     #[CheckPermission(Permission::READ)]
-    public function index(PixelStore $pixelStore): AjaxResponse
-    {
+    public function index(
+        PixelStore $pixelStore,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
+    ): AjaxResponse {
+        $pixelStore->setModule($module);
+
         return $this->returnSuccess($pixelStore->getList(), $pixelStore->getCount());
     }
 

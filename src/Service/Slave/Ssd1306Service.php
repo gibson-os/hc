@@ -5,9 +5,9 @@ namespace GibsonOS\Module\Hc\Service\Slave;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Module\Hc\Dto\Ssd1306\Pixel;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Ssd1306\Pixel;
 
 class Ssd1306Service extends AbstractSlave
 {

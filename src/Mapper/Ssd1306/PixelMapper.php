@@ -3,20 +3,16 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Mapper\Ssd1306;
 
-use GibsonOS\Module\Hc\Dto\Ssd1306\Pixel;
+use GibsonOS\Core\Exception\GetError;
+use GibsonOS\Module\Hc\Model\Ssd1306\Pixel;
 use GibsonOS\Module\Hc\Service\Slave\Ssd1306Service;
 
 class PixelMapper
 {
-    public function mapFromArray(array $data): Pixel
-    {
-        return (new Pixel($data['page'], $data['column'], $data['bit']))
-            ->setOn($data['on'] ?? false)
-        ;
-    }
-
     /**
      * @param array<int, array<int, array<int, bool>>> $data
+     *
+     * @throws GetError
      *
      * @return array<int, array<int, array<int, Pixel>>>
      */
@@ -35,7 +31,10 @@ class PixelMapper
                 }
 
                 foreach ($bits as $bit => $on) {
-                    $newData[$page][$column][$bit] = (new Pixel($page, $column, $bit))
+                    $newData[$page][$column][$bit] = (new Pixel())
+                        ->setPage($page)
+                        ->setColumn($column)
+                        ->setBit($bit)
                         ->setOn($on)
                     ;
                 }
@@ -47,6 +46,8 @@ class PixelMapper
 
     /**
      * @param array<int, array<int, array<int, Pixel>>> $data
+     *
+     * @throws GetError
      *
      * @return array<int, array<int, array<int, Pixel>>>
      */
@@ -63,7 +64,10 @@ class PixelMapper
                 for ($bit = 0; $bit <= Ssd1306Service::MAX_BIT; ++$bit) {
                     $list[$page][$column][$bit] =
                         $data[$page][$column][$bit] ??
-                        new Pixel($page, $column, $bit)
+                        (new Pixel())
+                            ->setPage($page)
+                            ->setColumn($column)
+                            ->setBit($bit)
                     ;
                 }
             }
