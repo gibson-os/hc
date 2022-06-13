@@ -416,13 +416,17 @@ class SplitAttributesInTablesCommand extends AbstractCommand
             foreach ($values as $key) {
                 $button = JsonUtility::decode($key->getValue());
 
-                foreach ($button['keys'] as &$buttonKey) {
-                    $irKey = $this->keyRepository->getByProtocolAddressAndCommand(
-                        Protocol::from($buttonKey >> 32),
-                        ($buttonKey >> 16) & 0xFFFF,
-                        $buttonKey & 0xFFFF,
-                    );
-                    $buttonKey = $irKey;
+                foreach ($button['keys'] as $i => &$buttonKey) {
+                    $buttonKey = (new Remote\Key())
+                        ->setOrder($i)
+                        ->setKey(
+                            $this->keyRepository->getByProtocolAddressAndCommand(
+                                Protocol::from($buttonKey >> 32),
+                                ($buttonKey >> 16) & 0xFFFF,
+                                $buttonKey & 0xFFFF,
+                            )
+                        )
+                    ;
                 }
 
                 $buttons[] = $button;

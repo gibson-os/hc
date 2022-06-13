@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Mapper\Ssd1306;
 
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Module\Hc\Model\Ssd1306\Pixel;
 use GibsonOS\Module\Hc\Service\Slave\Ssd1306Service;
 
@@ -11,8 +10,6 @@ class PixelMapper
 {
     /**
      * @param array<int, array<int, array<int, bool>>> $data
-     *
-     * @throws GetError
      *
      * @return array<int, array<int, array<int, Pixel>>>
      */
@@ -46,8 +43,6 @@ class PixelMapper
 
     /**
      * @param array<int, array<int, array<int, Pixel>>> $data
-     *
-     * @throws GetError
      *
      * @return array<int, array<int, array<int, Pixel>>>
      */

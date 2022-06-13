@@ -27,7 +27,7 @@ class Remote extends AbstractModel implements JsonSerializable
     private string $name;
 
     #[Column(type: Column::TYPE_VARCHAR, length: 6)]
-    private ?string $background;
+    private ?string $background = null;
 
     #[Constraint('remote', Button::class)]
     protected array $buttons = [];
@@ -74,6 +74,19 @@ class Remote extends AbstractModel implements JsonSerializable
             'id' => $this->getId(),
             'name' => $this->getName(),
             'background' => $this->getBackground(),
+            'buttons' => $this->getButtons(),
+            'width' => max(
+                array_map(
+                    static fn (Button $button): int => $button->getWidth() + $button->getLeft(),
+                    $this->getButtons()
+                ) ?: [0]
+            ),
+            'height' => max(
+                array_map(
+                    static fn (Button $button): int => $button->getHeight() + $button->getTop(),
+                    $this->getButtons()
+                ) ?: [0]
+            ),
         ];
     }
 }
