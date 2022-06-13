@@ -19,6 +19,7 @@ use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
+use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Slave\IoService;
 use GibsonOS\Module\Hc\Store\Io\DirectConnectStore;
@@ -93,9 +94,9 @@ class IoDirectConnectController extends AbstractController
     public function reset(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        int $inputPort
+        #[GetModel(['id' => 'inputPort', 'module_id' => 'moduleId'])] Port $port,
     ): AjaxResponse {
-        $ioService->resetDirectConnect($module, $inputPort);
+        $ioService->resetDirectConnect($module, $port);
 
         return $this->returnSuccess();
     }
@@ -111,16 +112,16 @@ class IoDirectConnectController extends AbstractController
     public function read(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        int $inputPort,
+        #[GetModel(['id' => 'inputPort', 'module_id' => 'moduleId'])] Port $port,
         int $order,
         bool $reset
     ): AjaxResponse {
         try {
             if ($reset) {
-                $ioService->resetDirectConnect($module, $inputPort, true);
+                $ioService->resetDirectConnect($module, $port, true);
             }
 
-            return $this->returnSuccess($ioService->readDirectConnect($module, $inputPort, $order));
+            return $this->returnSuccess($ioService->readDirectConnect($module, $port, $order));
         } catch (ReceiveError $exception) {
             if ($exception->getCode() === IoService::DIRECT_CONNECT_READ_NOT_EXIST) {
                 return $this->returnSuccess();

@@ -20,7 +20,6 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
-use GibsonOS\Module\Hc\Attribute\GetAttribute;
 use GibsonOS\Module\Hc\Exception\IrException;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
@@ -28,7 +27,6 @@ use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Ir\Remote;
 use GibsonOS\Module\Hc\Model\Ir\Remote\Button;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
@@ -71,9 +69,6 @@ class IrController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
-     * @throws DeleteError
-     * @throws FactoryError
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function addKey(
@@ -87,6 +82,9 @@ class IrController extends AbstractController
 
     /**
      * @param Key[] $keys
+     *
+     * @throws DeleteError
+     * @throws JsonException
      */
     #[CheckPermission(Permission::MANAGE + Permission::DELETE)]
     public function deleteKeys(
@@ -165,12 +163,14 @@ class IrController extends AbstractController
     }
 
     #[CheckPermission(Permission::READ)]
-    public function remote(#[GetAttribute(['id' => 'remoteId'])] Remote $remote): AjaxResponse
+    public function remote(#[GetModel] Remote $remote): AjaxResponse
     {
         return $this->returnSuccess($remote);
     }
 
     /**
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SelectError
      */
     #[CheckPermission(Permission::READ)]
@@ -204,10 +204,20 @@ class IrController extends AbstractController
         return $this->returnSuccess();
     }
 
+    /**
+     * @param Remote[] $remotes
+     *
+     * @throws DeleteError
+     * @throws JsonException
+     */
     #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
-    public function deleteRemotes(AttributeRepository $attributeRepository, array $remoteIds): AjaxResponse
-    {
-        $attributeRepository->deleteSubIds($remoteIds, Remote::class);
+    public function deleteRemotes(
+        ModelManager $modelManager,
+        #[GetModels(Remote::class)] array $remotes
+    ): AjaxResponse {
+        foreach ($remotes as $remote) {
+            $modelManager->delete($remote);
+        }
 
         return $this->returnSuccess();
     }
