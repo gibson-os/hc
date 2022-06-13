@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Dto\Io;
 
 use GibsonOS\Module\Hc\Model\Io\DirectConnect as DirectConnectModel;
+use JsonSerializable;
 
-class DirectConnect
+class DirectConnect implements JsonSerializable
 {
     public function __construct(
         private readonly DirectConnectModel $directConnect,
-        private readonly bool $hasMore,
+        private readonly bool $more,
     ) {
     }
 
@@ -18,8 +19,16 @@ class DirectConnect
         return $this->directConnect;
     }
 
-    public function isHasMore(): bool
+    public function hasMore(): bool
     {
-        return $this->hasMore;
+        return $this->more;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'directConnect' => $this->getDirectConnect(),
+            'hasMore' => $this->hasMore(),
+        ];
     }
 }
