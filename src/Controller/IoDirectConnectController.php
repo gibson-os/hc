@@ -49,7 +49,7 @@ class IoDirectConnectController extends AbstractController
         $directConnectStore->setModule($module);
 
         return new AjaxResponse([
-            'data' => $directConnectStore->getList(),
+            'data' => [...$directConnectStore->getList()],
             'active' => $ioService->isDirectConnectActive($module),
         ]);
     }

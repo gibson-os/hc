@@ -88,7 +88,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
         ];
         me.columns = [{
             header: 'Eingangs Zustand',
-            dataIndex: 'inputPortValue',
+            dataIndex: 'inputPort',
             width: 150,
             editor: {
                 xtype: 'gosFormComboBox',
@@ -105,7 +105,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 }
             },
             renderer: function(value, metaData, record) {
-                return value === null ? null : ports[record.get('inputPort')].valueNames[value];
+                return record.get('outputPort') === null ? '' : value.valueNames[record.get('inputValue') ? 1 : 0];
             }
         },{
             header: 'Ausgangs Port',
@@ -133,7 +133,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 }
             },
             renderer: function(value) {
-                return value === null ? null : ports[value].name;
+                return value === null ? '' : value.name;
             }
         },{
             header: 'PWM',
@@ -147,11 +147,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 maxValue: 255
             },
             renderer: function(value, metaData, record) {
-                if (record.get('outputPort') === null) {
-                    return '';
-                }
-
-                return value;
+                return record.get('outputPort') === null ? '' : value;
             }
         },{
             header: 'Blinken',
@@ -164,11 +160,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 maxValue: 31
             },
             renderer: function(value, metaData, record) {
-                if (record.get('outputPort') === null) {
-                    return '';
-                }
-
-                return value;
+                return record.get('outputPort') === null ? '' : value;
             }
         },{
             header: 'Einblenden',
@@ -182,11 +174,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 maxValue: 255
             },
             renderer: function(value, metaData, record) {
-                if (record.get('outputPort') === null) {
-                    return '';
-                }
-
-                return value;
+                return record.get('outputPort') === null ? '' : value;
             }
         },{
             header: 'Ausgangs Zustand',
@@ -226,7 +214,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 }
             },
             renderer: function(value, metaData, record) {
-                return value === null ? null : ports[record.get('outputPort')].valueNames[value];
+                return record.get('outputPort') === null ? '' : record.get('outputPort').valueNames[value ? 1 : 0];
             }
         },{
             header: 'Anwenden',
@@ -269,7 +257,11 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                     }
                 }
             },
-            renderer: function(value) {
+            renderer: function(value, metaData, record) {
+                if (record.get('outputPort') === null) {
+                    return '';
+                }
+
                 switch (value) {
                     case 0:
                         return 'Setzen';
@@ -569,9 +561,14 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
         me.getStore().on('load', function(store, records) {
             let lastPortNumber = -1;
             ports = [];
+            const jsonData = store.getProxy().getReader().jsonData;
+
+            for (let i = 0; i < jsonData.ports; i++) {
+
+            }
 
             Ext.iterate(records, function(record) {
-                if (lastPortNumber === record.get('inputPort')) {
+                if (lastPortNumber === record.get('inputPort').number) {
                     return;
                 }
 
@@ -582,7 +579,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                     valueNames: record.get('valueNames')
                 });
             });
-            me.down('#hcIoDirectConnectActivateButton').toggle(store.getProxy().getReader().jsonData.active, true);
+            me.down('#hcIoDirectConnectActivateButton').toggle(jsonData.active, true);
         });
     }
 });

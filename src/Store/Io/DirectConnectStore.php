@@ -32,13 +32,13 @@ class DirectConnectStore extends AbstractDatabaseStore
 
     protected function getModels(): iterable
     {
-        $this->table->appendJoin(
-            '`' . $this->portTableName . '` `input_port`',
-            '`input_port`=`id`=`' . $this->directConnectTableName . '`.`input_id`'
+        $this->table->appendJoinLeft(
+            '`' . $this->directConnectTableName . '`',
+            '`' . $this->portTableName . '`.`id`=`' . $this->directConnectTableName . '`.`input_port_id`'
         );
-        $this->table->appendJoin(
+        $this->table->appendJoinLeft(
             '`' . $this->portTableName . '` `output_port`',
-            '`output_port`=`id`=`' . $this->directConnectTableName . '`.`output_id`'
+            '`output_port`.`id`=`' . $this->directConnectTableName . '`.`output_port_id`'
         );
         $this->table->setSelectString(
             '`' . $this->directConnectTableName . '`.`id` `direct_connect_id`, ' .
@@ -47,19 +47,21 @@ class DirectConnectStore extends AbstractDatabaseStore
             '`' . $this->directConnectTableName . '`.`pwm`, ' .
             '`' . $this->directConnectTableName . '`.`blink`, ' .
             '`' . $this->directConnectTableName . '`.`fade_in`, ' .
-            '`input_port`.`id` `input_port_id`, ' .
-            '`input_port`.`direction` `input_port_direction`, ' .
-            '`input_port`.`name` `input_port_name`, ' .
-            '`input_port`.`value` `input_port_value`, ' .
-            '`input_port`.`value_names` `input_port_value_names`, ' .
-            '`input_port`.`delay` `input_port_delay`, ' .
-            '`input_port`.`pull_up` `input_port_pull_up`, ' .
-            '`input_port`.`pwm` `input_port_pwm`, ' .
-            '`input_port`.`blink` `input_port_blink`, ' .
-            '`input_port`.`fade_in` `input_port_fade_in`, ' .
-            '`output_port`.`id` `output_port_id`, ' .
+            '`' . $this->directConnectTableName . '`.`input_port_id`, ' .
+            '`' . $this->portTableName . '`.`direction` `input_port_direction`, ' .
+            '`' . $this->portTableName . '`.`name` `input_port_name`, ' .
+            '`' . $this->portTableName . '`.`number` `input_port_number`, ' .
+            '`' . $this->portTableName . '`.`value` `input_port_value`, ' .
+            '`' . $this->portTableName . '`.`value_names` `input_port_value_names`, ' .
+            '`' . $this->portTableName . '`.`delay` `input_port_delay`, ' .
+            '`' . $this->portTableName . '`.`pull_up` `input_port_pull_up`, ' .
+            '`' . $this->portTableName . '`.`pwm` `input_port_pwm`, ' .
+            '`' . $this->portTableName . '`.`blink` `input_port_blink`, ' .
+            '`' . $this->portTableName . '`.`fade_in` `input_port_fade_in`, ' .
+            '`' . $this->directConnectTableName . '`.`output_port_id`, ' .
             '`output_port`.`direction` `output_port_direction`, ' .
             '`output_port`.`name` `output_port_name`, ' .
+            '`output_port`.`number` `output_port_number`, ' .
             '`output_port`.`value` `output_port_value`, ' .
             '`output_port`.`value_names` `output_port_value_names`, ' .
             '`output_port`.`delay` `output_port_delay`, ' .
@@ -69,7 +71,7 @@ class DirectConnectStore extends AbstractDatabaseStore
             '`output_port`.`fade_in` `output_port_fade_in`'
         );
 
-        if ($this->table->selectPrepared(false) === false) {
+        if ($this->table->selectPrepared() === false) {
             $exception = new SelectError($this->table->connection->error());
             $exception->setTable($this->table);
 
@@ -77,8 +79,7 @@ class DirectConnectStore extends AbstractDatabaseStore
         }
 
         foreach ($this->table->getRecords() as $record) {
-            yield (new DirectConnect())
-                ->setId((int) $record['direct_connect_id'])
+            $directConnect = (new DirectConnect())
                 ->setInputValue((bool) ((int) $record['input_value']))
                 ->setValue((bool) ((int) $record['value']))
                 ->setPwm((int) $record['pwm'])
@@ -89,6 +90,7 @@ class DirectConnectStore extends AbstractDatabaseStore
                         ->setId((int) $record['input_port_id'])
                         ->setDirection(Direction::from((int) $record['input_port_direction']))
                         ->setName($record['input_port_name'])
+                        ->setNumber((int) $record['input_port_number'])
                         ->setValue((bool) ((int) $record['input_port_value']))
                         ->setValueNames(JsonUtility::decode($record['input_port_value_names']))
                         ->setDelay((int) $record['input_port_delay'])
@@ -96,36 +98,44 @@ class DirectConnectStore extends AbstractDatabaseStore
                         ->setPwm((int) $record['input_port_pwm'])
                         ->setBlink((int) $record['input_port_blink'])
                         ->setFadeIn((int) $record['input_port_fade_in'])
-                )
-                ->setOutputPort(
-                    (new Port())
-                        ->setId((int) $record['output_port_id'])
-                        ->setDirection(Direction::from((int) $record['output_port_direction']))
-                        ->setName($record['output_port_name'])
-                        ->setValue((bool) ((int) $record['output_port_value']))
-                        ->setValueNames(JsonUtility::decode($record['output_port_value_names']))
-                        ->setDelay((int) $record['output_port_delay'])
-                        ->setPullUp((bool) ((int) $record['output_port_pull_up']))
-                        ->setPwm((int) $record['output_port_pwm'])
-                        ->setBlink((int) $record['output_port_blink'])
-                        ->setFadeIn((int) $record['output_port_fade_in'])
-                )
-            ;
+                );
+
+            if (isset($record['direct_connect_id'])) {
+                $directConnect
+                    ->setId((int) $record['direct_connect_id'])
+                    ->setOutputPort(
+                        (new Port())
+                            ->setId((int) $record['output_port_id'])
+                            ->setDirection(Direction::from((int) $record['output_port_direction']))
+                            ->setName($record['output_port_name'])
+                            ->setNumber((int) $record['output_port_number'])
+                            ->setValue((bool) ((int) $record['output_port_value']))
+                            ->setValueNames(JsonUtility::decode($record['output_port_value_names']))
+                            ->setDelay((int) $record['output_port_delay'])
+                            ->setPullUp((bool) ((int) $record['output_port_pull_up']))
+                            ->setPwm((int) $record['output_port_pwm'])
+                            ->setBlink((int) $record['output_port_blink'])
+                            ->setFadeIn((int) $record['output_port_fade_in'])
+                    )
+                ;
+            }
+
+            yield $directConnect;
         }
     }
 
     protected function getModelClassName(): string
     {
-        return DirectConnect::class;
+        return Port::class;
     }
 
     protected function setWheres(): void
     {
-        $this->addWhere('`input_port`.`module_id`=?', [$this->module->getId()]);
+        $this->addWhere('`' . $this->portTableName . '`.`module_id`=?', [$this->module->getId()]);
     }
 
     protected function getDefaultOrder(): string
     {
-        return '`input_port`.`number`, `' . $this->directConnectTableName . '`.`order`';
+        return '`' . $this->portTableName . '`.`number`, `' . $this->directConnectTableName . '`.`order`';
     }
 }
