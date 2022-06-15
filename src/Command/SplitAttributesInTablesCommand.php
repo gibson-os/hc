@@ -325,18 +325,23 @@ class SplitAttributesInTablesCommand extends AbstractCommand
             $inputPortNumber = $directConnect->getSubId() ?? 0;
             $key = $directConnect->getKey();
             $module = $this->getModule($directConnect->getModuleId() ?? 0);
+            $moduleId = $module->getId() ?? 0;
             $inputPort = $this->portRepository->getByNumber($module, $inputPortNumber);
 
-            if (!isset($directConnects[$inputPortNumber])) {
-                $directConnects[$inputPortNumber] = [];
+            if (!isset($directConnects[$moduleId])) {
+                $directConnects[$moduleId] = [];
+            }
+
+            if (!isset($directConnects[$moduleId][$inputPortNumber])) {
+                $directConnects[$moduleId][$inputPortNumber] = [];
             }
 
             foreach ($directConnect->getValues() as $i => $value) {
-                if (!isset($directConnects[$inputPortNumber][$i])) {
-                    $directConnects[$inputPortNumber][$i] = [
+                if (!isset($directConnects[$moduleId][$inputPortNumber][$i])) {
+                    $directConnects[$moduleId][$inputPortNumber][$i] = [
                         'module' => $module,
                         'inputPort' => $inputPort,
-                        'order' => $i,
+                        'order' => count($directConnects[$moduleId][$inputPortNumber]),
                     ];
                 }
 
@@ -351,13 +356,15 @@ class SplitAttributesInTablesCommand extends AbstractCommand
                     $value = (bool) $value;
                 }
 
-                $directConnects[$inputPortNumber][$i][$key] = $value;
+                $directConnects[$moduleId][$inputPortNumber][$i][$key] = $value;
             }
         }
 
-        foreach ($directConnects as $inputPortDirectConnects) {
-            foreach ($inputPortDirectConnects as $directConnect) {
-                $this->modelManager->save($this->modelMapper->mapToObject(DirectConnect::class, $directConnect));
+        foreach ($directConnects as $modulePortDirectConnects) {
+            foreach ($modulePortDirectConnects as $inputPortDirectConnects) {
+                foreach ($inputPortDirectConnects as $directConnect) {
+                    $this->modelManager->save($this->modelMapper->mapToObject(DirectConnect::class, $directConnect));
+                }
             }
         }
     }
