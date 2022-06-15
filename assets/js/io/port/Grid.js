@@ -68,7 +68,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                                 url: baseDir + 'hc/io/set',
                                 params:  {
                                     moduleId: me.gos.data.module.id,
-                                    number: record.get('number'),
+                                    id: record.get('id'),
                                     name: record.get('name'),
                                     direction: record.get('direction'),
                                     pullUp: record.get('pullUp'),
@@ -127,7 +127,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                     url: baseDir + 'hc/io/toggle',
                     params:  {
                         moduleId: me.gos.data.module.id,
-                        number: record.get('number')
+                        id: record.get('id')
                     },
                     success: function() {
                         record.set('value', record.get('value') === true ? 0 : 1);
