@@ -8,7 +8,6 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
-use GibsonOS\Module\Hc\Model\Module;
 
 class DirectConnectRepository extends AbstractRepository
 {
@@ -37,12 +36,12 @@ class DirectConnectRepository extends AbstractRepository
         );
     }
 
-    public function deleteByInputPort(Module $module, Port $port): void
+    public function deleteByInputPort(Port $port): void
     {
         $this->getTable($this->directConnectTableName)
-            ->setWhere('`module_id`=? AND `input_port_id`=?')
-            ->setWhereParameters([$module->getId(), $port->getId()])
-            ->delete()
+            ->setWhere('`input_port_id`=?')
+            ->setWhereParameters([$port->getId()])
+            ->deletePrepared()
         ;
     }
 }

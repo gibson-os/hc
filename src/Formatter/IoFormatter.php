@@ -356,7 +356,7 @@ class IoFormatter extends AbstractHcFormatter
     /**
      * @throws Exception
      */
-    private function getDirectConnectTableRows(Log $log, Port $input, string $data): string
+    private function getDirectConnectTableRows(Log $log, Port $inputPort, string $data): string
     {
         $module = $log->getModule();
 
@@ -364,8 +364,8 @@ class IoFormatter extends AbstractHcFormatter
             return '<tr></tr>';
         }
 
-        $directConnect = $this->directConnectMapper->getDirectConnect($data);
-        $output = $directConnect->getOutputPort();
+        $directConnect = $this->directConnectMapper->getDirectConnect($inputPort, $data);
+        $outputPort = $directConnect->getOutputPort();
 
         $addOrSub = 'Setzen';
 
@@ -378,11 +378,11 @@ class IoFormatter extends AbstractHcFormatter
         return
             '<tr>' .
                 '<th>Eingangs Zustand</th>' .
-                '<td>' . $input->getValueNames()[(int) $directConnect->isInputValue()] . '</td>' .
+                '<td>' . $inputPort->getValueNames()[(int) $directConnect->isInputValue()] . '</td>' .
             '</tr>' .
             '<tr>' .
                 '<th>Ausgangs Port</th>' .
-                '<td>' . $output->getName() . '</td>' .
+                '<td>' . $outputPort->getName() . '</td>' .
             '</tr>' .
             '<tr>' .
                 '<th>PWM</th>' .
@@ -398,7 +398,7 @@ class IoFormatter extends AbstractHcFormatter
             '</tr>' .
             '<tr>' .
                 '<th>Wert</th>' .
-                '<td>' . $output->getValueNames()[(int) $directConnect->isValue()] . '</td>' .
+                '<td>' . $outputPort->getValueNames()[(int) $directConnect->isValue()] . '</td>' .
             '</tr>' .
             '<tr>' .
                 '<th>Anwenden</th>' .

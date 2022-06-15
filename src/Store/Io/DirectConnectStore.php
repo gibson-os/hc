@@ -47,7 +47,7 @@ class DirectConnectStore extends AbstractDatabaseStore
             '`' . $this->directConnectTableName . '`.`pwm`, ' .
             '`' . $this->directConnectTableName . '`.`blink`, ' .
             '`' . $this->directConnectTableName . '`.`fade_in`, ' .
-            '`' . $this->directConnectTableName . '`.`input_port_id`, ' .
+            '`' . $this->portTableName . '`.`id` `input_id`, ' .
             '`' . $this->portTableName . '`.`direction` `input_port_direction`, ' .
             '`' . $this->portTableName . '`.`name` `input_port_name`, ' .
             '`' . $this->portTableName . '`.`number` `input_port_number`, ' .
@@ -87,7 +87,7 @@ class DirectConnectStore extends AbstractDatabaseStore
                 ->setFadeIn((int) $record['fade_in'])
                 ->setInputPort(
                     (new Port())
-                        ->setId((int) $record['input_port_id'])
+                        ->setId((int) $record['input_id'])
                         ->setDirection(Direction::from((int) $record['input_port_direction']))
                         ->setName($record['input_port_name'])
                         ->setNumber((int) $record['input_port_number'])

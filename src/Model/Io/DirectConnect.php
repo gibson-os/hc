@@ -124,7 +124,7 @@ class DirectConnect extends AbstractModel implements JsonSerializable
         return [
             'id' => $this->id ?? null,
             'inputValue' => $this->isInputValue(),
-            'value' => $this->isValue(),
+            'value' => $this->id === null ? null : $this->isValue(),
             'pwm' => $this->getPwm(),
             'blink' => $this->getBlink(),
             'fadeIn' => $this->getFadeIn(),

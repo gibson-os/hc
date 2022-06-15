@@ -438,7 +438,9 @@ class IoService extends AbstractHcSlave
             'order' => $order,
         ]);
 
-        $directConnect = new DirectConnect();
+        $directConnect = (new DirectConnect())
+            ->setInputPort($port)
+        ;
         $hasMore = false;
 
         for ($i = 0;; ++$i) {
@@ -461,7 +463,7 @@ class IoService extends AbstractHcSlave
             $this->portRepository->startTransaction();
 
             try {
-                $directConnect = $this->directConnectMapper->getDirectConnect($data);
+                $directConnect = $this->directConnectMapper->getDirectConnect($port, $data);
                 $this->modelManager->save($directConnect);
             } catch (AbstractException $exception) {
                 $this->portRepository->rollback();
@@ -550,7 +552,7 @@ class IoService extends AbstractHcSlave
         $this->directConnectRepository->startTransaction();
 
         try {
-            $this->directConnectRepository->deleteByInputPort($module, $port);
+            $this->directConnectRepository->deleteByInputPort($port);
 
             if (!$databaseOnly) {
                 $this->write(

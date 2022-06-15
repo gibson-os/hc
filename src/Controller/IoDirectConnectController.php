@@ -94,7 +94,7 @@ class IoDirectConnectController extends AbstractController
     public function reset(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModel(['id' => 'inputPort', 'module_id' => 'moduleId'])] Port $port,
+        #[GetModel(['id' => 'id', 'module_id' => 'moduleId'])] Port $port,
     ): AjaxResponse {
         $ioService->resetDirectConnect($module, $port);
 
@@ -112,7 +112,7 @@ class IoDirectConnectController extends AbstractController
     public function read(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModel(['id' => 'inputPort', 'module_id' => 'moduleId'])] Port $port,
+        #[GetModel(['number' => 'inputPort', 'module_id' => 'moduleId'])] Port $port,
         int $order,
         bool $reset
     ): AjaxResponse {

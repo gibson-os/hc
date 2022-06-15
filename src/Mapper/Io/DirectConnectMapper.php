@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Mapper\Io;
 
 use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
+use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Service\TransformService;
 
 class DirectConnectMapper
@@ -13,7 +14,7 @@ class DirectConnectMapper
     {
     }
 
-    public function getDirectConnect(string $data): DirectConnect
+    public function getDirectConnect(Port $inputPort, string $data): DirectConnect
     {
         $inputValueAndOutputPortByte = $this->transformService->asciiToUnsignedInt($data, 0);
         $setByte = $this->transformService->asciiToUnsignedInt($data, 1);
@@ -27,6 +28,7 @@ class DirectConnectMapper
         $value = (bool) (($setByte >> 2) & 1);
 
         return (new DirectConnect())
+            ->setInputPort($inputPort)
             ->setInputValue((bool) ($inputValueAndOutputPortByte >> 7))
             ->setOutputPortId($inputValueAndOutputPortByte & 127)
             ->setValue($value)
