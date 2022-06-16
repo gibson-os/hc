@@ -7,14 +7,20 @@ Ext.define('GibsonOS.module.hc.io.model.DirectConnect', {
         name: 'inputPort',
         type: 'object'
     },{
-        name: 'inputValue',
-        type: 'bool'
+        name: 'inputPortNumber',
+        type: 'int',
+        convert: function(value, record) {
+            return record.get('inputPort').number;
+        }
     },{
         name: 'inputPortName',
         type: 'string',
         convert: function(value, record) {
             return record.get('inputPort').name;
         }
+    },{
+        name: 'inputValue',
+        type: 'bool'
     },{
         name: 'outputPortId',
         type: 'int',

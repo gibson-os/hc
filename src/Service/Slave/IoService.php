@@ -437,10 +437,7 @@ class IoService extends AbstractHcSlave
             'port' => $port,
             'order' => $order,
         ]);
-
-        $directConnect = (new DirectConnect())
-            ->setInputPort($port)
-        ;
+        $directConnect = null;
         $hasMore = false;
 
         for ($i = 0;; ++$i) {
@@ -457,13 +454,15 @@ class IoService extends AbstractHcSlave
             }
 
             if ($lastByte === self::DIRECT_CONNECT_READ_NOT_EXIST) {
-                throw new ReceiveError('Es existiert kein DirectConnect Befehl!', self::DIRECT_CONNECT_READ_NOT_EXIST);
+                break;
             }
 
             $this->portRepository->startTransaction();
 
             try {
-                $directConnect = $this->directConnectMapper->getDirectConnect($port, $data);
+                $directConnect = $this->directConnectMapper->getDirectConnect($port, $data)
+                    ->setInputPort($port)
+                ;
                 $this->modelManager->save($directConnect);
             } catch (AbstractException $exception) {
                 $this->portRepository->rollback();
@@ -477,13 +476,13 @@ class IoService extends AbstractHcSlave
             break;
         }
 
-        $eventData = $directConnect->jsonSerialize();
+        $eventData = $directConnect?->jsonSerialize() ?? [];
         $eventData['slave'] = $slave;
         $eventData['port'] = $port;
         $eventData['order'] = $order;
         $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_DIRECT_CONNECT, $eventData);
 
-        return new DirectConnectDto($directConnect, $hasMore);
+        return new DirectConnectDto($port, $hasMore, $directConnect);
     }
 
     /**

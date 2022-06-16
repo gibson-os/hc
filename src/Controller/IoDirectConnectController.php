@@ -118,19 +118,11 @@ class IoDirectConnectController extends AbstractController
         int $order,
         bool $reset
     ): AjaxResponse {
-        try {
-            if ($reset) {
-                $ioService->resetDirectConnect($module, $port, true);
-            }
-
-            return $this->returnSuccess($ioService->readDirectConnect($module, $port, $order));
-        } catch (ReceiveError $exception) {
-            if ($exception->getCode() === IoService::DIRECT_CONNECT_READ_NOT_EXIST) {
-                return $this->returnSuccess();
-            }
-
-            throw $exception;
+        if ($reset) {
+            $ioService->resetDirectConnect($module, $port, true);
         }
+
+        return $this->returnSuccess($ioService->readDirectConnect($module, $port, $order));
     }
 
     /**

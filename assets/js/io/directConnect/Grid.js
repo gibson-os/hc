@@ -318,7 +318,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
 
         let deleteRecords = function(inputPort, index = 0) {
             let store = me.getStore();
-            index = store.find('inputPort', inputPort, index);
+            index = store.find('inputPortNumber', inputPort, index);
 
             if (index === -1) {
                 return;
@@ -510,6 +510,10 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                         return;
                     }
 
+                    if (reset) {
+                        deleteRecords(port);
+                    }
+
                     GibsonOS.Ajax.request({
                         url: baseDir + 'hc/ioDirectConnect/read',
                         params:  {
@@ -521,15 +525,22 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                         success: function(response) {
                             let responseText = Ext.decode(response.responseText);
 
-                            if (responseText && responseText.data && responseText.data.directConnect) {
-                                const record = insertBlankRecord(responseText.data.directConnect.inputPort, index++);
-                                record.set(responseText.data.directConnect);
-                                record.set('order', order);
-                                record.commit();
+                            if (!responseText || !responseText.data) {
+                                loadDirectConnect(port+1, 0, true);
+
+                                return;
                             }
 
-                            if (!responseText || !responseText.data || !responseText.data.hasMore) {
-                                deleteRecords(port+1);
+                            const record = insertBlankRecord(responseText.data.inputPort, index++);
+
+                            if (responseText.data.directConnect) {
+                                record.set(responseText.data.directConnect);
+                            }
+
+                            record.set('order', order);
+                            record.commit();
+
+                            if (!responseText.data.hasMore) {
                                 loadDirectConnect(port+1, 0, true);
                             } else {
                                 loadDirectConnect(port, order + 1);
@@ -541,7 +552,6 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                     });
                 };
 
-                deleteRecords(0);
                 loadDirectConnect(0, 0, true);
             }
         },('-'),{

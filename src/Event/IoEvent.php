@@ -366,7 +366,7 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)] Port $port,
         #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order
     ): array {
-        return $this->ioService->readDirectConnect($slave, $port, $order)->getDirectConnect()->jsonSerialize();
+        return $this->ioService->readDirectConnect($slave, $port, $order)->getDirectConnect()?->jsonSerialize() ?? [];
     }
 
     /**

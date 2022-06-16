@@ -3,17 +3,24 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Mapper\Io;
 
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
+use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Service\TransformService;
 
 class DirectConnectMapper
 {
-    public function __construct(private readonly TransformService $transformService)
-    {
+    public function __construct(
+        private readonly TransformService $transformService,
+        private readonly PortRepository $portRepository,
+    ) {
     }
 
+    /**
+     * @throws SelectError
+     */
     public function getDirectConnect(Port $inputPort, string $data): DirectConnect
     {
         $inputValueAndOutputPortByte = $this->transformService->asciiToUnsignedInt($data, 0);
@@ -30,7 +37,10 @@ class DirectConnectMapper
         return (new DirectConnect())
             ->setInputPort($inputPort)
             ->setInputValue((bool) ($inputValueAndOutputPortByte >> 7))
-            ->setOutputPortId($inputValueAndOutputPortByte & 127)
+            ->setOutputPort($this->portRepository->getByNumber(
+                $inputPort->getModule(),
+                $inputValueAndOutputPortByte & 127
+            ))
             ->setValue($value)
             ->setPwm($value ? 0 : $pwmByte)
             ->setFadeIn($value ? $pwmByte : 0)

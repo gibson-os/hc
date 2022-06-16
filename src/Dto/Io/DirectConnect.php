@@ -4,19 +4,21 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Dto\Io;
 
 use GibsonOS\Module\Hc\Model\Io\DirectConnect as DirectConnectModel;
+use GibsonOS\Module\Hc\Model\Io\Port;
 use JsonSerializable;
 
 class DirectConnect implements JsonSerializable
 {
     public function __construct(
-        private readonly DirectConnectModel $directConnect,
+        private readonly Port $inputPort,
         private readonly bool $more,
+        private readonly ?DirectConnectModel $directConnect = null,
     ) {
     }
 
-    public function getDirectConnect(): DirectConnectModel
+    public function getInputPort(): Port
     {
-        return $this->directConnect;
+        return $this->inputPort;
     }
 
     public function hasMore(): bool
@@ -24,11 +26,17 @@ class DirectConnect implements JsonSerializable
         return $this->more;
     }
 
+    public function getDirectConnect(): ?DirectConnectModel
+    {
+        return $this->directConnect;
+    }
+
     public function jsonSerialize(): array
     {
         return [
-            'directConnect' => $this->getDirectConnect(),
+            'inputPort' => $this->getInputPort(),
             'hasMore' => $this->hasMore(),
+            'directConnect' => $this->getDirectConnect(),
         ];
     }
 }
