@@ -70,6 +70,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                         GibsonOS.Ajax.request({
                             url: baseDir + 'hc/ioDirectConnect/save',
                             params: {
+                                id: record.get('id'),
                                 moduleId: me.gos.data.module.id,
                                 inputPortId: record.get('inputPort').id,
                                 inputValue: record.get('inputValue'),

@@ -62,6 +62,8 @@ class IoDirectConnectController extends AbstractController
     public function save(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'inputPortId'])] Port $inputPort,
+        #[GetModel(['id' => 'outputPortId'])] Port $outputPort,
         #[GetMappedModel] DirectConnect $directConnect,
     ): AjaxResponse {
         $ioService->saveDirectConnect($module, $directConnect);
