@@ -131,7 +131,7 @@ class DirectConnect extends AbstractModel implements JsonSerializable
             'order' => $this->getOrder(),
             'addOrSub' => $this->getAddOrSub()->value,
             'inputPort' => $this->getInputPort(),
-            'outputPort' => $this->id === null ? null : $this->outputPort,
+            'outputPortId' => $this->id === null ? null : $this->getOutputPortId(),
         ];
     }
 }

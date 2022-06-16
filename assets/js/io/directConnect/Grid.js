@@ -44,7 +44,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                             filteredPorts.push(port);
                         });
 
-                        form.findField('outputPort').getStore().loadData(filteredPorts);
+                        form.findField('outputPortId').getStore().loadData(filteredPorts);
                         form.findField('inputValue').getStore().loadData([{
                             id: false,
                             name: record.get('inputPort').valueNames[0]
@@ -53,13 +53,13 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                             name: record.get('inputPort').valueNames[1]
                         }]);
 
-                        if (record.get('outputPort') !== null) {
+                        if (record.get('outputPortId') !== null) {
                             form.findField('value').getStore().loadData([{
                                 id: false,
-                                name: record.get('outputPort').valueNames[0]
+                                name: record.get('outputPortId').valueNames[0]
                             },{
                                 id: true,
-                                name: record.get('outputPort').valueNames[1]
+                                name: record.get('outputPortId').valueNames[1]
                             }]);
                         }
                     },
@@ -69,11 +69,11 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
 
                         GibsonOS.Ajax.request({
                             url: baseDir + 'hc/ioDirectConnect/save',
-                            params:  {
+                            params: {
                                 moduleId: me.gos.data.module.id,
-                                inputPort: record.get('inputPort'),
+                                inputPortId: record.get('inputPort').id,
                                 inputValue: record.get('inputValue'),
-                                outputPort: record.get('outputPort'),
+                                outputPortId: record.get('outputPortId'),
                                 order: record.get('order'),
                                 pwm: record.get('pwm'),
                                 blink: record.get('blink'),
@@ -113,11 +113,11 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 }
             },
             renderer: function(value, metaData, record) {
-                return record.get('outputPort') === null ? '' : record.get('inputPort').valueNames[value ? 1 : 0];
+                return record.get('outputPortId') === null ? '' : record.get('inputPort').valueNames[value ? 1 : 0];
             }
         },{
             header: 'Ausgangs Port',
-            dataIndex: 'outputPort',
+            dataIndex: 'outputPortId',
             flex: 1,
             editor: {
                 xtype: 'gosFormComboBox',
@@ -143,7 +143,21 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 }
             },
             renderer: function(value) {
-                return value === null ? '' : value.name;
+                if (value === null) {
+                    return null;
+                }
+
+                let outputPort = null;
+
+                Ext.iterate(ports, (port) => {
+                    if (value === port.id) {
+                        outputPort = port;
+
+                        return false;
+                    }
+                });
+
+                return outputPort === null ? '' : outputPort.name;
             }
         },{
             header: 'PWM',
@@ -157,7 +171,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 maxValue: 255
             },
             renderer: function(value, metaData, record) {
-                return record.get('outputPort') === null ? '' : value;
+                return record.get('outputPortId') === null ? '' : value;
             }
         },{
             header: 'Blinken',
@@ -170,7 +184,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 maxValue: 31
             },
             renderer: function(value, metaData, record) {
-                return record.get('outputPort') === null ? '' : value;
+                return record.get('outputPortId') === null ? '' : value;
             }
         },{
             header: 'Einblenden',
@@ -184,7 +198,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 maxValue: 255
             },
             renderer: function(value, metaData, record) {
-                return record.get('outputPort') === null ? '' : value;
+                return record.get('outputPortId') === null ? '' : value;
             }
         },{
             header: 'Ausgangs Zustand',
@@ -210,7 +224,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                         let fadeInField = form.findField('fadeIn');
                         let addOrSubField = form.findField('addOrSub');
 
-                        if (value === 1) {
+                        if (value) {
                             if (addOrSubField.getValue() === 0) {
                                 fadeInField.enable();
                             }
@@ -224,7 +238,23 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 }
             },
             renderer: function(value, metaData, record) {
-                return record.get('outputPort') === null ? '' : record.get('outputPort').valueNames[value ? 1 : 0];
+                const outputPortId = record.get('outputPortId');
+
+                if (outputPortId === null) {
+                    return null;
+                }
+
+                let outputPort = null;
+
+                Ext.iterate(ports, (port) => {
+                    if (port.id === outputPortId) {
+                        outputPort = port;
+
+                        return false;
+                    }
+                });
+
+                return outputPort === null ? '' : outputPort.valueNames[value ? 1 : 0];
             }
         },{
             header: 'Anwenden',
@@ -268,7 +298,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 }
             },
             renderer: function(value, metaData, record) {
-                if (record.get('outputPort') === null) {
+                if (record.get('outputPortId') === null) {
                     return '';
                 }
 
@@ -551,7 +581,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
         me.on('selectionchange', function(selection, records) {
             if (
                 records.length &&
-                records[0].get('outputPort') !== null
+                records[0].get('outputPortId') !== null
             ) {
                 me.down('#hcIoDirectConnectAddButton').enable();
                 me.down('#hcIoDirectConnectDeleteButton').enable();
