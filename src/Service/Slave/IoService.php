@@ -462,6 +462,7 @@ class IoService extends AbstractHcSlave
             try {
                 $directConnect = $this->directConnectMapper->getDirectConnect($port, $data)
                     ->setInputPort($port)
+                    ->setOrder($order)
                 ;
                 $this->modelManager->save($directConnect);
             } catch (AbstractException $exception) {
