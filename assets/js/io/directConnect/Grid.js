@@ -355,7 +355,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 let store = me.getStore();
 
                 let findLastRecord = function(record) {
-                    let index = store.find('inputPort', record.get('inputPort'), store.indexOf(record)+1, false, false, true);
+                    let index = store.find('inputPortNumber', record.get('inputPortNumber'), store.indexOf(record)+1, false, false, true);
 
                     if (index === -1) {
                         return record;
