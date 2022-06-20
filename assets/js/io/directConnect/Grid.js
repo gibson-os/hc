@@ -332,6 +332,10 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
             return me.getStore().insert(index, {
                 inputPort: inputPort,
                 order: order,
+                addOrSub: 0,
+                pwm: 0,
+                blink: 0,
+                fadeIn: 0,
             })[0];
         };
 
@@ -392,8 +396,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                                     url: baseDir + 'hc/ioDirectConnect/delete',
                                     params: {
                                         moduleId: me.gos.data.module.id,
-                                        inputPort: record.get('inputPort'),
-                                        order: record.get('order')
+                                        id: record.get('id')
                                     },
                                     success: function() {
                                         let store = me.getStore();
@@ -401,11 +404,11 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
 
                                         store.remove(record);
 
-                                        if (store.find('inputPort', record.get('inputPort')) === -1) {
+                                        if (store.find('inputPortNumber', record.get('inputPortNumber')) === -1) {
                                             insertBlankRecord(record.get('inputPort'), index, record.get('order') + 1);
                                         } else {
                                             let updateOrder = function(index) {
-                                                index = store.find('inputPort', record.get('inputPort'), index);
+                                                index = store.find('inputPortNumber', record.get('inputPortNumber'), index);
 
                                                 if (index === -1) {
                                                     return;

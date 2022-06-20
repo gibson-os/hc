@@ -389,7 +389,7 @@ class IoService extends AbstractHcSlave
         $this->directConnectRepository->startTransaction();
 
         try {
-            $new = $directConnect->getId() === null;
+            $new = $directConnect->getId() === 0;
             $this->modelManager->save($directConnect);
 
             $eventData = $directConnect->jsonSerialize();
@@ -406,7 +406,7 @@ class IoService extends AbstractHcSlave
                 $module,
                 $new ? self::COMMAND_ADD_DIRECT_CONNECT : self::COMMAND_SET_DIRECT_CONNECT,
                 $this->getDeviceIdAsString($module->getDeviceId() ?? 0) .
-                $this->directConnectMapper->getDirectConnectAsString($directConnect)
+                $this->directConnectMapper->getDirectConnectAsString($directConnect, $new)
             );
         } catch (AbstractException $exception) {
             $this->directConnectRepository->rollback();

@@ -49,17 +49,22 @@ class DirectConnectMapper
         ;
     }
 
-    public function getDirectConnectAsString(DirectConnect $directConnect): string
+    public function getDirectConnectAsString(DirectConnect $directConnect, bool $new): string
     {
-        $return =
-            chr($directConnect->getInputPort()->getNumber()) .
-            chr($directConnect->getOrder())
-        ;
+        $return = chr($directConnect->getInputPort()->getNumber());
 
-        $pwm = 0;
+        if (!$new) {
+            $return .= chr($directConnect->getOrder());
+        }
 
-        if ($directConnect->isValue() && $directConnect->getAddOrSub() === AddOrSub::SET) {
-            $pwm = $directConnect->getFadeIn();
+        $pwm = $directConnect->getPwm();
+
+        if ($directConnect->isValue()) {
+            $pwm = 0;
+
+            if ($directConnect->getAddOrSub() === AddOrSub::SET) {
+                $pwm = $directConnect->getFadeIn();
+            }
         }
 
         $return .= chr(

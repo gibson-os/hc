@@ -75,12 +75,13 @@ class IoDirectConnectController extends AbstractController
      * @throws AbstractException
      * @throws SelectError
      * @throws WriteException
+     * @throws JsonException
      */
     #[CheckPermission(Permission::DELETE)]
     public function delete(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModel(['id' => 'id', 'module_id' => 'moduleId'])] DirectConnect $directConnect
+        #[GetModel(['id' => 'id'])] DirectConnect $directConnect
     ): AjaxResponse {
         $ioService->deleteDirectConnect($module, $directConnect);
 
