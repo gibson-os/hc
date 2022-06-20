@@ -53,13 +53,25 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                             name: record.get('inputPort').valueNames[1]
                         }]);
 
-                        if (record.get('outputPortId') !== null) {
+                        const outputPortId = record.get('outputPortId');
+
+                        if (outputPortId !== null) {
+                            let outputPort = null;
+
+                            Ext.iterate(ports, (port) => {
+                                if (port.id === outputPortId) {
+                                    outputPort = port;
+
+                                    return false;
+                                }
+                            });
+
                             form.findField('value').getStore().loadData([{
                                 id: false,
-                                name: record.get('outputPortId').valueNames[0]
+                                name: outputPort.valueNames[0]
                             },{
                                 id: true,
-                                name: record.get('outputPortId').valueNames[1]
+                                name: outputPort.valueNames[1]
                             }]);
                         }
                     },
@@ -316,9 +328,9 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
             }
         }];
 
-        let deleteRecords = function(inputPort, index = 0) {
+        let deleteRecords = function(inputPort) {
             let store = me.getStore();
-            index = store.find('inputPortNumber', inputPort, index);
+            index = store.find('inputPortNumber', inputPort);
 
             if (index === -1) {
                 return;
@@ -326,7 +338,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
 
             store.removeAt(index);
 
-            return deleteRecords(inputPort, index);
+            return deleteRecords(inputPort);
         };
         let insertBlankRecord = function(inputPort, index, order = 0) {
             return me.getStore().insert(index, {
