@@ -69,9 +69,9 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
 
             form.loadRecord(records[0]);
 
-            if (records[0].get('keys')) {
-                keyStore.add(records[0].get('keys'));
-            }
+            Ext.iterate(records[0].get('keys'), (key) => {
+                keyStore.add(key.key);
+            });
 
             form.enable();
         });

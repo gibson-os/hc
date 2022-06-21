@@ -6,5 +6,8 @@ Ext.define('GibsonOS.module.hc.ir.model.Remote', {
     },{
         name: 'name',
         type: 'string'
+    },{
+        name: 'background',
+        type: 'string'
     }]
 });

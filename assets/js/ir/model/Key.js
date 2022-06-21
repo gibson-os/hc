@@ -1,7 +1,7 @@
 Ext.define('GibsonOS.module.hc.ir.model.Key', {
     extend: 'GibsonOS.data.Model',
     fields: [{
-        name: 'protocol',
+        name: 'id',
         type: 'int'
     },{
         name: 'address',
