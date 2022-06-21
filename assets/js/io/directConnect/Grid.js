@@ -330,7 +330,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
 
         let deleteRecords = function(inputPort, index = 0) {
             let store = me.getStore();
-            index = store.find('inputPortNumber', inputPort, index);
+            index = store.find('inputPortNumber', inputPort.number, index);
 
             if (index === -1) {
                 return;
@@ -470,7 +470,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                                     },
                                     success: function() {
                                         let store = me.getStore();
-                                        let firstIndex = store.find('inputPort', record.get('inputPort'));
+                                        let firstIndex = store.find('inputPortNumber', record.get('inputPortNumber'));
 
                                         deleteRecords(record.get('inputPort'));
                                         insertBlankRecord(record.get('inputPort'), firstIndex, 0);
