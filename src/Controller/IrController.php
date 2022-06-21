@@ -7,7 +7,6 @@ use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Attribute\GetModels;
-use GibsonOS\Core\Attribute\GetObject;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
@@ -155,7 +154,7 @@ class IrController extends AbstractController
     public function send(
         IrService $irService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetObject] Key $key
+        #[GetModel] Key $key
     ): AjaxResponse {
         $irService->sendKeys($module, [$key]);
 

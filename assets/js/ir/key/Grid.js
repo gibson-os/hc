@@ -23,9 +23,7 @@ Ext.define('GibsonOS.module.hc.ir.key.Grid', {
             url: baseDir + 'hc/ir/send',
             params:  {
                 moduleId: me.moduleId,
-                protocol: key.get('protocol'),
-                address: key.get('address'),
-                command: key.get('command'),
+                id: key.get('id')
             },
             callback() {
                 me.setLoading(false);

@@ -199,9 +199,9 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                     url: baseDir + 'hc/ir/saveRemote',
                     params: {
                         moduleId: me.moduleId,
-                        remoteId: me.remoteId,
+                        id: me.remoteId,
                         name: me.down('#name').getValue(),
-                        keys: Ext.encode(keys)
+                        buttons: Ext.encode(keys)
                     },
                     callback() {
                         me.setLoading(false);

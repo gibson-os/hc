@@ -12,4 +12,19 @@ class KeyStore extends AbstractDatabaseStore
     {
         return Key::class;
     }
+
+    protected function getDefaultOrder(): string
+    {
+        return '`name`';
+    }
+
+    protected function getOrderMapping(): array
+    {
+        return [
+            'name' => 'name',
+            'protocolName' => 'protocol',
+            'address' => 'address',
+            'command' => 'command',
+        ];
+    }
 }

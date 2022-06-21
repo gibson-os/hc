@@ -16,6 +16,11 @@ Ext.define('GibsonOS.module.hc.ir.remote.View', {
         me.store = new GibsonOS.module.hc.ir.store.RemoteKey({
             remoteId: me.remoteId
         });
+
+        if (me.remoteId) {
+            me.store.load();
+        }
+
         let id = Ext.id();
         me.tpl = new Ext.XTemplate(
             '<tpl for=".">',

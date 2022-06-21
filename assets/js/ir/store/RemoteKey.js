@@ -1,7 +1,7 @@
 Ext.define('GibsonOS.module.hc.ir.store.RemoteKey', {
     extend: 'GibsonOS.data.Store',
     alias: ['hcIrRemoteStore'],
-    autoLoad: true,
+    autoLoad: false,
     model: 'GibsonOS.module.hc.ir.model.RemoteKey',
     remoteId: null,
     constructor(data) {
