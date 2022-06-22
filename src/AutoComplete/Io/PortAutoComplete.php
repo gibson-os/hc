@@ -34,7 +34,7 @@ class PortAutoComplete implements AutoCompleteInterface
 
     public function getModel(): string
     {
-        return 'GibsonOS.module.hc.neopixel.model.Port';
+        return 'GibsonOS.module.hc.io.model.Port';
     }
 
     public function getParameters(): array

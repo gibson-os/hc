@@ -8,8 +8,8 @@ use GibsonOS\Module\Hc\AutoComplete\Neopixel\ImageAutoComplete;
 
 class ImageParameter extends AutoCompleteParameter
 {
-    public function __construct(private ImageAutoComplete $imageAutoComplete, string $title = 'Bild')
+    public function __construct(ImageAutoComplete $imageAutoComplete, string $title = 'Bild')
     {
-        parent::__construct($title, $this->imageAutoComplete);
+        parent::__construct($title, $imageAutoComplete);
     }
 }

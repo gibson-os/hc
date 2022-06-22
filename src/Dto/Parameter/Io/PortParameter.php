@@ -8,8 +8,8 @@ use GibsonOS\Module\Hc\AutoComplete\Io\PortAutoComplete;
 
 class PortParameter extends AutoCompleteParameter
 {
-    public function __construct(private PortAutoComplete $portAutoComplete, string $title = 'Port')
+    public function __construct(PortAutoComplete $portAutoComplete, string $title = 'Port')
     {
-        parent::__construct($title, $this->portAutoComplete);
+        parent::__construct($title, $portAutoComplete);
     }
 }

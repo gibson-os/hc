@@ -14,7 +14,6 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ReflectionManager;
-use GibsonOS\Core\Mapper\ModelMapper;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
@@ -36,7 +35,6 @@ use ReflectionException;
     'paramKey' => 'moduleId',
     'recordKey' => 'id',
 ]])]
-#[Event\ParameterOption('slave', 'typeHelper', 'neopixel')]
 #[Event\ParameterOption('module', 'typeHelper', 'neopixel')]
 class NeopixelEvent extends AbstractHcEvent
 {
@@ -47,7 +45,6 @@ class NeopixelEvent extends AbstractHcEvent
         LoggerInterface $logger,
         private readonly NeopixelService $neopixelService,
         private readonly LedRepository $ledRepository,
-        private readonly ModelMapper $modelMapper,
     ) {
         parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->neopixelService);
     }
@@ -199,10 +196,6 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws ReflectionException
      */
     #[Event\Method('Bild anzeigen')]
-    #[Event\Listener('sequence', 'slave', ['params' => [
-        'paramKey' => 'moduleId',
-        'recordKey' => 'id',
-    ]])]
     public function sendImage(
         #[Event\Parameter(ModuleParameter::class)] Module $module,
         #[Event\Parameter(ImageParameter::class)] Image $image

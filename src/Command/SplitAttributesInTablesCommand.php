@@ -15,6 +15,7 @@ use GibsonOS\Core\Model\Event\Element;
 use GibsonOS\Core\Model\Event\Trigger;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Ir\Protocol;
+use GibsonOS\Module\Hc\Event\IoEvent;
 use GibsonOS\Module\Hc\Event\IrEvent;
 use GibsonOS\Module\Hc\Event\NeopixelEvent;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
@@ -121,6 +122,7 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         $type = $this->typeRepository->getByHelperName('io');
         $this->createPorts($type);
         $this->createDirectConnects($type);
+        $this->fixIoEvents();
     }
 
     /**
@@ -500,6 +502,83 @@ class SplitAttributesInTablesCommand extends AbstractCommand
                 $eventElementTable->parameters->setValue(JsonUtility::encode($parameters));
                 $eventElementTable->save();
             } while ($eventElementTable->next());
+        }
+    }
+
+    private function fixIoEvents(): void
+    {
+        $eventElementTable = (new mysqlTable($this->mysqlDatabase, $this->eventElementTableName))
+            ->setWhere('`class`=?')
+            ->setWhereParameters([IoEvent::class])
+        ;
+
+        if ($eventElementTable->selectPrepared()) {
+            do {
+                /** @psalm-suppress UndefinedPropertyFetch */
+                $parameters = JsonUtility::decode($eventElementTable->parameters->getValue());
+                $portParameter = $parameters['port'];
+
+                if (isset($parameters['slave'])) {
+                    $parameters['module'] = $parameters['slave'];
+                    unset($parameters['slave']);
+                }
+
+                try {
+                    $this->portRepository->getById((int) $parameters['module'], $portParameter);
+
+                    continue;
+                } catch (SelectError) {
+                    // do nothing
+                }
+
+                try {
+                    $port = $this->portRepository->getByNumber(
+                        $this->getModule((int) $parameters['module']),
+                        $portParameter
+                    );
+                } catch (SelectError) {
+                    continue;
+                }
+
+                $parameters['port'] = $port->getId();
+                /** @psalm-suppress UndefinedPropertyFetch */
+                $eventElementTable->parameters->setValue(JsonUtility::encode($parameters));
+                $eventElementTable->save();
+            } while ($eventElementTable->next());
+        }
+
+        $eventTriggerTable = (new mysqlTable($this->mysqlDatabase, $this->eventTriggerTableName))
+            ->setWhere('`class`=? AND `trigger`=?')
+            ->setWhereParameters([IoEvent::class, 'afterReadPort'])
+        ;
+
+        if ($eventTriggerTable->selectPrepared()) {
+            do {
+                /** @psalm-suppress UndefinedPropertyFetch */
+                $parameters = JsonUtility::decode($eventTriggerTable->parameters->getValue());
+                $portParameter = $parameters['port']['value'];
+
+                try {
+                    $this->portRepository->getById((int) $parameters['module']['value'], $portParameter);
+
+                    continue;
+                } catch (SelectError) {
+                    // do nothing
+                }
+
+                try {
+                    $key = $this->portRepository->getByNumber(
+                        $this->getModule((int) $parameters['module']['value']),
+                        $portParameter,
+                    );
+                } catch (SelectError) {
+                    continue;
+                }
+
+                $parameters['port']['value'] = $key->getId();
+                $eventTriggerTable->parameters->setValue(JsonUtility::encode($parameters));
+                $eventTriggerTable->save();
+            } while ($eventTriggerTable->next());
         }
     }
 
