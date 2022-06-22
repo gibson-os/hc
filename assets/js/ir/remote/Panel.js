@@ -87,13 +87,20 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                 keys[0].set(field.name, value);
             });
         });
-        me.down('gosModuleIrRemoteKeyGrid').getStore().on('add', (store) => {
+        const changeKeyGridFunction = (store) => {
             const key = me.viewItem.getSelectionModel().getSelection()[0];
             let setKeys = [];
-            store.each((setKey) => setKeys.push(setKey.getData()));
-            // console.log(setKeys);
+            let order = 0;
+            store.each((setKey) => setKeys.push({
+                key: setKey.getData(),
+                order: order++
+            }));
+
             key.set('keys', setKeys);
-        });
+        };
+        const keyStore = me.down('gosModuleIrRemoteKeyGrid').getStore();
+        keyStore.on('add', changeKeyGridFunction);
+        keyStore.on('remove', changeKeyGridFunction);
 
         me.viewItem.on('render', function() {
             me.viewItem.dragZone = Ext.create('Ext.dd.DragZone', me.viewItem.getEl(), {
@@ -192,18 +199,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                 let keys = [];
 
                 me.viewItem.store.each((key) => {
-                    let keyData = key.getData();
-                    let irKeys = [];
-
-                    Ext.iterate(keyData['keys'], (irKey) => {
-                        irKeys.push({
-                            keyId: irKey.id,
-                            order: irKey.order
-                        })
-                    });
-
-                    keyData['keys'] = irKeys;
-                    keys.push(keyData);
+                    keys.push(key.getData());
                 });
 
                 GibsonOS.Ajax.request({

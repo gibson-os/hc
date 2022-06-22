@@ -306,7 +306,7 @@ class Button extends AbstractModel implements JsonSerializable
             'borderRadiusBottomLeft' => $this->getBorderRadiusBottomLeft(),
             'borderRadiusTopLeft' => $this->getBorderRadiusTopLeft(),
             'keys' => $this->getKeys(),
-            'event' => $this->getEvent(),
+            'eventId' => $this->getEventId(),
         ];
     }
 }
