@@ -45,11 +45,7 @@ Ext.define('GibsonOS.module.hc.ir.key.Grid', {
                     let keys = [];
 
                     Ext.iterate(records, (key) => {
-                        keys.push({
-                            protocol: key.get('protocol'),
-                            address: key.get('address'),
-                            command: key.get('command')
-                        });
+                        keys.push({id: key.get('id')});
                     });
 
                     GibsonOS.Ajax.request({
