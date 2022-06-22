@@ -14,24 +14,28 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
-use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Store\ModuleStore;
+use JsonException;
+use ReflectionException;
 
-class SlaveController extends AbstractController
+class ModuleController extends AbstractController
 {
     /**
      * @throws SaveError
      * @throws SelectError
      * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function add(
         TypeRepository $typeRepository,
-        SlaveFactory $slaveFactory,
+        ModuleFactory $moduleFactory,
         DateTimeService $dateTimeService,
         ModelManager $modelManager,
         #[GetModel(['id' => 'masterId'])] Master $master,
@@ -61,13 +65,18 @@ class SlaveController extends AbstractController
         $modelManager->save($slave);
 
         if ($withHandshake) {
-            $slaveService = $slaveFactory->get($type->getHelper());
+            $slaveService = $moduleFactory->get($type->getHelper());
             $slaveService->handshake($slave);
         }
 
         return $this->returnSuccess($slave);
     }
 
+    /**
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SelectError
+     */
     #[CheckPermission(Permission::READ)]
     public function index(
         ModuleStore $moduleStore,

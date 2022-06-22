@@ -7,6 +7,7 @@ use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Model\User\Permission;
@@ -14,7 +15,7 @@ use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\Ssd1306\PixelMapper;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Service\Slave\Ssd1306Service;
+use GibsonOS\Module\Hc\Service\Module\Ssd1306Service;
 use GibsonOS\Module\Hc\Store\Ssd1306\PixelStore;
 use JsonException;
 use ReflectionException;
@@ -38,8 +39,10 @@ class Ssd1306Controller extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
@@ -59,8 +62,11 @@ class Ssd1306Controller extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
+     * @throws WriteException
+     * @throws FactoryError
      */
     #[CheckPermission(Permission::WRITE)]
     public function displayOn(

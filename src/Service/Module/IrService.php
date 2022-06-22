@@ -1,18 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Service\Slave;
+namespace GibsonOS\Module\Hc\Service\Module;
 
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Event\IrEvent;
 use GibsonOS\Module\Hc\Exception\WriteException;
-use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
-use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
@@ -20,19 +20,13 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
-class IrService extends AbstractHcSlave
+class IrService extends AbstractHcModule
 {
     public const COMMAND_SEND = 0;
-
-    public const ATTRIBUTE_TYPE_KEY = 'key';
-
-    public const ATTRIBUTE_TYPE_REMOTE = 'remote';
-
-    public const KEY_ATTRIBUTE_NAME = 'name';
-
-    public const REMOTE_ATTRIBUTE_NAME = 'name';
 
     public function __construct(
         MasterService $masterService,
@@ -42,7 +36,7 @@ class IrService extends AbstractHcSlave
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
         LogRepository $logRepository,
-        SlaveFactory $slaveFactory,
+        ModuleFactory $slaveFactory,
         LoggerInterface $logger,
         ModelManager $modelManager,
         private readonly IrFormatter $irFormatter
@@ -81,11 +75,12 @@ class IrService extends AbstractHcSlave
     }
 
     /**
-     * @param Key[] $keys
-     *
+     * @throws AbstractException
      * @throws SaveError
      * @throws WriteException
-     * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      */
     public function sendKeys(Module $module, array $keys): IrService
     {

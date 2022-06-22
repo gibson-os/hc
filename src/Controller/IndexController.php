@@ -3,11 +3,12 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -15,12 +16,18 @@ use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Exception\WriteException;
-use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Store\LogStore;
+use JsonException;
+use ReflectionException;
 
 class IndexController extends AbstractController
 {
+    /**
+     * @throws SelectError
+     * @throws Exception
+     */
     #[CheckPermission(Permission::READ)]
     public function log(
         LogStore $logStore,
@@ -51,16 +58,18 @@ class IndexController extends AbstractController
     }
 
     /**
-     * @throws DateTimeError
      * @throws AbstractException
      * @throws FactoryError
+     * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
-     * @throws ReceiveError
      * @throws WriteException
+     * @throws GetError
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::WRITE)]
-    public function logSend(SlaveFactory $slaveFactory, LogRepository $logRepository, int $id): AjaxResponse
+    public function logSend(ModuleFactory $slaveFactory, LogRepository $logRepository, int $id): AjaxResponse
     {
         $log = $logRepository->getById($id);
         $module = $log->getModule();

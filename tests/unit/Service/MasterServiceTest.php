@@ -9,7 +9,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
-use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
@@ -20,10 +20,10 @@ use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
+use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
+use GibsonOS\Module\Hc\Service\Module\AbstractModule;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\SenderService;
-use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
-use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\UnitTest\AbstractTest;
 use Prophecy\Argument;
@@ -61,7 +61,7 @@ class MasterServiceTest extends AbstractTest
     private $typeRepository;
 
     /**
-     * @var ObjectProphecy|SlaveFactory
+     * @var ObjectProphecy|ModuleFactory
      */
     private $slaveFactory;
 
@@ -84,7 +84,7 @@ class MasterServiceTest extends AbstractTest
     {
         $this->senderService = $this->prophesize(SenderService::class);
         $this->transformService = new TransformService();
-        $this->slaveFactory = $this->prophesize(SlaveFactory::class);
+        $this->slaveFactory = $this->prophesize(ModuleFactory::class);
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
@@ -129,8 +129,8 @@ class MasterServiceTest extends AbstractTest
             ->setCommand(24)
             ->setSlaveAddress(42)
         ;
-        /** @var ObjectProphecy|AbstractHcSlave $moduleService */
-        $moduleService = $this->prophesize(AbstractHcSlave::class);
+        /** @var ObjectProphecy|AbstractHcModule $moduleService */
+        $moduleService = $this->prophesize(AbstractHcModule::class);
         $moduleService->receive($module, $busMessage)->shouldBeCalledOnce();
         $this->slaveFactory->get('prefect')
             ->shouldBeCalledOnce()
@@ -183,8 +183,8 @@ class MasterServiceTest extends AbstractTest
             ->setCommand(24)
             ->setSlaveAddress(42)
         ;
-        /** @var ObjectProphecy|AbstractSlave $moduleService */
-        $moduleService = $this->prophesize(AbstractSlave::class);
+        /** @var ObjectProphecy|AbstractModule $moduleService */
+        $moduleService = $this->prophesize(AbstractModule::class);
         $this->slaveFactory->get('prefect')
             ->shouldBeCalledOnce()
             ->willReturn($moduleService->reveal())
@@ -201,8 +201,8 @@ class MasterServiceTest extends AbstractTest
             ->shouldBeCalledOnce()
             ->willReturn($module)
         ;
-        /** @var ObjectProphecy|AbstractSlave $moduleService */
-        $moduleService = $this->prophesize(AbstractSlave::class);
+        /** @var ObjectProphecy|AbstractModule $moduleService */
+        $moduleService = $this->prophesize(AbstractModule::class);
         $moduleService->handshake($module)
             ->shouldBeCalledOnce()
             ->willReturn($module)
@@ -226,8 +226,8 @@ class MasterServiceTest extends AbstractTest
             ->shouldBeCalledOnce()
             ->willThrow(SelectError::class)
         ;
-        /** @var ObjectProphecy|AbstractSlave $moduleService */
-        $moduleService = $this->prophesize(AbstractSlave::class);
+        /** @var ObjectProphecy|AbstractModule $moduleService */
+        $moduleService = $this->prophesize(AbstractModule::class);
         $moduleService->handshake(Argument::type(Module::class))
             ->shouldBeCalledOnce()
             ->willReturn($module)
@@ -263,8 +263,8 @@ class MasterServiceTest extends AbstractTest
             ->shouldBeCalledOnce()
             ->willThrow(SelectError::class)
         ;
-        /** @var ObjectProphecy|AbstractSlave $moduleService */
-        $moduleService = $this->prophesize(AbstractSlave::class);
+        /** @var ObjectProphecy|AbstractModule $moduleService */
+        $moduleService = $this->prophesize(AbstractModule::class);
         $moduleService->handshake(Argument::type(Module::class))
             ->shouldBeCalledOnce()
             ->willReturn($module)

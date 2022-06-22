@@ -9,7 +9,7 @@ use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
+use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\TransformService;
 use LogicException;
 use Throwable;
@@ -106,7 +106,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
         $context = ['data' => $log->getRawData()];
 
         switch ($command) {
-            case AbstractHcSlave::COMMAND_TYPE:
+            case AbstractHcModule::COMMAND_TYPE:
                 $typeId = $this->transformService->asciiToUnsignedInt($log->getRawData());
 
                 if (!isset($this->loadedTypes[$typeId])) {
@@ -146,20 +146,20 @@ abstract class AbstractHcFormatter extends AbstractFormatter
         $context = ['data' => $log->getRawData()];
 
         return match ($command) {
-            AbstractHcSlave::COMMAND_ADDRESS,
-            AbstractHcSlave::COMMAND_BUFFER_SIZE,
-            AbstractHcSlave::COMMAND_EEPROM_ERASE,
-            AbstractHcSlave::COMMAND_TYPE => [
+            AbstractHcModule::COMMAND_ADDRESS,
+            AbstractHcModule::COMMAND_BUFFER_SIZE,
+            AbstractHcModule::COMMAND_EEPROM_ERASE,
+            AbstractHcModule::COMMAND_TYPE => [
                 new Explain(0, 0, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? ''),
             ],
-            AbstractHcSlave::COMMAND_DEVICE_ID,
-            AbstractHcSlave::COMMAND_EEPROM_FREE,
-            AbstractHcSlave::COMMAND_EEPROM_POSITION,
-            AbstractHcSlave::COMMAND_EEPROM_SIZE => [
+            AbstractHcModule::COMMAND_DEVICE_ID,
+            AbstractHcModule::COMMAND_EEPROM_FREE,
+            AbstractHcModule::COMMAND_EEPROM_POSITION,
+            AbstractHcModule::COMMAND_EEPROM_SIZE => [
                 new Explain(0, 1, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? ''),
             ],
-            AbstractHcSlave::COMMAND_PWM_SPEED,
-            AbstractHcSlave::COMMAND_HERTZ => [
+            AbstractHcModule::COMMAND_PWM_SPEED,
+            AbstractHcModule::COMMAND_HERTZ => [
                 new Explain(0, 3, $this->renderBlock($command, self::BLOCK_EXPLAIN, $context) ?? ''),
             ],
             default => parent::explain($log),
@@ -199,28 +199,28 @@ abstract class AbstractHcFormatter extends AbstractFormatter
     protected function getTemplates(): array
     {
         return [
-            AbstractHcSlave::COMMAND_ADDRESS => 'abstractHc/address',
-            AbstractHcSlave::COMMAND_ALL_LEDS => 'abstractHc/allLeds',
-            AbstractHcSlave::COMMAND_BUFFER_SIZE => 'abstractHc/bufferSize',
-            AbstractHcSlave::COMMAND_CONNECT_LED => 'abstractHc/connectLed',
-            AbstractHcSlave::COMMAND_CUSTOM_LED => 'abstractHc/customLed',
-            AbstractHcSlave::COMMAND_DEVICE_ID => 'abstractHc/deviceId',
-            AbstractHcSlave::COMMAND_EEPROM_ERASE => 'abstractHc/eepromErase',
-            AbstractHcSlave::COMMAND_EEPROM_FREE => 'abstractHc/eepromFree',
-            AbstractHcSlave::COMMAND_EEPROM_POSITION => 'abstractHc/eepromPosition',
-            AbstractHcSlave::COMMAND_EEPROM_SIZE => 'abstractHc/eepromSize',
-            AbstractHcSlave::COMMAND_ERROR_LED => 'abstractHc/errorLed',
-            AbstractHcSlave::COMMAND_HERTZ => 'abstractHc/hertz',
-            AbstractHcSlave::COMMAND_LEDS => 'abstractHc/leds',
-            AbstractHcSlave::COMMAND_POWER_LED => 'abstractHc/powerLed',
-            AbstractHcSlave::COMMAND_PWM_SPEED => 'abstractHc/pwmSpeed',
-            AbstractHcSlave::COMMAND_RECEIVE_LED => 'abstractHc/receiveLed',
-            AbstractHcSlave::COMMAND_RESTART => 'abstractHc/restart',
-            AbstractHcSlave::COMMAND_RGB_LED => 'abstractHc/rgbLed',
-            AbstractHcSlave::COMMAND_STATUS => 'abstractHc/status',
-            AbstractHcSlave::COMMAND_DATA_CHANGED => 'abstractHc/status',
-            AbstractHcSlave::COMMAND_TRANSCEIVE_LED => 'abstractHc/tansceiveLed',
-            AbstractHcSlave::COMMAND_TYPE => 'abstractHc/type',
+            AbstractHcModule::COMMAND_ADDRESS => 'abstractHc/address',
+            AbstractHcModule::COMMAND_ALL_LEDS => 'abstractHc/allLeds',
+            AbstractHcModule::COMMAND_BUFFER_SIZE => 'abstractHc/bufferSize',
+            AbstractHcModule::COMMAND_CONNECT_LED => 'abstractHc/connectLed',
+            AbstractHcModule::COMMAND_CUSTOM_LED => 'abstractHc/customLed',
+            AbstractHcModule::COMMAND_DEVICE_ID => 'abstractHc/deviceId',
+            AbstractHcModule::COMMAND_EEPROM_ERASE => 'abstractHc/eepromErase',
+            AbstractHcModule::COMMAND_EEPROM_FREE => 'abstractHc/eepromFree',
+            AbstractHcModule::COMMAND_EEPROM_POSITION => 'abstractHc/eepromPosition',
+            AbstractHcModule::COMMAND_EEPROM_SIZE => 'abstractHc/eepromSize',
+            AbstractHcModule::COMMAND_ERROR_LED => 'abstractHc/errorLed',
+            AbstractHcModule::COMMAND_HERTZ => 'abstractHc/hertz',
+            AbstractHcModule::COMMAND_LEDS => 'abstractHc/leds',
+            AbstractHcModule::COMMAND_POWER_LED => 'abstractHc/powerLed',
+            AbstractHcModule::COMMAND_PWM_SPEED => 'abstractHc/pwmSpeed',
+            AbstractHcModule::COMMAND_RECEIVE_LED => 'abstractHc/receiveLed',
+            AbstractHcModule::COMMAND_RESTART => 'abstractHc/restart',
+            AbstractHcModule::COMMAND_RGB_LED => 'abstractHc/rgbLed',
+            AbstractHcModule::COMMAND_STATUS => 'abstractHc/status',
+            AbstractHcModule::COMMAND_DATA_CHANGED => 'abstractHc/status',
+            AbstractHcModule::COMMAND_TRANSCEIVE_LED => 'abstractHc/tansceiveLed',
+            AbstractHcModule::COMMAND_TYPE => 'abstractHc/type',
         ];
     }
 }

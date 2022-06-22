@@ -1,13 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Service\Slave;
+namespace GibsonOS\Module\Hc\Service\Module;
 
 use Exception;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError as RepositoryDeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -20,7 +21,7 @@ use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Io\DirectConnect as DirectConnectDto;
 use GibsonOS\Module\Hc\Event\IoEvent;
 use GibsonOS\Module\Hc\Exception\WriteException;
-use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Mapper\Io\DirectConnectMapper;
 use GibsonOS\Module\Hc\Mapper\Io\PortMapper;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
@@ -39,7 +40,7 @@ use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Throwable;
 
-class IoService extends AbstractHcSlave
+class IoService extends AbstractHcModule
 {
     public const COMMAND_PORT_LENGTH = 2;
 
@@ -115,7 +116,7 @@ class IoService extends AbstractHcSlave
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
         LogRepository $logRepository,
-        SlaveFactory $slaveFactory,
+        ModuleFactory $slaveFactory,
         LoggerInterface $logger,
         ModelManager $modelManager,
         private readonly PortMapper $ioMapper,
@@ -245,9 +246,9 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws EventException
      * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -260,11 +261,12 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws EventException
      * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws GetError
      */
     public function readPortsFromEeprom(Module $slave): void
     {
@@ -283,9 +285,9 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws EventException
      * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -349,10 +351,11 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws EventException
      * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      *
@@ -488,6 +491,7 @@ class IoService extends AbstractHcSlave
      * @throws UpdateError
      * @throws WriteException
      * @throws JsonException
+     * @throws ReflectionException
      */
     public function deleteDirectConnect(Module $module, DirectConnect $directConnect): void
     {
@@ -526,10 +530,9 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws EventException
      * @throws FactoryError
-     * @throws RepositoryDeleteError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -570,9 +573,9 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws EventException
      * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -589,9 +592,9 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws EventException
      * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -604,10 +607,11 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws EventException
      * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function isDirectConnectActive(Module $slave): bool

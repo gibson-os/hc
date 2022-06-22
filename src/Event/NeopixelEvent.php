@@ -10,6 +10,8 @@ use GibsonOS\Core\Dto\Parameter\OptionParameter;
 use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -25,7 +27,7 @@ use GibsonOS\Module\Hc\Model\Neopixel\Image;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
+use GibsonOS\Module\Hc\Service\Module\NeopixelService;
 use JsonException;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -70,6 +72,7 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws SaveError
      * @throws WriteException
      * @throws JsonException
+     * @throws ReflectionException
      */
     #[Event\Method('Channel schreiben')]
     public function writeChannel(
@@ -82,8 +85,11 @@ class NeopixelEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
+     * @throws FactoryError
      */
     #[Event\Method('Sequenz starten')]
     public function writeSequenceStart(
@@ -95,6 +101,9 @@ class NeopixelEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -107,6 +116,9 @@ class NeopixelEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -119,6 +131,9 @@ class NeopixelEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -132,7 +147,12 @@ class NeopixelEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws GetError
      */
     #[Event\Method('Sequenz EEPROM Adresse lesen')]
     #[Event\ReturnValue(IntParameter::class, 'EEPROM Adresse')]
@@ -144,6 +164,9 @@ class NeopixelEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -159,6 +182,7 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws SaveError
      * @throws ReceiveError
      * @throws JsonException
+     * @throws ReflectionException
      */
     #[Event\Method('LED Anzahl lesen')]
 //    #[Event\ReturnValue(className: CollectionParameter::class, options: [
@@ -173,6 +197,9 @@ class NeopixelEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -192,8 +219,6 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
-     * @throws JsonException
-     * @throws ReflectionException
      */
     #[Event\Method('Bild anzeigen')]
     public function sendImage(

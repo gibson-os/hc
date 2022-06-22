@@ -9,7 +9,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led as AnimationLed;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
-use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
+use GibsonOS\Module\Hc\Service\Module\NeopixelService;
 use JsonException;
 use OutOfRangeException;
 

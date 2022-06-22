@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Event;
 
 use GibsonOS\Core\Attribute\Event;
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
@@ -14,8 +15,10 @@ use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Service\Slave\IrService;
+use GibsonOS\Module\Hc\Service\Module\IrService;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 #[Event('IR')]
 #[Event\ParameterOption('slave', 'typeHelper', 'ir')]
@@ -52,6 +55,9 @@ class IrEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      * @throws WriteException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[Event\Method('Taste senden')]
     public function sendKey(

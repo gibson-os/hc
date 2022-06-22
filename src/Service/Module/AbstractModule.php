@@ -1,9 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Service\Slave;
+namespace GibsonOS\Module\Hc\Service\Module;
 
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ModelManager;
@@ -18,7 +20,7 @@ use JsonException;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
-abstract class AbstractSlave
+abstract class AbstractModule
 {
     protected const MAX_DATA_LENGTH = 32;
 
@@ -27,7 +29,7 @@ abstract class AbstractSlave
     public function __construct(
         protected MasterService $masterService,
         protected TransformService $transformService,
-        private LogRepository $logRepository,
+        private readonly LogRepository $logRepository,
         protected LoggerInterface $logger,
         protected ModelManager $modelManager
     ) {
@@ -35,8 +37,11 @@ abstract class AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
+     * @throws FactoryError
      */
     public function write(Module $slave, int $command, string $data): void
     {
@@ -66,8 +71,12 @@ abstract class AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws GetError
      */
     public function read(Module $slave, int $command, int $length): string
     {

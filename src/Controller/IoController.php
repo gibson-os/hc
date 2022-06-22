@@ -8,9 +8,8 @@ use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -20,7 +19,7 @@ use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Io\PortRepository;
-use GibsonOS\Module\Hc\Service\Slave\IoService;
+use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Store\Io\PortStore;
 use JsonException;
 use ReflectionException;
@@ -76,12 +75,13 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
-     * @throws DateTimeError
-     * @throws EventException
-     * @throws FactoryError
+     * @throws GetError
      */
     #[CheckPermission(Permission::WRITE)]
     public function loadFromEeprom(
@@ -96,8 +96,10 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]

@@ -7,7 +7,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
-use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
@@ -17,8 +17,8 @@ use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
-use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
-use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
+use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
+use GibsonOS\Module\Hc\Service\Module\AbstractModule;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\UnitTest\AbstractTest;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -30,7 +30,7 @@ class AbstractHcSlaveTest extends AbstractTest
     use ProphecyTrait;
 
     /**
-     * @var AbstractHcSlave
+     * @var AbstractHcModule
      */
     private $abstractHcSlave;
 
@@ -65,7 +65,7 @@ class AbstractHcSlaveTest extends AbstractTest
     private $masterRepository;
 
     /**
-     * @var ObjectProphecy|SlaveFactory
+     * @var ObjectProphecy|ModuleFactory
      */
     private $slaveFactory;
 
@@ -95,12 +95,12 @@ class AbstractHcSlaveTest extends AbstractTest
         $this->typeRepository = $this->prophesize(TypeRepository::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
-        $this->slaveFactory = $this->prophesize(SlaveFactory::class);
+        $this->slaveFactory = $this->prophesize(ModuleFactory::class);
         $this->logger = $this->serviceManager->get(LoggerInterface::class);
         $this->slave = $this->prophesize(Module::class);
         $this->master = $this->prophesize(Master::class);
 
-        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService, $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->slaveFactory->reveal(), $this->logger, $this->modelManager->reveal(), $this->slave->reveal()) extends AbstractHcSlave {
+        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService, $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->slaveFactory->reveal(), $this->logger, $this->modelManager->reveal(), $this->slave->reveal()) extends AbstractHcModule {
             /**
              * @var Module
              */
@@ -114,7 +114,7 @@ class AbstractHcSlaveTest extends AbstractTest
                 TypeRepository $typeRepository,
                 MasterRepository $masterRepository,
                 LogRepository $logRepository,
-                SlaveFactory $slaveFactory,
+                ModuleFactory $slaveFactory,
                 LoggerInterface $logger,
                 ModelManager $modelManager,
                 Module $slave
@@ -225,7 +225,7 @@ class AbstractHcSlaveTest extends AbstractTest
             ->shouldBeCalledOnce()
             ->willReturn($type->reveal())
         ;
-        $slaveService = $this->prophesize(AbstractSlave::class);
+        $slaveService = $this->prophesize(AbstractModule::class);
         $slaveService->handshake($this->slave->reveal())
             ->shouldBeCalledOnce()
             ->willReturn($this->slave->reveal())
@@ -1618,7 +1618,7 @@ class AbstractHcSlaveTest extends AbstractTest
             ->shouldBeCalledOnce()
             ->willReturn($this->slave->reveal())
         ;
-        $slaveService = $this->prophesize(AbstractSlave::class);
+        $slaveService = $this->prophesize(AbstractModule::class);
         $slaveService->handshake($this->slave->reveal())
             ->shouldBeCalledOnce()
         ;

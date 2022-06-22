@@ -7,7 +7,6 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
-use GibsonOS\Core\Mapper\ModelMapper;
 use GibsonOS\Core\Service\CommandService;
 use GibsonOS\Core\Service\ProcessService;
 use GibsonOS\Module\Hc\Command\Neopixel\PlayAnimationCommand;
@@ -16,7 +15,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led;
 use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
-use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
+use GibsonOS\Module\Hc\Service\Module\NeopixelService;
 use JsonException;
 use ReflectionException;
 
@@ -27,7 +26,6 @@ class AnimationService
         private readonly CommandService $commandService,
         private readonly AnimationRepository $animationRepository,
         private readonly ProcessService $processService,
-        private readonly ModelMapper $modelMapper,
         private readonly ModelManager $modelManager,
         private readonly LedService $ledService
     ) {

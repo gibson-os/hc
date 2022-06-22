@@ -160,7 +160,7 @@ Ext.define('GibsonOS.module.hc.index.module.Grid', {
                     });
 
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/slave/delete',
+                        url: baseDir + 'hc/module/delete',
                         params: {
                             'ids[]': ids
                         },

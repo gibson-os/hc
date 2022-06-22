@@ -10,7 +10,7 @@ use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
-use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
+use GibsonOS\Module\Hc\Service\Module\AbstractModule;
 use GibsonOS\Module\Hc\Service\TransformService;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -30,7 +30,7 @@ class AbstractSlaveTest extends Unit
     private $transformService;
 
     /**
-     * @var AbstractSlave
+     * @var AbstractModule
      */
     private $abstractSlave;
 
@@ -51,7 +51,7 @@ class AbstractSlaveTest extends Unit
         $this->logRepository = $this->prophesize(LogRepository::class);
         $this->slave = $this->prophesize(Module::class);
 
-        $this->abstractSlave = new class($this->masterService->reveal(), $this->transformService, $this->logRepository->reveal(), $this->slave->reveal()) extends AbstractSlave {
+        $this->abstractSlave = new class($this->masterService->reveal(), $this->transformService, $this->logRepository->reveal(), $this->slave->reveal()) extends AbstractModule {
             /**
              * @var Module
              */

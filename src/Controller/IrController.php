@@ -27,8 +27,8 @@ use GibsonOS\Module\Hc\Model\Ir\Remote;
 use GibsonOS\Module\Hc\Model\Ir\Remote\Button;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
-use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
-use GibsonOS\Module\Hc\Service\Slave\IrService;
+use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
+use GibsonOS\Module\Hc\Service\Module\IrService;
 use GibsonOS\Module\Hc\Store\Ir\KeyStore;
 use GibsonOS\Module\Hc\Store\Ir\RemoteStore;
 use JsonException;
@@ -37,16 +37,9 @@ use ReflectionException;
 class IrController extends AbstractController
 {
     /**
-     * @param KeyStore $keyStore
-     * @param int      $limit
-     * @param int      $start
-     * @param array    $sort
-     *
      * @throws JsonException
      * @throws ReflectionException
      * @throws SelectError
-     *
-     * @return AjaxResponse
      */
     #[CheckPermission(Permission::READ)]
     public function keys(
@@ -111,7 +104,7 @@ class IrController extends AbstractController
 
         for ($retry = 0; $retry < 20000; ++$retry) {
             try {
-                $log = $logRepository->getLastEntryByModuleId($moduleId, AbstractHcSlave::COMMAND_DATA_CHANGED);
+                $log = $logRepository->getLastEntryByModuleId($moduleId, AbstractHcModule::COMMAND_DATA_CHANGED);
                 $data = ['lastLogId' => $log->getId() ?? 0];
 
                 if ($lastLogId === null || $log->getId() === $lastLogId) {
@@ -146,8 +139,10 @@ class IrController extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]

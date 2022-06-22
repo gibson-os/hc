@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Formatter;
 
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Exception\ModuleException;
@@ -11,9 +12,11 @@ use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
+use GibsonOS\Module\Hc\Service\Module\NeopixelService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
+use JsonException;
+use ReflectionException;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
@@ -29,8 +32,8 @@ class NeopixelFormatter extends AbstractHcFormatter
         TransformService $transformService,
         TwigService $twigService,
         TypeRepository $typeRepository,
-        private LedStore $ledStore,
-        private LedMapper $ledMapper
+        private readonly LedStore $ledStore,
+        private readonly LedMapper $ledMapper
     ) {
         parent::__construct($transformService, $twigService, $typeRepository);
     }
@@ -188,6 +191,10 @@ class NeopixelFormatter extends AbstractHcFormatter
     }
 
     /**
+     * @throws SelectError
+     * @throws JsonException
+     * @throws ReflectionException
+     *
      * @return Led[]
      */
     private function getLeds(Module $module): array

@@ -7,15 +7,18 @@ use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Service\Slave\BlankService;
+use GibsonOS\Module\Hc\Service\Module\BlankService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
+use ReflectionException;
 
 class BlankController extends AbstractController
 {
@@ -27,9 +30,12 @@ class BlankController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws SaveError
-     * @throws SelectError
      * @throws ReceiveError
+     * @throws SaveError
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::READ)]
     public function read(
@@ -52,8 +58,10 @@ class BlankController extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]

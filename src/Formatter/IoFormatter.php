@@ -17,9 +17,11 @@ use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
-use GibsonOS\Module\Hc\Service\Slave\IoService;
+use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use Throwable;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
 
 class IoFormatter extends AbstractHcFormatter
 {
@@ -71,6 +73,11 @@ class IoFormatter extends AbstractHcFormatter
         return parent::command($log);
     }
 
+    /**
+     * @throws Throwable
+     * @throws LoaderError
+     * @throws SyntaxError
+     */
     public function text(Log $log): ?string
     {
         switch ($log->getCommand()) {
@@ -143,7 +150,7 @@ class IoFormatter extends AbstractHcFormatter
                             '<th>Blinken</th>' .
                         '</tr>';
 
-                foreach ($changedPorts as $number => $port) {
+                foreach ($changedPorts as $port) {
                     $return .=
                         '<tr>' .
                             '<td>' . $port->getName() . '</td>' .

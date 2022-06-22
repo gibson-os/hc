@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Service\Slave;
+namespace GibsonOS\Module\Hc\Service\Module;
 
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Event\AbstractHcEvent;
 use GibsonOS\Module\Hc\Model\Module;
 
-class BlankService extends AbstractHcSlave
+class BlankService extends AbstractHcModule
 {
     public function slaveHandshake(Module $module): Module
     {

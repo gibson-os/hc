@@ -1,15 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Service\Slave;
+namespace GibsonOS\Module\Hc\Service\Module;
 
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Ssd1306\Pixel;
+use JsonException;
+use ReflectionException;
 
-class Ssd1306Service extends AbstractSlave
+class Ssd1306Service extends AbstractModule
 {
     private const COMMAND_COMMAND = 0;
 
@@ -99,6 +102,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -134,6 +140,9 @@ class Ssd1306Service extends AbstractSlave
      * @throws AbstractException
      * @throws SaveError
      * @throws WriteException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      */
     public function sendData(Module $slave, array $data): Ssd1306Service
     {
@@ -150,6 +159,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -182,6 +194,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -194,6 +209,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -206,6 +224,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -218,6 +239,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -230,6 +254,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -250,6 +277,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -270,6 +300,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -282,6 +315,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -294,6 +330,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -306,6 +345,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -318,6 +360,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -338,6 +383,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -350,6 +398,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -362,6 +413,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -374,6 +428,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -386,6 +443,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -405,6 +465,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -425,6 +488,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -447,6 +513,9 @@ class Ssd1306Service extends AbstractSlave
      * @param array<int, array<int, array<int, Pixel>>> $pixels
      *
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -486,6 +555,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -498,6 +570,9 @@ class Ssd1306Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */

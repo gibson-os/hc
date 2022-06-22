@@ -1,13 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Service\Slave;
+namespace GibsonOS\Module\Hc\Service\Module;
 
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\Bme280Mapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -15,8 +18,9 @@ use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
-class Bme280Service extends AbstractSlave
+class Bme280Service extends AbstractModule
 {
     public const COMMAND_CALIBRATION1 = 136;
 
@@ -50,7 +54,7 @@ class Bme280Service extends AbstractSlave
         MasterService $masterService,
         TransformService $transformService,
         LogRepository $logRepository,
-        private Bme280Mapper $bme280Mapper,
+        private readonly Bme280Mapper $bme280Mapper,
         LoggerInterface $logger,
         ModelManager $modelManager
     ) {
@@ -59,9 +63,12 @@ class Bme280Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws JsonException
-     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SaveError
+     * @throws WriteException
      */
     public function handshake(Module $slave): Module
     {
@@ -73,7 +80,11 @@ class Bme280Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws JsonException
      * @throws SaveError
+     * @throws FactoryError
+     * @throws WriteException
+     * @throws ReflectionException
      */
     private function init(Module $slave): void
     {
@@ -86,6 +97,7 @@ class Bme280Service extends AbstractSlave
      * @throws AbstractException
      * @throws ReceiveError
      * @throws JsonException
+     * @throws ReflectionException
      */
     private function calibrate(Module $slave): void
     {
@@ -103,9 +115,13 @@ class Bme280Service extends AbstractSlave
 
     /**
      * @throws AbstractException
-     * @throws ReceiveError
-     * @throws SaveError
+     * @throws FactoryError
      * @throws JsonException
+     * @throws ReceiveError
+     * @throws ReflectionException
+     * @throws SaveError
+     * @throws WriteException
+     * @throws GetError
      */
     public function measure(Module $slave): array
     {
@@ -128,7 +144,11 @@ class Bme280Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     private function calibrateTemperatureAndPressure(Module $slave): array
@@ -157,7 +177,11 @@ class Bme280Service extends AbstractSlave
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     private function calibrateHumidity(Module $slave): array

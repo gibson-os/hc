@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Mapper\Ssd1306;
 
 use GibsonOS\Module\Hc\Model\Ssd1306\Pixel;
-use GibsonOS\Module\Hc\Service\Slave\Ssd1306Service;
+use GibsonOS\Module\Hc\Service\Module\Ssd1306Service;
 
 class PixelMapper
 {

@@ -5,14 +5,14 @@ namespace Gibson\Test\Unit\Service\Slave;
 
 use Codeception\Test\Unit;
 use GibsonOS\Core\Service\EventService;
-use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
-use GibsonOS\Module\Hc\Service\Slave\BlankService;
+use GibsonOS\Module\Hc\Service\Module\BlankService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -62,7 +62,7 @@ class BlankServiceTest extends Unit
     private $logRepository;
 
     /**
-     * @var ObjectProphecy|SlaveFactory
+     * @var ObjectProphecy|ModuleFactory
      */
     private $slaveFactory;
 
@@ -75,7 +75,7 @@ class BlankServiceTest extends Unit
         $this->typeRepository = $this->prophesize(TypeRepository::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
-        $this->slaveFactory = $this->prophesize(SlaveFactory::class);
+        $this->slaveFactory = $this->prophesize(ModuleFactory::class);
         $this->blankService = new BlankService(
             $this->masterService->reveal(),
             $this->transformService,

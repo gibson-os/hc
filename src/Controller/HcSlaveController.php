@@ -18,11 +18,12 @@ use GibsonOS\Core\Exception\SetError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
-use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Exception\WriteException;
+use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
+use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use JsonException;
 use ReflectionException;
 
@@ -51,7 +52,7 @@ class HcSlaveController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function saveGeneralSettings(
-        SlaveFactory $slaveFactory,
+        ModuleFactory $slaveFactory,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         ModelManager $modelManager,
@@ -162,7 +163,7 @@ class HcSlaveController extends AbstractController
      */
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function eepromSettings(
-        SlaveFactory $slaveFactory,
+        ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
@@ -182,10 +183,11 @@ class HcSlaveController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function saveEepromSettings(
-        SlaveFactory $slaveFactory,
+        ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         int $position
     ): AjaxResponse {
@@ -203,10 +205,11 @@ class HcSlaveController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
     public function eraseEeprom(
-        SlaveFactory $slaveFactory,
+        ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
@@ -223,10 +226,11 @@ class HcSlaveController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function restart(
-        SlaveFactory $slaveFactory,
+        ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
@@ -247,7 +251,7 @@ class HcSlaveController extends AbstractController
      */
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function getStatusLeds(
-        SlaveFactory $slaveFactory,
+        ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
@@ -257,7 +261,7 @@ class HcSlaveController extends AbstractController
         foreach ($activeLeds as $led => $active) {
             if (
                 !$active ||
-                $led === AbstractHcSlave::RGB_LED_KEY
+                $led === AbstractHcModule::RGB_LED_KEY
             ) {
                 continue;
             }
@@ -267,7 +271,7 @@ class HcSlaveController extends AbstractController
             break;
         }
 
-        if ($activeLeds[AbstractHcSlave::RGB_LED_KEY]) {
+        if ($activeLeds[AbstractHcModule::RGB_LED_KEY]) {
             foreach ($slaveService->readRgbLed($module) as $rgbLed => $code) {
                 $leds[$rgbLed . 'Code'] = $code;
             }
@@ -284,10 +288,11 @@ class HcSlaveController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function setStatusLeds(
-        SlaveFactory $slaveFactory,
+        ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         bool $power = false,
         bool $error = false,
@@ -341,9 +346,9 @@ class HcSlaveController extends AbstractController
     /**
      * @throws FactoryError
      */
-    private function getSlaveService(SlaveFactory $slaveFactory, Module $slave): AbstractHcSlave
+    private function getSlaveService(ModuleFactory $slaveFactory, Module $slave): AbstractHcModule
     {
-        /** @var AbstractHcSlave $service */
+        /** @var AbstractHcModule $service */
         $service = $slaveFactory->get($slave->getType()->getHelper());
 
         return $service;

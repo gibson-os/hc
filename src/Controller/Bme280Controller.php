@@ -16,7 +16,7 @@ use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Mapper\Bme280Mapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
-use GibsonOS\Module\Hc\Service\Slave\Bme280Service;
+use GibsonOS\Module\Hc\Service\Module\Bme280Service;
 use JsonException;
 
 class Bme280Controller extends AbstractController

@@ -7,7 +7,7 @@ use Codeception\Test\Unit;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\EventService;
-use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Log;
@@ -19,7 +19,7 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Formatter\IoFormatter;
 use GibsonOS\Module\Hc\Service\MasterService;
-use GibsonOS\Module\Hc\Service\Slave\IoService;
+use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -64,7 +64,7 @@ class IoServiceTest extends Unit
     private $masterRepository;
 
     /**
-     * @var ObjectProphecy|SlaveFactory
+     * @var ObjectProphecy|ModuleFactory
      */
     private $slaveFactory;
 
@@ -97,7 +97,7 @@ class IoServiceTest extends Unit
         $this->typeRepository = $this->prophesize(TypeRepository::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
-        $this->slaveFactory = $this->prophesize(SlaveFactory::class);
+        $this->slaveFactory = $this->prophesize(ModuleFactory::class);
         $this->ioFormatter = $this->prophesize(IoFormatter::class);
         $this->slave = $this->prophesize(Module::class);
         $this->master = $this->prophesize(Master::class);

@@ -21,7 +21,7 @@ use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Service\Slave\IoService;
+use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Store\Io\DirectConnectStore;
 use JsonException;
 use ReflectionException;

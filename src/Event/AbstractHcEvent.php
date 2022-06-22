@@ -12,7 +12,7 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\FileNotFound;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -23,7 +23,7 @@ use GibsonOS\Module\Hc\Dto\Parameter\TypeParameter;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
+use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use JsonException;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -166,14 +166,14 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     #[Event\Trigger('LED Status gelesen', [
         ['key' => 'slave', 'className' => ModuleParameter::class],
-        ['key' => AbstractHcSlave::POWER_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Power LED'],
-        ['key' => AbstractHcSlave::ERROR_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Error LED'],
-        ['key' => AbstractHcSlave::CONNECT_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Connect LED'],
-        ['key' => AbstractHcSlave::TRANSRECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transreceive LED'],
-        ['key' => AbstractHcSlave::TRANSCEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transceive LED'],
-        ['key' => AbstractHcSlave::RECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Receive LED'],
-        ['key' => AbstractHcSlave::CUSTOM_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Custom LED'],
-        ['key' => AbstractHcSlave::RGB_LED_KEY, 'className' => BoolParameter::class, 'title' => 'RGB LED'],
+        ['key' => AbstractHcModule::POWER_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Power LED'],
+        ['key' => AbstractHcModule::ERROR_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Error LED'],
+        ['key' => AbstractHcModule::CONNECT_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Connect LED'],
+        ['key' => AbstractHcModule::TRANSRECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transreceive LED'],
+        ['key' => AbstractHcModule::TRANSCEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transceive LED'],
+        ['key' => AbstractHcModule::RECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Receive LED'],
+        ['key' => AbstractHcModule::CUSTOM_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Custom LED'],
+        ['key' => AbstractHcModule::RGB_LED_KEY, 'className' => BoolParameter::class, 'title' => 'RGB LED'],
     ])]
     public const READ_LED_STATUS = 'readLedStatus';
 
@@ -305,71 +305,71 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     #[Event\Trigger('Vor RGB LED setzen', [
         ['key' => 'slave', 'className' => ModuleParameter::class],
-        ['key' => AbstractHcSlave::POWER_LED_KEY, 'className' => StringParameter::class, 'Power LED'],
-        ['key' => AbstractHcSlave::ERROR_LED_KEY, 'className' => StringParameter::class, 'Error LED'],
-        ['key' => AbstractHcSlave::CONNECT_LED_KEY, 'className' => StringParameter::class, 'Connect LED'],
-        ['key' => AbstractHcSlave::TRANSCEIVE_LED_KEY, 'className' => StringParameter::class, 'Transceive LED'],
-        ['key' => AbstractHcSlave::RECEIVE_LED_KEY, 'className' => StringParameter::class, 'Receive LED'],
-        ['key' => AbstractHcSlave::CUSTOM_LED_KEY, 'className' => StringParameter::class, 'Custom LED'],
+        ['key' => AbstractHcModule::POWER_LED_KEY, 'className' => StringParameter::class, 'Power LED'],
+        ['key' => AbstractHcModule::ERROR_LED_KEY, 'className' => StringParameter::class, 'Error LED'],
+        ['key' => AbstractHcModule::CONNECT_LED_KEY, 'className' => StringParameter::class, 'Connect LED'],
+        ['key' => AbstractHcModule::TRANSCEIVE_LED_KEY, 'className' => StringParameter::class, 'Transceive LED'],
+        ['key' => AbstractHcModule::RECEIVE_LED_KEY, 'className' => StringParameter::class, 'Receive LED'],
+        ['key' => AbstractHcModule::CUSTOM_LED_KEY, 'className' => StringParameter::class, 'Custom LED'],
     ])]
     public const BEFORE_WRITE_RGB_LED = 'beforeWriteRgbLed';
 
     #[Event\Trigger('Nach RGB LED setzen', [
         ['key' => 'slave', 'className' => ModuleParameter::class],
-        ['key' => AbstractHcSlave::POWER_LED_KEY, 'className' => StringParameter::class, 'Power LED'],
-        ['key' => AbstractHcSlave::ERROR_LED_KEY, 'className' => StringParameter::class, 'Error LED'],
-        ['key' => AbstractHcSlave::CONNECT_LED_KEY, 'className' => StringParameter::class, 'Connect LED'],
-        ['key' => AbstractHcSlave::TRANSCEIVE_LED_KEY, 'className' => StringParameter::class, 'Transceive LED'],
-        ['key' => AbstractHcSlave::RECEIVE_LED_KEY, 'className' => StringParameter::class, 'Receive LED'],
-        ['key' => AbstractHcSlave::CUSTOM_LED_KEY, 'className' => StringParameter::class, 'Custom LED'],
+        ['key' => AbstractHcModule::POWER_LED_KEY, 'className' => StringParameter::class, 'Power LED'],
+        ['key' => AbstractHcModule::ERROR_LED_KEY, 'className' => StringParameter::class, 'Error LED'],
+        ['key' => AbstractHcModule::CONNECT_LED_KEY, 'className' => StringParameter::class, 'Connect LED'],
+        ['key' => AbstractHcModule::TRANSCEIVE_LED_KEY, 'className' => StringParameter::class, 'Transceive LED'],
+        ['key' => AbstractHcModule::RECEIVE_LED_KEY, 'className' => StringParameter::class, 'Receive LED'],
+        ['key' => AbstractHcModule::CUSTOM_LED_KEY, 'className' => StringParameter::class, 'Custom LED'],
     ])]
     public const AFTER_WRITE_RGB_LED = 'afterWriteRgbLed';
 
     #[Event\Trigger('RGB LED gelesen', [
         ['key' => 'slave', 'className' => ModuleParameter::class],
-        ['key' => AbstractHcSlave::POWER_LED_KEY, 'className' => StringParameter::class, 'Power LED'],
-        ['key' => AbstractHcSlave::ERROR_LED_KEY, 'className' => StringParameter::class, 'Error LED'],
-        ['key' => AbstractHcSlave::CONNECT_LED_KEY, 'className' => StringParameter::class, 'Connect LED'],
-        ['key' => AbstractHcSlave::TRANSCEIVE_LED_KEY, 'className' => StringParameter::class, 'Transceive LED'],
-        ['key' => AbstractHcSlave::RECEIVE_LED_KEY, 'className' => StringParameter::class, 'Receive LED'],
-        ['key' => AbstractHcSlave::CUSTOM_LED_KEY, 'className' => StringParameter::class, 'Custom LED'],
+        ['key' => AbstractHcModule::POWER_LED_KEY, 'className' => StringParameter::class, 'Power LED'],
+        ['key' => AbstractHcModule::ERROR_LED_KEY, 'className' => StringParameter::class, 'Error LED'],
+        ['key' => AbstractHcModule::CONNECT_LED_KEY, 'className' => StringParameter::class, 'Connect LED'],
+        ['key' => AbstractHcModule::TRANSCEIVE_LED_KEY, 'className' => StringParameter::class, 'Transceive LED'],
+        ['key' => AbstractHcModule::RECEIVE_LED_KEY, 'className' => StringParameter::class, 'Receive LED'],
+        ['key' => AbstractHcModule::CUSTOM_LED_KEY, 'className' => StringParameter::class, 'Custom LED'],
     ])]
     public const READ_RGB_LED = 'readRgbLed';
 
     #[Event\Trigger('Alle LEDs gelesen', [
         ['key' => 'slave', 'className' => ModuleParameter::class],
-        ['key' => AbstractHcSlave::POWER_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Power LED'],
-        ['key' => AbstractHcSlave::ERROR_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Error LED'],
-        ['key' => AbstractHcSlave::CONNECT_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Connect LED'],
-        ['key' => AbstractHcSlave::TRANSRECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transreceive LED'],
-        ['key' => AbstractHcSlave::TRANSCEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transceive LED'],
-        ['key' => AbstractHcSlave::RECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Receive LED'],
-        ['key' => AbstractHcSlave::CUSTOM_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Custom LED'],
+        ['key' => AbstractHcModule::POWER_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Power LED'],
+        ['key' => AbstractHcModule::ERROR_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Error LED'],
+        ['key' => AbstractHcModule::CONNECT_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Connect LED'],
+        ['key' => AbstractHcModule::TRANSRECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transreceive LED'],
+        ['key' => AbstractHcModule::TRANSCEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transceive LED'],
+        ['key' => AbstractHcModule::RECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Receive LED'],
+        ['key' => AbstractHcModule::CUSTOM_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Custom LED'],
     ])]
     public const READ_ALL_LEDS = 'readAllLeds';
 
     #[Event\Trigger('Vor alle LEDs setzen', [
         ['key' => 'slave', 'className' => ModuleParameter::class],
-        ['key' => AbstractHcSlave::POWER_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Power LED'],
-        ['key' => AbstractHcSlave::ERROR_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Error LED'],
-        ['key' => AbstractHcSlave::CONNECT_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Connect LED'],
-        ['key' => AbstractHcSlave::TRANSRECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transreceive LED'],
-        ['key' => AbstractHcSlave::TRANSCEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transceive LED'],
-        ['key' => AbstractHcSlave::RECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Receive LED'],
-        ['key' => AbstractHcSlave::CUSTOM_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Custom LED'],
+        ['key' => AbstractHcModule::POWER_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Power LED'],
+        ['key' => AbstractHcModule::ERROR_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Error LED'],
+        ['key' => AbstractHcModule::CONNECT_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Connect LED'],
+        ['key' => AbstractHcModule::TRANSRECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transreceive LED'],
+        ['key' => AbstractHcModule::TRANSCEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transceive LED'],
+        ['key' => AbstractHcModule::RECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Receive LED'],
+        ['key' => AbstractHcModule::CUSTOM_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Custom LED'],
     ])]
     public const BEFORE_WRITE_ALL_LEDS = 'beforeWriteAllLeds';
 
     #[Event\Trigger('Nach alle LEDs setzen', [
         ['key' => 'slave', 'className' => ModuleParameter::class],
-        ['key' => AbstractHcSlave::POWER_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Power LED'],
-        ['key' => AbstractHcSlave::ERROR_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Error LED'],
-        ['key' => AbstractHcSlave::CONNECT_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Connect LED'],
-        ['key' => AbstractHcSlave::TRANSRECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transreceive LED'],
-        ['key' => AbstractHcSlave::TRANSCEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transceive LED'],
-        ['key' => AbstractHcSlave::RECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Receive LED'],
-        ['key' => AbstractHcSlave::CUSTOM_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Custom LED'],
-        ['key' => AbstractHcSlave::RGB_LED_KEY, 'className' => BoolParameter::class, 'title' => 'RGB LED'],
+        ['key' => AbstractHcModule::POWER_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Power LED'],
+        ['key' => AbstractHcModule::ERROR_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Error LED'],
+        ['key' => AbstractHcModule::CONNECT_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Connect LED'],
+        ['key' => AbstractHcModule::TRANSRECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transreceive LED'],
+        ['key' => AbstractHcModule::TRANSCEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Transceive LED'],
+        ['key' => AbstractHcModule::RECEIVE_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Receive LED'],
+        ['key' => AbstractHcModule::CUSTOM_LED_KEY, 'className' => BoolParameter::class, 'title' => 'Custom LED'],
+        ['key' => AbstractHcModule::RGB_LED_KEY, 'className' => BoolParameter::class, 'title' => 'RGB LED'],
     ])]
     public const AFTER_WRITE_ALL_LEDS = 'afterWriteAllLeds';
 
@@ -378,7 +378,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         ReflectionManager $reflectionManager,
         private TypeRepository $typeRepository,
         protected LoggerInterface $logger,
-        private AbstractHcSlave $slaveService
+        private AbstractHcModule $slaveService
     ) {
         parent::__construct($eventService, $reflectionManager);
     }
@@ -403,8 +403,12 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws GetError
      */
     #[Event\Method('Adresse lesen')]
     #[Event\ReturnValue(IntParameter::class, 'Adresse')]
@@ -416,6 +420,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Device ID schreiben')]
     public function writeDeviceId(
@@ -427,7 +436,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Typ lesen')]
@@ -440,9 +453,12 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
-     * @throws FileNotFound
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
     #[Event\Method('Typ schreiben')]
     public function writeTypeId(
@@ -455,7 +471,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Neustarten')]
     public function writeRestart(
@@ -466,7 +486,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Hertz lesen')]
@@ -479,7 +503,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('EEPROM Größe lesen')]
@@ -492,7 +520,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Freier Platz im EEPROM lesen')]
@@ -505,7 +537,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('EEPROM Zeigerposition lesen')]
@@ -518,7 +554,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('EEPROM Zeigerposition schreiben')]
     public function writeEepromPosition(
@@ -530,7 +570,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Eeprom formatieren')]
     public function writeEepromErase(
@@ -541,7 +585,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Buffer Größe lesen')]
@@ -554,7 +602,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('PWM Geschwindigkeit lesen')]
@@ -567,7 +619,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('PWM Geschwindigkeit lesen')]
     public function writePwmSpeed(
@@ -579,18 +635,22 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('LED Status lesen')]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Power LED', key: AbstractHcSlave::POWER_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Error LED', key: AbstractHcSlave::ERROR_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Connect LED', key: AbstractHcSlave::CONNECT_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Transreceive LED', key: AbstractHcSlave::TRANSRECEIVE_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Transceive LED', key: AbstractHcSlave::TRANSCEIVE_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Receive LED', key: AbstractHcSlave::RECEIVE_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Custom LED', key: AbstractHcSlave::CUSTOM_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'RGB LED', key: AbstractHcSlave::RGB_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Power LED', key: AbstractHcModule::POWER_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Error LED', key: AbstractHcModule::ERROR_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Connect LED', key: AbstractHcModule::CONNECT_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Transreceive LED', key: AbstractHcModule::TRANSRECEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Transceive LED', key: AbstractHcModule::TRANSCEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Receive LED', key: AbstractHcModule::RECEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Custom LED', key: AbstractHcModule::CUSTOM_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'RGB LED', key: AbstractHcModule::RGB_LED_KEY)]
     public function readLedStatus(
         #[Event\Parameter(ModuleParameter::class)] Module $slave
     ): array {
@@ -599,7 +659,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Power LED schreiben')]
     public function writePowerLed(
@@ -611,7 +675,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Error LED schreiben')]
     public function writeErrorLed(
@@ -623,7 +691,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Connect LED schreiben')]
     public function writeConnectLed(
@@ -635,7 +707,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Tranreceive LED schreiben')]
     public function writeTransreceiveLed(
@@ -647,7 +723,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Transceive LED schreiben')]
     public function writeTransceiveLed(
@@ -659,7 +739,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Receive LED schreiben')]
     public function writeReceiveLed(
@@ -671,7 +755,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Custom LED schreiben')]
     public function writeCustomLed(
@@ -683,7 +771,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Power LED lesen')]
@@ -696,7 +788,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Error LED lesen')]
@@ -709,7 +805,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Connect LED lesen')]
@@ -722,7 +822,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Transreceive LED lesen')]
@@ -735,7 +839,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Transceive LED lesen')]
@@ -748,7 +856,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Receive LED lesen')]
@@ -761,7 +873,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Custom LED lesen')]
@@ -774,7 +890,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('RGB LED schreiben')]
     public function writeRgbLed(
@@ -799,16 +919,20 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('RGB LED schreiben')]
-    #[Event\ReturnValue(className: StringParameter::class, title: 'Power LED', key: AbstractHcSlave::POWER_LED_KEY)]
-    #[Event\ReturnValue(className: StringParameter::class, title: 'Error LED', key: AbstractHcSlave::ERROR_LED_KEY)]
-    #[Event\ReturnValue(className: StringParameter::class, title: 'Connect LED', key: AbstractHcSlave::CONNECT_LED_KEY)]
-    #[Event\ReturnValue(className: StringParameter::class, title: 'Transceive LED', key: AbstractHcSlave::TRANSCEIVE_LED_KEY)]
-    #[Event\ReturnValue(className: StringParameter::class, title: 'Receive LED', key: AbstractHcSlave::RECEIVE_LED_KEY)]
-    #[Event\ReturnValue(className: StringParameter::class, title: 'Custom LED', key: AbstractHcSlave::CUSTOM_LED_KEY)]
+    #[Event\ReturnValue(className: StringParameter::class, title: 'Power LED', key: AbstractHcModule::POWER_LED_KEY)]
+    #[Event\ReturnValue(className: StringParameter::class, title: 'Error LED', key: AbstractHcModule::ERROR_LED_KEY)]
+    #[Event\ReturnValue(className: StringParameter::class, title: 'Connect LED', key: AbstractHcModule::CONNECT_LED_KEY)]
+    #[Event\ReturnValue(className: StringParameter::class, title: 'Transceive LED', key: AbstractHcModule::TRANSCEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: StringParameter::class, title: 'Receive LED', key: AbstractHcModule::RECEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: StringParameter::class, title: 'Custom LED', key: AbstractHcModule::CUSTOM_LED_KEY)]
     public function readRgbLed(
         #[Event\Parameter(ModuleParameter::class)] Module $slave
     ): array {
@@ -817,7 +941,11 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
+     * @throws WriteException
      */
     #[Event\Method('Alle LEDs schreiben')]
     public function writeAllLeds(
@@ -844,17 +972,21 @@ abstract class AbstractHcEvent extends AbstractEvent
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Alle LEDs lesen')]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Power LED', key: AbstractHcSlave::POWER_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Error LED', key: AbstractHcSlave::ERROR_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Connect LED', key: AbstractHcSlave::CONNECT_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Transreceive LED', key: AbstractHcSlave::TRANSRECEIVE_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Transceive LED', key: AbstractHcSlave::TRANSCEIVE_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Receive LED', key: AbstractHcSlave::RECEIVE_LED_KEY)]
-    #[Event\ReturnValue(className: BoolParameter::class, title: 'Custom LED', key: AbstractHcSlave::CUSTOM_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Power LED', key: AbstractHcModule::POWER_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Error LED', key: AbstractHcModule::ERROR_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Connect LED', key: AbstractHcModule::CONNECT_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Transreceive LED', key: AbstractHcModule::TRANSRECEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Transceive LED', key: AbstractHcModule::TRANSCEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Receive LED', key: AbstractHcModule::RECEIVE_LED_KEY)]
+    #[Event\ReturnValue(className: BoolParameter::class, title: 'Custom LED', key: AbstractHcModule::CUSTOM_LED_KEY)]
     public function readAllLeds(
         #[Event\Parameter(ModuleParameter::class)] Module $slave
     ): array {

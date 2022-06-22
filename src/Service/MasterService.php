@@ -14,7 +14,7 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Direction;
-use GibsonOS\Module\Hc\Factory\SlaveFactory;
+use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
@@ -22,9 +22,9 @@ use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
+use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\Protocol\UdpService;
-use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use JsonException;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -49,7 +49,7 @@ class MasterService
 
     public function __construct(
         private readonly SenderService $senderService,
-        private readonly SlaveFactory $slaveFactory,
+        private readonly ModuleFactory $slaveFactory,
         private readonly MasterMapper $masterMapper,
         private readonly LogRepository $logRepository,
         private readonly ModuleRepository $moduleRepository,
@@ -280,7 +280,7 @@ class MasterService
         $slaveModel = $this->moduleRepository->getByAddress($slaveAddress, $master->getId() ?? 0);
         $slave = $this->slaveFactory->get($slaveModel->getType()->getHelper());
 
-        if (!$slave instanceof AbstractHcSlave) {
+        if (!$slave instanceof AbstractHcModule) {
             throw new ReceiveError(sprintf(
                 '%s ist vom Typ %s und damit kein HC Sklave!',
                 $slaveModel->getName(),

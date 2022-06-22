@@ -51,7 +51,7 @@ Ext.define('GibsonOS.module.hc.module.add.Form', {
             handler() {
                 me.getForm().submit({
                     xtype: 'gosFormActionAction',
-                    url: baseDir + 'hc/slave/add',
+                    url: baseDir + 'hc/module/add',
                     success: function () {
                         // @todo close window on success
                         GibsonOS.MessageBox.show({

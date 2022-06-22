@@ -5,22 +5,22 @@ namespace GibsonOS\Module\Hc\Factory;
 
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Manager\ServiceManager;
-use GibsonOS\Module\Hc\Service\Slave\AbstractSlave;
+use GibsonOS\Module\Hc\Service\Module\AbstractModule;
 
-class SlaveFactory
+class ModuleFactory
 {
-    public function __construct(private ServiceManager $serviceManager)
+    public function __construct(private readonly ServiceManager $serviceManager)
     {
     }
 
     /**
      * @throws FactoryError
      */
-    public function get(string $serviceName): AbstractSlave
+    public function get(string $serviceName): AbstractModule
     {
         /** @var class-string $className */
         $className = 'GibsonOS\\Module\\Hc\\Service\\Slave\\' . ucfirst($serviceName) . 'Service';
-        /** @var AbstractSlave $slave */
+        /** @var AbstractModule $slave */
         $slave = $this->serviceManager->get($className);
 
         return $slave;

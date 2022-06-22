@@ -11,8 +11,8 @@ use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Ir\KeyRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
-use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
-use GibsonOS\Module\Hc\Service\Slave\IrService;
+use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
+use GibsonOS\Module\Hc\Service\Module\IrService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use Throwable;
 use Twig\Error\LoaderError;
@@ -20,9 +20,6 @@ use Twig\Error\SyntaxError;
 
 class IrFormatter extends AbstractHcFormatter
 {
-    /**
-     * @param KeyRepository $keyRepository
-     */
     public function __construct(
         TransformService $transformService,
         TwigService $twigService,
@@ -44,8 +41,8 @@ class IrFormatter extends AbstractHcFormatter
         $command = $log->getCommand();
 
         return match ($command) {
-            AbstractHcSlave::COMMAND_DATA_CHANGED,
-            AbstractHcSlave::COMMAND_STATUS,
+            AbstractHcModule::COMMAND_DATA_CHANGED,
+            AbstractHcModule::COMMAND_STATUS,
             IrService::COMMAND_SEND => $this->explainCommands($log->getRawData()),
             default => parent::explain($log),
         };
@@ -59,10 +56,10 @@ class IrFormatter extends AbstractHcFormatter
     public function render(Log $log): ?string
     {
         return match ($log->getCommand()) {
-            AbstractHcSlave::COMMAND_DATA_CHANGED,
-            AbstractHcSlave::COMMAND_STATUS,
+            AbstractHcModule::COMMAND_DATA_CHANGED,
+            AbstractHcModule::COMMAND_STATUS,
             IrService::COMMAND_SEND => $this->renderBlock(
-                AbstractHcSlave::COMMAND_STATUS,
+                AbstractHcModule::COMMAND_STATUS,
                 AbstractHcFormatter::BLOCK_RENDER,
                 [
                     'irProtocols' => $this->irProtocols,
@@ -111,8 +108,8 @@ class IrFormatter extends AbstractHcFormatter
     {
         return [
             IrService::COMMAND_SEND => 'ir/send',
-            AbstractHcSlave::COMMAND_STATUS => 'ir/status',
-            AbstractHcSlave::COMMAND_DATA_CHANGED => 'ir/status',
+            AbstractHcModule::COMMAND_STATUS => 'ir/status',
+            AbstractHcModule::COMMAND_DATA_CHANGED => 'ir/status',
         ] + parent::getTemplates();
     }
 
@@ -133,7 +130,7 @@ class IrFormatter extends AbstractHcFormatter
                 $i,
                 $i,
                 $this->renderBlock(
-                    AbstractHcSlave::COMMAND_STATUS,
+                    AbstractHcModule::COMMAND_STATUS,
                     self::BLOCK_EXPLAIN,
                     ['protocol' => $key->getProtocol()->getName()]
                 ) ?? ''
@@ -142,7 +139,7 @@ class IrFormatter extends AbstractHcFormatter
                 $i + 1,
                 $i + 2,
                 $this->renderBlock(
-                    AbstractHcSlave::COMMAND_STATUS,
+                    AbstractHcModule::COMMAND_STATUS,
                     self::BLOCK_EXPLAIN,
                     ['address' => $key->getAddress()]
                 ) ?? ''
@@ -151,7 +148,7 @@ class IrFormatter extends AbstractHcFormatter
                 $i + 3,
                 $i + 4,
                 $this->renderBlock(
-                    AbstractHcSlave::COMMAND_STATUS,
+                    AbstractHcModule::COMMAND_STATUS,
                     self::BLOCK_EXPLAIN,
                     ['command' => $key->getCommand()]
                 ) ?? ''

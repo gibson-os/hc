@@ -6,16 +6,20 @@ namespace GibsonOS\Module\Hc\Formatter;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Mapper\Bme280Mapper;
 use GibsonOS\Module\Hc\Model\Log;
-use GibsonOS\Module\Hc\Service\Slave\Bme280Service;
+use GibsonOS\Module\Hc\Service\Module\Bme280Service;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
 
 class Bme280Formatter extends AbstractFormatter
 {
-    public function __construct(TransformService $transformService, private Bme280Mapper $bme280Mapper)
+    public function __construct(TransformService $transformService, private readonly Bme280Mapper $bme280Mapper)
     {
         parent::__construct($transformService);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function text(Log $log): ?string
     {
         switch ($log->getCommand()) {

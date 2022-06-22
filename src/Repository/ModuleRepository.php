@@ -10,7 +10,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
-use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
+use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use Psr\Log\LoggerInterface;
 
 class ModuleRepository extends AbstractRepository
@@ -107,7 +107,7 @@ class ModuleRepository extends AbstractRepository
     {
         $this->logger->debug(sprintf('Get free device id. Try %d', $tryCount));
 
-        $deviceId = mt_rand(1, AbstractHcSlave::MAX_DEVICE_ID);
+        $deviceId = mt_rand(1, AbstractHcModule::MAX_DEVICE_ID);
         ++$tryCount;
 
         $count = $this->getAggregate('COUNT(`device_id`)', '`device_id`=?', [$deviceId], Module::class);
