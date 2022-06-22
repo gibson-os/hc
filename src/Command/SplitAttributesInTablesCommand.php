@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Command;
 
+use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\MapperException;
@@ -10,8 +11,12 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Mapper\ModelMapper;
+use GibsonOS\Core\Model\Event\Element;
+use GibsonOS\Core\Model\Event\Trigger;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Ir\Protocol;
+use GibsonOS\Module\Hc\Event\IrEvent;
+use GibsonOS\Module\Hc\Event\NeopixelEvent;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
@@ -33,6 +38,8 @@ use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Repository\SequenceRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use JsonException;
+use mysqlDatabase;
+use mysqlTable;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
@@ -60,6 +67,9 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         private readonly KeyRepository $keyRepository,
         private readonly RemoteRepository $remoteRepository,
         private readonly PortRepository $portRepository,
+        private readonly mysqlDatabase $mysqlDatabase,
+        #[GetTableName(Element::class)] private readonly string $eventElementTableName,
+        #[GetTableName(Trigger::class)] private readonly string $eventTriggerTableName,
     ) {
         parent::__construct($logger);
     }
@@ -95,6 +105,7 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         $this->createLeds($type);
         $this->createImages($type);
         $this->createAnimations($type);
+        $this->fixNeopixelEvents();
     }
 
     /**
@@ -125,6 +136,7 @@ class SplitAttributesInTablesCommand extends AbstractCommand
         $type = $this->typeRepository->getByHelperName('ir');
         $this->createIrKeys($type);
         $this->createRemotes($type);
+        $this->fixIrEvents();
     }
 
     /**
@@ -452,6 +464,116 @@ class SplitAttributesInTablesCommand extends AbstractCommand
             } catch (SelectError) {
                 $this->modelManager->save($this->modelMapper->mapToObject(Remote::class, $remote));
             }
+        }
+    }
+
+    private function fixNeopixelEvents(): void
+    {
+        $eventElementTable = (new mysqlTable($this->mysqlDatabase, $this->eventElementTableName))
+            ->setWhere('`class`=? AND `method`=?')
+            ->setWhereParameters([NeopixelEvent::class, 'sendImage'])
+        ;
+
+        if ($eventElementTable->selectPrepared()) {
+            do {
+                /** @psalm-suppress UndefinedPropertyFetch */
+                $parameters = JsonUtility::decode($eventElementTable->parameters->getValue());
+                $sequenceParameter = $parameters['sequence'] ?? null;
+
+                if ($sequenceParameter === null) {
+                    continue;
+                }
+
+                try {
+                    $sequence = $this->sequenceRepository->getById($sequenceParameter);
+                    $image = $this->imageRepository->getByName(
+                        $this->getModule($parameters['module'] ?? 0),
+                        $sequence->getName()
+                    );
+                } catch (SelectError) {
+                    continue;
+                }
+
+                unset($parameters['sequence']);
+                $parameters['image'] = $image->getId();
+                /** @psalm-suppress UndefinedPropertyFetch */
+                $eventElementTable->parameters->setValue(JsonUtility::encode($parameters));
+                $eventElementTable->save();
+            } while ($eventElementTable->next());
+        }
+    }
+
+    private function fixIrEvents(): void
+    {
+        $eventElementTable = (new mysqlTable($this->mysqlDatabase, $this->eventElementTableName))
+            ->setWhere('`class`=? AND `method`=?')
+            ->setWhereParameters([IrEvent::class, 'sendKey'])
+        ;
+
+        if ($eventElementTable->selectPrepared()) {
+            do {
+                /** @psalm-suppress UndefinedPropertyFetch */
+                $parameters = JsonUtility::decode($eventElementTable->parameters->getValue());
+                $keyParameter = $parameters['key'];
+
+                try {
+                    $this->keyRepository->getById($keyParameter);
+
+                    continue;
+                } catch (SelectError) {
+                    // do nothing
+                }
+
+                try {
+                    $key = $this->keyRepository->getByProtocolAddressAndCommand(
+                        Protocol::from($keyParameter >> 32),
+                        ($keyParameter >> 16) & 0xFFFF,
+                        $keyParameter & 0xFFFF,
+                    );
+                } catch (SelectError) {
+                    continue;
+                }
+
+                $parameters['key'] = $key->getId();
+                /** @psalm-suppress UndefinedPropertyFetch */
+                $eventElementTable->parameters->setValue(JsonUtility::encode($parameters));
+                $eventElementTable->save();
+            } while ($eventElementTable->next());
+        }
+
+        $eventTriggerTable = (new mysqlTable($this->mysqlDatabase, $this->eventTriggerTableName))
+            ->setWhere('`class`=? AND `trigger`=?')
+            ->setWhereParameters([IrEvent::class, 'afterReadIr'])
+        ;
+
+        if ($eventTriggerTable->selectPrepared()) {
+            do {
+                /** @psalm-suppress UndefinedPropertyFetch */
+                $parameters = JsonUtility::decode($eventTriggerTable->parameters->getValue());
+                $keyParameter = $parameters['key']['value'];
+
+                try {
+                    $this->keyRepository->getById($keyParameter);
+
+                    continue;
+                } catch (SelectError) {
+                    // do nothing
+                }
+
+                try {
+                    $key = $this->keyRepository->getByProtocolAddressAndCommand(
+                        Protocol::from($keyParameter >> 32),
+                        ($keyParameter >> 16) & 0xFFFF,
+                        $keyParameter & 0xFFFF,
+                    );
+                } catch (SelectError) {
+                    continue;
+                }
+
+                $parameters['key']['value'] = $key->getId();
+                $eventTriggerTable->parameters->setValue(JsonUtility::encode($parameters));
+                $eventTriggerTable->save();
+            } while ($eventTriggerTable->next());
         }
     }
 

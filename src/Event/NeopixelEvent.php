@@ -22,8 +22,8 @@ use GibsonOS\Module\Hc\Dto\Parameter\Neopixel\ImageParameter;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Image;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
-use GibsonOS\Module\Hc\Model\Sequence;
 use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
@@ -32,7 +32,7 @@ use Psr\Log\LoggerInterface;
 use ReflectionException;
 
 #[Event('Neopixel')]
-#[Event\Listener('sequence', 'module', ['params' => [
+#[Event\Listener('image', 'module', ['params' => [
     'paramKey' => 'moduleId',
     'recordKey' => 'id',
 ]])]
@@ -205,18 +205,17 @@ class NeopixelEvent extends AbstractHcEvent
     ]])]
     public function sendImage(
         #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(ImageParameter::class)] Sequence $sequence
+        #[Event\Parameter(ImageParameter::class)] Image $image
     ): void {
-        $elements = $sequence->getElements() ?? [];
-        $element = reset($elements);
-        $leds = [];
-
-        array_map(
-            fn (array $ledData): Led => $this->modelMapper->mapToObject(Led::class, $ledData),
-            JsonUtility::decode($element->getData())
-        );
-
-        $this->neopixelService->writeLeds($module, $leds);
+        $this->neopixelService->writeLeds($module, array_map(
+            fn (Image\Led $led): Led => $led->getLed()
+                ->setRed($led->getRed())
+                ->setGreen($led->getGreen())
+                ->setBlue($led->getBlue())
+                ->setBlink($led->getBlink())
+                ->setFadeIn($led->getFadeIn()),
+            $image->getLeds()
+        ));
     }
 
     public function sendAnimation(

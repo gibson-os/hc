@@ -122,16 +122,16 @@ class DirectConnect extends AbstractModel implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'id' => $this->id ?? null,
+            'id' => $this->getId(),
             'inputValue' => $this->isInputValue(),
-            'value' => $this->id === null ? null : $this->isValue(),
+            'value' => $this->getId() === null ? null : $this->isValue(),
             'pwm' => $this->getPwm(),
             'blink' => $this->getBlink(),
             'fadeIn' => $this->getFadeIn(),
             'order' => $this->getOrder(),
             'addOrSub' => $this->getAddOrSub()->value,
             'inputPort' => $this->getInputPort(),
-            'outputPortId' => $this->id === null ? null : $this->getOutputPortId(),
+            'outputPortId' => $this->getId() === null ? null : $this->getOutputPortId(),
         ];
     }
 }
