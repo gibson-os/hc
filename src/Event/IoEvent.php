@@ -12,9 +12,7 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
@@ -22,7 +20,6 @@ use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
 use GibsonOS\Module\Hc\Dto\Io\Direction;
 use GibsonOS\Module\Hc\Dto\Parameter\Io\PortParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
-use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
@@ -290,17 +287,16 @@ class IoEvent extends AbstractHcEvent
     }
 
     /**
+     * @param Module $module
+     * @param Port   $port
+     *
      * @throws AbstractException
-     * @throws ReceiveError
-     * @throws SaveError
-     * @throws DateTimeError
-     * @throws EventException
-     * @throws FactoryError
-     * @throws DeleteError
-     * @throws SelectError
-     * @throws AttributeException
      * @throws JsonException
+     * @throws ReceiveError
      * @throws ReflectionException
+     * @throws SaveError
+     *
+     * @return Port
      */
     #[Event\Method('Port lesen')]
     #[Event\ReturnValue(OptionParameter::class, 'Richtung', ['options' => [[

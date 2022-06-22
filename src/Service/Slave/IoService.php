@@ -8,7 +8,6 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError as RepositoryDeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -20,7 +19,6 @@ use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Io\DirectConnect as DirectConnectDto;
 use GibsonOS\Module\Hc\Event\IoEvent;
-use GibsonOS\Module\Hc\Exception\AttributeException;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Mapper\Io\DirectConnectMapper;
@@ -224,16 +222,10 @@ class IoService extends AbstractHcSlave
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws ReceiveError
-     * @throws SaveError
-     * @throws EventException
-     * @throws FactoryError
-     * @throws DeleteError
-     * @throws SelectError
-     * @throws AttributeException
      * @throws JsonException
+     * @throws ReceiveError
      * @throws ReflectionException
+     * @throws SaveError
      */
     public function readPort(Port $port): Port
     {
