@@ -4,6 +4,9 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
     layout: 'border',
     enableContextMenu: true,
     enableKeyEvents: true,
+    requiredPermission: {
+        task: 'neopixelAnimation',
+    },
     initComponent() {
         let me = this;
         let animationView = new GibsonOS.module.hc.neopixel.animation.View({
@@ -27,7 +30,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 Ext.iterate(
                     document.querySelectorAll('#' + animationView.getId() + ' div.selected'),
                     selectedLedDiv => {
-                        let ledIndex = store.find('number', selectedLedDiv.dataset.id, 0, false, false, true);
+                        let ledIndex = store.find('ledId', selectedLedDiv.dataset.id, 0, false, false, true);
                         let time = 0;
                         let ledRecord;
                         const deactivated = me.down('#hcNeopixelLedColorDeactivated').getValue();
@@ -39,7 +42,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                                 time = ledRecord.get('time') + ledRecord.get('length');
                             }
 
-                            ledIndex = store.find('number', selectedLedDiv.dataset.id, ledIndex + 1, false, false, true);
+                            ledIndex = store.find('ledId', selectedLedDiv.dataset.id, ledIndex + 1, false, false, true);
                         }
 
                         const red = me.down('#hcNeopixelLedColorRed').getValue();
@@ -69,7 +72,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                         }
 
                         animationView.getStore().add({
-                            number: selectedLedDiv.dataset.id,
+                            ledId: selectedLedDiv.dataset.id,
                             red: deactivated ? '00' : red,
                             green: deactivated ? '00' : green,
                             blue: deactivated ? '00' : blue,
@@ -93,7 +96,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 store.remove(record);
 
                 Ext.iterate(store.getRange(index), led => {
-                    if (led.get('number') !== record.get('number')) {
+                    if (led.get('ledId') !== record.get('ledId')) {
                         return false;
                     }
 
@@ -118,7 +121,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 store.add(step);
             });
 
-            if (jsonData.transmitted) {
+            if (jsonData.transmitted.transmitted) {
                 me.enableAction('#hcNeopixelAnimationPlayTransmitted');
             }
 
@@ -161,7 +164,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 record.set('length', value);
 
                 Ext.iterate(store.getRange(store.indexOf(records[0]) + 1), led => {
-                    if (led.get('number') !== record.get('number')) {
+                    if (led.get('ledId') !== record.get('ledId')) {
                         return false;
                     }
 
@@ -205,6 +208,50 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             colorForm.down('#hcNeopixelLedColorTime').enable();
         });
     },
+    checkSaved(callback) {
+        const me = this;
+        const animationView = me.down('gosModuleHcNeopixelAnimationView');
+        const animationName = me.down('#hcNeopixelAnimationPanelAnimationAutoComplete');
+        const store = animationView.getStore();
+
+        if (!store.getModifiedRecords().length && !store.getRemovedRecords().length) {
+            callback(true);
+
+            return;
+        }
+
+        GibsonOS.MessageBox.show({
+            title: 'Speichern?',
+            msg: 'Möchtest du die Animation vorher speichern?',
+            type: GibsonOS.MessageBox.type.QUESTION,
+            buttons: [{
+                text: 'Ja',
+                handler() {
+                    if (!animationName.getRawValue()) {
+                        GibsonOS.MessageBox.show({
+                            title: 'Kein Name!',
+                            msg: 'Bitte trage zuerst einen Namen ein!',
+                            type: GibsonOS.MessageBox.type.ERROR,
+                            buttons: [{
+                                text: 'OK'
+                            }]
+                        });
+
+                        return false;
+                    }
+
+                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').save(animationName.getRawValue(), () => {
+                        callback(true);
+                    });
+                }
+            },{
+                text: 'Nein',
+                handler() {
+                    callback(false);
+                }
+            }]
+        });
+    },
     addActions() {
         const me = this;
 
@@ -235,18 +282,21 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             iconCls: 'icon_system system_upload',
             listeners: {
                 click: () => {
-                    me.setLoading(true);
+                    me.checkSaved((saved) => {
+                        me.setLoading(true);
 
-                    GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/neopixelAnimation/send',
-                        params: {
-                            moduleId: me.hcModuleId,
-                            items: Ext.encode(me.getLeds()),
-                        },
-                        success: () => {
-                            me.setLoading(false);
-                            me.enableAction('#hcNeopixelAnimationPlayTransmitted');
-                        }
+                        GibsonOS.Ajax.request({
+                            url: baseDir + 'hc/neopixelAnimation/send',
+                            params: {
+                                id: saved ? me.down('#hcNeopixelAnimationPanelAnimationAutoComplete').getValue() : 0,
+                                moduleId: me.hcModuleId,
+                                leds: Ext.encode(me.getLeds()),
+                            },
+                            success: () => {
+                                me.setLoading(false);
+                                me.enableAction('#hcNeopixelAnimationPlayTransmitted');
+                            }
+                        });
                     });
                 }
             }
@@ -282,20 +332,23 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                 iconCls: 'icon_system system_play',
                 text: 'Unübertragene Animation abspielen',
                 handler: () => {
-                    me.setLoading(true);
+                    me.checkSaved((saved) => {
+                        me.setLoading(true);
 
-                    GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/neopixelAnimation/play',
-                        params: {
-                            moduleId: me.hcModuleId,
-                            items: Ext.encode(me.getLeds()),
-                            iterations: me.down('#hcNeopixelAnimationPanelAnimationIterations').getValue()
-                        },
-                        success: () => {
-                            me.setLoading(false);
-                            me.enableAction('#hcNeopixelAnimationPause');
-                            me.enableAction('#hcNeopixelAnimationStop');
-                        }
+                        GibsonOS.Ajax.request({
+                            url: baseDir + 'hc/neopixelAnimation/play',
+                            params: {
+                                id: saved ? me.down('#hcNeopixelAnimationPanelAnimationAutoComplete').getValue() : 0,
+                                moduleId: me.hcModuleId,
+                                leds: Ext.encode(me.getLeds()),
+                                iterations: me.down('#hcNeopixelAnimationPanelAnimationIterations').getValue()
+                            },
+                            success: () => {
+                                me.setLoading(false);
+                                me.enableAction('#hcNeopixelAnimationPause');
+                                me.enableAction('#hcNeopixelAnimationStop');
+                            }
+                        });
                     });
                 }
             }]
@@ -347,22 +400,30 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
         });
         me.addAction({xtype: 'tbseparator'});
         me.addAction({
-            xtype: 'gosFormComboBox',
+            xtype: 'gosModuleCoreParameterTypeAutoComplete',
             hideLabel: true,
             width: 150,
+            enableKeyEvents: true,
             emptyText: 'Animation laden',
-            itemId: 'hcNeopixelAnimationPanelAnimationLoad',
+            itemId: 'hcNeopixelAnimationPanelAnimationAutoComplete',
             addToItemContextMenu: false,
             addToContainerContextMenu: false,
             requiredPermission: {
-                action: 'animation',
+                action: 'list',
                 permission: GibsonOS.Permission.READ
             },
-            store: {
-                type: 'gosModuleHcNeopixelAnimationsStore'
+            parameterObject: {
+                config: {
+                    model: 'GibsonOS.module.hc.neopixel.model.Animation',
+                    autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Neopixel\\AnimationAutoComplete',
+                    parameters: {
+                        moduleId: me.hcModuleId
+                    }
+                }
             },
             listeners: {
                 select: (combo, records) => {
+                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').setDisabled(!combo.getRawValue().length);
                     ledPosition = 0;
 
                     GibsonOS.Ajax.request({
@@ -380,11 +441,11 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
                             Ext.iterate(data.data, item => {
                                 if (
-                                    setLeds.indexOf(item.number) === -1 &&
+                                    setLeds.indexOf(item.ledId) === -1 &&
                                     item.time !== 0
                                 ) {
                                     store.add({
-                                        number: item.number,
+                                        ledId: item.ledId,
                                         deactivated: true,
                                         time: 0,
                                         length: item.time
@@ -392,29 +453,15 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                                 }
 
                                 store.add(item);
-                                setLeds.push(item.number);
+                                setLeds.push(item.ledId);
                             });
+
+                            store.commitChanges();
                         }
                     });
-                }
-            }
-        });
-        me.addAction({
-            xtype: 'gosFormTextfield',
-            hideLabel: true,
-            width: 75,
-            enableKeyEvents: true,
-            emptyText: 'Name',
-            itemId: 'hcNeopixelAnimationPanelAnimationName',
-            addToItemContextMenu: false,
-            addToContainerContextMenu: false,
-            requiredPermission: {
-                action: 'saveAnimation',
-                permission: GibsonOS.Permission.WRITE
-            },
-            listeners: {
-                keyup: (field) => {
-                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').setDisabled(!field.getValue().length);
+                },
+                keyup: (combo) => {
+                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').setDisabled(!combo.getRawValue().length);
                 }
             }
         });
@@ -426,10 +473,10 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             addToItemContextMenu: false,
             addToContainerContextMenu: false,
             requiredPermission: {
-                action: 'saveAnimation',
+                action: 'save',
                 permission: GibsonOS.Permission.WRITE
             },
-            save: name => {
+            save(name, callback = null) {
                 me.setLoading(true);
 
                 GibsonOS.Ajax.request({
@@ -437,16 +484,23 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                     params: {
                         moduleId: me.hcModuleId,
                         name: name,
-                        items: Ext.encode(me.getLeds())
+                        leds: Ext.encode(me.getLeds())
                     },
                     success: response => {
-                        let loadField = me.down('#hcNeopixelAnimationPanelAnimationLoad');
-                        let data = Ext.decode(response.responseText);
+                        const loadField = me.down('#hcNeopixelAnimationPanelAnimationAutoComplete');
+                        const data = Ext.decode(response.responseText);
+                        const animationView = me.down('gosModuleHcNeopixelAnimationView');
+                        const store = animationView.getStore();
 
                         loadField.getStore().loadData(data.data);
                         loadField.setValue(data.id);
+                        store.commitChanges();
 
                         me.setLoading(false);
+
+                        if (typeof callback === 'function') {
+                            callback();
+                        }
                     },
                     failure: response => {
                         let data = Ext.decode(response.responseText).data;
@@ -459,7 +513,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                                         return false;
                                     }
 
-                                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').save(name, true);
+                                    me.down('#hcNeopixelAnimationPanelSaveAnimationButton').save(name, callback);
                                 }
                             );
                         }
@@ -468,13 +522,12 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             },
             listeners: {
                 click() {
-                    let name = me.down('#hcNeopixelAnimationPanelAnimationName').getValue();
-                    this.save(name);
+                    this.save(me.down('#hcNeopixelAnimationPanelAnimationAutoComplete').getRawValue());
                 }
             }
         });
 
-        let animationStore = me.down('#hcNeopixelAnimationPanelAnimationLoad').getStore();
+        let animationStore = me.down('#hcNeopixelAnimationPanelAnimationAutoComplete').getStore();
         animationStore.getProxy().setExtraParam('moduleId', me.hcModuleId);
         animationStore.load();
     },
@@ -513,7 +566,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
                         window.eachColor(selectedLeds.length, (index, red, green, blue) => {
                             let selectedLedId = selectedLeds[index].dataset.id;
-                            let ledIndex = store.find('number', selectedLedId, 0, false, false, true);
+                            let ledIndex = store.find('ledId', selectedLedId, 0, false, false, true);
                             let time = 0;
                             let ledRecord = null;
 
@@ -524,11 +577,11 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
                                     time = ledRecord.get('time') + ledRecord.get('length');
                                 }
 
-                                ledIndex = store.find('number', selectedLedId, ledIndex + 1, false, false, true);
+                                ledIndex = store.find('ledId', selectedLedId, ledIndex + 1, false, false, true);
                             }
 
                             store.add({
-                                number: selectedLedId,
+                                ledId: selectedLedId,
                                 red: red,
                                 green: green,
                                 blue: blue,

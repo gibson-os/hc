@@ -4,8 +4,9 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Controller;
 
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
-use GibsonOS\Core\Attribute\GetObject;
+use GibsonOS\Core\Attribute\GetModels;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
@@ -14,17 +15,17 @@ use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Model\Event;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
-use GibsonOS\Module\Hc\Attribute\GetAttribute;
-use GibsonOS\Module\Hc\Dto\Ir\Key;
-use GibsonOS\Module\Hc\Dto\Ir\Remote;
 use GibsonOS\Module\Hc\Exception\IrException;
+use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
+use GibsonOS\Module\Hc\Model\Ir\Key;
+use GibsonOS\Module\Hc\Model\Ir\Remote;
+use GibsonOS\Module\Hc\Model\Ir\Remote\Button;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\Slave\AbstractHcSlave;
 use GibsonOS\Module\Hc\Service\Slave\IrService;
@@ -36,7 +37,16 @@ use ReflectionException;
 class IrController extends AbstractController
 {
     /**
+     * @param KeyStore $keyStore
+     * @param int      $limit
+     * @param int      $start
+     * @param array    $sort
+     *
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SelectError
+     *
+     * @return AjaxResponse
      */
     #[CheckPermission(Permission::READ)]
     public function keys(
@@ -58,33 +68,31 @@ class IrController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
-     * @throws DeleteError
-     * @throws FactoryError
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function addKey(
-        AttributeRepository $attributeRepository,
-        string $name,
-        int $protocol,
-        int $address,
-        int $command
+        ModelManager $modelManager,
+        #[GetMappedModel] Key $key,
     ): AjaxResponse {
-        $attributeRepository->saveDto(new Key($protocol, $address, $command, $name));
+        $modelManager->save($key);
 
         return $this->returnSuccess();
     }
 
+    /**
+     * @param Key[] $keys
+     *
+     * @throws DeleteError
+     * @throws JsonException
+     */
     #[CheckPermission(Permission::MANAGE + Permission::DELETE)]
     public function deleteKeys(
-        AttributeRepository $attributeRepository,
-        IrFormatter $irFormatter,
-        array $keys
+        ModelManager $modelManager,
+        #[GetModels(Key::class)] array $keys,
     ): AjaxResponse {
-        $attributeRepository->deleteSubIds(array_map(
-            static fn (array $key): int => $irFormatter->getSubId($key['protocol'], $key['address'], $key['command']),
-            $keys
-        ), Key::class);
+        foreach ($keys as $key) {
+            $modelManager->delete($key);
+        }
 
         return $this->returnSuccess();
     }
@@ -113,13 +121,13 @@ class IrController extends AbstractController
                     continue;
                 }
 
-                $data['key'] = $irFormatter->getKeys($log->getRawData())[0];
-                $name = $data['key']->getName();
+                $key = $irFormatter->getKeys($log->getRawData())[0];
+                $data['key'] = $key;
 
-                if ($name !== null) {
+                if ($key->getId() !== null) {
                     $exception = new IrException(sprintf(
-                        'Taste is bereits unter dem Namen "%s" vorhanden!',
-                        $name
+                        'Taste ist bereits unter dem Namen "%s" vorhanden!',
+                        $key->getName()
                     ));
                     $exception->setType(AbstractException::INFO);
 
@@ -140,12 +148,13 @@ class IrController extends AbstractController
      * @throws AbstractException
      * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
     public function send(
         IrService $irService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetObject] Key $key
+        #[GetModel] Key $key
     ): AjaxResponse {
         $irService->sendKeys($module, [$key]);
 
@@ -153,12 +162,14 @@ class IrController extends AbstractController
     }
 
     #[CheckPermission(Permission::READ)]
-    public function remote(#[GetAttribute(['id' => 'remoteId'])] Remote $remote): AjaxResponse
+    public function remote(#[GetModel] Remote $remote): AjaxResponse
     {
         return $this->returnSuccess($remote);
     }
 
     /**
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SelectError
      */
     #[CheckPermission(Permission::READ)]
@@ -178,28 +189,34 @@ class IrController extends AbstractController
     }
 
     /**
-     * @throws DeleteError
      * @throws JsonException
      * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
-     * @throws FactoryError
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function saveRemote(
-        AttributeRepository $attributeRepository,
-        #[GetObject(['id' => 'remoteId'])] Remote $remote,
-        int $moduleId = null
+        ModelManager $modelManager,
+        #[GetMappedModel] Remote $remote,
     ): AjaxResponse {
-        $attributeRepository->saveDto($remote);
+        $modelManager->save($remote);
 
         return $this->returnSuccess();
     }
 
+    /**
+     * @param Remote[] $remotes
+     *
+     * @throws DeleteError
+     * @throws JsonException
+     */
     #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
-    public function deleteRemotes(AttributeRepository $attributeRepository, array $remoteIds): AjaxResponse
-    {
-        $attributeRepository->deleteSubIds($remoteIds, Remote::class);
+    public function deleteRemotes(
+        ModelManager $modelManager,
+        #[GetModels(Remote::class)] array $remotes
+    ): AjaxResponse {
+        foreach ($remotes as $remote) {
+            $modelManager->delete($remote);
+        }
 
         return $this->returnSuccess();
     }
@@ -213,27 +230,22 @@ class IrController extends AbstractController
      * @throws EventException
      * @throws FactoryError
      * @throws ReflectionException
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
-    public function sendRemoteKey(
+    public function sendButton(
         EventService $eventService,
         IrService $irService,
-        IrFormatter $irFormatter,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModel(['id' => 'eventId'])] ?Event $event,
-        array $keys = []
+        #[GetModel] Button $button,
     ): AjaxResponse {
+        $event = $button->getEvent();
+
         if ($event !== null) {
             $eventService->runEvent($event, true);
         }
 
-        $irService->sendKeys(
-            $module,
-            array_map(
-                fn (int $key): Key => $irFormatter->getKeyBySubId($key),
-                $keys
-            )
-        );
+        $irService->sendKeys($module, array_map(fn (Remote\Key $key): Key => $key->getKey(), $button->getKeys()));
 
         return $this->returnSuccess();
     }

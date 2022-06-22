@@ -5,50 +5,70 @@ namespace GibsonOS\Module\Hc\Controller;
 
 use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Service\Attribute\Neopixel\AnimationService as AnimationAttributeService;
-use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
-use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService as AnimationSequenceService;
-use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
+use GibsonOS\Module\Hc\Model\Neopixel\Animation;
+use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
+use GibsonOS\Module\Hc\Service\Neopixel\AnimationService;
 use GibsonOS\Module\Hc\Store\Neopixel\AnimationStore;
 use JsonException;
+use ReflectionException;
 
 class NeopixelAnimationController extends AbstractController
 {
     /**
-     * @throws SelectError
      * @throws Exception
      */
     #[CheckPermission(Permission::READ)]
     public function index(
-        AnimationAttributeService $animationService,
+        AnimationRepository $animationRepository,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        return new AjaxResponse([
-            'pid' => $animationService->getPid($module),
-            'started' => $animationService->getStarted($module),
-            'steps' => $animationService->getSteps($module),
-            'transmitted' => $animationService->isTransmitted($module),
-            'success' => true,
-            'failure' => false,
-        ]);
+        try {
+            $startedAnimation = $animationRepository->getStarted($module);
+        } catch (SelectError) {
+            $startedAnimation = new Animation();
+        }
+
+        try {
+            $transmittedAnimation = $animationRepository->getTransmitted($module);
+        } catch (SelectError) {
+            $transmittedAnimation = new Animation();
+        }
+
+        $return = $startedAnimation->jsonSerialize();
+        $return['success'] = true;
+        $return['failure'] = false;
+        $return['leds'] = $startedAnimation->getLeds();
+        $return['transmitted'] = $transmittedAnimation;
+
+        return new AjaxResponse($return);
     }
 
+    /**
+     * @throws JsonException
+     * @throws SelectError
+     * @throws ReflectionException
+     */
     #[CheckPermission(Permission::READ)]
-    public function list(AnimationStore $animationStore, int $moduleId): AjaxResponse
-    {
-        $animationStore->setModuleId($moduleId);
+    public function list(
+        AnimationStore $animationStore,
+        #[GetModel(['id' => 'moduleId'])] Module $module
+    ): AjaxResponse {
+        $animationStore->setModule($module);
 
         return $this->returnSuccess(
             $animationStore->getList(),
@@ -56,64 +76,39 @@ class NeopixelAnimationController extends AbstractController
         );
     }
 
-    /**
-     * @throws SelectError
-     * @throws JsonException
-     */
     #[CheckPermission(Permission::READ)]
-    public function load(AnimationSequenceService $animationService, int $id): AjaxResponse
+    public function load(#[GetModel] Animation $animation): AjaxResponse
     {
-        $steps = $animationService->getById($id);
-        $items = [];
-
-        foreach ($steps as $step) {
-            foreach ($step as $item) {
-                $items[] = $item;
-            }
-        }
-
-        return $this->returnSuccess($items);
+        return $this->returnSuccess($animation->getLeds());
     }
 
     /**
-     * @throws DeleteError
      * @throws SaveError
      * @throws SelectError
      * @throws JsonException
-     * @throws JsonException
+     * @throws ReflectionException
+     * @throws ImageExists
      */
     #[CheckPermission(Permission::WRITE, ['id' => Permission::WRITE + Permission::DELETE])]
     public function save(
-        AnimationSequenceService $animationService,
         AnimationStore $animationStore,
+        ModelManager $modelManager,
+        ?int $id,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        string $name,
-        array $items,
-        int $id = null
+        #[GetMappedModel(['name' => 'name'], ['module' => 'module'])] Animation $animation
     ): AjaxResponse {
-        if (empty($id)) {
-            try {
-                $animation = $animationService->getByName($module, $name);
-
-                new ImageExists(
-                    (int) $animation->getId(),
-                    sprintf(
-                        'Es existiert schon eine Animation unter dem Namen "%s"' . PHP_EOL . 'Möchten Sie es überschreiben?',
-                        $name
-                    )
-                );
-            } catch (SelectError) {
-                // New Animation
-            }
+        if ($animation->getId() !== null && $animation->getId() !== $id) {
+            throw new ImageExists(
+                (int) $animation->getId(),
+                sprintf(
+                    'Es existiert schon eine Animation unter dem Namen "%s"' . PHP_EOL . 'Möchten Sie es überschreiben?',
+                    $animation->getName() ?? 'NULL'
+                )
+            );
         }
 
-        $animation = $animationService->save(
-            $module,
-            $name,
-            $animationService->transformToTimeSteps($module, $items),
-            $id
-        );
-        $animationStore->setModuleId($module->getId() ?? 0);
+        $modelManager->save($animation);
+        $animationStore->setModule($module);
 
         return new AjaxResponse([
             'data' => $animationStore->getList(),
@@ -126,123 +121,101 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
      * @throws DeleteError
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SaveError
+     * @throws SelectError
+     * @throws WriteException
+     * @throws FactoryError
+     * @throws MapperException
+     */
+    #[CheckPermission(Permission::WRITE)]
+    public function send(
+        AnimationService $animationService,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetMappedModel(['id' => 'id'], ['module' => 'module'])] Animation $animation,
+        array $items = []
+    ): AjaxResponse {
+        $animationService->send($animation);
+
+        return $this->returnSuccess();
+    }
+
+    /**
+     * @throws AbstractException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
-    public function send(
-        LedService $ledService,
-        NeopixelService $neopixelService,
-        AnimationSequenceService $animationSequenceService,
-        AnimationAttributeService $animationAttributeService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        array $items = []
-    ): AjaxResponse {
-        $steps = $animationSequenceService->transformToTimeSteps($module, $items);
-        $runtimes = $animationSequenceService->getRuntimes($steps);
-        $msPerStep = 1000 / $module->getPwmSpeed();
-        $newLeds = [];
-
-        $neopixelService->writeSequenceNew($module);
-
-        foreach ($steps as $time => $leds) {
-            $oldLeds = $newLeds;
-            $newLeds = [];
-
-            foreach ($leds as $led) {
-                $newLeds[$led->getNumber()] = $led;
-            }
-
-            $changedLeds = $ledService->getChanges($oldLeds, $newLeds);
-            $pwmSteps = (int) ceil($msPerStep * $runtimes[$time]);
-
-            do {
-                $runtime = $pwmSteps;
-
-                if ($runtime > 65535) {
-                    $pwmSteps -= 65535;
-                    $runtime = 65535;
-                }
-
-                $neopixelService->writeSequenceAddStep($module, $runtime, $changedLeds);
-                $changedLeds = [];
-            } while ($runtime === 65535);
-        }
-
-        $animationAttributeService->setSteps($module, $steps, true);
-
-        return $this->returnSuccess();
-    }
-
-    /**
-     * @throws DeleteError
-     * @throws SaveError
-     * @throws SelectError
-     */
-    #[CheckPermission(Permission::WRITE)]
     public function play(
-        AnimationSequenceService $animationSequenceService,
-        AnimationAttributeService $animationAttributeService,
+        AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetMappedModel(mapping: ['module' => 'module'])] Animation $animation,
         int $iterations,
-        array $items = []
     ): AjaxResponse {
-        $steps = $animationSequenceService->transformToTimeSteps($module, $items);
-        $animationAttributeService->setSteps($module, $steps, false);
-        $animationSequenceService->play($module, $iterations);
+        $animation->setName($animation->getName() ?? '');
+        $animationService->play($animation, $iterations);
 
         return $this->returnSuccess();
     }
 
     /**
      * @throws AbstractException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
     public function start(
-        NeopixelService $neopixelService,
+        AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         int $iterations = 0
     ): AjaxResponse {
-        $neopixelService->writeSequenceStart($module, $iterations);
+        $animationService->start($module, $iterations);
 
         return $this->returnSuccess();
     }
 
     /**
      * @throws AbstractException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
     public function pause(
-        NeopixelService $neopixelService,
+        AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $neopixelService->writeSequencePause($module);
-        // $animationService->setStarted($slave, false);
+        $animationService->pause($module);
 
         return $this->returnSuccess();
     }
 
     /**
      * @throws AbstractException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
+     * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]
     public function stop(
-        AnimationSequenceService $animationService,
-        NeopixelService $neopixelService,
+        AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $animationService->stop($module);
-        $neopixelService->writeSequenceStop($module);
-
-        return $this->returnSuccess();
+        return $animationService->stop($module)
+            ? $this->returnSuccess()
+            : $this->returnFailure('No animation stopped.')
+        ;
     }
 }

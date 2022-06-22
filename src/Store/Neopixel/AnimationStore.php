@@ -3,23 +3,31 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Neopixel;
 
-use GibsonOS\Module\Hc\Service\Sequence\Neopixel\AnimationService;
-use GibsonOS\Module\Hc\Store\AbstractSequenceStore;
+use GibsonOS\Core\Store\AbstractDatabaseStore;
+use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Animation;
 
-class AnimationStore extends AbstractSequenceStore
+class AnimationStore extends AbstractDatabaseStore
 {
+    protected Module $module;
+
+    public function setModule(Module $module): void
+    {
+        $this->module = $module;
+    }
+
+    protected function getModelClassName(): string
+    {
+        return Animation::class;
+    }
+
+    protected function setWheres(): void
+    {
+        $this->addWhere('`module_id`=?', [$this->module->getId()]);
+    }
+
     protected function getDefaultOrder(): string
     {
         return '`name`';
-    }
-
-    protected function getType(): int
-    {
-        return AnimationService::SEQUENCE_TYPE;
-    }
-
-    protected function loadElements(): bool
-    {
-        return false;
     }
 }

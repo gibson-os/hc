@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Mapper;
 
-use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
+use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led as AnimationLed;
+use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Service\TransformService;
 
 class LedMapper
@@ -18,12 +18,12 @@ class LedMapper
 
     private const MIN_GROUP_LEDS = 2;
 
-    public function __construct(private TransformService $transformService)
+    public function __construct(private readonly TransformService $transformService)
     {
     }
 
     /**
-     * @param Led[] $leds
+     * @param Led[]|AnimationLed[] $leds
      *
      * @return string[]
      */
@@ -44,46 +44,6 @@ class LedMapper
         }
 
         return $data;
-    }
-
-    /**
-     * @param array<int, array{red: int, green: int, blue: int, fadeIn: int, blink: int}> $data
-     *
-     * @return Led[]
-     */
-    public function mapFromArrays(Module $module, array $data, bool $onlyColor, bool $forAnimation): array
-    {
-        $leds = [];
-
-        foreach ($data as $item) {
-            $leds[] = $this->mapFromArray($module, $item, $onlyColor, $forAnimation);
-        }
-
-        return $leds;
-    }
-
-    /**
-     * @param array{red: int, green: int, blue: int, fadeIn: int, blink: int} $data
-     */
-    public function mapFromArray(Module $module, array $data, bool $onlyColor, bool $forAnimation): Led
-    {
-        return (new Led(
-            $module,
-            $data[LedService::ATTRIBUTE_KEY_NUMBER] ?? 0,
-            $data[LedService::ATTRIBUTE_KEY_CHANNEL] ?? 0,
-            $data[LedService::ATTRIBUTE_KEY_TOP] ?? 0,
-            $data[LedService::ATTRIBUTE_KEY_LEFT] ?? 0,
-            $data[LedService::ATTRIBUTE_KEY_RED],
-            $data[LedService::ATTRIBUTE_KEY_GREEN],
-            $data[LedService::ATTRIBUTE_KEY_BLUE],
-            $data[LedService::ATTRIBUTE_KEY_FADE_IN],
-            $data[LedService::ATTRIBUTE_KEY_BLINK],
-        ))
-            ->setLength($data['length'] ?? 0)
-            ->setTime($data['time'] ?? 0)
-            ->setOnlyColor($onlyColor)
-            ->setForAnimation($forAnimation)
-        ;
     }
 
     /**
@@ -136,19 +96,21 @@ class LedMapper
 
     private function getLedByString(Module $module, string $data, int &$i): Led
     {
-        return new Led(
-            $module,
-            red: $this->transformService->asciiToUnsignedInt($data, $i++),
-            green: $this->transformService->asciiToUnsignedInt($data, $i++),
-            blue: $this->transformService->asciiToUnsignedInt($data, $i++),
-            fadeIn: $this->transformService->asciiToUnsignedInt($data, $i) >> 4,
-            blink: $this->transformService->asciiToUnsignedInt($data, $i++) & 15
-        );
+        return (new Led())
+            ->setModule($module)
+            ->setRed($this->transformService->asciiToUnsignedInt($data, $i++))
+            ->setGreen($this->transformService->asciiToUnsignedInt($data, $i++))
+            ->setBlue($this->transformService->asciiToUnsignedInt($data, $i++))
+            ->setFadeIn($this->transformService->asciiToUnsignedInt($data, $i) >> 4)
+            ->setBlink($this->transformService->asciiToUnsignedInt($data, $i++) & 15)
+        ;
     }
 
     /**
-     * @param Led[]                           $leds
-     * @param array{led: Led, numbers: int[]} $color
+     * @template T of Led|AnimationLed
+     *
+     * @param T[]                           $leds
+     * @param array{led: T, numbers: int[]} $color
      */
     private function getRangedColorStrings(array &$leds, array &$color): array
     {
@@ -202,7 +164,7 @@ class LedMapper
     }
 
     /**
-     * @param array{led: Led, numbers: int[]} $color
+     * @param array{led: Led|AnimationLed, numbers: int[]} $color
      */
     private function getSingleColorString(array $color): string
     {
@@ -220,7 +182,7 @@ class LedMapper
     }
 
     /**
-     * @param array{led: Led, numbers: int[]} $color
+     * @param array{led: Led|AnimationLed, numbers: int[]} $color
      *
      * @return string[]
      */
@@ -254,7 +216,7 @@ class LedMapper
         return $data;
     }
 
-    private function completeGroupedColorString(string $data, int $count, Led $led): string
+    private function completeGroupedColorString(string $data, int $count, Led|AnimationLed $led): string
     {
         $count += self::MAX_PROTOCOL_LEDS;
 
@@ -267,9 +229,11 @@ class LedMapper
     }
 
     /**
-     * @param Led[] $leds
+     * @template T of Led|AnimationLed
      *
-     * @return array<string, array{led: Led, numbers: int[]}>
+     * @param T[] $leds
+     *
+     * @return array<string, array{led: T, numbers: int[]}>
      */
     private function getColorsByLeds(array $leds): array
     {

@@ -5,9 +5,9 @@ namespace GibsonOS\Module\Hc\Service\Slave;
 
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Module\Hc\Dto\Ssd1306\Pixel;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Ssd1306\Pixel;
 
 class Ssd1306Service extends AbstractSlave
 {
@@ -133,6 +133,7 @@ class Ssd1306Service extends AbstractSlave
      *
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function sendData(Module $slave, array $data): Ssd1306Service
     {
@@ -182,6 +183,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setDisplayOn(Module $slave): Ssd1306Service
     {
@@ -193,6 +195,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setDisplayOff(Module $slave): Ssd1306Service
     {
@@ -204,6 +207,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setEntireDisplayOn(Module $slave): Ssd1306Service
     {
@@ -215,6 +219,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setEntireDisplayOff(Module $slave): Ssd1306Service
     {
@@ -266,6 +271,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setLowColumnAddress(Module $slave, int $lowColumnAddress = 0): Ssd1306Service
     {
@@ -277,6 +283,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setHighColumnAddress(Module $slave, int $highColumnAddress = 0): Ssd1306Service
     {
@@ -288,6 +295,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setStartLineAddress(Module $slave, int $startLineAddress = 0): Ssd1306Service
     {
@@ -299,6 +307,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setContrastControl(Module $slave, int $contrast = 0): Ssd1306Service
     {
@@ -330,6 +339,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setDisplayOffset(Module $slave, int $offset = 0): Ssd1306Service
     {
@@ -341,6 +351,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setDisplayClockDivide(Module $slave, int $clockDivide = 0): Ssd1306Service
     {
@@ -352,6 +363,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setPreChargePeriod(Module $slave, int $preChargePeriod = 0): Ssd1306Service
     {
@@ -363,6 +375,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setSegmentReMap(Module $slave, bool $mappedToAddress127): Ssd1306Service
     {
@@ -374,6 +387,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setComPinsHardwareConfiguration(
         Module $slave,
@@ -412,6 +426,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     public function setChargePumpSetting(Module $slave, bool $enableChargePump): Ssd1306Service
     {
@@ -472,6 +487,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     private function setMultiplexRatio(Module $slave): Ssd1306Service
     {
@@ -483,6 +499,7 @@ class Ssd1306Service extends AbstractSlave
     /**
      * @throws AbstractException
      * @throws SaveError
+     * @throws WriteException
      */
     private function sendCommand(Module $slave, int $command, string $data = ''): void
     {

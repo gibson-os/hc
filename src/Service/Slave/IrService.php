@@ -8,11 +8,11 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
-use GibsonOS\Module\Hc\Dto\Ir\Key;
 use GibsonOS\Module\Hc\Event\IrEvent;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\SlaveFactory;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
+use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
@@ -34,10 +34,6 @@ class IrService extends AbstractHcSlave
 
     public const REMOTE_ATTRIBUTE_NAME = 'name';
 
-    public const REMOTE_ATTRIBUTE_BACKGROUND = 'background';
-
-    public const REMOTE_ATTRIBUTE_KEYS = 'keys';
-
     public function __construct(
         MasterService $masterService,
         TransformService $transformService,
@@ -49,7 +45,7 @@ class IrService extends AbstractHcSlave
         SlaveFactory $slaveFactory,
         LoggerInterface $logger,
         ModelManager $modelManager,
-        private IrFormatter $irFormatter
+        private readonly IrFormatter $irFormatter
     ) {
         parent::__construct(
             $masterService,
@@ -90,8 +86,6 @@ class IrService extends AbstractHcSlave
      * @throws SaveError
      * @throws WriteException
      * @throws AbstractException
-     *
-     * @return $this
      */
     public function sendKeys(Module $module, array $keys): IrService
     {
@@ -111,7 +105,7 @@ class IrService extends AbstractHcSlave
             }
 
             $data .=
-                chr($key->getProtocol()) .
+                chr($key->getProtocol()->value) .
                 chr($key->getAddress() >> 8) . chr($key->getAddress() & 255) .
                 chr($key->getCommand() >> 8) . chr($key->getCommand() & 255)
             ;

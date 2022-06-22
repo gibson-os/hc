@@ -37,22 +37,42 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                         let filteredPorts = [];
 
                         Ext.iterate(ports, function(port) {
-                            if (port.id === record.get('inputPort')) {
-                                return
+                            if (port.id === record.get('inputPort').id) {
+                                return;
                             }
 
                             filteredPorts.push(port);
                         });
 
-                        form.findField('outputPort').getStore().loadData(filteredPorts);
-                        form.findField('inputPortValue').getStore().loadData(
-                            getValueNames(ports[record.get('inputPort')])
-                        );
+                        form.findField('outputPortId').getStore().loadData(filteredPorts);
+                        form.findField('inputValue').getStore().loadData([{
+                            id: false,
+                            name: record.get('inputPort').valueNames[0]
+                        },{
+                            id: true,
+                            name: record.get('inputPort').valueNames[1]
+                        }]);
 
-                        if (record.get('outputPort') !== null) {
-                            form.findField('value').getStore().loadData(
-                                getValueNames(ports[record.get('outputPort')])
-                            );
+                        const outputPortId = record.get('outputPortId');
+
+                        if (outputPortId !== null) {
+                            let outputPort = null;
+
+                            Ext.iterate(ports, (port) => {
+                                if (port.id === outputPortId) {
+                                    outputPort = port;
+
+                                    return false;
+                                }
+                            });
+
+                            form.findField('value').getStore().loadData([{
+                                id: false,
+                                name: outputPort.valueNames[0]
+                            },{
+                                id: true,
+                                name: outputPort.valueNames[1]
+                            }]);
                         }
                     },
                     edit: function(editor, context) {
@@ -60,12 +80,13 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                         me.setLoading(true);
 
                         GibsonOS.Ajax.request({
-                            url: baseDir + 'hc/io/saveDirectConnect',
-                            params:  {
+                            url: baseDir + 'hc/ioDirectConnect/save',
+                            params: {
+                                id: record.get('id'),
                                 moduleId: me.gos.data.module.id,
-                                inputPort: record.get('inputPort'),
-                                inputPortValue: record.get('inputPortValue'),
-                                outputPort: record.get('outputPort'),
+                                inputPortId: record.get('inputPort').id,
+                                inputValue: record.get('inputValue'),
+                                outputPortId: record.get('outputPortId'),
                                 order: record.get('order'),
                                 pwm: record.get('pwm'),
                                 blink: record.get('blink'),
@@ -88,7 +109,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
         ];
         me.columns = [{
             header: 'Eingangs Zustand',
-            dataIndex: 'inputPortValue',
+            dataIndex: 'inputValue',
             width: 150,
             editor: {
                 xtype: 'gosFormComboBox',
@@ -97,7 +118,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                     xtype: 'gosDataStore',
                     fields: [{
                         name: 'id',
-                        type: 'int'
+                        type: 'bool'
                     },{
                         name: 'name',
                         type: 'string'
@@ -105,35 +126,51 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 }
             },
             renderer: function(value, metaData, record) {
-                return value === null ? null : ports[record.get('inputPort')].valueNames[value];
+                return record.get('outputPortId') === null ? '' : record.get('inputPort').valueNames[value ? 1 : 0];
             }
         },{
             header: 'Ausgangs Port',
-            dataIndex: 'outputPort',
+            dataIndex: 'outputPortId',
             flex: 1,
             editor: {
                 xtype: 'gosFormComboBox',
                 emptyText: 'Bitte auswählen',
                 store: {
                     xtype: 'gosDataStore',
-                    fields: [{
-                        name: 'id',
-                        type: 'int'
-                    },{
-                        name: 'name',
-                        type: 'string'
-                    }]
+                    model: 'GibsonOS.module.hc.io.model.Port'
                 },
                 listeners: {
                     change: function(combo, value) {
-                        let valueField = combo.up('roweditor').getForm().findField('value');
+                        const valueField = combo.up('roweditor').getForm().findField('value');
+                        const outputPort = combo.findRecordByValue(value);
+
                         valueField.setValue(null);
-                        valueField.getStore().loadData(getValueNames(ports[value]));
+                        valueField.getStore().loadData([{
+                            id: false,
+                            name: outputPort.get('valueNames')[0]
+                        },{
+                            id: true,
+                            name: outputPort.get('valueNames')[1]
+                        }]);
                     }
                 }
             },
             renderer: function(value) {
-                return value === null ? null : ports[value].name;
+                if (value === null) {
+                    return null;
+                }
+
+                let outputPort = null;
+
+                Ext.iterate(ports, (port) => {
+                    if (value === port.id) {
+                        outputPort = port;
+
+                        return false;
+                    }
+                });
+
+                return outputPort === null ? '' : outputPort.name;
             }
         },{
             header: 'PWM',
@@ -147,11 +184,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 maxValue: 255
             },
             renderer: function(value, metaData, record) {
-                if (record.get('outputPort') === null) {
-                    return '';
-                }
-
-                return value;
+                return record.get('outputPortId') === null ? '' : value;
             }
         },{
             header: 'Blinken',
@@ -164,11 +197,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 maxValue: 31
             },
             renderer: function(value, metaData, record) {
-                if (record.get('outputPort') === null) {
-                    return '';
-                }
-
-                return value;
+                return record.get('outputPortId') === null ? '' : value;
             }
         },{
             header: 'Einblenden',
@@ -182,11 +211,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 maxValue: 255
             },
             renderer: function(value, metaData, record) {
-                if (record.get('outputPort') === null) {
-                    return '';
-                }
-
-                return value;
+                return record.get('outputPortId') === null ? '' : value;
             }
         },{
             header: 'Ausgangs Zustand',
@@ -199,7 +224,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                     xtype: 'gosDataStore',
                     fields: [{
                         name: 'id',
-                        type: 'int'
+                        type: 'bool'
                     },{
                         name: 'name',
                         type: 'string'
@@ -212,7 +237,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                         let fadeInField = form.findField('fadeIn');
                         let addOrSubField = form.findField('addOrSub');
 
-                        if (value === 1) {
+                        if (value) {
                             if (addOrSubField.getValue() === 0) {
                                 fadeInField.enable();
                             }
@@ -226,7 +251,23 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 }
             },
             renderer: function(value, metaData, record) {
-                return value === null ? null : ports[record.get('outputPort')].valueNames[value];
+                const outputPortId = record.get('outputPortId');
+
+                if (outputPortId === null) {
+                    return null;
+                }
+
+                let outputPort = null;
+
+                Ext.iterate(ports, (port) => {
+                    if (port.id === outputPortId) {
+                        outputPort = port;
+
+                        return false;
+                    }
+                });
+
+                return outputPort === null ? '' : outputPort.valueNames[value ? 1 : 0];
             }
         },{
             header: 'Anwenden',
@@ -269,7 +310,11 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                     }
                 }
             },
-            renderer: function(value) {
+            renderer: function(value, metaData, record) {
+                if (record.get('outputPortId') === null) {
+                    return '';
+                }
+
                 switch (value) {
                     case 0:
                         return 'Setzen';
@@ -285,7 +330,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
 
         let deleteRecords = function(inputPort, index = 0) {
             let store = me.getStore();
-            index = store.find('inputPort', inputPort, index);
+            index = store.find('inputPortNumber', inputPort.number, index);
 
             if (index === -1) {
                 return;
@@ -299,8 +344,10 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
             return me.getStore().insert(index, {
                 inputPort: inputPort,
                 order: order,
-                inputPortName: ports[inputPort].name,
-                valueName: ports[inputPort].valueNames
+                addOrSub: 0,
+                pwm: 0,
+                blink: 0,
+                fadeIn: 0,
             })[0];
         };
 
@@ -320,7 +367,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                 let store = me.getStore();
 
                 let findLastRecord = function(record) {
-                    let index = store.find('inputPort', record.get('inputPort'), store.indexOf(record)+1, false, false, true);
+                    let index = store.find('inputPortNumber', record.get('inputPortNumber'), store.indexOf(record)+1, false, false, true);
 
                     if (index === -1) {
                         return record;
@@ -358,11 +405,10 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                                 me.setLoading(true);
 
                                 GibsonOS.Ajax.request({
-                                    url: baseDir + 'hc/io/deleteDirectConnect',
+                                    url: baseDir + 'hc/ioDirectConnect/delete',
                                     params: {
                                         moduleId: me.gos.data.module.id,
-                                        inputPort: record.get('inputPort'),
-                                        order: record.get('order')
+                                        id: record.get('id')
                                     },
                                     success: function() {
                                         let store = me.getStore();
@@ -370,11 +416,11 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
 
                                         store.remove(record);
 
-                                        if (store.find('inputPort', record.get('inputPort')) === -1) {
+                                        if (store.find('inputPortNumber', record.get('inputPortNumber')) === -1) {
                                             insertBlankRecord(record.get('inputPort'), index, record.get('order') + 1);
                                         } else {
                                             let updateOrder = function(index) {
-                                                index = store.find('inputPort', record.get('inputPort'), index);
+                                                index = store.find('inputPortNumber', record.get('inputPortNumber'), index);
 
                                                 if (index === -1) {
                                                     return;
@@ -417,15 +463,14 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                                 me.setLoading(true);
 
                                 GibsonOS.Ajax.request({
-                                    url: baseDir + 'hc/io/resetDirectConnect',
+                                    url: baseDir + 'hc/ioDirectConnect/reset',
                                     params: {
                                         moduleId: me.gos.data.module.id,
-                                        inputPort: record.get('inputPort'),
-                                        order: record.get('order')
+                                        id: record.get('inputPort').id
                                     },
                                     success: function() {
                                         let store = me.getStore();
-                                        let firstIndex = store.find('inputPort', record.get('inputPort'));
+                                        let firstIndex = store.find('inputPortNumber', record.get('inputPortNumber'));
 
                                         deleteRecords(record.get('inputPort'));
                                         insertBlankRecord(record.get('inputPort'), firstIndex, 0);
@@ -453,7 +498,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                     me.setLoading(true);
 
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/io/activateDirectConnect',
+                        url: baseDir + 'hc/ioDirectConnect/activate',
                         params: {
                             moduleId: me.gos.data.module.id,
                             activate: pressed
@@ -480,8 +525,12 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                         return;
                     }
 
+                    if (reset) {
+                        deleteRecords(port);
+                    }
+
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/io/readDirectConnect',
+                        url: baseDir + 'hc/ioDirectConnect/read',
                         params:  {
                             moduleId: me.gos.data.module.id,
                             inputPort: port,
@@ -491,20 +540,22 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                         success: function(response) {
                             let responseText = Ext.decode(response.responseText);
 
-                            let record = insertBlankRecord(port, index++);
+                            if (!responseText || !responseText.data) {
+                                loadDirectConnect(port+1, 0, true);
 
-                            if (responseText && responseText.data) {
-                                record.set(responseText.data);
-                                record.set('order', order);
-                                record.commit();
+                                return;
                             }
 
-                            if (
-                                !responseText ||
-                                !responseText.data ||
-                                !responseText.data.hasMore
-                            ) {
-                                deleteRecords(port+1);
+                            const record = insertBlankRecord(responseText.data.inputPort, index++);
+
+                            if (responseText.data.directConnect) {
+                                record.set(responseText.data.directConnect);
+                            }
+
+                            record.set('order', order);
+                            record.commit();
+
+                            if (!responseText.data.hasMore) {
                                 loadDirectConnect(port+1, 0, true);
                             } else {
                                 loadDirectConnect(port, order + 1);
@@ -516,7 +567,6 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                     });
                 };
 
-                deleteRecords(0);
                 loadDirectConnect(0, 0, true);
             }
         },('-'),{
@@ -533,7 +583,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                             me.setLoading(true);
 
                             GibsonOS.Ajax.request({
-                                url: baseDir + 'hc/io/defragmentDirectConnect',
+                                url: baseDir + 'hc/ioDirectConnect/defragment',
                                 params: {
                                     moduleId: me.gos.data.module.id
                                 },
@@ -557,7 +607,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
         me.on('selectionchange', function(selection, records) {
             if (
                 records.length &&
-                records[0].get('outputPort') !== null
+                records[0].get('outputPortId') !== null
             ) {
                 me.down('#hcIoDirectConnectAddButton').enable();
                 me.down('#hcIoDirectConnectDeleteButton').enable();
@@ -569,20 +619,17 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
         me.getStore().on('load', function(store, records) {
             let lastPortNumber = -1;
             ports = [];
+            const jsonData = store.getProxy().getReader().jsonData;
 
             Ext.iterate(records, function(record) {
-                if (lastPortNumber === record.get('inputPort')) {
+                if (lastPortNumber === record.get('inputPort').number) {
                     return;
                 }
 
-                lastPortNumber = record.get('inputPort');
-                ports.push({
-                    id: lastPortNumber,
-                    name: record.get('inputPortName'),
-                    valueNames: record.get('valueNames')
-                });
+                lastPortNumber = record.get('inputPort').number;
+                ports.push(record.get('inputPort'));
             });
-            me.down('#hcIoDirectConnectActivateButton').toggle(store.getProxy().getReader().jsonData.active, true);
+            me.down('#hcIoDirectConnectActivateButton').toggle(jsonData.active, true);
         });
     }
 });

@@ -39,8 +39,10 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
                     xtype: 'gosFormActionAction',
                     url: baseDir + 'hc/ir/addKey',
                     params: {
+                        id: 0,
+                        protocol: me.getForm().findField('protocol').getValue(),
                         address: me.getForm().findField('address').getValue(),
-                        command: me.getForm().findField('command').getValue(),
+                        command: me.getForm().findField('command').getValue()
                     },
                     success() {
                         me.reset();

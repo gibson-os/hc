@@ -172,7 +172,7 @@ class LogStore extends AbstractDatabaseStore
                 ->setId((int) $log['id'])
                 ->setAdded($this->dateTimeService->get((string) $log['added']))
                 ->setCommand($log['command'] === null ? null : (int) $log['command'])
-                ->setDirection(Direction::from((string) $log['direction']))
+                ->setDirection(constant(sprintf('%s::%s', Direction::class, (string) $log['direction'])))
                 ->setSlaveAddress((int) $log['address'])
             ;
 

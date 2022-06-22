@@ -5,11 +5,11 @@ namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
-use GibsonOS\Module\Hc\Dto\Neopixel\Led;
 use GibsonOS\Module\Hc\Exception\ModuleException;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Service\TransformService;
@@ -196,7 +196,7 @@ class NeopixelFormatter extends AbstractHcFormatter
 
         if (!isset($this->leds[$moduleId])) {
             $this->ledStore->setModule($module);
-            $this->leds[$moduleId] = $this->ledStore->getList();
+            $this->leds[$moduleId] = iterator_to_array($this->ledStore->getList());
         }
 
         return $this->leds[$moduleId];

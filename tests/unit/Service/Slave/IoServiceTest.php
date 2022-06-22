@@ -13,8 +13,6 @@ use GibsonOS\Module\Hc\Model\Attribute\Value;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Repository\Attribute\ValueRepository;
-use GibsonOS\Module\Hc\Repository\AttributeRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
@@ -90,16 +88,6 @@ class IoServiceTest extends Unit
      */
     private $ioFormatter;
 
-    /**
-     * @var ObjectProphecy|AttributeRepository
-     */
-    private $attributeRepository;
-
-    /**
-     * @var ObjectProphecy|ValueRepository
-     */
-    private $valueRepository;
-
     protected function _before(): void
     {
         $this->masterService = $this->prophesize(MasterService::class);
@@ -111,8 +99,6 @@ class IoServiceTest extends Unit
         $this->logRepository = $this->prophesize(LogRepository::class);
         $this->slaveFactory = $this->prophesize(SlaveFactory::class);
         $this->ioFormatter = $this->prophesize(IoFormatter::class);
-        $this->attributeRepository = $this->prophesize(AttributeRepository::class);
-        $this->valueRepository = $this->prophesize(ValueRepository::class);
         $this->slave = $this->prophesize(Module::class);
         $this->master = $this->prophesize(Master::class);
 
@@ -126,8 +112,6 @@ class IoServiceTest extends Unit
             $this->masterRepository->reveal(),
             $this->logRepository->reveal(),
             $this->slaveFactory->reveal(),
-            $this->attributeRepository->reveal(),
-            $this->valueRepository->reveal()
         );
     }
 
@@ -177,16 +161,6 @@ class IoServiceTest extends Unit
         $this->ioFormatter->getPortsAsArray('ports', 2)
             ->shouldBeCalledOnce()
             ->willReturn($ports)
-        ;
-        $this->attributeRepository->startTransaction()
-            ->shouldBeCalledOnce()
-        ;
-        $this->attributeRepository->commit()
-            ->shouldBeCalledOnce()
-        ;
-        $this->attributeRepository->countByModule($this->slave->reveal(), 'port')
-            ->shouldBeCalledOnce()
-            ->willReturn(18)
         ;
 
         $this->prophesizeUpdatePortAttributes(0, 42424242, $ports[0]);
@@ -257,16 +231,6 @@ class IoServiceTest extends Unit
             ->shouldBeCalledOnce()
             ->willReturn($ports)
         ;
-        $this->attributeRepository->startTransaction()
-            ->shouldBeCalledOnce()
-        ;
-        $this->attributeRepository->commit()
-            ->shouldBeCalledOnce()
-        ;
-        $this->attributeRepository->countByModule($this->slave->reveal(), 'port')
-            ->shouldBeCalledOnce()
-            ->willReturn(18)
-        ;
 
         $this->prophesizeUpdatePortAttributes(0, 42424242, $ports[0]);
         $this->prophesizeUpdatePortAttributes(1, 42424242, $ports[1]);
@@ -329,20 +293,6 @@ class IoServiceTest extends Unit
             ->shouldBeCalledOnce()
             ->willReturn($ports)
         ;
-        $this->attributeRepository->startTransaction()
-            ->shouldBeCalledOnce()
-        ;
-        $this->attributeRepository->rollback()
-            ->shouldBeCalledOnce()
-        ;
-        $this->attributeRepository->countByModule($this->slave->reveal(), 'port')
-            ->shouldBeCalledOnce()
-            ->willReturn(18)
-        ;
-        $this->valueRepository->getByTypeId(7, 0, [42424242], 'port')
-            ->shouldBeCalledOnce()
-            ->willThrow(GetError::class)
-        ;
 
         $this->slave->getId()
             ->shouldBeCalledOnce()
@@ -402,16 +352,6 @@ class IoServiceTest extends Unit
         $this->ioFormatter->getPortsAsArray('ports', 2)
             ->shouldBeCalledOnce()
             ->willReturn($ports)
-        ;
-        $this->attributeRepository->startTransaction()
-            ->shouldBeCalledOnce()
-        ;
-        $this->attributeRepository->commit()
-            ->shouldBeCalledOnce()
-        ;
-        $this->attributeRepository->countByModule($this->slave->reveal(), 'port')
-            ->shouldBeCalledOnce()
-            ->willReturn(0)
         ;
 
         $this->prophesizeAddPortAttributes(0, $ports[0]);
@@ -611,17 +551,6 @@ class IoServiceTest extends Unit
             ->willReturn('0', '1')
         ;
 
-        $this->valueRepository->getByTypeId(42, 32, [424242], 'port')
-            ->shouldBeCalledOnce()
-            ->willReturn([$value->reveal()])
-        ;
-        $this->valueRepository->startTransaction()
-            ->shouldBeCalledOnce()
-        ;
-        $this->valueRepository->commit()
-            ->shouldBeCalledOnce()
-        ;
-
         AbstractSlaveTest::prophesizeWrite(
             $this->master,
             $this->slave,
@@ -656,72 +585,6 @@ class IoServiceTest extends Unit
 
     private function prophesizeAddPortAttributes(int $number, array $data): void
     {
-        $this->attributeRepository->addByModule(
-            $this->slave->reveal(),
-            ['IO ' . ($number + 1)],
-            $number,
-            'name',
-            'port'
-        )->shouldBeCalledOnce();
-        $this->attributeRepository->addByModule(
-            $this->slave->reveal(),
-            [(string) $data['value']],
-            $number,
-            'value',
-            'port'
-        )->shouldBeCalledOnce();
-        $this->attributeRepository->addByModule(
-            $this->slave->reveal(),
-            [
-                0 => 'Geöffnet',
-                1 => 'Geschlossen',
-            ],
-            $number,
-            'valueName',
-            'port'
-        )->shouldBeCalledOnce();
-        $this->attributeRepository->addByModule(
-            $this->slave->reveal(),
-            [(string) $data['direction']],
-            $number,
-            'direction',
-            'port'
-        )->shouldBeCalledOnce();
-        $this->attributeRepository->addByModule(
-            $this->slave->reveal(),
-            [(string) ($data['pullUp'] ?? 0)],
-            $number,
-            'pullUp',
-            'port'
-        )->shouldBeCalledOnce();
-        $this->attributeRepository->addByModule(
-            $this->slave->reveal(),
-            [(string) ($data['delay'] ?? 0)],
-            $number,
-            'delay',
-            'port'
-        )->shouldBeCalledOnce();
-        $this->attributeRepository->addByModule(
-            $this->slave->reveal(),
-            [(string) ($data['pwm'] ?? 0)],
-            $number,
-            'pwm',
-            'port'
-        )->shouldBeCalledOnce();
-        $this->attributeRepository->addByModule(
-            $this->slave->reveal(),
-            [(string) ($data['blink'] ?? 0)],
-            $number,
-            'blink',
-            'port'
-        )->shouldBeCalledOnce();
-        $this->attributeRepository->addByModule(
-            $this->slave->reveal(),
-            [(string) ($data['fadeIn'] ?? 0)],
-            $number,
-            'fade',
-            'port'
-        )->shouldBeCalledOnce();
     }
 
     private function prophesizeUpdatePortAttributes(int $number, int $slaveId, array $data): void
@@ -733,10 +596,6 @@ class IoServiceTest extends Unit
             $values[] = $this->mockValueModel($key, $key === 'value' ? $value === '0' ? '1' : '0' : $value, $value)->reveal();
         }
 
-        $this->valueRepository->getByTypeId(7, $number, [$slaveId], 'port')
-            ->shouldBeCalledOnce()
-            ->willReturn($values)
-        ;
         $this->slave->getTypeId()
             ->shouldBeCalledOnce()
             ->willReturn(7)

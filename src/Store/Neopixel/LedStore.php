@@ -3,60 +3,35 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Neopixel;
 
-use GibsonOS\Module\Hc\Dto\Neopixel\Led;
-use GibsonOS\Module\Hc\Exception\ModuleException;
-use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService as LedAttribute;
-use GibsonOS\Module\Hc\Store\AbstractAttributeStore;
+use Generator;
+use GibsonOS\Core\Store\AbstractDatabaseStore;
+use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Led;
 
-class LedStore extends AbstractAttributeStore
+/**
+ * @method Generator<Led> getList()
+ */
+class LedStore extends AbstractDatabaseStore
 {
-    protected function getType(): string
+    protected Module $module;
+
+    public function setModule(Module $module): void
     {
-        return LedAttribute::ATTRIBUTE_TYPE;
+        $this->module = $module;
     }
 
-    protected function getTypeName(): string
+    protected function getModelClassName(): string
     {
-        return 'neopixel';
+        return Led::class;
     }
 
-    /**
-     * @throws ModuleException
-     *
-     * @return array<int, Led>
-     */
-    public function getList(): array
+    protected function setWheres(): void
     {
-        $module = $this->module;
+        $this->addWhere('`module_id`=?', [$this->module->getId()]);
+    }
 
-        if ($module === null) {
-            throw new ModuleException('No module set!');
-        }
-
-        $this->initTable();
-        $this->table->setOrderBy('`hc_attribute`.`sub_id` ASC');
-
-        $this->table->selectPrepared(
-            false,
-            '`hc_attribute`.`id`, ' .
-            '`hc_attribute`.`sub_id`, ' .
-            '`hc_attribute`.`key`, ' .
-            '`hc_attribute_value`.`order`, ' .
-            '`hc_attribute_value`.`value`'
-        );
-
-        $list = [];
-
-        foreach ($this->table->connection->fetchObjectList() as $attribute) {
-            $number = (int) $attribute->sub_id;
-
-            if (!isset($list[$number])) {
-                $list[$number] = new Led($module, $number);
-            }
-
-            $list[$number]->{'set' . ucfirst($attribute->key)}((int) $attribute->value);
-        }
-
-        return $list;
+    protected function getDefaultOrder(): string
+    {
+        return '`number`';
     }
 }

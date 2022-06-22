@@ -3,45 +3,31 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Neopixel;
 
-use Generator;
-use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService;
-use GibsonOS\Module\Hc\Store\AbstractSequenceStore;
-use JsonException;
+use GibsonOS\Core\Store\AbstractDatabaseStore;
+use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Neopixel\Image;
 
-class ImageStore extends AbstractSequenceStore
+class ImageStore extends AbstractDatabaseStore
 {
-    /**
-     * @throws JsonException
-     */
-    public function getList(): Generator
+    protected Module $module;
+
+    public function setModule(Module $module): void
     {
-        $this->initTable();
-        $this->table->setOrderBy('`hc_sequence`.`name` ASC');
-
-        $this->table->selectPrepared(
-            false,
-            '`hc_sequence`.`id`, ' .
-            '`hc_sequence`.`name`, ' .
-            '`' . $this->elementTableName . '`.`data`'
-        );
-
-        foreach ($this->table->connection->fetchObjectList() as $sequence) {
-            yield [
-                'id' => $sequence->id,
-                'name' => $sequence->name,
-                'leds' => JsonUtility::decode($sequence->data),
-            ];
-        }
+        $this->module = $module;
     }
 
-    protected function loadElements(): bool
+    protected function getModelClassName(): string
     {
-        return true;
+        return Image::class;
     }
 
-    protected function getType(): int
+    protected function setWheres(): void
     {
-        return ImageService::SEQUENCE_TYPE;
+        $this->addWhere('`module_id`=?', [$this->module->getId()]);
+    }
+
+    protected function getDefaultOrder(): string
+    {
+        return '`name`';
     }
 }

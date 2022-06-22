@@ -8,8 +8,8 @@ use GibsonOS\Module\Hc\AutoComplete\Ir\KeyAutoComplete;
 
 class KeyParameter extends AutoCompleteParameter
 {
-    public function __construct(private KeyAutoComplete $keyAutoComplete, string $title = 'Taste')
+    public function __construct(KeyAutoComplete $keyAutoComplete, string $title = 'Taste')
     {
-        parent::__construct($title, $this->keyAutoComplete);
+        parent::__construct($title, $keyAutoComplete);
     }
 }

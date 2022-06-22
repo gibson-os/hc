@@ -3,68 +3,31 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Ssd1306;
 
-use GibsonOS\Module\Hc\Dto\Ssd1306\Pixel;
-use GibsonOS\Module\Hc\Model\Attribute;
-use GibsonOS\Module\Hc\Store\AbstractAttributeStore;
+use GibsonOS\Core\Store\AbstractDatabaseStore;
+use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Ssd1306\Pixel;
 
-class PixelStore extends AbstractAttributeStore
+class PixelStore extends AbstractDatabaseStore
 {
-    protected function getType(): string
+    protected Module $module;
+
+    public function setModule(Module $module): void
     {
-        return '';
+        $this->module = $module;
     }
 
-    protected function getTypeName(): string
+    protected function getModelClassName(): string
     {
-        return 'io';
+        return Pixel::class;
     }
 
-    protected function getCountField(): string
+    protected function setWheres(): void
     {
-        return '`' . $this->tableName . '`.`sub_id`';
+        $this->addWhere('`module_id`=?', [$this->module->getId()]);
     }
 
-    public function getList(): iterable
+    protected function getDefaultOrder(): string
     {
-        for ($page = 0; $page < 8; ++$page) {
-            for ($column = 0; $column < 128; ++$column) {
-                for ($bit = 0; $bit < 8; ++$bit) {
-                    yield new Pixel($page, $column, $bit);
-                }
-            }
-        }
-
-//        $this->where[] = '`hc_attribute`.`type`=' . $this->database->escape(LedAttribute::ATTRIBUTE_TYPE);
-//
-//        $this->table->appendJoinLeft(
-//            '`gibson_os`.`hc_attribute_value`',
-//            '`hc_attribute`.`id`=`hc_attribute_value`.`attribute_id`'
-//        );
-//
-//        $this->table->setWhere($this->getWhereString());
-//        $this->table->setWhereParameters($this->getWhereParameters());
-//        $this->table->setOrderBy('`hc_attribute`.`sub_id` ASC');
-//        $this->table->selectPrepared(
-//            false,
-//            '`hc_attribute`.`id`, ' .
-//            '`hc_attribute`.`sub_id`, ' .
-//            '`hc_attribute`.`key`, ' .
-//            '`hc_attribute_value`.`order`, ' .
-//            '`hc_attribute_value`.`value`'
-//        );
-//
-//        $list = [];
-//
-//        foreach ($this->table->connection->fetchObjectList() as $attribute) {
-//            $number = (int) $attribute->sub_id;
-//
-//            if (!isset($list[$number])) {
-//                $list[$number] = (new Led())->setNumber($number);
-//            }
-//
-//            $list[$number]->{'set' . ucfirst($attribute->key)}((int) $attribute->value);
-//        }
-//
-//        return $list;
+        return '`page`, `column`, `bit`';
     }
 }

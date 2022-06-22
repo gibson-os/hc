@@ -92,24 +92,33 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         });
         me.addAction({xtype: 'tbseparator'});
         me.addAction({
-            xtype: 'gosFormComboBox',
+            xtype: 'gosModuleCoreParameterTypeAutoComplete',
             hideLabel: true,
             width: 150,
+            enableKeyEvents: true,
             emptyText: 'Bild laden',
-            itemId: 'hcNeopixelLedPanelImageLoad',
+            itemId: 'hcNeopixelLedPanelImageAutoComplete',
             addToItemContextMenu: false,
             addToContainerContextMenu: false,
             requiredPermission: {
                 action: 'images',
                 permission: GibsonOS.Permission.READ
             },
-            store: {
-                type: 'gosModuleHcNeopixelImageStore'
+            parameterObject: {
+                config: {
+                    model: 'GibsonOS.module.hc.neopixel.model.Image',
+                    autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Neopixel\\ImageAutoComplete',
+                    parameters: {
+                        moduleId: me.hcModuleId
+                    }
+                }
             },
             listeners: {
                 select: (combo, records) => {
                     ledView.getStore().each((led) => {
-                        let imageLed = records[0].get('leds')[led.get('number')];
+                        const imageLed = Ext.Array.findBy(records[0].get('leds'), (itemLed) => {
+                            return led.get('id') === itemLed.ledId;
+                        });
 
                         led.set('deactivated', !imageLed);
 
@@ -123,28 +132,11 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                         led.set('blink', imageLed.blink);
                         led.set('fadeIn', imageLed.fadeIn);
                     });
-                }
-            }
-        });
-        me.addAction({
-            xtype: 'tbseparator'
-        });
-        me.addAction({
-            xtype: 'gosFormTextfield',
-            hideLabel: true,
-            width: 75,
-            enableKeyEvents: true,
-            emptyText: 'Name',
-            itemId: 'hcNeopixelLedPanelImageName',
-            addToItemContextMenu: false,
-            addToContainerContextMenu: false,
-            requiredPermission: {
-                action: 'saveImage',
-                permission: GibsonOS.Permission.WRITE
-            },
-            listeners: {
-                keyup: (field) => {
-                    me.down('#hcNeopixelLedPanelSaveImageButton').setDisabled(!field.getValue().length);
+
+                    me.down('#hcNeopixelLedPanelSaveImageButton').setDisabled(!combo.getRawValue().length);
+                },
+                keyup: (combo) => {
+                    me.down('#hcNeopixelLedPanelSaveImageButton').setDisabled(!combo.getRawValue().length);
                 }
             }
         });
@@ -159,14 +151,21 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 permission: GibsonOS.Permission.WRITE
             },
             save: name => {
-                let leds = {};
+                let leds = [];
 
                 ledView.getStore().each(led => {
                     if (led.get('deactivated')) {
                         return true;
                     }
 
-                    leds[led.get('number')] = led.getData();
+                    leds.push({
+                        red: led.get('red'),
+                        green: led.get('green'),
+                        blue: led.get('blue'),
+                        fadeIn: led.get('fadeIn'),
+                        blink: led.get('blink'),
+                        ledId: led.get('id'),
+                    });
                 });
 
                 GibsonOS.Ajax.request({
@@ -177,7 +176,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                         leds: Ext.encode(leds)
                     },
                     success: response => {
-                        let loadField = me.down('#hcNeopixelLedPanelImageLoad');
+                        let loadField = me.down('#hcNeopixelLedPanelImageAutoComplete');
                         let data = Ext.decode(response.responseText);
 
                         loadField.getStore().loadData(data.data);
@@ -196,7 +195,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                                         return false;
                                     }
 
-                                    me.down('#hcNeopixelLedPanelSaveImageButton').save(name, true);
+                                    me.down('#hcNeopixelLedPanelSaveImageButton').save(name);
                                 }
                             );
                         }
@@ -204,8 +203,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 });
             },
             handler() {
-                let name = me.down('#hcNeopixelLedPanelImageName').getValue();
-                this.save(name);
+                this.save(me.down('#hcNeopixelLedPanelImageAutoComplete').getRawValue());
             }
         });
 
@@ -234,7 +232,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             });
         });
 
-        let imageStore = me.down('#hcNeopixelLedPanelImageLoad').getStore();
+        let imageStore = me.down('#hcNeopixelLedPanelImageAutoComplete').getStore();
         imageStore.getProxy().setExtraParam('moduleId', me.hcModuleId);
         imageStore.load();
 
@@ -246,7 +244,6 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         let panel = me.down('gosModuleHcNeopixelColorPanel');
         let view = me.down('gosModuleHcNeopixelLedView');
 
-        console.log('add color actions');
         panel.addAction({
             itemId: 'hcNeopixelLedColorFillButton',
             iconCls: 'icon_system system_brush',
@@ -480,7 +477,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 ledAddItemContextMenu.add(button);
             }
 
-            me.down('gosModuleHcNeopixelAnimationView').updateTemplate(jsonData.data.length);
+            me.down('gosModuleHcNeopixelAnimationView').updateTemplate(jsonData.data);
         });
     },
     saveLeds() {

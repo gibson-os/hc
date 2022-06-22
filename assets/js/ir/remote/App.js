@@ -39,11 +39,10 @@ Ext.define('GibsonOS.module.hc.ir.remote.App', {
             });
 
             GibsonOS.Ajax.request({
-                url: baseDir + 'hc/ir/sendRemoteKey',
+                url: baseDir + 'hc/ir/sendButton',
                 params:  {
                     moduleId: me.moduleId,
-                    eventId: record.get('eventId'),
-                    'keys[]': keys
+                    id: record.get('id')
                 },
                 callback() {
                     me.setLoading(false);

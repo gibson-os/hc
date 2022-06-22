@@ -69,9 +69,9 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
 
             form.loadRecord(records[0]);
 
-            if (records[0].get('keys')) {
-                keyStore.add(records[0].get('keys'));
-            }
+            Ext.iterate(records[0].get('keys'), (key) => {
+                keyStore.add(key.key);
+            });
 
             form.enable();
         });
@@ -87,13 +87,20 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                 keys[0].set(field.name, value);
             });
         });
-        me.down('gosModuleIrRemoteKeyGrid').getStore().on('add', (store) => {
+        const changeKeyGridFunction = (store) => {
             const key = me.viewItem.getSelectionModel().getSelection()[0];
             let setKeys = [];
-            store.each((setKey) => setKeys.push(setKey.getData()));
-            // console.log(setKeys);
+            let order = 0;
+            store.each((setKey) => setKeys.push({
+                key: setKey.getData(),
+                order: order++
+            }));
+
             key.set('keys', setKeys);
-        });
+        };
+        const keyStore = me.down('gosModuleIrRemoteKeyGrid').getStore();
+        keyStore.on('add', changeKeyGridFunction);
+        keyStore.on('remove', changeKeyGridFunction);
 
         me.viewItem.on('render', function() {
             me.viewItem.dragZone = Ext.create('Ext.dd.DragZone', me.viewItem.getEl(), {
@@ -191,7 +198,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                 me.setLoading(true);
                 let keys = [];
 
-                me.viewItem.store.each(function(key) {
+                me.viewItem.store.each((key) => {
                     keys.push(key.getData());
                 });
 
@@ -199,9 +206,9 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                     url: baseDir + 'hc/ir/saveRemote',
                     params: {
                         moduleId: me.moduleId,
-                        remoteId: me.remoteId,
+                        id: me.remoteId ?? 0,
                         name: me.down('#name').getValue(),
-                        keys: Ext.encode(keys)
+                        buttons: Ext.encode(keys)
                     },
                     callback() {
                         me.setLoading(false);

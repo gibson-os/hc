@@ -1,7 +1,7 @@
 Ext.define('GibsonOS.module.hc.ir.store.RemoteKey', {
     extend: 'GibsonOS.data.Store',
     alias: ['hcIrRemoteStore'],
-    autoLoad: true,
+    autoLoad: false,
     model: 'GibsonOS.module.hc.ir.model.RemoteKey',
     remoteId: null,
     constructor(data) {
@@ -11,10 +11,10 @@ Ext.define('GibsonOS.module.hc.ir.store.RemoteKey', {
             type: 'gosDataProxyAjax',
             url: baseDir + 'hc/ir/remote',
             extraParams: {
-                remoteId: data.remoteId
+                id: data.remoteId
             },
             reader: {
-                root: 'data.keys'
+                root: 'data.buttons'
             }
         };
 

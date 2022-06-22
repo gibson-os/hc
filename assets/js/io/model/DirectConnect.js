@@ -1,41 +1,50 @@
 Ext.define('GibsonOS.module.hc.io.model.DirectConnect', {
     extend: 'GibsonOS.data.Model',
     fields: [{
-        name: 'inputPort',
+        name: 'id',
         type: 'int',
+    },{
+        name: 'inputPort',
+        type: 'object'
+    },{
+        name: 'inputPortNumber',
+        type: 'int',
+        convert: function(value, record) {
+            return record.get('inputPort').number;
+        }
     },{
         name: 'inputPortName',
-        type: 'string'
+        type: 'string',
+        convert: function(value, record) {
+            return record.get('inputPort').name;
+        }
     },{
-        name: 'inputPortValue',
+        name: 'inputValue',
+        type: 'bool'
+    },{
+        name: 'outputPortId',
         type: 'int',
         useNull: true
-    },{
-        name: 'outputPortNumber',
-        type: 'string'
-    },{
-        name: 'outputPort',
-        type: 'int',
-        useNull: true
-    },{
-        name: 'valueNames',
-        type: 'array'
     },{
         name: 'order',
-        type: 'int'
+        type: 'int',
+        useNull: true
     },{
         name: 'value',
-        type: 'int',
+        type: 'bool',
         useNull: true
     },{
         name: 'pwm',
-        type: 'int'
+        type: 'int',
+        useNull: true
     },{
         name: 'blink',
-        type: 'int'
+        type: 'int',
+        useNull: true
     },{
         name: 'fadeIn',
-        type: 'int'
+        type: 'int',
+        useNull: true
     },{
         name: 'addOrSub',
         type: 'int',

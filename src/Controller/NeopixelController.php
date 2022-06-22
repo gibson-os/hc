@@ -1,9 +1,13 @@
 <?php
+/** @noinspection PhpUnused */
 declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetMappedModel;
+use GibsonOS\Core\Attribute\GetMappedModels;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
@@ -18,10 +22,11 @@ use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
-use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Service\Attribute\Neopixel\LedService;
-use GibsonOS\Module\Hc\Service\Sequence\Neopixel\ImageService;
+use GibsonOS\Module\Hc\Model\Neopixel\Image;
+use GibsonOS\Module\Hc\Model\Neopixel\Led;
+use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
+use GibsonOS\Module\Hc\Service\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\Slave\NeopixelService;
 use GibsonOS\Module\Hc\Store\Neopixel\ImageStore;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
@@ -33,6 +38,7 @@ class NeopixelController extends AbstractController
     /**
      * @throws JsonException
      * @throws SelectError
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::READ)]
     public function index(LedStore $ledStore, #[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
@@ -43,12 +49,14 @@ class NeopixelController extends AbstractController
         $config['pwmSpeed'] = $module->getPwmSpeed();
 
         return new AjaxResponse(array_merge($config, [
-            'data' => $ledStore->getList(),
+            'data' => iterator_to_array($ledStore->getList()),
             'total' => $ledStore->getCount(),
         ]));
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
@@ -57,19 +65,17 @@ class NeopixelController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function showLeds(
         NeopixelService $neopixelService,
-        LedMapper $ledMapper,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        array $leds = []
+        #[GetMappedModels(Led::class, ['module_id' => 'module.id', 'number' => 'number'])] array $leds = []
     ): AjaxResponse {
-        $neopixelService->writeLeds(
-            $module,
-            $ledMapper->mapFromArrays($module, $leds, true, false)
-        );
+        $neopixelService->writeLeds($module, $leds);
 
         return $this->returnSuccess();
     }
 
     /**
+     * @param Led[] $leds
+     *
      * @throws AbstractException
      * @throws DateTimeError
      * @throws DeleteError
@@ -77,30 +83,45 @@ class NeopixelController extends AbstractController
      * @throws SaveError
      * @throws SelectError
      * @throws ReflectionException
+     * @throws WriteException
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function setLeds(
         NeopixelService $neopixelService,
-        LedMapper $ledMapper,
         LedService $ledService,
         ModelManager $modelManager,
+        LedRepository $ledRepository,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        array $leds = []
+        #[GetMappedModels(Led::class, ['module_id' => 'module.id', 'number' => 'number'])] array $leds = []
     ): AjaxResponse {
-        $leds = $ledMapper->mapFromArrays($module, $leds, false, false);
         $ledCounts = $ledService->getChannelCounts($module, $leds);
         $config = JsonUtility::decode($module->getConfig() ?? '[]');
+        $ledRepository->startTransaction();
 
-        if (count(array_diff_assoc($ledCounts, $config['counts']))) {
-            $neopixelService->writeLedCounts($module, $ledCounts);
+        try {
+            if (count(array_diff_assoc($ledCounts, $config['counts']))) {
+                $neopixelService->writeLedCounts($module, $ledCounts);
 
-            $config['counts'] = $ledCounts;
-            $module->setConfig(JsonUtility::encode($config));
-            $modelManager->save($module);
+                $config['counts'] = $ledCounts;
+                $module->setConfig(JsonUtility::encode($config));
+                $modelManager->save($module);
+            }
+
+            array_walk(
+                $leds,
+                function (Led $led) use ($modelManager): void {
+                    $modelManager->save($led);
+                }
+            );
+
+            $ledRepository->deleteWithNumberBiggerAs($module, count($leds) - 1);
+        } catch (Exception $exception) {
+            $ledRepository->rollback();
+
+            throw $exception;
         }
 
-        $ledService->saveLeds($module, $leds);
-        $ledService->deleteUnusedLeds($module, $leds);
+        $ledRepository->commit();
 
         return $this->returnSuccess();
     }
@@ -133,13 +154,14 @@ class NeopixelController extends AbstractController
     /**
      * @throws JsonException
      * @throws SelectError
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::READ)]
     public function images(
         ImageStore $imageStore,
-        int $moduleId
+        #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
-        $imageStore->setModuleId($moduleId);
+        $imageStore->setModule($module);
 
         return $this->returnSuccess(
             $imageStore->getList(),
@@ -148,47 +170,34 @@ class NeopixelController extends AbstractController
     }
 
     /**
-     * @throws DeleteError
      * @throws ImageExists
      * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      */
     #[CheckPermission(Permission::WRITE, ['id' => Permission::WRITE + Permission::DELETE])]
     public function saveImage(
-        ImageService $imageService,
         ImageStore $imageStore,
-        LedMapper $ledMapper,
+        ModelManager $modelManager,
+        ?int $id,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        string $name,
-        int $id = null,
-        array $leds = []
+        #[GetMappedModel(['name' => 'name'], ['module' => 'module'])] Image $image,
     ): AjaxResponse {
-        if (empty($id)) {
-            try {
-                $image = $imageService->getByName($module, $name);
-
-                throw new ImageExists(
-                    (int) $image->getId(),
-                    sprintf(
-                        'Es existiert schon ein Bild unter dem Namen "%s".%sMöchten Sie es überschreiben?',
-                        $name,
-                        PHP_EOL
-                    ),
-                    StatusCode::CONFLICT
-                );
-            } catch (SelectError) {
-                // New Image
-            }
+        if ($image->getId() !== null && $image->getId() !== $id) {
+            throw new ImageExists(
+                (int) $image->getId(),
+                sprintf(
+                    'Es existiert schon ein Bild unter dem Namen "%s".%sMöchten Sie es überschreiben?',
+                    $image->getName(),
+                    PHP_EOL
+                ),
+                StatusCode::CONFLICT
+            );
         }
 
-        $image = $imageService->save(
-            $module,
-            $name,
-            $ledMapper->mapFromArrays($module, $leds, true, false),
-            $id
-        );
-        $imageStore->setModuleId($module->getId() ?? 0);
+        $modelManager->save($image);
+        $imageStore->setModule($image->getModule());
 
         return new AjaxResponse([
             'data' => [...$imageStore->getList()],

@@ -3,55 +3,40 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Dto\Io;
 
-use GibsonOS\Module\Hc\Attribute\IsAttribute;
-use GibsonOS\Module\Hc\Dto\AttributeInterface;
-use GibsonOS\Module\Hc\Dto\Io\DirectConnect\Command;
-use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Io\DirectConnect as DirectConnectModel;
+use GibsonOS\Module\Hc\Model\Io\Port;
+use JsonSerializable;
 
-class DirectConnect implements AttributeInterface
+class DirectConnect implements JsonSerializable
 {
-    /**
-     * @param Module    $module
-     * @param Port      $port
-     * @param Command[] $commands
-     */
     public function __construct(
-        private Module $module,
-        private Port $port,
-        #[IsAttribute()] private array $commands = []
+        private readonly Port $inputPort,
+        private readonly bool $more,
+        private readonly ?DirectConnectModel $directConnect = null,
     ) {
     }
 
-    public function getPort(): Port
+    public function getInputPort(): Port
     {
-        return $this->port;
+        return $this->inputPort;
     }
 
-    /**
-     * @return Command[]
-     */
-    public function getCommands(): array
+    public function hasMore(): bool
     {
-        return $this->commands;
+        return $this->more;
     }
 
-    /**
-     * @param Command[] $commands
-     */
-    public function setCommands(array $commands): DirectConnect
+    public function getDirectConnect(): ?DirectConnectModel
     {
-        $this->commands = $commands;
-
-        return $this;
+        return $this->directConnect;
     }
 
-    public function getSubId(): ?int
+    public function jsonSerialize(): array
     {
-        return $this->port->getNumber();
-    }
-
-    public function getModule(): ?Module
-    {
-        return $this->module;
+        return [
+            'inputPort' => $this->getInputPort(),
+            'hasMore' => $this->hasMore(),
+            'directConnect' => $this->getDirectConnect(),
+        ];
     }
 }
