@@ -82,17 +82,17 @@ class IrFormatter extends AbstractHcFormatter
 
         for ($i = 0; $i < strlen($data); $i += 5) {
             $protocol = Protocol::from($this->transformService->asciiToUnsignedInt($data, $i));
-            $command =
+            $address =
                 ($this->transformService->asciiToUnsignedInt($data, $i + 1) << 8) |
                 $this->transformService->asciiToUnsignedInt($data, $i + 2)
             ;
-            $address =
+            $command =
                 ($this->transformService->asciiToUnsignedInt($data, $i + 3) << 8) |
                 $this->transformService->asciiToUnsignedInt($data, $i + 4)
             ;
 
             try {
-                $key = $this->keyRepository->getByProtocolAddressAndCommand($protocol, $command, $address);
+                $key = $this->keyRepository->getByProtocolAddressAndCommand($protocol, $address, $command);
             } catch (SelectError) {
                 $key = (new Key())
                     ->setProtocol($protocol)

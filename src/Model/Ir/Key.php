@@ -95,7 +95,7 @@ class Key extends AbstractModel implements JsonSerializable, AutoCompleteModelIn
     {
         return [
             'id' => $this->getId(),
-            'name' => $this->getName(),
+            'name' => $this->name ?? null,
             'protocol' => $this->getProtocol()->value,
             'command' => $this->getCommand(),
             'address' => $this->getAddress(),
