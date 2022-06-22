@@ -19,7 +19,7 @@ class ModuleFactory
     public function get(string $serviceName): AbstractModule
     {
         /** @var class-string $className */
-        $className = 'GibsonOS\\Module\\Hc\\Service\\Slave\\' . ucfirst($serviceName) . 'Service';
+        $className = 'GibsonOS\\Module\\Hc\\Service\\Module\\' . ucfirst($serviceName) . 'Service';
         /** @var AbstractModule $slave */
         $slave = $this->serviceManager->get($className);
 
