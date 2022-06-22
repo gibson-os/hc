@@ -38,13 +38,13 @@ Ext.define('GibsonOS.module.hc.ir.remote.Grid', {
                     let ids = [];
 
                     Ext.iterate(remotes, (remote) => {
-                        ids.push(remote.get('id'));
+                        ids.push({id: remote.get('id')});
                     });
 
                     GibsonOS.Ajax.request({
                         url: baseDir + 'hc/ir/deleteRemotes',
                         params: {
-                            'remoteIds[]': ids
+                            remotes: Ext.encode(ids)
                         },
                         success: function() {
                             me.getStore().remove(remotes);

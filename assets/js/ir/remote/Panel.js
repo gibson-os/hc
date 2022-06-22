@@ -191,15 +191,26 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                 me.setLoading(true);
                 let keys = [];
 
-                me.viewItem.store.each(function(key) {
-                    keys.push(key.getData());
+                me.viewItem.store.each((key) => {
+                    let keyData = key.getData();
+                    let irKeys = [];
+
+                    Ext.iterate(keyData['keys'], (irKey) => {
+                        irKeys.push({
+                            keyId: irKey.id,
+                            order: irKey.order
+                        })
+                    });
+
+                    keyData['keys'] = irKeys;
+                    keys.push(keyData);
                 });
 
                 GibsonOS.Ajax.request({
                     url: baseDir + 'hc/ir/saveRemote',
                     params: {
                         moduleId: me.moduleId,
-                        id: me.remoteId,
+                        id: me.remoteId ?? 0,
                         name: me.down('#name').getValue(),
                         buttons: Ext.encode(keys)
                     },
