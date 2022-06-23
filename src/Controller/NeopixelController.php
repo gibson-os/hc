@@ -49,6 +49,8 @@ class NeopixelController extends AbstractController
         $config['pwmSpeed'] = $module->getPwmSpeed();
 
         return new AjaxResponse(array_merge($config, [
+            'success' => true,
+            'failure' => false,
             'data' => iterator_to_array($ledStore->getList()),
             'total' => $ledStore->getCount(),
         ]));
