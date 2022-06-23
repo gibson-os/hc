@@ -168,7 +168,7 @@ abstract class AbstractHcModule extends AbstractModule
         private readonly TypeRepository $typeRepository,
         private readonly MasterRepository $masterRepository,
         LogRepository $logRepository,
-        private readonly ModuleFactory $slaveFactory,
+        private readonly ModuleFactory $moduleFactory,
         LoggerInterface $logger,
         ModelManager $modelManager
     ) {
@@ -207,7 +207,7 @@ abstract class AbstractHcModule extends AbstractModule
         if ($typeId !== $slave->getTypeId()) {
             $slave->setType($this->typeRepository->getById($typeId));
 
-            return $this->slaveFactory->get($slave->getType()->getHelper())
+            return $this->moduleFactory->get($slave->getType()->getHelper())
                 ->handshake($slave)
             ;
         }
@@ -504,7 +504,7 @@ abstract class AbstractHcModule extends AbstractModule
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::AFTER_WRITE_TYPE_ID, ['slave' => $slave, 'typeId' => $type->getId()]);
 
         $slave->setType($type);
-        $slaveService = $this->slaveFactory->get($type->getHelper());
+        $slaveService = $this->moduleFactory->get($type->getHelper());
         $slaveService->handshake($slave);
 
         return $slaveService;

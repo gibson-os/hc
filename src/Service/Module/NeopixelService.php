@@ -72,7 +72,7 @@ class NeopixelService extends AbstractHcModule
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
         LogRepository $logRepository,
-        ModuleFactory $slaveFactory,
+        ModuleFactory $moduleFactory,
         LoggerInterface $logger,
         ModelManager $modelManager,
         private readonly LedMapper $ledMapper,
@@ -88,7 +88,7 @@ class NeopixelService extends AbstractHcModule
             $typeRepository,
             $masterRepository,
             $logRepository,
-            $slaveFactory,
+            $moduleFactory,
             $logger,
             $modelManager
         );

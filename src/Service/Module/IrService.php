@@ -36,7 +36,7 @@ class IrService extends AbstractHcModule
         TypeRepository $typeRepository,
         MasterRepository $masterRepository,
         LogRepository $logRepository,
-        ModuleFactory $slaveFactory,
+        ModuleFactory $moduleFactory,
         LoggerInterface $logger,
         ModelManager $modelManager,
         private readonly IrFormatter $irFormatter
@@ -49,7 +49,7 @@ class IrService extends AbstractHcModule
             $typeRepository,
             $masterRepository,
             $logRepository,
-            $slaveFactory,
+            $moduleFactory,
             $logger,
             $modelManager
         );

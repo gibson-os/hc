@@ -114,7 +114,7 @@ class AbstractHcSlaveTest extends AbstractTest
                 TypeRepository $typeRepository,
                 MasterRepository $masterRepository,
                 LogRepository $logRepository,
-                ModuleFactory $slaveFactory,
+                ModuleFactory $moduleFactory,
                 LoggerInterface $logger,
                 ModelManager $modelManager,
                 Module $slave
@@ -127,7 +127,7 @@ class AbstractHcSlaveTest extends AbstractTest
                     $typeRepository,
                     $masterRepository,
                     $logRepository,
-                    $slaveFactory,
+                    $moduleFactory,
                     $logger,
                     $modelManager
                 );
