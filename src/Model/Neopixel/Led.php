@@ -9,6 +9,7 @@ use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use JsonSerializable;
 
 /**
@@ -40,8 +41,14 @@ class Led extends AbstractModel implements JsonSerializable
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $moduleId;
 
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private ?int $boxId;
+
     #[Constraint]
     protected Module $module;
+
+    #[Constraint]
+    protected Box $box;
 
     public function getId(): ?int
     {
