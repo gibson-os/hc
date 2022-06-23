@@ -2,6 +2,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.App', {
     extend: 'GibsonOS.App',
     alias: ['widget.gosModuleHcIrRemoteApp'],
     title: 'Fernbedienung',
+    y: 20,
     appIcon: 'icon_remotecontrol',
     requiredPermission: {
         module: 'hc',
