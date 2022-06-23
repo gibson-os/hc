@@ -13,10 +13,6 @@ Ext.define('GibsonOS.module.hc.warehouse.App', {
         let me = this;
 
         me.items = [{
-            requiredPermission: {
-                module: 'hc',
-                task: 'neopixel'
-            },
             xtype: 'gosModuleHcWarehouseBoxPanel',
             title: 'Boxen',
             hcModuleId: me.gos.data.module.id

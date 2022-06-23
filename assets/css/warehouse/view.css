@@ -1,0 +1,8 @@
+.hcWarehouseBox {
+    border: 1px solid #000;
+}
+
+.hcWarehouseBoxSelected {
+    box-shadow: #FFF 0 0 30px 5px;
+    user-select: none;
+}
