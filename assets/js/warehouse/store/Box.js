@@ -1,6 +1,6 @@
-Ext.define('GibsonOS.module.hc.warehouse.store.View', {
+Ext.define('GibsonOS.module.hc.warehouse.store.Box', {
     extend: 'GibsonOS.data.Store',
-    alias: ['store.gosModuleHcWarehouseViewStore'],
+    alias: ['store.gosModuleHcWarehouseBoxStore'],
     model: 'GibsonOS.module.hc.warehouse.model.Box',
     autoLoad: true,
     constructor: function(data) {

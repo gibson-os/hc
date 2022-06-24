@@ -37,6 +37,9 @@ Ext.define('GibsonOS.module.hc.warehouse.model.Box', {
         name: 'files',
         type: 'array'
     },{
+        name: 'codes',
+        type: 'array'
+    },{
         name: 'tags',
         type: 'array'
     }]

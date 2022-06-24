@@ -12,7 +12,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.View', {
     initComponent() {
         const me = this;
 
-        me.store = new GibsonOS.module.hc.warehouse.store.View({
+        me.store = new GibsonOS.module.hc.warehouse.store.Box({
             moduleId: me.moduleId
         });
 

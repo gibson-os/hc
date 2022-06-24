@@ -116,5 +116,46 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
                     break;
             }
         });
+        me.viewItem.on('selectionchange', (view, records) => {
+            const form = me.down('form');
+            const tagStore = me.down('gosModuleHcWarehouseBoxTagGrid').getStore();
+            const codeStore = me.down('gosModuleHcWarehouseBoxCodeGrid').getStore();
+            const linkStore = me.down('gosModuleHcWarehouseBoxLinkGrid').getStore();
+            const fileStore = me.down('gosModuleHcWarehouseBoxFileGrid').getStore();
+            const ledStore = me.down('gosModuleHcWarehouseBoxLedGrid').getStore();
+
+            tagStore.removeAll();
+            codeStore.removeAll();
+            linkStore.removeAll();
+            fileStore.removeAll();
+            ledStore.removeAll();
+
+            if (records.length !== 1) {
+                form.disable();
+                form.loadRecord(new GibsonOS.module.hc.warehouse.model.Box());
+
+                return;
+            }
+
+            form.loadRecord(records[0]);
+
+            Ext.iterate(records[0].get('tags'), (tag) => {
+                tagStore.add(tag.tag);
+            });
+            Ext.iterate(records[0].get('codes'), (code) => {
+                tagStore.add(code);
+            });
+            Ext.iterate(records[0].get('links'), (link) => {
+                linkStore.add(link);
+            });
+            Ext.iterate(records[0].get('files'), (file) => {
+                fileStore.add(file);
+            });
+            Ext.iterate(records[0].get('leds'), (led) => {
+                ledStore.add(led);
+            });
+
+            form.enable();
+        });
     }
 });

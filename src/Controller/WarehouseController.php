@@ -30,4 +30,9 @@ class WarehouseController extends AbstractController
 
         return $this->returnSuccess($boxStore->getList(), $boxStore->getCount());
     }
+
+    public function save(): AjaxResponse
+    {
+        return $this->returnSuccess();
+    }
 }

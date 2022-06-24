@@ -8,8 +8,6 @@ Ext.define('GibsonOS.module.hc.ir.remote.Form', {
     initComponent() {
         const me = this;
 
-        // Keys
-        // Event
         me.items = [{
             xtype: 'gosCoreComponentFormFieldTextField',
             fieldLabel: 'Name',
