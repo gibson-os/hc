@@ -1,8 +1,29 @@
 .hcWarehouseBox {
+    cursor: pointer;
+    position: absolute;
+    color: #000;
+    padding: 5px;
     border: 1px solid #000;
+    background: #FFF;
+    user-select: none;
 }
 
 .hcWarehouseBoxSelected {
-    box-shadow: #FFF 0 0 30px 5px;
-    user-select: none;
+    background: #DDD;
+}
+
+.hcWarehouseBoxHover {
+    background: #EEE;
+}
+
+.hcWarehouseBoxName {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: clip;
+}
+
+.hcWarehouseBoxInfo {
+    bottom: 6px;
+    position: absolute;
+    right: 6px;
 }

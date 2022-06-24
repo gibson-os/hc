@@ -28,7 +28,12 @@ Ext.define('GibsonOS.module.hc.warehouse.box.View', {
                         'width: {width*' + me.gridSize + '}px; ',
                         'height: {height*' + me.gridSize + '}px;',
                         '">',
-                    '{name}',
+                    '<div class="hcWarehouseBoxName">{name}</div>',
+                    '<img src="{image}" alt="{name}" />',
+                    '<div class="hcWarehouseBoxInfo">',
+                        '<div class="hcWarehouseBoxTags">{tags}</div>',
+                        '<div class="hcWarehouseBoxStock">{stock}</div>',
+                    '</div>',
                 '</div>',
             '</tpl>'
         );

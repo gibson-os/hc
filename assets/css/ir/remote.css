@@ -4,9 +4,9 @@
     color: #000;
     text-align: center;
     padding: 5px;
+    user-select: none;
 }
 
 .hcIrRemoteKeySelected {
     box-shadow: #FFF 0 0 30px 5px;
-    user-select: none;
 }
