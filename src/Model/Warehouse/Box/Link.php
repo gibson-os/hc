@@ -16,6 +16,7 @@ use JsonSerializable;
  * @method Box  getBox()
  */
 #[Table]
+#[Key(unique: true, columns: ['box_id', 'name'])]
 #[Key(unique: true, columns: ['box_id', 'url'])]
 class Link extends AbstractModel implements JsonSerializable
 {

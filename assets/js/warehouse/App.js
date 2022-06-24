@@ -15,7 +15,7 @@ Ext.define('GibsonOS.module.hc.warehouse.App', {
         me.items = [{
             xtype: 'gosModuleHcWarehouseBoxPanel',
             title: 'Boxen',
-            hcModuleId: me.gos.data.module.id
+            moduleId: me.gos.data.module.id
         },{
             requiredPermission: {
                 module: 'hc',

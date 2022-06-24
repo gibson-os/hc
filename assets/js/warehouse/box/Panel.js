@@ -41,7 +41,8 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             region: 'east',
             disabled: true,
             flex: 0,
-            width: 300
+            width: 300,
+            moduleId: me.moduleId
         }];
 
         me.callParent();

@@ -8,6 +8,7 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use JsonSerializable;
@@ -19,7 +20,7 @@ use JsonSerializable;
 #[Table]
 #[Key(unique: true, columns: ['module_id', 'number'])]
 #[Key(columns: ['module_id', 'channel'])]
-class Led extends AbstractModel implements JsonSerializable
+class Led extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     use LedTrait;
 
@@ -136,5 +137,10 @@ class Led extends AbstractModel implements JsonSerializable
             'fadeIn' => $this->getFadeIn(),
             'blink' => $this->getBlink(),
         ];
+    }
+
+    public function getAutoCompleteId(): int
+    {
+        return $this->getId() ?? 0;
     }
 }

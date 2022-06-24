@@ -97,4 +97,30 @@ class LedRepository extends AbstractRepository
             throw $exception;
         }
     }
+
+    /**
+     * @throws SelectError
+     */
+    public function getById(int $moduleId, int $id): Led
+    {
+        return $this->fetchOne(
+            '`module_id`=? AND `id`=?',
+            [$moduleId, $id],
+            Led::class
+        );
+    }
+
+    /**
+     * @throws SelectError
+     *
+     * @return Led[]
+     */
+    public function findByNumber(int $moduleId, string $name): array
+    {
+        return $this->fetchAll(
+            '`module_id`=? AND `number` REGEXP ?',
+            [$moduleId, $this->getRegexString($name)],
+            Led::class
+        );
+    }
 }

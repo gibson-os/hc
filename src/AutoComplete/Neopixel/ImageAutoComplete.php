@@ -34,9 +34,4 @@ class ImageAutoComplete implements AutoCompleteInterface
     {
         return 'GibsonOS.module.hc.neopixel.model.Image';
     }
-
-    public function getParameters(): array
-    {
-        return [];
-    }
 }

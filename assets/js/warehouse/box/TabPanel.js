@@ -7,20 +7,67 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
         const me = this;
 
         me.items = [{
-            xtype: 'gosModuleHcWarehouseBoxTagGrid',
-            title: 'Tags'
+            xtype: 'gosCoreComponentFormPanel',
+            title: 'Tags',
+            items: [{
+                xtype: 'gosModuleCoreParameterTypeAutoComplete',
+                fieldLabel: 'Tag',
+                name: 'ledId',
+                parameterObject: {
+                    config: {
+                        model: 'GibsonOS.module.hc.warehouse.model.Tag',
+                        autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Warehouse\\TagAutoComplete',
+                    }
+                }
+            },{
+                xtype: 'gosModuleHcWarehouseBoxTagGrid',
+            }]
         },{
-            xtype: 'gosModuleHcWarehouseBoxCodeGrid',
-            title: 'Codes'
+            xtype: 'gosCoreComponentFormPanel',
+            title: 'Codes',
+            items: [{
+                xtype: 'gosModuleHcWarehouseBoxCodeGrid',
+            }]
         },{
-            xtype: 'gosModuleHcWarehouseBoxLinkGrid',
-            title: 'Links'
+            xtype: 'gosCoreComponentFormPanel',
+            title: 'Links',
+            items: [{
+                xtype: 'gosCoreComponentFormFieldTextField',
+                fieldLabel: 'Name',
+                name: 'name'
+            },{
+                xtype: 'gosCoreComponentFormFieldTextField',
+                fieldLabel: 'URL',
+                name: 'url'
+            },{
+                xtype: 'gosModuleHcWarehouseBoxLinkGrid',
+            }]
         },{
-            xtype: 'gosModuleHcWarehouseBoxFileGrid',
-            title: 'Dateien'
+            xtype: 'gosCoreComponentFormPanel',
+            title: 'Dateien',
+            items: [{
+                xtype: 'gosModuleHcWarehouseBoxFileGrid',
+            }]
         },{
-            xtype: 'gosModuleHcWarehouseBoxLedGrid',
-            title: 'LEDs'
+            xtype: 'gosCoreComponentFormPanel',
+            title: 'LEDs',
+            items: [{
+                xtype: 'gosModuleCoreParameterTypeAutoComplete',
+                fieldLabel: 'LED',
+                name: 'ledId',
+                displayField: 'number',
+                parameterObject: {
+                    config: {
+                        model: 'GibsonOS.module.hc.neopixel.model.Led',
+                        autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Neopixel\\LedAutoComplete',
+                        parameters: {
+                            moduleId: me.moduleId
+                        }
+                    }
+                }
+            },{
+                xtype: 'gosModuleHcWarehouseBoxLedGrid',
+            }]
         }];
 
         me.callParent();

@@ -34,9 +34,4 @@ class AnimationAutoComplete implements AutoCompleteInterface
     {
         return 'GibsonOS.module.hc.neopixel.model.Animation';
     }
-
-    public function getParameters(): array
-    {
-        return [];
-    }
 }

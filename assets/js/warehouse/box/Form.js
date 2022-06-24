@@ -34,7 +34,8 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Form', {
             minValue: 1,
             maxValue: 25
         },{
-            xtype: 'gosModuleHcWarehouseBoxTabPanel'
+            xtype: 'gosModuleHcWarehouseBoxTabPanel',
+            moduleId: me.moduleId
         }];
 
         me.callParent();
