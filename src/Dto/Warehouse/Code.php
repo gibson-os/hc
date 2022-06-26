@@ -10,4 +10,5 @@ enum Code: string
     case ASIN = 'asin';
     case MPNR = 'mpnr';
     case SMD = 'smd';
+    case ISBN = 'isbn';
 }

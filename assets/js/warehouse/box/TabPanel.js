@@ -20,7 +20,22 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
                     }
                 }
             },{
-                xtype: 'gosModuleHcWarehouseBoxTagGrid'
+                xtype: 'gosModuleHcWarehouseBoxTagGrid',
+                addButton: {
+                    disabled: true
+                },
+                addFunction() {
+                    const tagField = me.down('#tag');
+                    let record = tagField.findRecordByDisplay(tagField.getRawValue());
+
+                    if (!record) {
+                        record = new GibsonOS.module.hc.warehouse.model.Tag({
+                            name: tagField.getRawValue()
+                        });
+                    }
+
+                    me.down('gosModuleHcWarehouseBoxTagGrid').getStore().add(record);
+                }
             }]
         },{
             xtype: 'gosCoreComponentFormPanel',
@@ -90,6 +105,12 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
         }];
 
         me.callParent();
+
+        me.down('#tag').on('change', (field) => {
+            me.down('gosModuleHcWarehouseBoxTagGrid').down('#addButton').setDisabled(
+                field.getValue().length === 0
+            );
+        });
 
         me.down('#linkName').on('change', (field) => {
             me.down('gosModuleHcWarehouseBoxLinkGrid').down('#addButton').setDisabled(
