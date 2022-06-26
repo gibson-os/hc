@@ -12,7 +12,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
             items: [{
                 xtype: 'gosModuleCoreParameterTypeAutoComplete',
                 fieldLabel: 'Tag',
-                name: 'ledId',
+                itemId: 'tag',
                 parameterObject: {
                     config: {
                         model: 'GibsonOS.module.hc.warehouse.model.Tag',
@@ -20,13 +20,13 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
                     }
                 }
             },{
-                xtype: 'gosModuleHcWarehouseBoxTagGrid',
+                xtype: 'gosModuleHcWarehouseBoxTagGrid'
             }]
         },{
             xtype: 'gosCoreComponentFormPanel',
             title: 'Codes',
             items: [{
-                xtype: 'gosModuleHcWarehouseBoxCodeGrid',
+                xtype: 'gosModuleHcWarehouseBoxCodeGrid'
             }]
         },{
             xtype: 'gosCoreComponentFormPanel',
@@ -34,19 +34,29 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
             items: [{
                 xtype: 'gosCoreComponentFormFieldTextField',
                 fieldLabel: 'Name',
-                name: 'name'
+                itemId: 'linkName'
             },{
                 xtype: 'gosCoreComponentFormFieldTextField',
                 fieldLabel: 'URL',
-                name: 'url'
+                itemId: 'url',
+                vtype: 'url'
             },{
                 xtype: 'gosModuleHcWarehouseBoxLinkGrid',
+                addButton: {
+                    disabled: true
+                },
+                addFunction() {
+                    me.down('gosModuleHcWarehouseBoxLinkGrid').getStore().add(new GibsonOS.module.hc.warehouse.model.Link({
+                        name: me.down('#linkName').getValue(),
+                        url: me.down('#url').getValue()
+                    }));
+                }
             }]
         },{
             xtype: 'gosCoreComponentFormPanel',
             title: 'Dateien',
             items: [{
-                xtype: 'gosModuleHcWarehouseBoxFileGrid',
+                xtype: 'gosModuleHcWarehouseBoxFileGrid'
             }]
         },{
             xtype: 'gosCoreComponentFormPanel',
@@ -54,7 +64,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
             items: [{
                 xtype: 'gosModuleCoreParameterTypeAutoComplete',
                 fieldLabel: 'LED',
-                name: 'ledId',
+                itemId: 'led',
                 displayField: 'number',
                 parameterObject: {
                     config: {
@@ -67,9 +77,36 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
                 }
             },{
                 xtype: 'gosModuleHcWarehouseBoxLedGrid',
+                addButton: {
+                    disabled: true
+                },
+                addFunction() {
+                    const ledField = me.down('#led');
+                    me.down('gosModuleHcWarehouseBoxLedGrid').getStore().add(
+                        ledField.findRecordByValue(ledField.getValue())
+                    );
+                }
             }]
         }];
 
         me.callParent();
+
+        me.down('#linkName').on('change', (field) => {
+            me.down('gosModuleHcWarehouseBoxLinkGrid').down('#addButton').setDisabled(
+                field.getValue().length === 0 || me.down('#url').getValue().length === 0 || !me.down('#url').isValid()
+            );
+        });
+        me.down('#url').on('change', (field) => {
+            me.down('gosModuleHcWarehouseBoxLinkGrid').down('#addButton').setDisabled(
+                field.getValue().length === 0 || me.down('#linkName').getValue().length === 0 || !field.isValid()
+            );
+        });
+
+        me.down('#led').on('change', () => {
+            me.down('gosModuleHcWarehouseBoxLedGrid').down('#addButton').disable();
+        });
+        me.down('#led').on('select', () => {
+            me.down('gosModuleHcWarehouseBoxLedGrid').down('#addButton').enable();
+        });
     }
 });
