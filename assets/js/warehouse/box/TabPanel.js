@@ -60,10 +60,10 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
                     disabled: true
                 },
                 addFunction() {
-                    me.down('gosModuleHcWarehouseBoxCodeGrid').getStore().add(new GibsonOS.module.hc.warehouse.model.Code({
+                    me.down('gosModuleHcWarehouseBoxCodeGrid').getStore().add({
                         type: me.down('#codeType').getValue(),
                         code: me.down('#code').getValue()
-                    }));
+                    });
                 }
             }]
         },{
@@ -84,10 +84,10 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
                     disabled: true
                 },
                 addFunction() {
-                    me.down('gosModuleHcWarehouseBoxLinkGrid').getStore().add(new GibsonOS.module.hc.warehouse.model.Link({
+                    me.down('gosModuleHcWarehouseBoxLinkGrid').getStore().add({
                         name: me.down('#linkName').getValue(),
                         url: me.down('#url').getValue()
-                    }));
+                    });
                 }
             }]
         },{
@@ -158,6 +158,26 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
             me.down('gosModuleHcWarehouseBoxLinkGrid').down('#addButton').setDisabled(
                 field.getValue().length === 0 || me.down('#linkName').getValue().length === 0 || !field.isValid()
             );
+        });
+
+        me.down('gosModuleHcWarehouseBoxFileGrid').on('render', () => {
+            const element = me.getEl().dom;
+            const stopEvents = (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+            };
+            element.ondragover = stopEvents;
+            element.ondrageleave = stopEvents;
+            element.ondrop = (event) => {
+                stopEvents(event);
+
+                Ext.iterate(event.dataTransfer.files, (file) => {
+                    me.down('gosModuleHcWarehouseBoxFileGrid').getStore().add({
+                        name: file.name,
+                        file: file
+                    });
+                });
+            };
         });
 
         me.down('#led').on('change', () => {

@@ -11,7 +11,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.link.Grid', {
         const me = this;
 
         me.store = new Ext.data.ArrayStore({
-            model: 'GibsonOS.module.warehouse.box.model.Link'
+            model: 'GibsonOS.module.hc.warehouse.model.Link'
         })
 
         me.callParent();

@@ -11,7 +11,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.file.Grid', {
         const me = this;
 
         me.store = new Ext.data.ArrayStore({
-            model: 'GibsonOS.module.warehouse.box.model.File'
+            model: 'GibsonOS.module.hc.warehouse.model.File'
         })
 
         me.callParent();

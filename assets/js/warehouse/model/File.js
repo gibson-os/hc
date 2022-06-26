@@ -6,5 +6,9 @@ Ext.define('GibsonOS.module.hc.warehouse.model.File', {
     },{
         name: 'name',
         type: 'string'
+    },{
+        name: 'file',
+        type: 'object',
+        useNull: true
     }]
 });
