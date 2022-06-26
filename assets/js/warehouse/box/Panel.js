@@ -16,12 +16,12 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             }
         });
 
-        store.add(new GibsonOS.module.hc.warehouse.model.Box({
+        store.add({
             left: 0,
             top: maxTop,
             width: 3,
             height: 2
-        }));
+        });
     },
     deleteFunction(records) {
         this.viewItem.getStore().remove(records);
@@ -180,11 +180,30 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             if (records.length !== 1) {
                 form.disable();
                 form.loadRecord(new GibsonOS.module.hc.warehouse.model.Box());
+                me.down('#image').update({
+                    name: '',
+                    image: '',
+                    src: '',
+                });
+                me.down('#codeImage').update({
+                    name: '',
+                    code: ''
+                });
 
                 return;
             }
 
             form.loadRecord(records[0]);
+
+            me.down('#image').update({
+                name: records[0].get('name'),
+                image: records[0].get('image'),
+                src: ''
+            });
+            me.down('#codeImage').update({
+                name: records[0].get('name'),
+                code: records[0].get('code')
+            });
 
             Ext.iterate(records[0].get('tags'), (tag) => {
                 tagStore.add(tag.tag);
