@@ -21,6 +21,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
                 }
             },{
                 xtype: 'gosModuleHcWarehouseBoxTagGrid',
+                itemId: 'tags',
                 addButton: {
                     disabled: true
                 },
@@ -29,9 +30,9 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
                     let record = tagField.findRecordByDisplay(tagField.getRawValue());
 
                     if (!record) {
-                        record = new GibsonOS.module.hc.warehouse.model.Tag({
+                        record = {
                             name: tagField.getRawValue()
-                        });
+                        };
                     }
 
                     me.down('gosModuleHcWarehouseBoxTagGrid').getStore().add(record);
@@ -56,6 +57,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
                 itemId: 'code'
             },{
                 xtype: 'gosModuleHcWarehouseBoxCodeGrid',
+                itemId: 'codes',
                 addButton: {
                     disabled: true
                 },
@@ -80,6 +82,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
                 vtype: 'url'
             },{
                 xtype: 'gosModuleHcWarehouseBoxLinkGrid',
+                itemId: 'links',
                 addButton: {
                     disabled: true
                 },
@@ -94,7 +97,8 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
             xtype: 'gosCoreComponentFormPanel',
             title: 'Dateien',
             items: [{
-                xtype: 'gosModuleHcWarehouseBoxFileGrid'
+                xtype: 'gosModuleHcWarehouseBoxFileGrid',
+                itemId: 'files'
             }]
         },{
             xtype: 'gosCoreComponentFormPanel',
@@ -115,6 +119,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
                 }
             },{
                 xtype: 'gosModuleHcWarehouseBoxLedGrid',
+                itemId: 'leds',
                 addButton: {
                     disabled: true
                 },

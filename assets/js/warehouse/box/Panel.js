@@ -47,6 +47,46 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
 
         me.callParent();
 
+        me.down('form').getForm().getFields().each((field) => {
+            field.on('change', (field, value) => {
+                const keys = me.viewItem.getSelectionModel().getSelection();
+
+                if (keys.length !== 1) {
+                    return;
+                }
+
+                keys[0].set(field.name, value);
+            });
+        });
+        me.down('gosModuleHcWarehouseBoxTabPanel').items.each((formPanel) => {
+            const grid = formPanel.down('grid');
+            const storeChangeFunction = (store) => {
+                const keys = me.viewItem.getSelectionModel().getSelection();
+
+                if (keys.length !== 1) {
+                    return;
+                }
+
+                let records = [];
+
+                store.each((record) => {
+                    record = record.getData();
+
+                    if (grid.itemId === 'tags') {
+                        record = {tag: record};
+                    } else if (grid.itemId === 'leds') {
+                        record = {led: record};
+                    }
+
+                    records.push(record);
+                });
+
+                keys[0].set(grid.itemId, records);
+            };
+
+            grid.getStore().on('add', storeChangeFunction);
+            grid.getStore().on('remove', storeChangeFunction);
+        });
         me.viewItem.on('render', function() {
             me.viewItem.dragZone = Ext.create('Ext.dd.DragZone', me.viewItem.getEl(), {
                 getDragData: function(event) {
@@ -144,7 +184,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
                 tagStore.add(tag.tag);
             });
             Ext.iterate(records[0].get('codes'), (code) => {
-                tagStore.add(code);
+                codeStore.add(code);
             });
             Ext.iterate(records[0].get('links'), (link) => {
                 linkStore.add(link);
