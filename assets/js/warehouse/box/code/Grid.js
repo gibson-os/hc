@@ -18,12 +18,12 @@ Ext.define('GibsonOS.module.hc.warehouse.box.code.Grid', {
     },
     getColumns() {
         return [{
-            header: 'Name',
-            dataIndex: 'name',
-            flex: 1
-        },{
             header: 'Typ',
             dataIndex: 'type',
+            flex: 1
+        },{
+            header: 'Code',
+            dataIndex: 'code',
             flex: 1
         }];
     }

@@ -1,13 +1,10 @@
-Ext.define('GibsonOS.module.hc.warehouse.model.Code', {
+Ext.define('GibsonOS.module.hc.warehouse.model.CodeType', {
     extend: 'GibsonOS.data.Model',
     fields: [{
         name: 'id',
-        type: 'int'
-    },{
-        name: 'code',
         type: 'string'
     },{
-        name: 'type',
+        name: 'name',
         type: 'string'
     }]
 });

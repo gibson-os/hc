@@ -41,7 +41,30 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
             xtype: 'gosCoreComponentFormPanel',
             title: 'Codes',
             items: [{
-                xtype: 'gosModuleHcWarehouseBoxCodeGrid'
+                xtype: 'gosModuleCoreParameterTypeAutoComplete',
+                fieldLabel: 'Type',
+                itemId: 'codeType',
+                parameterObject: {
+                    config: {
+                        model: 'GibsonOS.module.hc.warehouse.model.CodeType',
+                        autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Warehouse\\CodeTypeAutoComplete'
+                    }
+                }
+            },{
+                xtype: 'gosCoreComponentFormFieldTextField',
+                fieldLabel: 'Code',
+                itemId: 'code'
+            },{
+                xtype: 'gosModuleHcWarehouseBoxCodeGrid',
+                addButton: {
+                    disabled: true
+                },
+                addFunction() {
+                    me.down('gosModuleHcWarehouseBoxCodeGrid').getStore().add(new GibsonOS.module.hc.warehouse.model.Code({
+                        type: me.down('#codeType').getValue(),
+                        code: me.down('#code').getValue()
+                    }));
+                }
             }]
         },{
             xtype: 'gosCoreComponentFormPanel',
@@ -109,6 +132,20 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
         me.down('#tag').on('change', (field) => {
             me.down('gosModuleHcWarehouseBoxTagGrid').down('#addButton').setDisabled(
                 field.getValue().length === 0
+            );
+        });
+
+        me.down('#codeType').on('change', () => {
+            me.down('gosModuleHcWarehouseBoxCodeGrid').down('#addButton').disable();
+        });
+        me.down('#codeType').on('select', () => {
+            me.down('gosModuleHcWarehouseBoxCodeGrid').down('#addButton').setDisabled(
+                me.down('#code').getValue().length === 0
+            );
+        });
+        me.down('#code').on('change', (field) => {
+            me.down('gosModuleHcWarehouseBoxCodeGrid').down('#addButton').setDisabled(
+                field.getValue().length === 0 || !me.down('#codeType').findRecordByDisplay(me.down('#codeType').getValue())
             );
         });
 

@@ -5,10 +5,10 @@ namespace GibsonOS\Module\Hc\Dto\Warehouse;
 
 enum Code: string
 {
-    case EAN = 'ean';
-    case GTIN = 'gtin';
-    case ASIN = 'asin';
-    case MPNR = 'mpnr';
-    case SMD = 'smd';
-    case ISBN = 'isbn';
+    case EAN = 'EAN';
+    case GTIN = 'GTIN';
+    case ASIN = 'ASIN';
+    case MPNR = 'MPNR';
+    case SMD = 'SMD';
+    case ISBN = 'ISBN';
 }
