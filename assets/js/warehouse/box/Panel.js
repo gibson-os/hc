@@ -170,6 +170,12 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             linkStore.removeAll();
             fileStore.removeAll();
             ledStore.removeAll();
+            me.down('#tag').setValue('');
+            me.down('#codeType').setValue(null);
+            me.down('#code').setValue('');
+            me.down('#linkName').setValue('');
+            me.down('#url').setValue('');
+            me.down('#led').setValue(null);
 
             if (records.length !== 1) {
                 form.disable();
