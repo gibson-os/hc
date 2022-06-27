@@ -37,7 +37,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
         });
 
         me.items = [me.viewItem, {
-            xtype: 'gosModuleHcWarehouseBoxForm',
+            xtype: 'gosModuleHcWarehouseBoxTabPanel',
             region: 'east',
             disabled: true,
             flex: 0,
@@ -58,35 +58,35 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
                 keys[0].set(field.name, value);
             });
         });
-        me.down('gosModuleHcWarehouseBoxTabPanel').items.each((formPanel) => {
-            const grid = formPanel.down('grid');
-            const storeChangeFunction = (store) => {
-                const keys = me.viewItem.getSelectionModel().getSelection();
-
-                if (keys.length !== 1) {
-                    return;
-                }
-
-                let records = [];
-
-                store.each((record) => {
-                    record = record.getData();
-
-                    if (grid.itemId === 'tags') {
-                        record = {tag: record};
-                    } else if (grid.itemId === 'leds') {
-                        record = {led: record};
-                    }
-
-                    records.push(record);
-                });
-
-                keys[0].set(grid.itemId, records);
-            };
-
-            grid.getStore().on('add', storeChangeFunction);
-            grid.getStore().on('remove', storeChangeFunction);
-        });
+        // me.down('gosModuleHcWarehouseBoxItemTabPanel').items.each((formPanel) => {
+        //     const grid = formPanel.down('grid');
+        //     const storeChangeFunction = (store) => {
+        //         const keys = me.viewItem.getSelectionModel().getSelection();
+        //
+        //         if (keys.length !== 1) {
+        //             return;
+        //         }
+        //
+        //         let records = [];
+        //
+        //         store.each((record) => {
+        //             record = record.getData();
+        //
+        //             if (grid.itemId === 'tags') {
+        //                 record = {tag: record};
+        //             } else if (grid.itemId === 'leds') {
+        //                 record = {led: record};
+        //             }
+        //
+        //             records.push(record);
+        //         });
+        //
+        //         keys[0].set(grid.itemId, records);
+        //     };
+        //
+        //     grid.getStore().on('add', storeChangeFunction);
+        //     grid.getStore().on('remove', storeChangeFunction);
+        // });
         me.viewItem.on('render', function() {
             me.viewItem.dragZone = Ext.create('Ext.dd.DragZone', me.viewItem.getEl(), {
                 getDragData: function(event) {
@@ -158,70 +158,93 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             }
         });
         me.viewItem.on('selectionchange', (view, records) => {
-            const form = me.down('form');
-            const tagStore = me.down('gosModuleHcWarehouseBoxTagGrid').getStore();
-            const codeStore = me.down('gosModuleHcWarehouseBoxCodeGrid').getStore();
-            const linkStore = me.down('gosModuleHcWarehouseBoxLinkGrid').getStore();
-            const fileStore = me.down('gosModuleHcWarehouseBoxFileGrid').getStore();
-            const ledStore = me.down('gosModuleHcWarehouseBoxLedGrid').getStore();
-
-            tagStore.removeAll();
-            codeStore.removeAll();
-            linkStore.removeAll();
-            fileStore.removeAll();
-            ledStore.removeAll();
-            me.down('#tag').setValue('');
-            me.down('#codeType').setValue(null);
-            me.down('#code').setValue('');
-            me.down('#linkName').setValue('');
-            me.down('#url').setValue('');
-            me.down('#led').setValue(null);
+            const tabPanel = me.down('tabpanel');
+            tabPanel.removeAll();
+            const defaultForm = tabPanel.add(tabPanel.getDefaultTab());
 
             if (records.length !== 1) {
-                form.disable();
-                form.loadRecord(new GibsonOS.module.hc.warehouse.model.Box());
-                me.down('#image').update({
-                    name: '',
-                    image: '',
-                    src: '',
-                });
-                me.down('#codeImage').update({
-                    name: '',
-                    code: ''
-                });
+                tabPanel.disable();
 
                 return;
             }
 
-            form.loadRecord(records[0]);
+            const record = records[0];
+            defaultForm.loadRecord(record);
 
-            me.down('#image').update({
-                name: records[0].get('name'),
-                image: records[0].get('image'),
-                src: ''
-            });
-            me.down('#codeImage').update({
-                name: records[0].get('name'),
-                code: records[0].get('code')
-            });
+            console.log(record);
 
-            Ext.iterate(records[0].get('tags'), (tag) => {
-                tagStore.add(tag.tag);
-            });
-            Ext.iterate(records[0].get('codes'), (code) => {
-                codeStore.add(code);
-            });
-            Ext.iterate(records[0].get('links'), (link) => {
-                linkStore.add(link);
-            });
-            Ext.iterate(records[0].get('files'), (file) => {
-                fileStore.add(file);
-            });
-            Ext.iterate(records[0].get('leds'), (led) => {
-                ledStore.add(led);
+            if (record.get('items').length === 0) {
+                tabPanel.add(tabPanel.getItemTab());
+            }
+
+            Ext.iterate(record.get('items'), (item) => {
+                const itemPanel = tabPanel.getItemTab(new GibsonOS.module.hc.warehouse.model.box.Item(item));
             });
 
-            form.enable();
+            // const form = tabPanel.down('form');
+            // const tagStore = me.down('gosModuleHcWarehouseBoxItemTagGrid').getStore();
+            // const codeStore = me.down('gosModuleHcWarehouseBoxItemCodeGrid').getStore();
+            // const linkStore = me.down('gosModuleHcWarehouseBoxItemLinkGrid').getStore();
+            // const fileStore = me.down('gosModuleHcWarehouseBoxItemFileGrid').getStore();
+            // const ledStore = me.down('gosModuleHcWarehouseBoxLedGrid').getStore();
+            //
+            // tagStore.removeAll();
+            // codeStore.removeAll();
+            // linkStore.removeAll();
+            // fileStore.removeAll();
+            // ledStore.removeAll();
+            // me.down('#tag').setValue('');
+            // me.down('#codeType').setValue(null);
+            // me.down('#code').setValue('');
+            // me.down('#linkName').setValue('');
+            // me.down('#url').setValue('');
+            // me.down('#led').setValue(null);
+            //
+            // if (records.length !== 1) {
+            //     tabPanel.disable();
+            //     form.loadRecord(new GibsonOS.module.hc.warehouse.model.Box());
+            //     me.down('#image').update({
+            //         name: '',
+            //         image: '',
+            //         src: '',
+            //     });
+            //     me.down('#uuid').update({
+            //         name: '',
+            //         uuid: ''
+            //     });
+            //
+            //     return;
+            // }
+            //
+            // form.loadRecord(records[0]);
+            //
+            // me.down('#image').update({
+            //     name: records[0].get('name'),
+            //     image: records[0].get('image'),
+            //     src: ''
+            // });
+            // me.down('#uuid').update({
+            //     name: records[0].get('name'),
+            //     uuid: records[0].get('uuid')
+            // });
+            //
+            // Ext.iterate(records[0].get('tags'), (tag) => {
+            //     tagStore.add(tag.tag);
+            // });
+            // Ext.iterate(records[0].get('codes'), (code) => {
+            //     codeStore.add(code);
+            // });
+            // Ext.iterate(records[0].get('links'), (link) => {
+            //     linkStore.add(link);
+            // });
+            // Ext.iterate(records[0].get('files'), (file) => {
+            //     fileStore.add(file);
+            // });
+            // Ext.iterate(records[0].get('leds'), (led) => {
+            //     ledStore.add(led);
+            // });
+
+            tabPanel.enable();
         });
     }
 });

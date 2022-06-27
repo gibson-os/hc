@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Model\Warehouse\Box;
+namespace GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
@@ -9,22 +9,22 @@ use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Dto\Warehouse\Code as CodeType;
-use GibsonOS\Module\Hc\Model\Warehouse\Box;
+use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use JsonSerializable;
 
 /**
- * @method Link setBox(Box $box)
- * @method Box  getBox()
+ * @method Link setItem(Item $item)
+ * @method Item getItem()
  */
 #[Table]
-#[Key(unique: true, columns: ['box_id', 'type', 'code'])]
+#[Key(unique: true, columns: ['item_id', 'type', 'code'])]
 class Code extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $boxId;
+    private int $itemId;
 
     #[Column]
     private CodeType $type;
@@ -33,7 +33,7 @@ class Code extends AbstractModel implements JsonSerializable
     private string $code;
 
     #[Constraint]
-    protected Box $box;
+    protected Item $item;
 
     public function getId(): ?int
     {
@@ -47,14 +47,14 @@ class Code extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getBoxId(): int
+    public function getItemId(): int
     {
-        return $this->boxId;
+        return $this->itemId;
     }
 
-    public function setBoxId(int $boxId): Code
+    public function setItemId(int $itemId): Code
     {
-        $this->boxId = $boxId;
+        $this->itemId = $itemId;
 
         return $this;
     }

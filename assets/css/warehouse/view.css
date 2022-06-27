@@ -27,3 +27,11 @@
     position: absolute;
     right: 6px;
 }
+
+.hcWarehouseBoxImage,
+.hcWarehouseBoxCode {
+    height: 290px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}

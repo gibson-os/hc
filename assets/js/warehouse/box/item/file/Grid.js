@@ -1,6 +1,6 @@
-Ext.define('GibsonOS.module.hc.warehouse.box.tag.Grid', {
+Ext.define('GibsonOS.module.hc.warehouse.box.item.file.Grid', {
     extend: 'GibsonOS.module.core.component.grid.Panel',
-    alias: ['widget.gosModuleHcWarehouseBoxTagGrid'],
+    alias: ['widget.gosModuleHcWarehouseBoxItemFileGrid'],
     autoScroll: true,
     multiSelect: true,
     enablePagingBar: false,
@@ -11,7 +11,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.tag.Grid', {
         const me = this;
 
         me.store = new Ext.data.ArrayStore({
-            model: 'GibsonOS.module.hc.warehouse.model.Tag'
+            model: 'GibsonOS.module.hc.warehouse.model.box.item.File'
         })
 
         me.callParent();

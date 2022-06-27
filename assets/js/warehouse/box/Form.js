@@ -9,86 +9,56 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Form', {
         const me = this;
 
         me.items = [{
-            xtype: 'gosTabPanel',
-            items: [{
-                xtype: 'gosCoreComponentPanel',
-                title: 'Bild',
-                itemId: 'image',
-                height: 295,
-                data: {
-                    name: '',
-                    image: '',
-                    src: ''
-                },
-                tpl: new Ext.XTemplate(
-                    '<img src="<tpl if="src">{src}<tpl else>{image}</tpl>" alt="{name}" />'
-                )
-            },{
-                xtype: 'gosCoreComponentPanel',
-                title: 'Code',
-                itemId: 'codeImage',
-                height: 295,
-                data: {
-                    name: '',
-                    code: ''
-                },
-                tpl: new Ext.XTemplate(
-                    '<img src="{code}" alt="{name}" />'
-                )
-            }]
-        },{
-            xtype: 'gosCoreComponentFormFieldTextField',
-            fieldLabel: 'Name',
-            name: 'name'
-        },{
-            xtype: 'gosCoreComponentFormFieldNumberField',
-            fieldLabel: 'Anzahl',
-            name: 'stock',
-            minValue: 0
-        },{
-            xtype: 'gosCoreComponentFormFieldTextArea',
-            fieldLabel: 'Beschreibung',
-            name: 'description'
+            xtype: 'gosCoreComponentPanel',
+            itemId: 'uuid',
+            cls: 'coloredPanel',
+            data: {
+                name: '',
+                uuid: ''
+            },
+            tpl: new Ext.XTemplate(
+                '<div class="hcWarehouseBoxCode" style="background-image: url({uuid});"></div>'
+            )
         },{
             xtype: 'gosCoreComponentFormFieldNumberField',
             fieldLabel: 'Breite',
             name: 'width',
             minValue: 1,
             maxValue: 25
-        }, {
+        },{
             xtype: 'gosCoreComponentFormFieldNumberField',
             fieldLabel: 'Höhe',
             name: 'height',
             minValue: 1,
             maxValue: 25
         },{
-            xtype: 'gosModuleHcWarehouseBoxTabPanel',
-            moduleId: me.moduleId
+            xtype: 'gosModuleCoreParameterTypeAutoComplete',
+            fieldLabel: 'LED',
+            itemId: 'led',
+            displayField: 'number',
+            parameterObject: {
+                config: {
+                    model: 'GibsonOS.module.hc.neopixel.model.Led',
+                    autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Neopixel\\LedAutoComplete',
+                    parameters: {
+                        moduleId: me.moduleId
+                    }
+                }
+            }
+        },{
+            xtype: 'gosModuleHcWarehouseBoxLedGrid',
+            itemId: 'leds',
+            addButton: {
+                disabled: true
+            },
+            addFunction() {
+                const ledField = me.down('#led');
+                me.down('gosModuleHcWarehouseBoxLedGrid').getStore().add(
+                    ledField.findRecordByValue(ledField.getValue())
+                );
+            }
         }];
 
         me.callParent();
-
-        me.down('#image').on('render', () => {
-            const element = me.getEl().dom;
-            const stopEvents = (event) => {
-                event.stopPropagation();
-                event.preventDefault();
-            };
-            element.ondragover = stopEvents;
-            element.ondrageleave = stopEvents;
-            element.ondrop = (event) => {
-                stopEvents(event);
-
-                const file = event.dataTransfer.files[0];
-                const reader = new FileReader();
-
-                reader.readAsDataURL(file);
-                reader.onload = () => {
-                    let data = me.down('#image').data;
-                    data.src = reader.result;
-                    me.down('#image').update(data);
-                };
-            };
-        });
     }
 });

@@ -1,6 +1,6 @@
-Ext.define('GibsonOS.module.hc.warehouse.box.code.Grid', {
+Ext.define('GibsonOS.module.hc.warehouse.box.item.tag.Grid', {
     extend: 'GibsonOS.module.core.component.grid.Panel',
-    alias: ['widget.gosModuleHcWarehouseBoxCodeGrid'],
+    alias: ['widget.gosModuleHcWarehouseBoxItemTagGrid'],
     autoScroll: true,
     multiSelect: true,
     enablePagingBar: false,
@@ -11,19 +11,15 @@ Ext.define('GibsonOS.module.hc.warehouse.box.code.Grid', {
         const me = this;
 
         me.store = new Ext.data.ArrayStore({
-            model: 'GibsonOS.module.hc.warehouse.model.Code'
+            model: 'GibsonOS.module.hc.warehouse.model.box.item.Tag'
         })
 
         me.callParent();
     },
     getColumns() {
         return [{
-            header: 'Typ',
-            dataIndex: 'type',
-            flex: 1
-        },{
-            header: 'Code',
-            dataIndex: 'code',
+            header: 'Name',
+            dataIndex: 'name',
             flex: 1
         }];
     }

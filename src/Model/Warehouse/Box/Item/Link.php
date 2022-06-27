@@ -1,30 +1,30 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Model\Warehouse\Box;
+namespace GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
-use GibsonOS\Module\Hc\Model\Warehouse\Box;
+use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use JsonSerializable;
 
 /**
- * @method Link setBox(Box $box)
- * @method Box  getBox()
+ * @method Link setItem(Item $item)
+ * @method Item getItem()
  */
 #[Table]
-#[Key(unique: true, columns: ['box_id', 'name'])]
-#[Key(unique: true, columns: ['box_id', 'url'])]
+#[Key(unique: true, columns: ['item_id', 'name'])]
+#[Key(unique: true, columns: ['item_id', 'url'])]
 class Link extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $boxId;
+    private int $itemId;
 
     #[Column(type: Column::TYPE_VARCHAR, length: 64)]
     private string $name;
@@ -33,7 +33,7 @@ class Link extends AbstractModel implements JsonSerializable
     private string $url;
 
     #[Constraint]
-    protected Box $box;
+    protected Item $item;
 
     public function getId(): ?int
     {
@@ -47,14 +47,14 @@ class Link extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getBoxId(): int
+    public function getItemId(): int
     {
-        return $this->boxId;
+        return $this->itemId;
     }
 
-    public function setBoxId(int $boxId): Link
+    public function setItemId(int $itemId): Link
     {
-        $this->boxId = $boxId;
+        $this->itemId = $itemId;
 
         return $this;
     }

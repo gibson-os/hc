@@ -1,13 +1,13 @@
-Ext.define('GibsonOS.module.hc.warehouse.model.Link', {
+Ext.define('GibsonOS.module.hc.warehouse.model.box.itemCode', {
     extend: 'GibsonOS.data.Model',
     fields: [{
         name: 'id',
         type: 'int'
     },{
-        name: 'name',
+        name: 'code',
         type: 'string'
     },{
-        name: 'url',
+        name: 'type',
         type: 'string'
     }]
 });

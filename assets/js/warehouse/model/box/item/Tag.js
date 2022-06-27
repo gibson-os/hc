@@ -1,4 +1,4 @@
-Ext.define('GibsonOS.module.hc.warehouse.model.Tag', {
+Ext.define('GibsonOS.module.hc.warehouse.model.box.item.Tag', {
     extend: 'GibsonOS.data.Model',
     fields: [{
         name: 'id',

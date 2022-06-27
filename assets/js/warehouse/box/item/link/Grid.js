@@ -1,6 +1,6 @@
-Ext.define('GibsonOS.module.hc.warehouse.box.link.Grid', {
+Ext.define('GibsonOS.module.hc.warehouse.box.item.link.Grid', {
     extend: 'GibsonOS.module.core.component.grid.Panel',
-    alias: ['widget.gosModuleHcWarehouseBoxLinkGrid'],
+    alias: ['widget.gosModuleHcWarehouseBoxItemLinkGrid'],
     autoScroll: true,
     multiSelect: true,
     enablePagingBar: false,
@@ -11,7 +11,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.link.Grid', {
         const me = this;
 
         me.store = new Ext.data.ArrayStore({
-            model: 'GibsonOS.module.hc.warehouse.model.Link'
+            model: 'GibsonOS.module.hc.warehouse.model.box.item.Link'
         })
 
         me.callParent();

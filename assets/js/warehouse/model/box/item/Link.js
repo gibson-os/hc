@@ -1,4 +1,4 @@
-Ext.define('GibsonOS.module.hc.warehouse.model.File', {
+Ext.define('GibsonOS.module.hc.warehouse.model.box.item.Link', {
     extend: 'GibsonOS.data.Model',
     fields: [{
         name: 'id',
@@ -7,8 +7,7 @@ Ext.define('GibsonOS.module.hc.warehouse.model.File', {
         name: 'name',
         type: 'string'
     },{
-        name: 'file',
-        type: 'object',
-        useNull: true
+        name: 'url',
+        type: 'string'
     }]
 });

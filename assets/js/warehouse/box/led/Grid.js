@@ -11,14 +11,14 @@ Ext.define('GibsonOS.module.hc.warehouse.box.led.Grid', {
         const me = this;
 
         me.store = new Ext.data.ArrayStore({
-            model: 'GibsonOS.module.hc.warehouse.model.Led'
+            model: 'GibsonOS.module.hc.warehouse.model.box.Led'
         })
 
         me.callParent();
     },
     getColumns() {
         return [{
-            header: 'Nummer',
+            header: 'LED',
             dataIndex: 'number',
             flex: 1
         }];

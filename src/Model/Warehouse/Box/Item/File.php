@@ -1,29 +1,29 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Model\Warehouse\Box;
+namespace GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
-use GibsonOS\Module\Hc\Model\Warehouse\Box;
+use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use JsonSerializable;
 
 /**
- * @method File setBox(Box $box)
- * @method Box  getBox()
+ * @method File setItem(Item $item)
+ * @method Item getItem()
  */
 #[Table]
-#[Key(unique: true, columns: ['box_id', 'name'])]
+#[Key(unique: true, columns: ['item_id', 'name'])]
 class File extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $boxId;
+    private int $itemId;
 
     #[Column(type: Column::TYPE_VARCHAR, length: 128)]
     private string $name;
@@ -35,7 +35,7 @@ class File extends AbstractModel implements JsonSerializable
     private string $mimeType;
 
     #[Constraint]
-    protected Box $box;
+    protected Item $item;
 
     public function getId(): ?int
     {
@@ -49,14 +49,14 @@ class File extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getBoxId(): int
+    public function getItemId(): int
     {
-        return $this->boxId;
+        return $this->itemId;
     }
 
-    public function setBoxId(int $boxId): File
+    public function setItemId(int $itemId): File
     {
-        $this->boxId = $boxId;
+        $this->itemId = $itemId;
 
         return $this;
     }

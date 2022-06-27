@@ -1,38 +1,38 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Model\Warehouse\Box;
+namespace GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
-use GibsonOS\Module\Hc\Model\Warehouse\Box;
+use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use GibsonOS\Module\Hc\Model\Warehouse\Tag as WarehouseTag;
 use JsonSerializable;
 
 /**
- * @method Tag          setBox(Box $box)
- * @method Box          getBox()
+ * @method Tag          setItem(Item $item)
+ * @method Item         getItem()
  * @method Tag          setTag(WarehouseTag $tag)
  * @method WarehouseTag getTag()
  */
 #[Table]
-#[Key(unique: true, columns: ['box_id', 'tag_id'])]
+#[Key(unique: true, columns: ['item_id', 'tag_id'])]
 class Tag extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $boxId;
+    private int $itemId;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $tagId;
 
     #[Constraint]
-    protected Box $box;
+    protected Item $item;
 
     #[Constraint]
     protected WarehouseTag $tag;
@@ -49,14 +49,14 @@ class Tag extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getBoxId(): int
+    public function getItemId(): int
     {
-        return $this->boxId;
+        return $this->itemId;
     }
 
-    public function setBoxId(int $boxId): Tag
+    public function setItemId(int $itemId): Tag
     {
-        $this->boxId = $boxId;
+        $this->itemId = $itemId;
 
         return $this;
     }

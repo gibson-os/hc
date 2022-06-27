@@ -4,17 +4,8 @@ Ext.define('GibsonOS.module.hc.warehouse.model.Box', {
         name: 'id',
         type: 'int'
     },{
-        name: 'name',
+        name: 'uuid',
         type: 'string'
-    },{
-        name: 'image',
-        type: 'string'
-    },{
-        name: 'code',
-        type: 'string'
-    },{
-        name: 'stock',
-        type: 'int'
     },{
         name: 'left',
         type: 'int'
@@ -31,16 +22,7 @@ Ext.define('GibsonOS.module.hc.warehouse.model.Box', {
         name: 'leds',
         type: 'array'
     },{
-        name: 'links',
-        type: 'array'
-    },{
-        name: 'files',
-        type: 'array'
-    },{
-        name: 'codes',
-        type: 'array'
-    },{
-        name: 'tags',
+        name: 'items',
         type: 'array'
     }]
 });
