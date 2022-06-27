@@ -10,6 +10,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.item.Form', {
 
         me.items = [{
             xtype: 'gosCoreComponentPanel',
+            enableToolbar: false,
             itemId: 'image',
             cls: 'coloredPanel',
             data: {
