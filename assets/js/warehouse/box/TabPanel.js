@@ -13,6 +13,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
     getDefaultTab() {
         return {
             xtype: 'gosModuleHcWarehouseBoxForm',
+            moduleId: this.moduleId,
             title: 'Allgemein',
         };
     },

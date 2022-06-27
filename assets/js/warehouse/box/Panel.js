@@ -47,17 +47,6 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
 
         me.callParent();
 
-        me.down('form').getForm().getFields().each((field) => {
-            field.on('change', (field, value) => {
-                const keys = me.viewItem.getSelectionModel().getSelection();
-
-                if (keys.length !== 1) {
-                    return;
-                }
-
-                keys[0].set(field.name, value);
-            });
-        });
         // me.down('gosModuleHcWarehouseBoxItemTabPanel').items.each((formPanel) => {
         //     const grid = formPanel.down('grid');
         //     const storeChangeFunction = (store) => {
@@ -170,79 +159,65 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
 
             const record = records[0];
             defaultForm.loadRecord(record);
+            defaultForm.getForm().getFields().each((field) => {
+                field.on('change', (field, value) => {
+                    const keys = me.viewItem.getSelectionModel().getSelection();
 
-            console.log(record);
+                    if (keys.length !== 1) {
+                        return;
+                    }
 
-            if (record.get('items').length === 0) {
-                tabPanel.add(tabPanel.getItemTab());
-            }
+                    keys[0].set(field.name, value);
+                });
+            });
+            defaultForm.down('#uuid').update({
+                name: record.get('name'),
+                uuid: record.get('uuid')
+            });
+
+            const ledStore = defaultForm.down('gosModuleHcWarehouseBoxLedGrid').getStore();
+
+            Ext.iterate(record.get('leds'), (led) => {
+                ledStore.add(led);
+            });
 
             Ext.iterate(record.get('items'), (item) => {
                 const itemPanel = tabPanel.getItemTab(new GibsonOS.module.hc.warehouse.model.box.Item(item));
-            });
+                const tagStore = itemPanel.down('gosModuleHcWarehouseBoxItemTagGrid').getStore();
+                const codeStore = itemPanel.down('gosModuleHcWarehouseBoxItemCodeGrid').getStore();
+                const linkStore = itemPanel.down('gosModuleHcWarehouseBoxItemLinkGrid').getStore();
+                const fileStore = itemPanel.down('gosModuleHcWarehouseBoxItemFileGrid').getStore();
 
-            // const form = tabPanel.down('form');
-            // const tagStore = me.down('gosModuleHcWarehouseBoxItemTagGrid').getStore();
-            // const codeStore = me.down('gosModuleHcWarehouseBoxItemCodeGrid').getStore();
-            // const linkStore = me.down('gosModuleHcWarehouseBoxItemLinkGrid').getStore();
-            // const fileStore = me.down('gosModuleHcWarehouseBoxItemFileGrid').getStore();
-            // const ledStore = me.down('gosModuleHcWarehouseBoxLedGrid').getStore();
-            //
-            // tagStore.removeAll();
-            // codeStore.removeAll();
-            // linkStore.removeAll();
-            // fileStore.removeAll();
-            // ledStore.removeAll();
-            // me.down('#tag').setValue('');
-            // me.down('#codeType').setValue(null);
-            // me.down('#code').setValue('');
-            // me.down('#linkName').setValue('');
-            // me.down('#url').setValue('');
-            // me.down('#led').setValue(null);
-            //
-            // if (records.length !== 1) {
-            //     tabPanel.disable();
-            //     form.loadRecord(new GibsonOS.module.hc.warehouse.model.Box());
-            //     me.down('#image').update({
-            //         name: '',
-            //         image: '',
-            //         src: '',
-            //     });
-            //     me.down('#uuid').update({
-            //         name: '',
-            //         uuid: ''
-            //     });
-            //
-            //     return;
-            // }
-            //
-            // form.loadRecord(records[0]);
-            //
-            // me.down('#image').update({
-            //     name: records[0].get('name'),
-            //     image: records[0].get('image'),
-            //     src: ''
-            // });
-            // me.down('#uuid').update({
-            //     name: records[0].get('name'),
-            //     uuid: records[0].get('uuid')
-            // });
-            //
-            // Ext.iterate(records[0].get('tags'), (tag) => {
-            //     tagStore.add(tag.tag);
-            // });
-            // Ext.iterate(records[0].get('codes'), (code) => {
-            //     codeStore.add(code);
-            // });
-            // Ext.iterate(records[0].get('links'), (link) => {
-            //     linkStore.add(link);
-            // });
-            // Ext.iterate(records[0].get('files'), (file) => {
-            //     fileStore.add(file);
-            // });
-            // Ext.iterate(records[0].get('leds'), (led) => {
-            //     ledStore.add(led);
-            // });
+                itemPanel.down('form').getForm().getFields().each((field) => {
+                    field.on('change', (field, value) => {
+                        const keys = me.viewItem.getSelectionModel().getSelection();
+
+                        if (keys.length !== 1) {
+                            return;
+                        }
+
+                        // keys[0].set(field.name, value);
+                    });
+                });
+                itemPanel.down('#image').update({
+                    name: record.get('name'),
+                    image: item.image,
+                    src: ''
+                });
+
+                Ext.iterate(item.tags, (tag) => {
+                    tagStore.add(tag.tag);
+                });
+                Ext.iterate(item.codes, (code) => {
+                    codeStore.add(code);
+                });
+                Ext.iterate(item.links, (link) => {
+                    linkStore.add(link);
+                });
+                Ext.iterate(item.files, (file) => {
+                    fileStore.add(file);
+                });
+            });
 
             tabPanel.enable();
         });

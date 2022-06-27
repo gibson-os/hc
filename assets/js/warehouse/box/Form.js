@@ -44,6 +44,14 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Form', {
                         moduleId: me.moduleId
                     }
                 }
+            },
+            listeners: {
+                change(field) {
+                    me.down('gosModuleHcWarehouseBoxLedGrid').down('#addButton').disable();
+                },
+                select(field) {
+                    me.down('gosModuleHcWarehouseBoxLedGrid').down('#addButton').enable();
+                }
             }
         },{
             xtype: 'gosModuleHcWarehouseBoxLedGrid',
