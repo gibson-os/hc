@@ -1,7 +1,6 @@
 Ext.define('GibsonOS.module.hc.warehouse.box.item.TabPanel', {
     extend: 'GibsonOS.TabPanel',
     alias: ['widget.gosModuleHcWarehouseBoxItemTabPanel'],
-    itemId: 'hcModuleTabPanel',
     border: true,
     initComponent() {
         const me = this;

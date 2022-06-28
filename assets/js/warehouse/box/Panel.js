@@ -20,7 +20,9 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             left: 0,
             top: maxTop,
             width: 3,
-            height: 2
+            height: 2,
+            leds: [],
+            items: []
         });
     },
     deleteFunction(records) {
@@ -38,15 +40,12 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
 
         me.items = [me.viewItem, {
             xtype: 'gosCoreComponentPanel',
+            itemId: 'east',
             region: 'east',
             disabled: true,
             flex: 0,
             width: 300,
             addFunction() {
-                const me = this;
-                const tabPanel = me.down('gosModuleHcWarehouseBoxTabPanel');
-
-                tabPanel.add(tabPanel.getItemTab());
             },
             items: [{
                 xtype: 'gosModuleHcWarehouseBoxTabPanel',
@@ -56,6 +55,21 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
         }];
 
         me.callParent();
+
+        me.down('#east').addFunction = () => {
+            const me = this;
+            const tabPanel = me.down('gosModuleHcWarehouseBoxTabPanel');
+            const boxes = me.viewItem.getSelectionModel().getSelection();
+
+            if (boxes.length !== 1) {
+                return;
+            }
+
+            tabPanel.add(tabPanel.getItemTab());
+            const items = boxes[0].get('items');
+            items.push({});
+            boxes[0].set('items', items);
+        };
 
         // me.down('gosModuleHcWarehouseBoxItemTabPanel').items.each((formPanel) => {
         //     const grid = formPanel.down('grid');
@@ -155,9 +169,9 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             }
         });
         const ledStoreChangeFunction = (store) => {
-            const keys = me.viewItem.getSelectionModel().getSelection();
+            const boxes = me.viewItem.getSelectionModel().getSelection();
 
-            if (keys.length !== 1) {
+            if (boxes.length !== 1) {
                 return;
             }
 
@@ -167,12 +181,12 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
                 records.push({led: record.getData()});
             });
 
-            keys[0].set('leds', records);
+            boxes[0].set('leds', records);
         };
         const storeChangeFunction = (store, item) => {
-            const keys = me.viewItem.getSelectionModel().getSelection();
+            const boxes = me.viewItem.getSelectionModel().getSelection();
 
-            if (keys.length !== 1) {
+            if (boxes.length !== 1) {
                 return;
             }
 
@@ -195,6 +209,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             const tabPanel = panel.down('tabpanel');
             tabPanel.removeAll();
             const defaultForm = tabPanel.add(tabPanel.getDefaultTab());
+            tabPanel.setActiveTab(defaultForm);
 
             if (records.length !== 1) {
                 panel.disable();
@@ -206,13 +221,13 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             defaultForm.loadRecord(record);
             defaultForm.getForm().getFields().each((field) => {
                 field.on('change', (field, value) => {
-                    const keys = me.viewItem.getSelectionModel().getSelection();
+                    const boxes = me.viewItem.getSelectionModel().getSelection();
 
-                    if (keys.length !== 1) {
+                    if (boxes.length !== 1) {
                         return;
                     }
 
-                    keys[0].set(field.name, value);
+                    boxes[0].set(field.name, value);
                 });
             });
             defaultForm.down('#uuid').update({
@@ -230,17 +245,18 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             });
 
             Ext.iterate(record.get('items'), (item) => {
-                const itemPanel = tabPanel.getItemTab(new GibsonOS.module.hc.warehouse.model.box.Item(item));
+                const itemPanel = tabPanel.add(tabPanel.getItemTab(new GibsonOS.module.hc.warehouse.model.box.Item(item)));
 
+                itemPanel.down('form').loadRecord(new GibsonOS.module.hc.warehouse.model.box.Item(item));
                 itemPanel.down('form').getForm().getFields().each((field) => {
                     field.on('change', (field, value) => {
-                        const keys = me.viewItem.getSelectionModel().getSelection();
+                        const boxes = me.viewItem.getSelectionModel().getSelection();
 
-                        if (keys.length !== 1) {
+                        if (boxes.length !== 1) {
                             return;
                         }
 
-                        item[field.name] = vale;
+                        item[field.name] = value;
                     });
                 });
                 itemPanel.down('#image').update({
