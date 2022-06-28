@@ -222,11 +222,19 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
                 item[field.name] = value;
             });
         });
-        itemPanel.down('#image').update({
+
+        const image = itemPanel.down('#image');
+
+        image.update({
             name: record.get('name'),
             image: item.image,
-            src: ''
+            src: item.imageSource ?? ''
         });
+        image.on('imageUploaded', (field, source, file) => {
+            item.imageSource = source;
+            item.imageFile = file;
+        });
+
         itemPanel.down('tabpanel').items.each((itemTabPanel) => {
             const itemTabPanelGrid = itemTabPanel.down('grid');
 

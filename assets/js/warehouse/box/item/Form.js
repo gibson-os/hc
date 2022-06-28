@@ -41,7 +41,9 @@ Ext.define('GibsonOS.module.hc.warehouse.box.item.Form', {
 
         me.callParent();
 
-        me.down('#image').on('render', (imagePanel) => {
+        const image = me.down('#image');
+
+        image.on('render', (imagePanel) => {
             const element = imagePanel.getEl().dom;
             const stopEvents = (event) => {
                 event.stopPropagation();
@@ -57,9 +59,11 @@ Ext.define('GibsonOS.module.hc.warehouse.box.item.Form', {
 
                 reader.readAsDataURL(file);
                 reader.onload = () => {
-                    let data = me.down('#image').data;
+                    let data = image.initialConfig.data;
+
                     data.src = reader.result;
-                    me.down('#image').update(data);
+                    image.update(data);
+                    image.fireEvent('imageUploaded', image, data.src, file);
                 };
             };
         });
