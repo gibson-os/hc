@@ -47,6 +47,8 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             width: 300,
             addFunction() {
             },
+            deleteFunction() {
+            },
             items: [{
                 xtype: 'gosModuleHcWarehouseBoxTabPanel',
                 flex: 0,
@@ -56,8 +58,9 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
 
         me.callParent();
 
-        me.down('#east').addFunction = () => {
-            const me = this;
+        const east = me.down('#east');
+
+        east.addFunction = () => {
             const boxes = me.viewItem.getSelectionModel().getSelection();
 
             if (boxes.length !== 1) {
@@ -70,6 +73,24 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             boxes[0].set('items', items);
             me.addItemTab(boxes[0], item);
         };
+        east.deleteFunction = () => {
+            const boxes = me.viewItem.getSelectionModel().getSelection();
+
+            if (boxes.length !== 1) {
+                return;
+            }
+
+            const items = boxes[0].get('items');
+            const tabPanel = east.down('tabpanel');
+            const activeTab = tabPanel.getActiveTab();
+            const index = tabPanel.items.indexOf(activeTab);
+
+            tabPanel.remove(activeTab);
+            items.splice(index-1, 1);
+        };
+        east.down('tabpanel').on('tabchange', (tabPanel, newTab) => {
+            east.down('#deleteButton').setDisabled(tabPanel.items.indexOf(newTab) < 1);
+        });
 
         me.viewItem.on('render', function() {
             me.viewItem.dragZone = Ext.create('Ext.dd.DragZone', me.viewItem.getEl(), {
