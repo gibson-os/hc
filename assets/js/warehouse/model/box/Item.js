@@ -7,6 +7,9 @@ Ext.define('GibsonOS.module.hc.warehouse.model.box.Item', {
         name: 'name',
         type: 'string'
     },{
+        name: 'description',
+        type: 'string'
+    },{
         name: 'image',
         type: 'string'
     },{

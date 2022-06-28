@@ -58,46 +58,19 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
 
         me.down('#east').addFunction = () => {
             const me = this;
-            const tabPanel = me.down('gosModuleHcWarehouseBoxTabPanel');
             const boxes = me.viewItem.getSelectionModel().getSelection();
 
             if (boxes.length !== 1) {
                 return;
             }
 
-            tabPanel.add(tabPanel.getItemTab());
             const items = boxes[0].get('items');
-            items.push({});
+            let item = {};
+            items.push(item);
             boxes[0].set('items', items);
+            me.addItemTab(boxes[0], item);
         };
 
-        // me.down('gosModuleHcWarehouseBoxItemTabPanel').items.each((formPanel) => {
-        //     const grid = formPanel.down('grid');
-        //     const storeChangeFunction = (store) => {
-        //         const keys = me.viewItem.getSelectionModel().getSelection();
-        //
-        //         if (keys.length !== 1) {
-        //             return;
-        //         }
-        //
-        //         let records = [];
-        //
-        //         store.each((record) => {
-        //             record = record.getData();
-        //
-        //             if (grid.itemId === 'tags') {
-        //                 record = {tag: record};
-        //             }
-        //
-        //             records.push(record);
-        //         });
-        //
-        //         keys[0].set(grid.itemId, records);
-        //     };
-        //
-        //     grid.getStore().on('add', storeChangeFunction);
-        //     grid.getStore().on('remove', storeChangeFunction);
-        // });
         me.viewItem.on('render', function() {
             me.viewItem.dragZone = Ext.create('Ext.dd.DragZone', me.viewItem.getEl(), {
                 getDragData: function(event) {
@@ -183,27 +156,6 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
 
             boxes[0].set('leds', records);
         };
-        const storeChangeFunction = (store, item) => {
-            const boxes = me.viewItem.getSelectionModel().getSelection();
-
-            if (boxes.length !== 1) {
-                return;
-            }
-
-            let records = [];
-
-            store.each((record) => {
-                record = record.getData();
-
-                if (grid.itemId === 'tags') {
-                    record = {tag: record};
-                }
-
-                records.push(record);
-            });
-
-            item[grid.itemId] = records;
-        };
         me.viewItem.on('selectionchange', (view, records) => {
             const panel = me.down('panel');
             const tabPanel = panel.down('tabpanel');
@@ -245,42 +197,76 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             });
 
             Ext.iterate(record.get('items'), (item) => {
-                const itemPanel = tabPanel.add(tabPanel.getItemTab(new GibsonOS.module.hc.warehouse.model.box.Item(item)));
-
-                itemPanel.down('form').loadRecord(new GibsonOS.module.hc.warehouse.model.box.Item(item));
-                itemPanel.down('form').getForm().getFields().each((field) => {
-                    field.on('change', (field, value) => {
-                        const boxes = me.viewItem.getSelectionModel().getSelection();
-
-                        if (boxes.length !== 1) {
-                            return;
-                        }
-
-                        item[field.name] = value;
-                    });
-                });
-                itemPanel.down('#image').update({
-                    name: record.get('name'),
-                    image: item.image,
-                    src: ''
-                });
-                itemPanel.down('tabpanel').items.each((itemTabPanel) => {
-                    const itemTabPanelGrid = itemTabPanel.down('grid');
-
-                    Ext.iterate(item[itemTabPanelGrid.itemId], (recordItem) => {
-                        if (itemTabPanelGrid.itemId === 'tags') {
-                            recordItem = recordItem.tag;
-                        }
-
-                        const itemTabPanelGridStore = itemTabPanelGrid.getStore();
-                        itemTabPanelGridStore.add(recordItem);
-                        itemTabPanelGridStore.on('change', (store) => storeChangeFunction(store, item));
-                        itemTabPanelGridStore.on('remove', (store) => storeChangeFunction(store, item));
-                    });
-                });
+                me.addItemTab(record, item);
             });
 
             panel.enable();
+        });
+    },
+    addItemTab(record, item) {
+        const me = this;
+        const tabPanel = me.down('panel').down('tabpanel');
+        const itemPanel = tabPanel.addItemTab(
+            new GibsonOS.module.hc.warehouse.model.box.Item(item)
+        );
+
+        itemPanel.down('form').loadRecord(new GibsonOS.module.hc.warehouse.model.box.Item(item));
+        itemPanel.down('form').getForm().getFields().each((field) => {
+            field.on('change', (field, value) => {
+                const boxes = me.viewItem.getSelectionModel().getSelection();
+
+                if (boxes.length !== 1) {
+                    return;
+                }
+
+                item[field.name] = value;
+            });
+        });
+        itemPanel.down('#image').update({
+            name: record.get('name'),
+            image: item.image,
+            src: ''
+        });
+        itemPanel.down('tabpanel').items.each((itemTabPanel) => {
+            const itemTabPanelGrid = itemTabPanel.down('grid');
+
+            Ext.iterate(item[itemTabPanelGrid.itemId], (recordItem) => {
+                if (itemTabPanelGrid.itemId === 'tags') {
+                    recordItem = recordItem.tag;
+                }
+
+                const itemTabPanelGridStore = itemTabPanelGrid.getStore();
+                itemTabPanelGridStore.add(recordItem);
+                itemTabPanelGridStore.on('change', (store) => storeChangeFunction(store, item));
+                itemTabPanelGridStore.on('remove', (store) => storeChangeFunction(store, item));
+            });
+        });
+        itemPanel.down('gosModuleHcWarehouseBoxItemTabPanel').items.each((formPanel) => {
+            const grid = formPanel.down('grid');
+            const storeChangeFunction = (store) => {
+                const keys = me.viewItem.getSelectionModel().getSelection();
+
+                if (keys.length !== 1) {
+                    return;
+                }
+
+                let records = [];
+
+                store.each((record) => {
+                    record = record.getData();
+
+                    if (grid.itemId === 'tags') {
+                        record = {tag: record};
+                    }
+
+                    records.push(record);
+                });
+
+                item[grid.itemId] = records;
+            };
+
+            grid.getStore().on('add', storeChangeFunction);
+            grid.getStore().on('remove', storeChangeFunction);
         });
     }
 });

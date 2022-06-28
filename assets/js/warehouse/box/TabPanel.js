@@ -18,14 +18,21 @@ Ext.define('GibsonOS.module.hc.warehouse.box.TabPanel', {
             title: 'Allgemein',
         };
     },
-    getItemTab(record = new GibsonOS.module.hc.warehouse.model.box.Item()) {
-        return {
+    addItemTab(record = new GibsonOS.module.hc.warehouse.model.box.Item()) {
+        const me = this;
+        const itemTab = me.add({
             xtype: 'gosCoreComponentPanel',
             enableToolbar: false,
             title: record.get('name') === '' ? 'Neues Item' : record.get('name'),
             items: [{
                 xtype: 'gosModuleHcWarehouseBoxItemForm'
             }]
-        };
+        });
+
+        itemTab.down('form').getForm().findField('name').on('change', (field, value) => {
+            itemTab.setTitle(value);
+        });
+
+        return itemTab;
     }
 });
