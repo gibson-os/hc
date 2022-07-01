@@ -10,8 +10,8 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
+use GibsonOS\Module\Hc\Model\Warehouse\Box\Led;
 use JsonSerializable;
 
 /**

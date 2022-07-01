@@ -33,7 +33,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
 
         me.viewItem = new GibsonOS.module.hc.warehouse.box.View({
             region: 'center',
-            moduleId: me.hcModuleId,
+            moduleId: me.moduleId,
             overflowX: 'auto',
             overflowY: 'auto'
         });
@@ -57,6 +57,30 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
         }];
 
         me.callParent();
+
+        me.addAction({
+            iconCls: 'icon_system system_save',
+            handler() {
+                let boxes = [];
+
+                me.setLoading(true);
+
+                me.viewItem.getStore().each((box) => {
+                    boxes.push(box.getData());
+                });
+
+                GibsonOS.Ajax.request({
+                    url: baseDir + 'hc/warehouse/save',
+                    params:  {
+                        moduleId: me.moduleId,
+                        boxes: Ext.encode(boxes)
+                    },
+                    callback: function() {
+                        me.setLoading(false);
+                    }
+                });
+            }
+        });
 
         const east = me.down('#east');
 

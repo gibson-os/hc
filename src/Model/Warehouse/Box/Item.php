@@ -45,7 +45,7 @@ class Item extends AbstractModel implements JsonSerializable
     private string $name;
 
     #[Column(type: Column::TYPE_VARCHAR, length: 64)]
-    private string $image;
+    private ?string $image = null;
 
     #[Column]
     private int $stock = 0;
@@ -56,16 +56,16 @@ class Item extends AbstractModel implements JsonSerializable
     #[Constraint]
     protected Box $box;
 
-    #[Constraint('box', Link::class)]
+    #[Constraint('item', Link::class)]
     protected array $links = [];
 
-    #[Constraint('box', File::class)]
+    #[Constraint('item', File::class)]
     protected array $files = [];
 
-    #[Constraint('box', Code::class)]
+    #[Constraint('item', Code::class)]
     protected array $codes = [];
 
-    #[Constraint('box', Tag::class)]
+    #[Constraint('item', Tag::class)]
     protected array $tags = [];
 
     public function getId(): ?int
@@ -104,12 +104,12 @@ class Item extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getImage(): string
+    public function getImage(): ?string
     {
         return $this->image;
     }
 
-    public function setImage(string $image): Item
+    public function setImage(?string $image): Item
     {
         $this->image = $image;
 
