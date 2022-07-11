@@ -13,6 +13,14 @@ Ext.define('GibsonOS.module.hc.warehouse.model.box.Item', {
         name: 'image',
         type: 'string'
     },{
+        name: 'imageSource',
+        type: 'string',
+        useNull: true
+    },{
+        name: 'imageFile',
+        type: 'object',
+        useNull: true
+    },{
         name: 'stock',
         type: 'int'
     },{

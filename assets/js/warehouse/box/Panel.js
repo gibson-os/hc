@@ -70,16 +70,25 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
                 const formData = new FormData();
 
                 me.viewItem.getStore().each((box) => {
-                    Ext.iterate(box.get('items'), (item) => {
-                        Ext.iterate(item.files, (file, fileIndex) => {
+                    let boxData = Ext.clone(box.getData());
+
+                    Ext.iterate(boxData.items, (item) => {
+                        Ext.iterate(item.files, (file) => {
                             if (file.file) {
                                 formData.append('newFiles[]', file.file);
-                                item.files[fileIndex].fileIndex = newFileIndex++;
+                                file.fileIndex = newFileIndex++;
                             }
                         });
+
+                        if (item.imageFile) {
+                            formData.append('newImages[]', item.imageFile);
+                            item.imageIndex = newImageIndex++;
+                        }
+
+                        item.imageSource = null;
                     });
 
-                    boxes.push(box.getData());
+                    boxes.push(boxData);
                 });
 
                 formData.append('moduleId', me.moduleId);

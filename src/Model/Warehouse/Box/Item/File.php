@@ -102,6 +102,8 @@ class File extends AbstractModel implements JsonSerializable
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
+            'fileName' => $this->getFileName(),
+            'mimeType' => $this->getMimeType(),
         ];
     }
 }

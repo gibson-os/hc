@@ -7,6 +7,12 @@ Ext.define('GibsonOS.module.hc.warehouse.model.box.item.File', {
         name: 'name',
         type: 'string'
     },{
+        name: 'fileName',
+        type: 'string'
+    },{
+        name: 'mimeType',
+        type: 'string'
+    },{
         name: 'file',
         type: 'object',
         useNull: true

@@ -71,6 +71,21 @@ class WarehouseController extends AbstractController
             foreach ($box->getItems() as $itemIndex => $item) {
                 $rawItem = $rawBox['items'][$itemIndex];
 
+                if (is_int($rawItem['imageIndex'])) {
+                    $newImage = $newImages[$rawItem['imageIndex']];
+                    $fileName = md5(
+                        $newImage->getName() .
+                        $newImage->getType() .
+                        $newImage->getSize() .
+                        $newImage->getTmpName()
+                    );
+                    $fileService->move(
+                        $newImage->getTmpName(),
+                        $filePath->getValue() . 'warehouse' . DIRECTORY_SEPARATOR . $fileName
+                    );
+                    $item->setImage($fileName);
+                }
+
                 foreach ($item->getFiles() as $fileIndex => $file) {
                     $rawFile = $rawItem['files'][$fileIndex];
 
