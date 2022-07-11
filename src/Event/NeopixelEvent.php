@@ -210,7 +210,7 @@ class NeopixelEvent extends AbstractHcEvent
 //            'className' => [IntParameter::class],
 //            'range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1],
 //        ])] array $counts
-         array $counts
+        array $counts
     ): void {
         $this->neopixelService->writeLedCounts($module, $counts);
     }

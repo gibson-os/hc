@@ -62,23 +62,72 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             iconCls: 'icon_system system_save',
             handler() {
                 let boxes = [];
+                let newFileIndex = 0;
+                let newImageIndex = 0;
 
                 me.setLoading(true);
 
+                const formData = new FormData();
+
                 me.viewItem.getStore().each((box) => {
+                    Ext.iterate(box.get('items'), (item) => {
+                        Ext.iterate(item.files, (file, fileIndex) => {
+                            if (file.file) {
+                                formData.append('newFiles[]', file.file);
+                                item.files[fileIndex].fileIndex = newFileIndex++;
+                            }
+                        });
+                    });
+
                     boxes.push(box.getData());
                 });
 
-                GibsonOS.Ajax.request({
-                    url: baseDir + 'hc/warehouse/save',
-                    params:  {
-                        moduleId: me.moduleId,
-                        boxes: Ext.encode(boxes)
-                    },
-                    callback: function() {
-                        me.setLoading(false);
+                formData.append('moduleId', me.moduleId);
+                formData.append('boxes', Ext.encode(boxes));
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', baseDir + 'hc/warehouse/save');
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.upload.onprogress = function(uploadEvent) {
+                    // if (options.progress) {
+                    //     options.progress(uploadEvent, files[i]);
+                    // }
+                };
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState !== 4) {
+                        return false;
                     }
-                });
+
+                    me.setLoading(false);
+
+                    if (xhr.status !== 200) {
+                        // options.failure(null);
+                        return false;
+                    }
+
+                    const response = Ext.decode(xhr.responseText);
+
+                    if (response.failure) {
+                        GibsonOS.MessageBox.show({msg: 'Datei konnte nicht hochgeladen werden!'});
+
+                        return false;
+                    }
+                };
+
+                xhr.send(formData);
+
+
+
+                // GibsonOS.Ajax.request({
+                //     url: baseDir + 'hc/warehouse/save',
+                //     params:  {
+                //         moduleId: me.moduleId,
+                //         boxes: Ext.encode(boxes)
+                //     },
+                //     callback: function() {
+                //         me.setLoading(false);
+                //     }
+                // });
             }
         });
 

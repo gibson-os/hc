@@ -24,9 +24,9 @@ class MasterRepository extends AbstractRepository
 
     public function __construct(
         private ModelManager $modelManager,
-        #[GetTableName((Master::class))] private string $masterTableName,
-        #[GetTableName((DefaultAddress::class))] private string $defaultAddressTableName,
-        #[GetTableName((Module::class))] private string $moduleTableName,
+        #[GetTableName(Master::class)] private string $masterTableName,
+        #[GetTableName(DefaultAddress::class)] private string $defaultAddressTableName,
+        #[GetTableName(Module::class)] private string $moduleTableName,
     ) {
     }
 

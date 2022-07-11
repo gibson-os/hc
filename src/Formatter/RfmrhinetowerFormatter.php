@@ -50,7 +50,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
                             return 'Uhrzeit anzeigen';
                         }
 
-                            return 'Uhrzeit nicht anzeigen';
+                        return 'Uhrzeit nicht anzeigen';
                     case RfmrhinetowerConstant::MODE_PLAY_ANIMATION:
                         return 'Starte Animation ' . $this->transformService->hexToInt($data, 1);
                 }

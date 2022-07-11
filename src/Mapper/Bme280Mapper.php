@@ -28,8 +28,8 @@ class Bme280Mapper
             $this->transformService->asciiToUnsignedInt($data, 7)
         ;
 
-        $var1 = ((((($temperatureRaw >> 3) - ($calibration['temperature'][0] << 1))) * ($calibration['temperature'][1])) >> 11);
-        $var2 = (((((($temperatureRaw >> 4) - ($calibration['temperature'][0])) * (($temperatureRaw >> 4) - ($calibration['temperature'][0]))) >> 12) * ($calibration['temperature'][2])) >> 14);
+        $var1 = (((($temperatureRaw >> 3) - ($calibration['temperature'][0] << 1)) * $calibration['temperature'][1]) >> 11);
+        $var2 = (((((($temperatureRaw >> 4) - $calibration['temperature'][0]) * (($temperatureRaw >> 4) - $calibration['temperature'][0])) >> 12) * $calibration['temperature'][2]) >> 14);
         $temperatureFine = $var1 + $var2;
         $temperature = ((($temperatureFine * 5) + 128) >> 8);
 
