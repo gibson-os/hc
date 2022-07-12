@@ -18,6 +18,7 @@ use GibsonOS\Core\Model\Setting;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\FileService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Core\Service\Response\FileResponse;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
@@ -73,6 +74,7 @@ class WarehouseController extends AbstractController
 
                 if (is_int($rawItem['imageIndex'])) {
                     $newImage = $newImages[$rawItem['imageIndex']];
+                    $item->setImageMimeType($newImage->getType());
                     $fileName = md5(
                         $newImage->getName() .
                         $newImage->getType() .
@@ -130,5 +132,53 @@ class WarehouseController extends AbstractController
         }
 
         return $this->returnSuccess();
+    }
+
+    #[CheckPermission(Permission::READ)]
+    public function image(
+        #[GetSetting('file_path')] Setting $filePath,
+        #[GetModel] ?Box\Item $item
+    ): FileResponse {
+        $image = realpath(
+            __DIR__ . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            '..' . DIRECTORY_SEPARATOR .
+            'assets' . DIRECTORY_SEPARATOR .
+            'img' . DIRECTORY_SEPARATOR .
+            'placeholder-image.png'
+        );
+        $mimeType = 'image/png';
+
+        if ($item !== null) {
+            $itemImage = $item->getImage();
+
+            if ($itemImage !== null) {
+                $image = sprintf(
+                    '%swarehouse%s%s',
+                    $filePath->getValue(),
+                    DIRECTORY_SEPARATOR,
+                    $itemImage
+                );
+                $mimeType = $item->getImageMimeType() ?? $mimeType;
+            }
+        }
+
+        return (new FileResponse($this->requestService, $image))
+            ->setDisposition('inline')
+            ->setType($mimeType)
+        ;
+    }
+
+    #[CheckPermission(Permission::READ)]
+    public function download(
+        #[GetSetting('file_path')] Setting $filePath,
+        #[GetModel] Box\Item\File $file
+    ): FileResponse {
+        return (new FileResponse(
+            $this->requestService,
+            $filePath->getValue() . 'warehouse' . DIRECTORY_SEPARATOR . $file->getFileName()
+        ))
+            ->setType($file->getMimeType())
+        ;
     }
 }

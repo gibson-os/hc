@@ -47,6 +47,9 @@ class Item extends AbstractModel implements JsonSerializable
     #[Column(type: Column::TYPE_VARCHAR, length: 64)]
     private ?string $image = null;
 
+    #[Column(type: Column::TYPE_VARCHAR, length: 64)]
+    private ?string $imageMimeType = null;
+
     #[Column]
     private int $stock = 0;
 
@@ -116,6 +119,18 @@ class Item extends AbstractModel implements JsonSerializable
         return $this;
     }
 
+    public function getImageMimeType(): ?string
+    {
+        return $this->imageMimeType;
+    }
+
+    public function setImageMimeType(?string $imageMimeType): Item
+    {
+        $this->imageMimeType = $imageMimeType;
+
+        return $this;
+    }
+
     public function getStock(): int
     {
         return $this->stock;
@@ -146,6 +161,7 @@ class Item extends AbstractModel implements JsonSerializable
             'id' => $this->getId(),
             'name' => $this->getName(),
             'image' => $this->getImage(),
+            'imageMimeType' => $this->getImageMimeType(),
             'stock' => $this->getStock(),
             'description' => $this->getDescription(),
             'codes' => $this->getCodes(),

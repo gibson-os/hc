@@ -328,7 +328,9 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
 
         const image = itemPanel.down('#image');
 
+        image.itemId = item.id;
         image.update({
+            itemId: item.id,
             name: record.get('name'),
             image: item.image,
             src: item.imageSource ?? ''
