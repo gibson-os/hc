@@ -21,7 +21,7 @@ class TagAutoComplete implements AutoCompleteInterface
      */
     public function getByNamePart(string $namePart, array $parameters): array
     {
-        return $this->tagRepository->findByName($namePart);
+        return $this->tagRepository->findByName($namePart . '*');
     }
 
     /**
