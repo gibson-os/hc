@@ -324,6 +324,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
         image.on('imageUploaded', (field, source, file) => {
             item.imageSource = source;
             item.imageFile = file;
+            me.viewItem.refresh();
         });
 
         itemPanel.down('tabpanel').items.each((itemTabPanel) => {
