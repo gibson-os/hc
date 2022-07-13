@@ -5,7 +5,8 @@
     "mdo/mdo": "dev-master",
     "gibson-os/core": "dev-master",
     "ext-mbstring": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "chillerlan/php-qrcode": "^4.3"
   },
   "require-dev": {
     "codeception/codeception": "^4.0",

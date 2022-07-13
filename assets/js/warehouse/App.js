@@ -27,5 +27,9 @@ Ext.define('GibsonOS.module.hc.warehouse.App', {
         }];
 
         me.callParent();
+
+        me.on('beforeclose', () => {
+            me.down('gosModuleHcWarehouseBoxTabPanel').removeAll();
+        });
     }
 });

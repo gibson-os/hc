@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use chillerlan\QRCode\QRCode;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModels;
 use GibsonOS\Core\Attribute\GetModel;
@@ -10,18 +11,26 @@ use GibsonOS\Core\Attribute\GetObjects;
 use GibsonOS\Core\Attribute\GetSetting;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Dto\File;
+use GibsonOS\Core\Exception\CreateError;
+use GibsonOS\Core\Exception\DeleteError;
+use GibsonOS\Core\Exception\FileNotFound;
+use GibsonOS\Core\Exception\GetError;
+use GibsonOS\Core\Exception\Model\DeleteError as ModelDeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\RequestError;
+use GibsonOS\Core\Exception\SetError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\Setting;
 use GibsonOS\Core\Model\User\Permission;
-use GibsonOS\Core\Service\FileService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Service\Response\FileResponse;
+use GibsonOS\Core\Service\Response\Response;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
+use GibsonOS\Module\Hc\Repository\Warehouse\BoxRepository;
+use GibsonOS\Module\Hc\Service\Warehouse\ItemService;
 use GibsonOS\Module\Hc\Store\Warehouse\BoxStore;
 use JsonException;
 use ReflectionException;
@@ -50,82 +59,45 @@ class WarehouseController extends AbstractController
      *
      * @throws JsonException
      * @throws ReflectionException
-     * @throws SaveError
      * @throws RequestError
+     * @throws SaveError
+     * @throws SelectError
+     * @throws CreateError
+     * @throws DeleteError
+     * @throws FileNotFound
+     * @throws GetError
+     * @throws ModelDeleteError
+     * @throws SetError
      */
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function save(
         ModelManager $modelManager,
-        FileService $fileService,
-        #[GetSetting('file_path')] Setting $filePath,
+        ItemService $itemService,
+        BoxRepository $boxRepository,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetMappedModels(Box::class)] array $boxes,
         #[GetObjects(File::class)] array $newFiles = [],
         #[GetObjects(File::class)] array $newImages = [],
     ): AjaxResponse {
-        $newTags = [];
         $rawBoxes = JsonUtility::decode($this->requestService->getRequestValue('boxes'));
 
         foreach ($boxes as $boxIndex => $box) {
             $rawBox = $rawBoxes[$boxIndex];
 
+            if (mb_strlen($box->getUuid()) !== 8) {
+                $box->setUuid($boxRepository->getFreeUuid());
+            }
+
             foreach ($box->getItems() as $itemIndex => $item) {
                 $rawItem = $rawBox['items'][$itemIndex];
 
-                if (is_int($rawItem['imageIndex'])) {
-                    $newImage = $newImages[$rawItem['imageIndex']];
-                    $item->setImageMimeType($newImage->getType());
-                    $fileName = md5(
-                        $newImage->getName() .
-                        $newImage->getType() .
-                        $newImage->getSize() .
-                        $newImage->getTmpName()
-                    );
-                    $fileService->move(
-                        $newImage->getTmpName(),
-                        $filePath->getValue() . 'warehouse' . DIRECTORY_SEPARATOR . $fileName
-                    );
-                    $item->setImage($fileName);
+                if (isset($rawItem['imageIndex']) && is_int($rawItem['imageIndex'])) {
+                    $itemService->saveImage($item, $newImages[$rawItem['imageIndex']]);
                 }
 
-                foreach ($item->getFiles() as $fileIndex => $file) {
-                    $rawFile = $rawItem['files'][$fileIndex];
-
-                    if (!is_int($rawFile['fileIndex'])) {
-                        continue;
-                    }
-
-                    $newFile = $newFiles[$rawFile['fileIndex']];
-                    $file->setMimeType($newFile->getType());
-                    $fileName = md5(
-                        $newFile->getName() .
-                        $newFile->getType() .
-                        $newFile->getSize() .
-                        $newFile->getTmpName()
-                    );
-                    $fileService->move(
-                        $newFile->getTmpName(),
-                        $filePath->getValue() . 'warehouse' . DIRECTORY_SEPARATOR . $fileName
-                    );
-                    $file->setFileName($fileName);
-                }
-
-                foreach ($item->getTags() as $tag) {
-                    $tagTag = $tag->getTag();
-
-                    if ($tagTag->getId() !== null && $tagTag->getId() !== 0) {
-                        continue;
-                    }
-
-                    if (isset($newTags[$tagTag->getName()])) {
-                        $tag->setTag($tagTag);
-
-                        continue;
-                    }
-
-                    $modelManager->save($tagTag);
-                    $newTags[$tagTag->getName()] = $tagTag;
-                }
+                $itemService->deleteFilesNotIn($item);
+                $itemService->saveFiles($item, $rawItem, $newFiles);
+                $itemService->saveTags($item);
             }
 
             $modelManager->save($box);
@@ -135,8 +107,29 @@ class WarehouseController extends AbstractController
     }
 
     #[CheckPermission(Permission::READ)]
+    public function qrCode(
+        QRCode $qrCode,
+        #[GetModel] Box $box
+    ): Response {
+        $qrCodeData = $qrCode->render($box->getUuid());
+
+        return new Response(
+            $qrCodeData,
+            headers: [
+                'Pragma' => 'public',
+                'Expires' => 0,
+                'Accept-Ranges' => 'bytes',
+                'Cache-Control' => ['must-revalidate, post-check=0, pre-check=0', 'private'],
+                'Content-Type' => 'image/svg+xml',
+                'Content-Length' => strlen($qrCodeData),
+                'Content-Transfer-Encoding' => 'binary',
+            ]
+        );
+    }
+
+    #[CheckPermission(Permission::READ)]
     public function image(
-        #[GetSetting('file_path')] Setting $filePath,
+        ItemService $itemService,
         #[GetModel] ?Box\Item $item
     ): FileResponse {
         $image = realpath(
@@ -153,12 +146,7 @@ class WarehouseController extends AbstractController
             $itemImage = $item->getImage();
 
             if ($itemImage !== null) {
-                $image = sprintf(
-                    '%swarehouse%s%s',
-                    $filePath->getValue(),
-                    DIRECTORY_SEPARATOR,
-                    $itemImage
-                );
+                $image = $itemService->getFilePath() . $itemImage;
                 $mimeType = $item->getImageMimeType() ?? $mimeType;
             }
         }
