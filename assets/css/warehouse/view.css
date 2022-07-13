@@ -35,3 +35,17 @@
     background-repeat: no-repeat;
     background-position: center;
 }
+
+.hcWarehouseBoxThumbnail {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #FFF;
+    position: absolute;
+    border: 1px solid #EEE;
+    border-radius: 5px;
+}
+
+.hcWarehouseBoxThumbnail:hover {
+    z-index: 1000 !important;
+}
