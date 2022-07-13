@@ -29,7 +29,7 @@ class TypeData extends AbstractInstall implements PriorityInterface
             ->setType(6, 'Neopixel', 'neopixel', uiSettings: ['icon' => 'icon_led'])
             ->setType(7, 'IR', 'ir', hasInput: true, uiSettings: ['icon' => 'icon_remotecontrol'])
             ->setType(8, 'I/O', 'io', hasInput: true)
-            ->setType(9, 'Warehouse', 'warehouse', hasInput: false)
+            ->setType(9, 'Warehouse', 'warehouse')
             ->setType(256, 'BME 280', 'bme280', isHcSlave: false)
             ->setType(257, 'SSD1306', 'ssd1306', isHcSlave: false, defaultAddresses: [60])
         ;
