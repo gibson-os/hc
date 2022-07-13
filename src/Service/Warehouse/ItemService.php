@@ -112,6 +112,10 @@ class ItemService
      */
     public function deleteFilesNotIn(Item $item): void
     {
+        if ($item->getId() === 0 || $item->getId() === null) {
+            return;
+        }
+
         foreach ($this->fileRepository->getFilesNotIn($item) as $file) {
             $this->fileService->delete($this->getFilePath() . $file->getFileName());
             $this->modelManager->delete($file);

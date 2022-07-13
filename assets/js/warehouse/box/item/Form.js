@@ -15,8 +15,6 @@ Ext.define('GibsonOS.module.hc.warehouse.box.item.Form', {
             cls: 'coloredPanel',
             data: {
                 itemId: 0,
-                name: '',
-                image: '',
                 src: ''
             },
             tpl: new Ext.XTemplate(

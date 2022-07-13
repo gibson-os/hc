@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Controller;
 
 use chillerlan\QRCode\QRCode;
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetEnv;
 use GibsonOS\Core\Attribute\GetMappedModels;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Attribute\GetObjects;
@@ -25,7 +26,6 @@ use GibsonOS\Core\Model\Setting;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Service\Response\FileResponse;
-use GibsonOS\Core\Service\Response\Response;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
@@ -108,23 +108,16 @@ class WarehouseController extends AbstractController
 
     #[CheckPermission(Permission::READ)]
     public function qrCode(
-        QRCode $qrCode,
+        #[GetEnv('WEB_URL')] string $webUrl,
         #[GetModel] Box $box
-    ): Response {
-        $qrCodeData = $qrCode->render($box->getUuid());
+    ): FileResponse {
+        $fileName = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'qrCode' . md5((string) mt_rand());
+        (new QRCode())->render($webUrl . '/hc/warehouse/box/uuid/' . $box->getUuid(), $fileName);
 
-        return new Response(
-            $qrCodeData,
-            headers: [
-                'Pragma' => 'public',
-                'Expires' => 0,
-                'Accept-Ranges' => 'bytes',
-                'Cache-Control' => ['must-revalidate, post-check=0, pre-check=0', 'private'],
-                'Content-Type' => 'image/svg+xml',
-                'Content-Length' => strlen($qrCodeData),
-                'Content-Transfer-Encoding' => 'binary',
-            ]
-        );
+        return (new FileResponse($this->requestService, $fileName))
+            ->setType('image/png')
+            ->setDisposition('inline')
+        ;
     }
 
     #[CheckPermission(Permission::READ)]

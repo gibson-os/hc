@@ -14,11 +14,10 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Form', {
             enableToolbar: false,
             cls: 'coloredPanel',
             data: {
-                name: '',
-                uuid: ''
+                boxId: 0
             },
             tpl: new Ext.XTemplate(
-                '<div class="hcWarehouseBoxCode" style="background-image: url({uuid});"></div>'
+                '<div class="hcWarehouseBoxCode" style="background-image: url(' + baseDir + 'hc/warehouse/qrCode/id/{boxId});"></div>'
             )
         },{
             xtype: 'gosCoreComponentFormFieldNumberField',

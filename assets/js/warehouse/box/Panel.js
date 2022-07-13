@@ -124,19 +124,6 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
                 };
 
                 xhr.send(formData);
-
-
-
-                // GibsonOS.Ajax.request({
-                //     url: baseDir + 'hc/warehouse/save',
-                //     params:  {
-                //         moduleId: me.moduleId,
-                //         boxes: Ext.encode(boxes)
-                //     },
-                //     callback: function() {
-                //         me.setLoading(false);
-                //     }
-                // });
             }
         });
 
@@ -254,7 +241,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             let records = [];
 
             store.each((record) => {
-                records.push({led: record.getData()});
+                records.push(record.getData());
             });
 
             boxes[0].set('leds', records);
@@ -286,8 +273,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
                 });
             });
             defaultForm.down('#uuid').update({
-                name: record.get('name'),
-                uuid: record.get('uuid')
+                boxId: record.get('id')
             });
 
             const ledStore = defaultForm.down('gosModuleHcWarehouseBoxLedGrid').getStore();

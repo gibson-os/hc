@@ -55,7 +55,7 @@ class Box extends AbstractModel implements JsonSerializable, AutoCompleteModelIn
     #[Constraint('box', Led::class)]
     protected array $leds = [];
 
-    #[Constraint('box', Item::class)]
+    #[Constraint('box', Item::class, orderBy: '`id`')]
     protected array $items = [];
 
     public function getId(): ?int
