@@ -12,7 +12,9 @@ use GibsonOS\Core\Attribute\GetObjects;
 use GibsonOS\Core\Attribute\GetSetting;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Dto\File;
+use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\CreateError;
+use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\DeleteError;
 use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\GetError;
@@ -30,6 +32,7 @@ use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Repository\Warehouse\BoxRepository;
+use GibsonOS\Module\Hc\Service\Module\NeopixelService;
 use GibsonOS\Module\Hc\Service\Warehouse\ItemService;
 use GibsonOS\Module\Hc\Store\Warehouse\BoxStore;
 use JsonException;
@@ -161,5 +164,32 @@ class WarehouseController extends AbstractController
         ))
             ->setType($file->getMimeType())
         ;
+    }
+
+    /**
+     * @throws SaveError
+     * @throws AbstractException
+     * @throws DateTimeError
+     */
+    public function show(
+        NeopixelService $neopixelService,
+        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel] Box $box,
+        int $red = 255,
+        int $green = 255,
+        int $blue = 255,
+    ): AjaxResponse {
+        $neopixelService->writeLeds(
+            $module,
+            array_map(
+                fn (Box\Led $led) => $led->getLed()
+                    ->setRed($red)
+                    ->setGreen($green)
+                    ->setBlue($blue),
+                $box->getLeds()
+            ),
+        );
+
+        return $this->returnSuccess();
     }
 }

@@ -59,6 +59,28 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
         me.callParent();
 
         me.addAction({
+            iconCls: 'icon_system system_show',
+            selectionNeeded: true,
+            minSelectionNeeded: 1,
+            handler() {
+                me.setLoading(true);
+
+                const selectionModel = me.viewItem.getSelectionModel();
+                const record = selectionModel.getSelection()[0];
+
+                GibsonOS.Ajax.request({
+                    url: baseDir + 'hc/warehouse/show',
+                    params:  {
+                        moduleId: me.moduleId,
+                        id: record.get('id')
+                    },
+                    callback() {
+                        me.setLoading(false);
+                    }
+                });
+            }
+        });
+        me.addAction({
             iconCls: 'icon_system system_save',
             handler() {
                 let boxes = [];
