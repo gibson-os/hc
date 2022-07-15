@@ -61,9 +61,10 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Form', {
             },
             addFunction() {
                 const ledField = me.down('#led');
-                me.down('gosModuleHcWarehouseBoxLedGrid').getStore().add(
-                    ledField.findRecordByValue(ledField.getValue())
-                );
+                const led = ledField.findRecordByValue(ledField.getValue());
+                me.down('gosModuleHcWarehouseBoxLedGrid').getStore().add({
+                    led: led.getData()
+                });
             }
         }];
 
