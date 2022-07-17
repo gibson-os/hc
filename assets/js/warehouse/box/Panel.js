@@ -179,6 +179,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
 
             tabPanel.remove(activeTab);
             items.splice(index-1, 1);
+            me.viewItem.refresh();
         };
         east.down('tabpanel').on('tabchange', (tabPanel, newTab) => {
             east.down('#deleteButton').setDisabled(tabPanel.items.indexOf(newTab) < 1);
