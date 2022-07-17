@@ -37,7 +37,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.View', {
                                 'height: {parent.height*' + me.gridSize + '-12}px; ',
                                 'left: {#*10}px; ',
                                 'z-index: calc(100 - {#}); ',
-                                'background-image: url(<tpl if="imageSource">{imageSource}<tpl else>' + baseDir + 'hc/warehouse/image/id/{id}</tpl>);',
+                                'background-image: url(<tpl if="imageSource">{imageSource}<tpl else>' + baseDir + 'hc/warehouse/image/id/{id}/{image}</tpl>);',
                             '">',
                         '</div>',
                     '</tpl>',

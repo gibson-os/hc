@@ -15,10 +15,11 @@ Ext.define('GibsonOS.module.hc.warehouse.box.item.Form', {
             cls: 'coloredPanel',
             data: {
                 itemId: 0,
+                image: '',
                 src: ''
             },
             tpl: new Ext.XTemplate(
-                '<div class="hcWarehouseBoxImage" style="height: 290px; background-image: url(<tpl if="src">{src}<tpl else>' + baseDir + 'hc/warehouse/image/id/{itemId}</tpl>);"></div>'
+                '<div class="hcWarehouseBoxImage" style="height: 290px; background-image: url(<tpl if="src">{src}<tpl else>' + baseDir + 'hc/warehouse/image/id/{itemId}/{image}</tpl>);"></div>'
             )
         },{
             xtype: 'gosCoreComponentFormFieldTextField',
