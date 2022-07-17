@@ -29,15 +29,21 @@ class LedMapper
      */
     public function mapToStrings(array $leds, int $maxLength): array
     {
-        ksort($leds);
-        $colors = $this->getColorsByLeds($leds);
+        $ledsByNumber = [];
+
+        foreach ($leds as $led) {
+            $ledsByNumber[$led instanceof AnimationLed ? $led->getLed()->getNumber() : $led->getNumber()] = $led;
+        }
+
+        ksort($ledsByNumber);
+        $colors = $this->getColorsByLeds($ledsByNumber);
         $data = [];
 
         foreach ($colors as $color) {
             sort($color['numbers']);
             $data = array_merge(
                 $data,
-                $this->getRangedColorStrings($leds, $color),
+                $this->getRangedColorStrings($ledsByNumber, $color),
                 [$this->getSingleColorString($color)],
                 $this->getGroupedColorStrings($color, $maxLength)
             );
