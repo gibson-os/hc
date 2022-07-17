@@ -163,6 +163,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
             items.push(item);
             boxes[0].set('items', items);
             me.addItemTab(boxes[0], item);
+            me.viewItem.refresh();
         };
         east.deleteFunction = () => {
             const boxes = me.viewItem.getSelectionModel().getSelection();
