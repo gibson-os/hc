@@ -15,6 +15,10 @@ Ext.define('GibsonOS.module.hc.warehouse.box.item.link.Grid', {
         })
 
         me.callParent();
+
+        me.on('itemdblclick', (grid, record) => {
+            window.open(record.get('url'));
+        });
     },
     getColumns() {
         return [{
