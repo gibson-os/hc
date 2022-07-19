@@ -45,7 +45,6 @@ Ext.define('GibsonOS.module.hc.warehouse.box.View', {
             '</tpl>'
         );
 
-
         me.callParent();
     }
 });

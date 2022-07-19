@@ -132,14 +132,15 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
                     me.setLoading(false);
 
                     if (xhr.status !== 200) {
-                        // options.failure(null);
+                        GibsonOS.MessageBox.show({msg: 'Warenhaus konnte nicht gespeichert werden!'});
+
                         return false;
                     }
 
                     const response = Ext.decode(xhr.responseText);
 
                     if (response.failure) {
-                        GibsonOS.MessageBox.show({msg: 'Datei konnte nicht hochgeladen werden!'});
+                        GibsonOS.MessageBox.show({msg: 'Warenhaus konnte nicht gespeichert werden!'});
 
                         return false;
                     }
