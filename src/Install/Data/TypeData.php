@@ -25,7 +25,6 @@ class TypeData extends AbstractInstall implements PriorityInterface
             ->setType(0, 'Neues Modul', 'blank', uiSettings: ['icon' => 'icon_bug'], defaultAddresses: [97])
             ->setType(255, 'Neues Modul', 'blank', uiSettings: ['icon' => 'icon_bug'], defaultAddresses: [97])
             ->setType(4, 'Rhinetower', 'rfmrhinetower', isHcSlave: false, uiSettings: ['icon' => 'icon_rhinetower', 'width' => 600, 'height' => 500])
-            ->setType(5, 'Box Vario 33', 'rfmboxvario33', isHcSlave: false, uiSettings: ['icon' => 'icon_boxvario33', 'width' => 450, 'height' => 430])
             ->setType(6, 'Neopixel', 'neopixel', uiSettings: ['icon' => 'icon_led'])
             ->setType(7, 'IR', 'ir', hasInput: true, uiSettings: ['icon' => 'icon_remotecontrol'])
             ->setType(8, 'I/O', 'io', hasInput: true)
