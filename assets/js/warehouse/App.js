@@ -12,6 +12,7 @@ Ext.define('GibsonOS.module.hc.warehouse.App', {
     initComponent: function () {
         let me = this;
 
+        me.title = me.title + ': ' + me.gos.data.module.name;
         me.items = [{
             xtype: 'gosModuleHcWarehouseBoxPanel',
             title: 'Boxen',
@@ -30,6 +31,9 @@ Ext.define('GibsonOS.module.hc.warehouse.App', {
 
         me.on('beforeclose', () => {
             me.down('gosModuleHcWarehouseBoxTabPanel').removeAll();
+        });
+        me.on('close', () => {
+            // @todo dirty
         });
     }
 });
