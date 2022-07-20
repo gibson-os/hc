@@ -105,15 +105,15 @@ class MasterServiceTest extends AbstractTest
     public function testReceiveNewSlaveWithoutAddress(): void
     {
         $this->expectException(ReceiveError::class);
-        $this->expectErrorMessage('Slave address is null!');
-        $this->masterService->receive(new Master(), (new BusMessage('42.42.42.42', 3)));
+        $this->expectErrorMessage('Module address is null!');
+        $this->masterService->receive(new Master(), new BusMessage('42.42.42.42', 3));
     }
 
     public function testReceiveWithoutCommand(): void
     {
         $this->expectException(ReceiveError::class);
         $this->expectErrorMessage('Command is null!');
-        $this->masterService->receive(new Master(), (new BusMessage('42.42.42.42', 255)));
+        $this->masterService->receive(new Master(), new BusMessage('42.42.42.42', 255));
     }
 
     public function testReceive(): void

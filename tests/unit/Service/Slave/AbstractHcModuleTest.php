@@ -39,15 +39,9 @@ class AbstractHcSlaveTest extends AbstractTest
      */
     private $masterService;
 
-    /**
-     * @var TransformService
-     */
-    private $transformService;
+    private TransformService $transformService;
 
-    /**
-     * @var ObjectProphecy|EventService
-     */
-    private $eventService;
+    private EventService $eventService;
 
     /**
      * @var ObjectProphecy|ModuleRepository
@@ -64,10 +58,7 @@ class AbstractHcSlaveTest extends AbstractTest
      */
     private $masterRepository;
 
-    /**
-     * @var ObjectProphecy|ModuleFactory
-     */
-    private $slaveFactory;
+    private ModuleFactory $moduleFactory;
 
     /**
      * @var ObjectProphecy|Module
@@ -89,22 +80,19 @@ class AbstractHcSlaveTest extends AbstractTest
     protected function _before(): void
     {
         $this->masterService = $this->prophesize(MasterService::class);
-        $this->transformService = new TransformService();
-        $this->eventService = $this->prophesize(EventService::class);
+        $this->transformService = $this->serviceManager->get(TransformService::class);
+        $this->eventService = $this->serviceManager->get(EventService::class);
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
-        $this->slaveFactory = $this->prophesize(ModuleFactory::class);
+        $this->moduleFactory = $this->serviceManager->get(ModuleFactory::class);
         $this->logger = $this->serviceManager->get(LoggerInterface::class);
         $this->slave = $this->prophesize(Module::class);
         $this->master = $this->prophesize(Master::class);
 
-        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService, $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->slaveFactory->reveal(), $this->logger, $this->modelManager->reveal(), $this->slave->reveal()) extends AbstractHcModule {
-            /**
-             * @var Module
-             */
-            private $slave;
+        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService, $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->moduleFactory->reveal(), $this->logger, $this->modelManager->reveal(), $this->slave->reveal()) extends AbstractHcModule {
+            private Module $module;
 
             public function __construct(
                 MasterService $masterService,
@@ -132,7 +120,7 @@ class AbstractHcSlaveTest extends AbstractTest
                     $modelManager
                 );
 
-                $this->slave = $slave;
+                $this->module = $slave;
             }
 
             public function slaveHandshake(Module $module): Module
@@ -151,6 +139,7 @@ class AbstractHcSlaveTest extends AbstractTest
 
             protected function getEventClassName(): string
             {
+                return '';
             }
         };
     }
@@ -230,7 +219,7 @@ class AbstractHcSlaveTest extends AbstractTest
             ->shouldBeCalledOnce()
             ->willReturn($this->slave->reveal())
         ;
-        $this->slaveFactory->get('prefect')
+        $this->moduleFactory->get('prefect')
             ->shouldBeCalledOnce()
             ->willReturn($slaveService->reveal())
         ;
@@ -1622,7 +1611,7 @@ class AbstractHcSlaveTest extends AbstractTest
         $slaveService->handshake($this->slave->reveal())
             ->shouldBeCalledOnce()
         ;
-        $this->slaveFactory->get('prefect')
+        $this->moduleFactory->get('prefect')
             ->shouldBeCalledOnce()
             ->willReturn($slaveService->reveal())
         ;

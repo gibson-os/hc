@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Gibson\Test\Unit\Service\Slave;
 
-use Codeception\Test\Unit;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
@@ -12,55 +12,40 @@ use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Module\AbstractModule;
 use GibsonOS\Module\Hc\Service\TransformService;
+use GibsonOS\UnitTest\AbstractTest;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Log\LoggerInterface;
 
-class AbstractSlaveTest extends Unit
+class AbstractSlaveTest extends AbstractTest
 {
     use ProphecyTrait;
 
-    /**
-     * @var ObjectProphecy|MasterService
-     */
-    private $masterService;
+    private ObjectProphecy|MasterService $masterService;
 
-    /**
-     * @var TransformService
-     */
-    private $transformService;
+    private TransformService $transformService;
 
-    /**
-     * @var AbstractModule
-     */
-    private $abstractSlave;
+    private AbstractModule $abstractSlave;
 
-    /**
-     * @var ObjectProphecy|Module
-     */
-    private $slave;
+    private ObjectProphecy|LogRepository $logRepository;
 
-    /**
-     * @var ObjectProphecy|LogRepository
-     */
-    private $logRepository;
+    private Module $module;
 
     protected function _before(): void
     {
         $this->masterService = $this->prophesize(MasterService::class);
-        $this->transformService = new TransformService();
+        $this->serviceManager->setService(MasterService::class, $this->masterService->reveal());
+        $this->transformService = $this->serviceManager->get(TransformService::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
-        $this->slave = $this->prophesize(Module::class);
+        $this->module = new Module();
 
-        $this->abstractSlave = new class($this->masterService->reveal(), $this->transformService, $this->logRepository->reveal(), $this->slave->reveal()) extends AbstractModule {
-            /**
-             * @var Module
-             */
-            private $slave;
+        $this->abstractSlave = new class($this->masterService->reveal(), $this->transformService, $this->logRepository->reveal(), $this->serviceManager->get(LoggerInterface::class), $this->modelManager->reveal(), $this->module) extends AbstractModule {
+            private Module $module;
 
-            public function __construct(MasterService $masterService, TransformService $transformService, LogRepository $logRepository, Module $slave)
+            public function __construct(MasterService $masterService, TransformService $transformService, LogRepository $logRepository, LoggerInterface $logger, ModelManager $modelManager, Module $module)
             {
-                parent::__construct($masterService, $transformService, $logRepository);
-                $this->slave = $slave;
+                parent::__construct($masterService, $transformService, $logRepository, $logger, $modelManager);
+                $this->module = $module;
             }
 
             public function handshake(Module $slave): Module
@@ -74,7 +59,7 @@ class AbstractSlaveTest extends Unit
     {
         self::prophesizeWrite(
             $this->prophesize(Master::class),
-            $this->slave,
+            $this->module,
             $this->masterService,
             $this->transformService,
             $this->logRepository,
@@ -85,14 +70,14 @@ class AbstractSlaveTest extends Unit
             'Handtuch'
         );
 
-        $this->abstractSlave->write($this->slave->reveal(), 42, 'Handtuch');
+        $this->abstractSlave->write($this->module->reveal(), 42, 'Handtuch');
     }
 
     public function testRead(): void
     {
         self::prophesizeRead(
             $this->prophesize(Master::class),
-            $this->slave,
+            $this->module,
             $this->masterService,
             $this->transformService,
             $this->logRepository,
@@ -106,7 +91,7 @@ class AbstractSlaveTest extends Unit
 
         $this->assertEquals(
             'Handtuch',
-            $this->abstractSlave->read($this->slave->reveal(), 42, 8)
+            $this->abstractSlave->read($this->module->reveal(), 42, 8)
         );
     }
 
