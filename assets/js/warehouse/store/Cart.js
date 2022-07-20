@@ -1,26 +1,18 @@
-Ext.define('GibsonOS.module.hc.warehouse.remote.KeyGrid', {
-    extend: 'GibsonOS.module.core.component.grid.Panel',
-    alias: ['widget.gosModuleIrRemoteKeyGrid'],
-    autoScroll: true,
-    multiSelect: true,
-    enablePagingBar: false,
-    deleteFunction(records) {
-        this.getStore().remove(records);
-    },
-    initComponent() {
-        const me = this;
+Ext.define('GibsonOS.module.hc.warehouse.store.Cart', {
+    extend: 'GibsonOS.data.Store',
+    alias: ['store.gosModuleHcWarehouseCartStore'],
+    model: 'GibsonOS.module.hc.warehouse.model.Cart',
+    autoLoad: true,
+    constructor: function(data) {
+        let me = this;
 
-        me.store = new Ext.data.ArrayStore({
-            model: 'GibsonOS.module.hc.ir.model.Key'
-        })
+        me.proxy = {
+            type: 'gosDataProxyAjax',
+            url: baseDir + 'hc/warehouseCart/index'
+        };
 
-        me.callParent();
-    },
-    getColumns() {
-        return [{
-            header: 'Name',
-            dataIndex: 'name',
-            flex: 1
-        }];
+        me.callParent(arguments);
+
+        return me;
     }
 });

@@ -18,11 +18,14 @@ Ext.define('GibsonOS.module.hc.warehouse.App', {
             title: 'Boxen',
             moduleId: me.gos.data.module.id
         },{
+            xtype: 'gosModuleHcWarehouseCartGrid',
+            title: 'Warenkörbe'
+        },{
+            xtype: 'gosModuleHcNeopixelLedPanel',
             requiredPermission: {
                 module: 'hc',
                 task: 'neopixel'
             },
-            xtype: 'gosModuleHcNeopixelLedPanel',
             title: 'LEDs',
             hcModuleId: me.gos.data.module.id
         }];

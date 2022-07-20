@@ -8,11 +8,12 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
+use GibsonOS\Module\Hc\Model\Warehouse\Box\Item as BoxItem;
 use JsonSerializable;
 
 /**
- * @method Box  getBox()
- * @method Item setBox(Box $box)
+ * @method Box  getItem()
+ * @method Item setItem(BoxItem $item)
  */
 #[Table]
 class Item extends AbstractModel implements JsonSerializable
@@ -24,10 +25,10 @@ class Item extends AbstractModel implements JsonSerializable
     private int $stock = 0;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $boxId;
+    private int $itemId;
 
     #[Constraint]
-    protected Box $box;
+    protected BoxItem $item;
 
     public function getId(): ?int
     {
@@ -53,14 +54,14 @@ class Item extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getBoxId(): int
+    public function getItemId(): int
     {
-        return $this->boxId;
+        return $this->itemId;
     }
 
-    public function setBoxId(int $boxId): Item
+    public function setItemId(int $itemId): Item
     {
-        $this->boxId = $boxId;
+        $this->itemId = $itemId;
 
         return $this;
     }
@@ -70,7 +71,7 @@ class Item extends AbstractModel implements JsonSerializable
         return [
             'id' => $this->getId(),
             'stock' => $this->getStock(),
-            'box' => $this->getBox(),
+            'item' => $this->getItem(),
         ];
     }
 }
