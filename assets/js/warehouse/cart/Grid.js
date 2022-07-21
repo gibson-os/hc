@@ -3,6 +3,7 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.Grid', {
     alias: ['widget.gosModuleHcWarehouseCartGrid'],
     multiSelect: true,
     addFunction() {
+        new GibsonOS.module.hc.warehouse.cart.App();
     },
     deleteFunction(records) {
         // this.getStore().remove(records);

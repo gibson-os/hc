@@ -14,7 +14,9 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.Panel', {
 
         me.items = [{
             xtype: 'gosModuleHcWarehouseCartForm',
-            region: 'north'
+            region: 'north',
+            flex: 0,
+            autoHeight: true
         },{
             xtype: 'gosModuleHcWarehouseCartItemGrid',
             region: 'center'
