@@ -6,5 +6,8 @@ Ext.define('GibsonOS.module.hc.warehouse.model.Cart', {
     },{
         name: 'name',
         type: 'string'
+    },{
+        name: 'description',
+        type: 'string'
     }]
 });

@@ -8,16 +8,15 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.Grid', {
     deleteFunction(records) {
         // this.getStore().remove(records);
     },
+    enterFunction(record) {
+        new GibsonOS.module.hc.warehouse.cart.App({cartId: record.get('id')});
+    },
     initComponent() {
         const me = this;
 
         me.store = new GibsonOS.module.hc.warehouse.store.Cart();
 
         me.callParent();
-
-        me.on('itemdblclick', (grid, record) => {
-            window.open(record.get('url'));
-        });
     },
     getColumns() {
         return [{

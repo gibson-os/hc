@@ -27,7 +27,7 @@ class WarehouseCartController extends AbstractController
     #[CheckPermission(Permission::READ)]
     public function index(CartStore $cartStore, int $start = 0, int $limit = 100): AjaxResponse
     {
-        $cartStore->setLimit($start, $limit);
+        $cartStore->setLimit($limit, $start);
 
         return $this->returnSuccess($cartStore->getList(), $cartStore->getCount());
     }

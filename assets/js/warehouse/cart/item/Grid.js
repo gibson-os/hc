@@ -3,6 +3,10 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.item.Grid', {
     alias: ['widget.gosModuleHcWarehouseCartItemGrid'],
     multiSelect: true,
     addFunction() {
+        const me = this;
+        const record = me.getStore().add({stock: 1})[0];
+
+        me.plugins[0].startEdit(record, 1);
     },
     deleteFunction(records) {
         // this.getStore().remove(records);
@@ -10,23 +14,49 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.item.Grid', {
     initComponent() {
         const me = this;
 
-        me.store = new GibsonOS.module.hc.warehouse.store.cart.Item();
+        me.store = new GibsonOS.module.hc.warehouse.store.cart.Item({
+            cartId: me.cartId
+        });
+
+        me.plugins = [
+            Ext.create('Ext.grid.plugin.RowEditing', {
+                saveBtnText: 'Speichern',
+                cancelBtnText: 'Abbrechen',
+                clicksToMoveEditor: 1,
+                pluginId: 'rowEditing',
+                listeners: {
+                    beforeedit: function(editor, context) {
+                    }
+                }
+            })
+        ];
 
         me.callParent();
-
-        me.on('itemdblclick', (grid, record) => {
-            // window.open(record.get('url'));
-        });
     },
     getColumns() {
         return [{
             header: 'Name',
-            dataIndex: 'name',
-            flex: 1
+            dataIndex: 'itemId',
+            flex: 1,
+            editor: {
+                xtype: 'gosModuleCoreParameterTypeAutoComplete',
+                parameterObject: {
+                    config: {
+                        model: 'GibsonOS.module.hc.warehouse.model.box.Item',
+                        autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Warehouse\\Box\\ItemAutoComplete',
+                    }
+                },
+                hideLabel: true
+            }
         },{
             header: 'Anzahl',
             dataIndex: 'stock',
-            flex: 1
+            flex: 1,
+            editor: {
+                xtype: 'gosFormNumberfield',
+                hideLabel: true,
+                minValue: 1
+            }
         }];
     }
 });

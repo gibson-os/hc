@@ -8,6 +8,7 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item\Code;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item\File;
@@ -33,7 +34,7 @@ use JsonSerializable;
  */
 #[Table]
 #[Key(unique: true, columns: ['box_id', 'name'])]
-class Item extends AbstractModel implements JsonSerializable
+class Item extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
@@ -169,5 +170,10 @@ class Item extends AbstractModel implements JsonSerializable
             'files' => $this->getFiles(),
             'tags' => $this->getTags(),
         ];
+    }
+
+    public function getAutoCompleteId(): int
+    {
+        return $this->getId() ?? 0;
     }
 }

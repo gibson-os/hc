@@ -12,6 +12,10 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.Form', {
             xtype: 'gosCoreComponentFormFieldTextField',
             name: 'name',
             fieldLabel: 'Name'
+        },{
+            xtype: 'gosCoreComponentFormFieldTextArea',
+            name: 'description',
+            fieldLabel: 'Beschreibung'
         }];
 
         me.callParent();

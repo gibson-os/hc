@@ -26,7 +26,10 @@ class Cart extends AbstractModel implements JsonSerializable
     #[Key(true)]
     private string $name;
 
-    #[Constraint('box', Item::class)]
+    #[Column(type: Column::TYPE_VARCHAR, length: 512)]
+    private ?string $description = null;
+
+    #[Constraint('cart', Item::class)]
     protected array $items = [];
 
     public function getId(): ?int
@@ -53,11 +56,24 @@ class Cart extends AbstractModel implements JsonSerializable
         return $this;
     }
 
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): Cart
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
+            'description' => $this->getDescription(),
         ];
     }
 }
