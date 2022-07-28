@@ -13,6 +13,7 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Model\Warehouse\Cart;
+use GibsonOS\Module\Hc\Store\Warehouse\Cart\ItemStore;
 use GibsonOS\Module\Hc\Store\Warehouse\CartStore;
 use JsonException;
 use ReflectionException;
@@ -33,9 +34,22 @@ class WarehouseCartController extends AbstractController
     }
 
     #[CheckPermission(Permission::READ)]
-    public function items(#[GetModel] ?Cart $cart): AjaxResponse
-    {
-        return $this->returnSuccess($cart?->getItems() ?? []);
+    public function items(
+        ItemStore $itemStore,
+        #[GetModel] ?Cart $cart,
+        int $start = 0,
+        int $limit = 100
+    ): AjaxResponse {
+        if ($cart === null) {
+            return $this->returnSuccess([], 0);
+        }
+
+        $itemStore
+            ->setCart($cart)
+            ->setLimit($limit, $start)
+        ;
+
+        return $this->returnSuccess($itemStore->getList(), $itemStore->getCount());
     }
 
     /**

@@ -34,6 +34,8 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.item.Grid', {
         me.callParent();
     },
     getColumns() {
+        const me = this;
+
         return [{
             header: 'Name',
             dataIndex: 'itemId',
@@ -46,7 +48,15 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.item.Grid', {
                         autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Warehouse\\Box\\ItemAutoComplete',
                     }
                 },
-                hideLabel: true
+                hideLabel: true,
+                listeners: {
+                    select(combo, records) {
+                        me.getSelectionModel().getSelection()[0].set('item', records[0].getData());
+                    }
+                }
+            },
+            renderer(value, metaData, record) {
+                return record.get('item').name;
             }
         },{
             header: 'Anzahl',

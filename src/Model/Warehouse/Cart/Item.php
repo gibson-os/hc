@@ -94,7 +94,7 @@ class Item extends AbstractModel implements JsonSerializable
         return [
             'id' => $this->getId(),
             'stock' => $this->getStock(),
-            'itemId' => $this->getItemId(),
+            'item' => $this->getItem(),
         ];
     }
 }
