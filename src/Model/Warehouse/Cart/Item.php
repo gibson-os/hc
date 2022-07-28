@@ -8,16 +8,15 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
-use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item as BoxItem;
 use GibsonOS\Module\Hc\Model\Warehouse\Cart;
 use JsonSerializable;
 
 /**
- * @method Cart getCart()
- * @method Item setCart(Cart $cart)
- * @method Box  getItem()
- * @method Item setItem(BoxItem $item)
+ * @method Cart    getCart()
+ * @method Item    setCart(Cart $cart)
+ * @method BoxItem getItem()
+ * @method Item    setItem(BoxItem $item)
  */
 #[Table]
 #[Key(true, ['cart_id', 'item_id'])]

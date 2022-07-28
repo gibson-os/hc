@@ -11,6 +11,13 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.item.Grid', {
     deleteFunction(records) {
         // this.getStore().remove(records);
     },
+    viewConfig: {
+        getRowClass(record) {
+            if (record.get('stock') > record.get('available')) {
+                return 'hcWarehouseCartItemNotAvailable';
+            }
+        }
+    },
     initComponent() {
         const me = this;
 
@@ -39,7 +46,7 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.item.Grid', {
         return [{
             header: 'Name',
             dataIndex: 'itemId',
-            flex: 1,
+            flex: 2,
             editor: {
                 xtype: 'gosModuleCoreParameterTypeAutoComplete',
                 parameterObject: {
@@ -67,6 +74,10 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.item.Grid', {
                 hideLabel: true,
                 minValue: 1
             }
+        },{
+            header: 'Verfügbar',
+            dataIndex: 'available',
+            flex: 1
         }];
     }
 });

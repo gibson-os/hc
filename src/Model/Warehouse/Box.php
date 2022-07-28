@@ -49,6 +49,9 @@ class Box extends AbstractModel implements JsonSerializable, AutoCompleteModelIn
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $height = 1;
 
+    #[Column]
+    private bool $shown = false;
+
     #[Constraint]
     protected Module $module;
 
@@ -142,6 +145,18 @@ class Box extends AbstractModel implements JsonSerializable, AutoCompleteModelIn
         return $this;
     }
 
+    public function isShown(): bool
+    {
+        return $this->shown;
+    }
+
+    public function setShown(bool $shown): Box
+    {
+        $this->shown = $shown;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         return [
@@ -151,6 +166,7 @@ class Box extends AbstractModel implements JsonSerializable, AutoCompleteModelIn
             'width' => $this->getWidth(),
             'height' => $this->getHeight(),
             'uuid' => $this->getUuid(),
+            'shown' => $this->isShown(),
             'leds' => $this->getLeds(),
             'items' => $this->getItems(),
         ];

@@ -10,6 +10,12 @@ Ext.define('GibsonOS.module.hc.warehouse.model.cart.Item', {
             return record.get('item').id;
         }
     },{
+        name: 'available',
+        type: 'integer',
+        convert(value, record) {
+            return record.get('item').stock;
+        }
+    },{
         name: 'stock',
         type: 'integer'
     },{

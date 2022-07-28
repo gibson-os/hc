@@ -19,6 +19,9 @@ Ext.define('GibsonOS.module.hc.warehouse.model.Box', {
         name: 'height',
         type: 'int'
     },{
+        name: 'shown',
+        type: 'bool'
+    },{
         name: 'leds',
         type: 'array'
     },{

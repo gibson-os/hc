@@ -180,7 +180,7 @@ class WarehouseController extends AbstractController
         int $fadeIn = 0,
         int $blink = 0,
     ): AjaxResponse {
-        $boxService->show($box, $red, $green, $blue, $fadeIn, $blink);
+        $boxService->showLeds([$box], $red, $green, $blue, $fadeIn, $blink);
 
         return $this->returnSuccess();
     }
