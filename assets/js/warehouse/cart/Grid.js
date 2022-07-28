@@ -23,6 +23,10 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.Grid', {
             header: 'Name',
             dataIndex: 'name',
             flex: 1
+        },{
+            header: 'Beschreibung',
+            dataIndex: 'description',
+            flex: 1
         }];
     }
 });

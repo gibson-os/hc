@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use Generator;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
@@ -13,6 +14,7 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Model\Warehouse\Cart;
+use GibsonOS\Module\Hc\Model\Warehouse\Cart\Item;
 use GibsonOS\Module\Hc\Store\Warehouse\Cart\ItemStore;
 use GibsonOS\Module\Hc\Store\Warehouse\CartStore;
 use JsonException;
@@ -33,6 +35,11 @@ class WarehouseCartController extends AbstractController
         return $this->returnSuccess($cartStore->getList(), $cartStore->getCount());
     }
 
+    /**
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SelectError
+     */
     #[CheckPermission(Permission::READ)]
     public function items(
         ItemStore $itemStore,
@@ -48,8 +55,17 @@ class WarehouseCartController extends AbstractController
             ->setCart($cart)
             ->setLimit($limit, $start)
         ;
+        /** @var Generator<Item> $list */
+        $list = $itemStore->getList();
 
-        return $this->returnSuccess($itemStore->getList(), $itemStore->getCount());
+        return new AjaxResponse([
+            'name' => $cart->getName(),
+            'description' => $cart->getDescription(),
+            'data' => iterator_to_array($list),
+            'total' => $itemStore->getCount(),
+            'success' => true,
+            'failure' => false,
+        ]);
     }
 
     /**

@@ -18,6 +18,14 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.Panel', {
 
         me.callParent();
 
+        me.down('grid').getStore().on('load', (store) => {
+            const form = me.down('form').getForm();
+            const data = store.getProxy().getReader().rawData;
+
+            form.findField('name').setValue(data.name);
+            form.findField('description').setValue(data.description);
+        })
+
         me.addAction({
             iconCls: 'icon_system system_save',
             handler() {
