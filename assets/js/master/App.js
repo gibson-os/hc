@@ -14,14 +14,28 @@ Ext.define('GibsonOS.module.hc.master.App', {
 
         me.title += ': ' + me.gos.data.master.name;
         me.items = [{
-            xtype: 'gosModuleHcIndexModuleGrid',
-            gos: {
-                data: {
-                    extraParams: {
-                        masterId: me.gos.data.master.id
+            xtype: 'gosCoreComponentTabPanel',
+            items: [{
+                xtype: 'gosModuleHcIndexModuleGrid',
+                title: 'Module',
+                gos: {
+                    data: {
+                        extraParams: {
+                            masterId: me.gos.data.master.id
+                        }
                     }
                 }
-            }
+            }, {
+                xtype: 'gosModuleHcIndexLogGrid',
+                title: 'Log',
+                gos: {
+                    data: {
+                        extraParams: {
+                            masterId: this.gos.data.master.id
+                        }
+                    }
+                }
+            }]
         }];
 
         me.callParent(arguments);
