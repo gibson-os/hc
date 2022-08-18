@@ -10,6 +10,7 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Template;
+use JsonSerializable;
 
 /**
  * @method Template  getTemplate()
@@ -19,7 +20,7 @@ use GibsonOS\Module\Hc\Model\Warehouse\Label\Template;
  * @method Label     addElements(Element[] $elements)
  */
 #[Table]
-class Label extends AbstractModel
+class Label extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
@@ -71,5 +72,13 @@ class Label extends AbstractModel
         $this->templateId = $templateId;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+        ];
     }
 }

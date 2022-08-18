@@ -1,0 +1,32 @@
+.hcWarehouseLabel {
+    border: 1px solid #000;
+    background-color: #FFF;
+    position: relative;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.hcWarehouseLabelSize {
+    text-align: center;
+    margin: 5px 0;
+}
+
+.hcWarehouseLabelElement {
+    position: absolute;
+    border: 1px solid #DDD;
+    background-color: #FFF;
+    color: #DDD;
+    padding: 2px;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+.hcWarehouseLabelElementSelected {
+    border-color: #999;
+    color: #999;
+}
+
+.hcWarehouseLabelElementHover {
+    border-color: #BBB;
+    color: #BBB;
+}

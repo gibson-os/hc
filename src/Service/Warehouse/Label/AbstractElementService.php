@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Warehouse\Label;
 
-use GibsonOS\Module\Hc\Dto\Warehouse\Label\ElementMatrix;
-use GibsonOS\Module\Hc\Dto\Warehouse\Label\ElementType;
+use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Matrix;
+use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
 use TCPDF;
@@ -13,7 +13,7 @@ abstract class AbstractElementService
 {
     protected const OPTION_SIZE = 'size';
 
-    abstract public function getType(): ElementType;
+    abstract public function getType(): Type;
 
     abstract public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void;
 
@@ -54,7 +54,7 @@ abstract class AbstractElementService
         $pdf->setColor('fill', $backgroundColor >> 16, ($backgroundColor >> 8) & 255, $backgroundColor & 255);
     }
 
-    protected function calcElementMatrix(int $elementCount, float $width, float $height): ElementMatrix
+    protected function calcElementMatrix(int $elementCount, float $width, float $height): Matrix
     {
         $sqrt = sqrt($elementCount);
         $columns = (int) ceil($sqrt);
@@ -77,7 +77,7 @@ abstract class AbstractElementService
             $columns = $elementCount;
         }
 
-        return new ElementMatrix(
+        return new Matrix(
             $width / $columns,
             $height / $rows,
             $columns

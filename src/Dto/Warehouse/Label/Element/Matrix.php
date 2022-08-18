@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Dto\Warehouse\Label;
+namespace GibsonOS\Module\Hc\Dto\Warehouse\Label\Element;
 
-class ElementMatrix
+class Matrix
 {
     public function __construct(
         private readonly float $width,

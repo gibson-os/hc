@@ -149,6 +149,14 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
                 xhr.send(formData);
             }
         });
+        me.addAction({
+            tbarText: 'Labels',
+            handler() {
+                new GibsonOS.module.hc.warehouse.label.App({
+                    moduleId: me.moduleId
+                });
+            }
+        });
 
         const east = me.down('#east');
 

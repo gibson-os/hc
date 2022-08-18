@@ -2,6 +2,7 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Grid', {
     extend: 'GibsonOS.module.core.component.grid.Panel',
     alias: ['widget.gosModuleHcWarehouseLabelGrid'],
     multiSelect: true,
+    enablePagingBar: false,
     addFunction() {
     },
     deleteFunction(records) {

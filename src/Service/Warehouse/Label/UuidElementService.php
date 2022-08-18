@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Warehouse\Label;
 
 use GibsonOS\Core\Attribute\GetEnv;
-use GibsonOS\Module\Hc\Dto\Warehouse\Label\ElementType;
+use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
 use TCPDF;
@@ -18,9 +18,9 @@ class UuidElementService extends AbstractElementService
     ) {
     }
 
-    public function getType(): ElementType
+    public function getType(): Type
     {
-        return ElementType::UUID;
+        return Type::UUID;
     }
 
     public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void

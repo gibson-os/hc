@@ -5,16 +5,16 @@ Ext.define('GibsonOS.module.hc.warehouse.model.label.Element', {
         type: 'int'
     },{
         name: 'top',
-        type: 'int'
+        type: 'float'
     },{
         name: 'left',
-        type: 'int'
+        type: 'float'
     },{
         name: 'width',
-        type: 'int'
+        type: 'float'
     },{
         name: 'height',
-        type: 'int'
+        type: 'float'
     },{
         name: 'color',
         type: 'string'

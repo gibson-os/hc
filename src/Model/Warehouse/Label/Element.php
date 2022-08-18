@@ -7,15 +7,16 @@ use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
-use GibsonOS\Module\Hc\Dto\Warehouse\Label\ElementType;
+use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Label;
+use JsonSerializable;
 
 /**
  * @method Label   getLabel()
  * @method Element setLabel(Label $label)
  */
 #[Table]
-class Element extends AbstractModel
+class Element extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
@@ -39,7 +40,7 @@ class Element extends AbstractModel
     private ?string $backgroundColor = null;
 
     #[Column]
-    private ElementType $type;
+    private Type $type;
 
     #[Column]
     private array $options = [];
@@ -134,12 +135,12 @@ class Element extends AbstractModel
         return $this;
     }
 
-    public function getType(): ElementType
+    public function getType(): Type
     {
         return $this->type;
     }
 
-    public function setType(ElementType $type): Element
+    public function setType(Type $type): Element
     {
         $this->type = $type;
 
@@ -168,5 +169,20 @@ class Element extends AbstractModel
         $this->labelId = $labelId;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'top' => $this->getTop(),
+            'left' => $this->getLeft(),
+            'width' => $this->getWidth(),
+            'height' => $this->getHeight(),
+            'color' => $this->getColor(),
+            'backgroundColor' => $this->getBackgroundColor(),
+            'type' => $this->getType()->name,
+            'options' => $this->getOptions(),
+        ];
     }
 }

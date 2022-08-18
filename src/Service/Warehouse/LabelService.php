@@ -25,7 +25,7 @@ class LabelService
     /**
      * @throws SelectError
      */
-    public function generate(Module $module, Label $label): TCPDF
+    public function generate(Module $module, Label $label, int $offset = 0): TCPDF
     {
         $pdf = new TCPDF();
         $pdf->setCreator('Gibson OS');
@@ -35,7 +35,7 @@ class LabelService
         $pdf->setPrintFooter(false);
         $pdf->setDocCreationTimestamp(time());
 
-        $this->generateLabels($pdf, $module, $label);
+        $this->generateLabels($pdf, $module, $label, $offset);
 
         return $pdf;
     }
@@ -43,7 +43,7 @@ class LabelService
     /**
      * @throws SelectError
      */
-    private function generateLabels(TCPDF $pdf, Module $module, Label $label): void
+    private function generateLabels(TCPDF $pdf, Module $module, Label $label, int $offset): void
     {
         $template = $label->getTemplate();
         $pdf->startPage('P', [$template->getPageWidth(), $template->getPageHeight()]);

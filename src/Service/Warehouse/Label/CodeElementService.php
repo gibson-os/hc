@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Warehouse\Label;
 
 use GibsonOS\Module\Hc\Dto\Warehouse\Label\Barcode;
-use GibsonOS\Module\Hc\Dto\Warehouse\Label\ElementType;
+use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
 use TCPDF;
@@ -21,9 +21,9 @@ class CodeElementService extends AbstractElementService
 
     private const OPTION_PADDING = 'padding';
 
-    public function getType(): ElementType
+    public function getType(): Type
     {
-        return ElementType::CODE;
+        return Type::CODE;
     }
 
     public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void

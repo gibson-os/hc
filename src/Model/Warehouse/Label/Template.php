@@ -7,9 +7,10 @@ use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use JsonSerializable;
 
 #[Table]
-class Template extends AbstractModel
+class Template extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
@@ -190,5 +191,23 @@ class Template extends AbstractModel
         $this->itemMarginBottom = $itemMarginBottom;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'pageWidth' => $this->getPageWidth(),
+            'pageHeight' => $this->getPageHeight(),
+            'rows' => $this->getRows(),
+            'columns' => $this->getColumns(),
+            'marginTop' => $this->getMarginTop(),
+            'marginLeft' => $this->getMarginLeft(),
+            'itemWidth' => $this->getItemWidth(),
+            'itemHeight' => $this->getItemHeight(),
+            'itemMarginRight' => $this->getItemMarginRight(),
+            'itemMarginBottom' => $this->getItemMarginBottom(),
+        ];
     }
 }
