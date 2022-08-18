@@ -7,7 +7,7 @@ use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
-use GibsonOS\Module\Hc\Dto\Warehouse\LabelType;
+use GibsonOS\Module\Hc\Dto\Warehouse\Label\ElementType;
 use GibsonOS\Module\Hc\Model\Warehouse\Label;
 
 /**
@@ -21,25 +21,25 @@ class Element extends AbstractModel
     private ?int $id = null;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $top;
+    private float $top;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $left;
+    private float $left;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $width;
+    private float $width;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $height;
+    private float $height;
 
     #[Column(type: Column::TYPE_VARCHAR, length: 6)]
-    private string $color;
+    private ?string $color = null;
 
     #[Column(type: Column::TYPE_VARCHAR, length: 6)]
-    private string $backgroundColor;
+    private ?string $backgroundColor = null;
 
     #[Column]
-    private LabelType $type;
+    private ElementType $type;
 
     #[Column]
     private array $options = [];
@@ -62,84 +62,84 @@ class Element extends AbstractModel
         return $this;
     }
 
-    public function getTop(): int
+    public function getTop(): float
     {
         return $this->top;
     }
 
-    public function setTop(int $top): Element
+    public function setTop(float $top): Element
     {
         $this->top = $top;
 
         return $this;
     }
 
-    public function getLeft(): int
+    public function getLeft(): float
     {
         return $this->left;
     }
 
-    public function setLeft(int $left): Element
+    public function setLeft(float $left): Element
     {
         $this->left = $left;
 
         return $this;
     }
 
-    public function getWidth(): int
+    public function getWidth(): float
     {
         return $this->width;
     }
 
-    public function setWidth(int $width): Element
+    public function setWidth(float $width): Element
     {
         $this->width = $width;
 
         return $this;
     }
 
-    public function getHeight(): int
+    public function getHeight(): float
     {
         return $this->height;
     }
 
-    public function setHeight(int $height): Element
+    public function setHeight(float $height): Element
     {
         $this->height = $height;
 
         return $this;
     }
 
-    public function getColor(): string
+    public function getColor(): ?string
     {
         return $this->color;
     }
 
-    public function setColor(string $color): Element
+    public function setColor(?string $color): Element
     {
         $this->color = $color;
 
         return $this;
     }
 
-    public function getBackgroundColor(): string
+    public function getBackgroundColor(): ?string
     {
         return $this->backgroundColor;
     }
 
-    public function setBackgroundColor(string $backgroundColor): Element
+    public function setBackgroundColor(?string $backgroundColor): Element
     {
         $this->backgroundColor = $backgroundColor;
 
         return $this;
     }
 
-    public function getType(): LabelType
+    public function getType(): ElementType
     {
         return $this->type;
     }
 
-    public function setType(LabelType $type): Element
+    public function setType(ElementType $type): Element
     {
         $this->type = $type;
 

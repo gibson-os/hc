@@ -19,10 +19,10 @@ class Template extends AbstractModel
     private string $name;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $paperWidth;
+    private float $pageWidth;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $paperHeight;
+    private float $pageHeight;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $rows;
@@ -31,22 +31,22 @@ class Template extends AbstractModel
     private int $columns;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $marginTop;
+    private float $marginTop;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $marginLeft;
+    private float $marginLeft;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $itemWidth;
+    private float $itemWidth;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $itemHeight;
+    private float $itemHeight;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $itemMarginRight;
+    private float $itemMarginRight;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $itemMarginBottom;
+    private float $itemMarginBottom;
 
     public function getId(): ?int
     {
@@ -72,26 +72,26 @@ class Template extends AbstractModel
         return $this;
     }
 
-    public function getPaperWidth(): int
+    public function getPageWidth(): float
     {
-        return $this->paperWidth;
+        return $this->pageWidth;
     }
 
-    public function setPaperWidth(int $paperWidth): Template
+    public function setPageWidth(float $pageWidth): Template
     {
-        $this->paperWidth = $paperWidth;
+        $this->pageWidth = $pageWidth;
 
         return $this;
     }
 
-    public function getPaperHeight(): int
+    public function getPageHeight(): float
     {
-        return $this->paperHeight;
+        return $this->pageHeight;
     }
 
-    public function setPaperHeight(int $paperHeight): Template
+    public function setPageHeight(float $pageHeight): Template
     {
-        $this->paperHeight = $paperHeight;
+        $this->pageHeight = $pageHeight;
 
         return $this;
     }
@@ -120,72 +120,72 @@ class Template extends AbstractModel
         return $this;
     }
 
-    public function getMarginTop(): int
+    public function getMarginTop(): float
     {
         return $this->marginTop;
     }
 
-    public function setMarginTop(int $marginTop): Template
+    public function setMarginTop(float $marginTop): Template
     {
         $this->marginTop = $marginTop;
 
         return $this;
     }
 
-    public function getMarginLeft(): int
+    public function getMarginLeft(): float
     {
         return $this->marginLeft;
     }
 
-    public function setMarginLeft(int $marginLeft): Template
+    public function setMarginLeft(float $marginLeft): Template
     {
         $this->marginLeft = $marginLeft;
 
         return $this;
     }
 
-    public function getItemWidth(): int
+    public function getItemWidth(): float
     {
         return $this->itemWidth;
     }
 
-    public function setItemWidth(int $itemWidth): Template
+    public function setItemWidth(float $itemWidth): Template
     {
         $this->itemWidth = $itemWidth;
 
         return $this;
     }
 
-    public function getItemHeight(): int
+    public function getItemHeight(): float
     {
         return $this->itemHeight;
     }
 
-    public function setItemHeight(int $itemHeight): Template
+    public function setItemHeight(float $itemHeight): Template
     {
         $this->itemHeight = $itemHeight;
 
         return $this;
     }
 
-    public function getItemMarginRight(): int
+    public function getItemMarginRight(): float
     {
         return $this->itemMarginRight;
     }
 
-    public function setItemMarginRight(int $itemMarginRight): Template
+    public function setItemMarginRight(float $itemMarginRight): Template
     {
         $this->itemMarginRight = $itemMarginRight;
 
         return $this;
     }
 
-    public function getItemMarginBottom(): int
+    public function getItemMarginBottom(): float
     {
         return $this->itemMarginBottom;
     }
 
-    public function setItemMarginBottom(int $itemMarginBottom): Template
+    public function setItemMarginBottom(float $itemMarginBottom): Template
     {
         $this->itemMarginBottom = $itemMarginBottom;
 

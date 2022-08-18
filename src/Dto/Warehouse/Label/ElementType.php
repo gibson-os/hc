@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Dto\Warehouse;
+namespace GibsonOS\Module\Hc\Dto\Warehouse\Label;
 
-enum LabelType: string
+enum ElementType: string
 {
     case UUID = 'uuid';
     case NAME = 'name';
@@ -12,5 +12,5 @@ enum LabelType: string
     case IMAGE = 'image';
     case CODE = 'code';
     case TAG = 'tag';
-    case LINK = 'links';
+    case LINK = 'link';
 }

@@ -6,7 +6,8 @@
     "gibson-os/core": "dev-master",
     "ext-mbstring": "*",
     "ext-json": "*",
-    "chillerlan/php-qrcode": "^4.3"
+    "chillerlan/php-qrcode": "^4.3",
+    "tecnickcom/tcpdf": "^6.3"
   },
   "require-dev": {
     "codeception/codeception": "^4.0",
