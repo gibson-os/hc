@@ -8,7 +8,6 @@ Ext.define('GibsonOS.module.hc.warehouse.label.element.Form', {
             xtype: 'gosModuleCoreParameterTypeAutoComplete',
             fieldLabel: 'Typ',
             name: 'type',
-            // displayField: 'number',
             parameterObject: {
                 config: {
                     model: 'GibsonOS.module.hc.warehouse.model.label.ElementType',

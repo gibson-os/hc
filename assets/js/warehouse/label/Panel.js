@@ -3,6 +3,12 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
     alias: ['widget.gosModuleHcWarehouseLabelPanel'],
     layout: 'border',
     addFunction() {
+        const me = this;
+        const window = new GibsonOS.module.hc.warehouse.label.Window();
+
+        window.down('form').getForm().on('actioncomplete', () => {
+            me.viewItem.getStore().load();
+        });
     },
     deleteFunction(records) {
     },
