@@ -3,10 +3,7 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Grid', {
     alias: ['widget.gosModuleHcWarehouseLabelGrid'],
     multiSelect: true,
     enablePagingBar: false,
-    addFunction() {
-    },
-    deleteFunction(records) {
-    },
+    enableToolbar: false,
     initComponent() {
         const me = this;
 

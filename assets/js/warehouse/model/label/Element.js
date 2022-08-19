@@ -17,10 +17,12 @@ Ext.define('GibsonOS.module.hc.warehouse.model.label.Element', {
         type: 'float'
     },{
         name: 'color',
-        type: 'string'
+        type: 'string',
+        useNull: true
     },{
         name: 'backgroundColor',
-        type: 'string'
+        type: 'string',
+        useNull: true
     },{
         name: 'type',
         type: 'string'

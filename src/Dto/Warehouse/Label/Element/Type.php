@@ -9,8 +9,8 @@ enum Type: string
     case NAME = 'Name';
     case DESCRIPTION = 'Beschreibung';
     case STOCK = 'Anzahl';
-    case IMAGE = 'Bilder';
-    case CODE = 'Codes';
-    case TAG = 'Tags';
-    case LINK = 'Links';
+    case IMAGE = 'Bild';
+    case CODES = 'Codes';
+    case TAGS = 'Tags';
+    case LINKS = 'Links';
 }

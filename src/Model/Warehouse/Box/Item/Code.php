@@ -87,7 +87,7 @@ class Code extends AbstractModel implements JsonSerializable
     {
         return [
             'id' => $this->getId(),
-            'type' => $this->getType()->value,
+            'type' => $this->getType()->name,
             'code' => $this->getCode(),
         ];
     }

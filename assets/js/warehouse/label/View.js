@@ -12,17 +12,17 @@ Ext.define('GibsonOS.module.hc.warehouse.label.View', {
         const me = this;
 
         me.tpl = new Ext.XTemplate(
-            '<div class="hcWarehouseLabelSize">{[this.labelSize()]}</div>',
+            '<div class="hcWarehouseLabelSize">{[this.templateString()]}</div>',
             '<div class="hcWarehouseLabel" style="{[this.labelStyle()]}">',
             '<tpl for=".">',
             '<div ',
             'class="hcWarehouseLabelElement" ',
             'style="height: {height}mm; width: {width}mm; top: {top}mm; left: {left}mm;" ',
             'title="',
-                'Breite: {width}mm&#10;',
-                'Höhe: {height}mm&#10;',
-                'Links: {left}mm ({[(values.left+values.width).toFixed(2)]}mm)&#10;',
-                'Oben: {top}mm ({[(values.top+values.height).toFixed(2)]}mm)',
+                'Breite: {width}mm ({[(values.left+values.width).toFixed(2)]}mm)&#10;',
+                'Höhe: {height}mm ({[(values.top+values.height).toFixed(2)]}mm)&#10;',
+                'Links: {left}mm&#10;',
+                'Oben: {top}mm',
             '"',
             '>{type}</div>',
             '</tpl>',
@@ -33,10 +33,10 @@ Ext.define('GibsonOS.module.hc.warehouse.label.View', {
 
                     return 'width: ' + template.itemWidth + 'mm; height: ' + template.itemHeight + 'mm;';
                 },
-                labelSize() {
+                templateString() {
                     const template = me.getStore().getProxy().getReader().jsonData.template;
 
-                    return template.itemWidth + 'mm X ' + template.itemHeight + 'mm';
+                    return template.itemWidth + 'mm X ' + template.itemHeight + 'mm (' + template.name + ')';
                 }
             }
         );

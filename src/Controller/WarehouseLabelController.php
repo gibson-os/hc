@@ -4,10 +4,13 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Controller;
 
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Attribute\GetModels;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Service\Response\FileResponse;
@@ -41,6 +44,20 @@ class WarehouseLabelController extends AbstractController
             'success' => true,
             'failure' => false,
         ]);
+    }
+
+    /**
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SaveError
+     */
+    public function save(
+        ModelManager $modelManager,
+        #[GetMappedModel] Label $label,
+    ): AjaxResponse {
+        $modelManager->save($label);
+
+        return $this->returnSuccess();
     }
 
     /**

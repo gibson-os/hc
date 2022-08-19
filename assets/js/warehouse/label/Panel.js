@@ -2,9 +2,18 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
     extend: 'GibsonOS.module.core.component.Panel',
     alias: ['widget.gosModuleHcWarehouseLabelPanel'],
     layout: 'border',
-    enableToolbar: false,
+    addFunction() {
+    },
+    deleteFunction(records) {
+    },
     initComponent() {
         const me = this;
+        const labelGrid = new GibsonOS.module.hc.warehouse.label.Grid({
+            region: 'west',
+            flex: 0,
+            split: true,
+            width: 150
+        });
         const labelView = new GibsonOS.module.hc.warehouse.label.View({
             region: 'north',
             flex: 0,
@@ -12,13 +21,9 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
             height: 150
         });
 
-        me.items = [{
-            xtype: 'gosModuleHcWarehouseLabelGrid',
-            region: 'west',
-            flex: 0,
-            split: true,
-            width: 200
-        },{
+        me.viewItem = labelGrid;
+
+        me.items = [labelGrid, {
             region: 'center',
             itemId: 'center',
             layout: 'border',
@@ -28,7 +33,8 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
                     left: 1,
                     top: 1,
                     width: 10,
-                    height: 10
+                    height: 10,
+                    options: {}
                 });
             },
             deleteFunction(records) {
@@ -44,10 +50,42 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
 
         me.callParent();
 
-        me.down('gosModuleHcWarehouseLabelGrid').on('selectionchange', (view, records) => {
+        me.addAction({
+            iconCls: 'icon_system system_save',
+            minSelectionNeeded: 1,
+            maxSelectionAllowed: 1,
+            handler() {
+                const records = labelGrid.getSelectionModel().getSelection();
+
+                if (records.length !== 1) {
+                    return;
+                }
+
+                const label = records[0];
+                let elements = [];
+
+                labelView.getStore().each((element) => {
+                    elements.push(element.getData())
+                });
+
+                GibsonOS.Ajax.request({
+                    url: baseDir + 'hc/warehouseLabel/save',
+                    params:  {
+                        id: label.get('id'),
+                        name: label.get('name'),
+                        elements: Ext.encode(elements)
+                    },
+                    success: function(response) {
+                        me.update(Ext.decode(response.responseText).data);
+                    }
+                });
+            }
+        });
+
+        labelGrid.on('selectionchange', (view, records) => {
             const center = me.down('#center');
 
-            if (records.length === 0) {
+            if (records.length !== 1) {
                 center.disable();
 
                 return;
@@ -62,7 +100,7 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
         labelView.on('selectionchange', (view, records) => {
             const form = me.down('gosModuleHcWarehouseLabelElementForm');
 
-            if (records.length === 0) {
+            if (records.length !== 1) {
                 form.disable();
                 form.getForm().setValues([]);
 

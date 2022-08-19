@@ -8,13 +8,13 @@ use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
 use TCPDF;
 
-class LinkElementService extends AbstractElementService
+class LinksElementService extends AbstractElementService
 {
     private const OPTION_SEPARATOR = 'separator';
 
     public function getType(): Type
     {
-        return Type::LINK;
+        return Type::LINKS;
     }
 
     public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void

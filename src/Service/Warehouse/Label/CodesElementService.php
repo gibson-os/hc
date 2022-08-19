@@ -9,7 +9,7 @@ use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
 use TCPDF;
 
-class CodeElementService extends AbstractElementService
+class CodesElementService extends AbstractElementService
 {
     private const OPTION_SEPARATOR = 'separator';
 
@@ -23,7 +23,7 @@ class CodeElementService extends AbstractElementService
 
     public function getType(): Type
     {
-        return Type::CODE;
+        return Type::CODES;
     }
 
     public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void

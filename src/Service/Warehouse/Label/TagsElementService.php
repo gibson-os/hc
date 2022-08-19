@@ -9,13 +9,13 @@ use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
 use GibsonOS\Module\Hc\Model\Warehouse\Tag;
 use TCPDF;
 
-class TagElementService extends AbstractElementService
+class TagsElementService extends AbstractElementService
 {
     private const OPTION_SEPARATOR = 'separator';
 
     public function getType(): Type
     {
-        return Type::TAG;
+        return Type::TAGS;
     }
 
     public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
