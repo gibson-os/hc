@@ -16,7 +16,10 @@ Ext.define('GibsonOS.module.hc.warehouse.label.template.Grid', {
         return [{
             header: 'Name',
             dataIndex: 'name',
-            flex: 1
+            flex: 1,
+            renderer(value) {
+                return value === '' ? '(Neu)' : value;
+            }
         }];
     }
 });

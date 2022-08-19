@@ -3,6 +3,20 @@ Ext.define('GibsonOS.module.hc.warehouse.label.template.Panel', {
     alias: ['widget.gosModuleHcWarehouseLabelTemplatePanel'],
     layout: 'border',
     addFunction() {
+        const me = this;
+
+        me.down('grid').getStore().add({
+            pageWidth: 210,
+            pageHeight: 297,
+            rows: 1,
+            columns: 1,
+            marginTop: 1,
+            marginLeft: 1,
+            itemWidth: 10,
+            itemHeight: 10,
+            itemMarginRight: 1,
+            itemMarginBottom: 1
+        });
     },
     deleteFunction(records) {
         const me = this;
@@ -17,7 +31,7 @@ Ext.define('GibsonOS.module.hc.warehouse.label.template.Panel', {
 
         if (templates.length > 1) {
             title = 'Vorlagen löschen';
-            msg = 'Möchten Sie ' + labels.length + ' Vorlagen wirklich löschen?';
+            msg = 'Möchten Sie ' + templates.length + ' Vorlagen wirklich löschen?';
         }
 
         GibsonOS.MessageBox.show({
@@ -28,9 +42,9 @@ Ext.define('GibsonOS.module.hc.warehouse.label.template.Panel', {
                 text: 'Ja',
                 handler: function() {
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/warehouseLabel/deleteTemplate',
+                        url: baseDir + 'hc/warehouseLabel/deleteTemplates',
                         params:  {
-                            labels: Ext.encode(labels)
+                            templates: Ext.encode(templates)
                         },
                         success() {
                             me.viewItem.getStore().load();
