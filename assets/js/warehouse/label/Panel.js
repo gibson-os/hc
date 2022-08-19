@@ -11,6 +11,42 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
         });
     },
     deleteFunction(records) {
+        const me = this;
+        let labels = [];
+
+        Ext.iterate(records, (label) => {
+            labels.push({id: label.get('id')});
+        });
+
+        let title = 'Label löschen';
+        let msg = 'Möchten Sie das Label "' + records[0].get('name') + '" wirklich löschen?';
+
+        if (labels.length > 1) {
+            title = 'Labels löschen';
+            msg = 'Möchten Sie ' + labels.length + ' Labels wirklich löschen?';
+        }
+
+        GibsonOS.MessageBox.show({
+            title: title,
+            msg: msg,
+            type: GibsonOS.MessageBox.type.QUESTION,
+            buttons: [{
+                text: 'Ja',
+                handler: function() {
+                    GibsonOS.Ajax.request({
+                        url: baseDir + 'hc/warehouseLabel/delete',
+                        params:  {
+                            labels: Ext.encode(labels)
+                        },
+                        success() {
+                            me.viewItem.getStore().load();
+                        }
+                    });
+                }
+            },{
+                text: 'Nein'
+            }]
+        });
     },
     initComponent() {
         const me = this;
@@ -44,7 +80,19 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
                 });
             },
             deleteFunction(records) {
-                labelView.getStore().remove(records);
+                GibsonOS.MessageBox.show({
+                    title: 'Element löschen',
+                    msg: 'Möchten Sie das Element wirklich löschen?',
+                    type: GibsonOS.MessageBox.type.QUESTION,
+                    buttons: [{
+                        text: 'Ja',
+                        handler: function() {
+                            labelView.getStore().remove(records);
+                        }
+                    },{
+                        text: 'Nein'
+                    }]
+                });
             },
             viewItem: labelView,
             items: [labelView, {
@@ -58,6 +106,7 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
 
         me.addAction({
             iconCls: 'icon_system system_save',
+            selectionNeeded: 1,
             minSelectionNeeded: 1,
             maxSelectionAllowed: 1,
             handler() {
@@ -80,9 +129,6 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
                         id: label.get('id'),
                         name: label.get('name'),
                         elements: Ext.encode(elements)
-                    },
-                    success: function(response) {
-                        me.update(Ext.decode(response.responseText).data);
                     }
                 });
             }

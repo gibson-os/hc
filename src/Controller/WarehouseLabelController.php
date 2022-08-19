@@ -8,6 +8,7 @@ use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Attribute\GetModels;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
@@ -51,11 +52,28 @@ class WarehouseLabelController extends AbstractController
      * @throws ReflectionException
      * @throws SaveError
      */
+    #[CheckPermission(Permission::WRITE)]
     public function save(
         ModelManager $modelManager,
         #[GetMappedModel] Label $label,
     ): AjaxResponse {
         $modelManager->save($label);
+
+        return $this->returnSuccess();
+    }
+
+    /**
+     * @throws JsonException
+     * @throws DeleteError
+     */
+    #[CheckPermission(Permission::DELETE)]
+    public function delete(
+        ModelManager $modelManager,
+        #[GetModels(Label::class)] array $labels
+    ): AjaxResponse {
+        foreach ($labels as $label) {
+            $modelManager->delete($label);
+        }
 
         return $this->returnSuccess();
     }
