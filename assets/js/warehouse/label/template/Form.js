@@ -38,13 +38,13 @@ Ext.define('GibsonOS.module.hc.warehouse.label.template.Form', {
             fieldLabel: 'Abstand Links',
             name: 'marginLeft',
             step: 0.1,
-            minValue: 0.01
+            minValue: 0
         },{
             xtype: 'gosCoreComponentFormFieldNumberField',
             fieldLabel: 'Abstand Oben',
             name: 'marginTop',
             step: 0.1,
-            minValue: 0.01
+            minValue: 0
         },{
             xtype: 'gosCoreComponentFormFieldNumberField',
             fieldLabel: 'Label Breite',
@@ -62,13 +62,13 @@ Ext.define('GibsonOS.module.hc.warehouse.label.template.Form', {
             fieldLabel: 'Label Abstand Rechts',
             name: 'itemMarginRight',
             step: 0.1,
-            minValue: 0.01
+            minValue: 0
         },{
             xtype: 'gosCoreComponentFormFieldNumberField',
             fieldLabel: 'Label Abstand Unten',
             name: 'itemMarginBottom',
             step: 0.1,
-            minValue: 0.01
+            minValue: 0
         }];
 
         me.callParent();

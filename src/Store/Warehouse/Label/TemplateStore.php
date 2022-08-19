@@ -12,4 +12,9 @@ class TemplateStore extends AbstractDatabaseStore
     {
         return Template::class;
     }
+
+    protected function getDefaultOrder(): string
+    {
+        return '`name`';
+    }
 }

@@ -12,4 +12,9 @@ class LabelStore extends AbstractDatabaseStore
     {
         return Label::class;
     }
+
+    protected function getDefaultOrder(): string
+    {
+        return '`name`';
+    }
 }

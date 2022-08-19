@@ -80,23 +80,32 @@ Ext.define('GibsonOS.module.hc.warehouse.label.template.Panel', {
                     itemMarginBottom: 1
                 },
                 tpl: new Ext.XTemplate(
-                    '<div ' +
-                        'class="hcWarehouseLabelTemplate" ' +
-                        'style="padding-top: {marginTop}mm; padding-left: {marginLeft}mm;"' +
+                    '<div ',
+                        'class="hcWarehouseLabelTemplate" ',
+                        'style="padding-top: {marginTop}mm; padding-left: {marginLeft}mm;"',
                     '>',
                         '<div class="hcWarehouseLabelTemplateRow" style="margin-bottom: {itemMarginBottom}mm;">',
-                            '<div ' +
-                                'class="hcWarehouseLabelTemplateLabel" ' +
-                                'style="margin-right: {itemMarginRight}mm; width: {itemWidth}mm; height: {itemHeight}mm;"' +
+                            '<div ',
+                                'class="hcWarehouseLabelTemplateLabel" ',
+                                'style="margin-right: {itemMarginRight}mm; width: {itemWidth}mm; height: {itemHeight}mm;"',
                             '></div>',
-                            '<div class="hcWarehouseLabelTemplateNextColumnLabel" style="height: {itemHeight}mm;">+{[values.columns-1]}</div>',
+                            '<tpl if="columns &gt; 1">',
+                                '<div ',
+                                    'class="hcWarehouseLabelTemplateNextColumnLabel" ',
+                                    'style="height: {itemHeight}mm;"',
+                                '>+{[values.columns-1]}</div>',
+                            '</tpl>',
                         '</div>',
                         '<div class="hcWarehouseLabelTemplateRow">',
-                            '<div ' +
-                                'class="hcWarehouseLabelTemplateNextRowLabel" ' +
-                                'style="margin-right: {itemMarginRight}mm; width: {itemWidth}mm;"' +
-                            '>+{[values.rows-1]}</div>',
-                            '<div class="hcWarehouseLabelTemplateNextRowAndColumnLabel"></div>',
+                            '<tpl if="rows &gt; 1">',
+                                '<div ',
+                                    'class="hcWarehouseLabelTemplateNextRowLabel" ',
+                                    'style="margin-right: {itemMarginRight}mm; width: {itemWidth}mm;"',
+                                '>+{[values.rows-1]}</div>',
+                            '</tpl>',
+                            '<tpl if="rows &gt; 1 && columns &gt; 1">',
+                                '<div class="hcWarehouseLabelTemplateNextRowAndColumnLabel"></div>',
+                            '</tpl>',
                         '</div>',
                     '</div>'
                 )
@@ -120,7 +129,13 @@ Ext.define('GibsonOS.module.hc.warehouse.label.template.Panel', {
                     return;
                 }
 
-                // Einfach das Form abschicken
+                me.down('form').submit({
+                    xtype: 'gosFormActionAction',
+                    url: baseDir + 'hc/warehouseLabel/saveTemplate',
+                    success() {
+                        me.viewItem.getStore().load();
+                    }
+                });
             }
         });
 

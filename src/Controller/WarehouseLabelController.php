@@ -18,6 +18,7 @@ use GibsonOS\Core\Service\Response\FileResponse;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label;
+use GibsonOS\Module\Hc\Model\Warehouse\Label\Template;
 use GibsonOS\Module\Hc\Service\Warehouse\LabelService;
 use GibsonOS\Module\Hc\Store\Warehouse\Label\TemplateStore;
 use GibsonOS\Module\Hc\Store\Warehouse\LabelStore;
@@ -85,6 +86,37 @@ class WarehouseLabelController extends AbstractController
     ): AjaxResponse {
         foreach ($labels as $label) {
             $modelManager->delete($label);
+        }
+
+        return $this->returnSuccess();
+    }
+
+    /**
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SaveError
+     */
+    #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
+    public function saveTemplate(
+        ModelManager $modelManager,
+        #[GetMappedModel] Template $template,
+    ): AjaxResponse {
+        $modelManager->save($template);
+
+        return $this->returnSuccess();
+    }
+
+    /**
+     * @throws JsonException
+     * @throws DeleteError
+     */
+    #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
+    public function deleteTemplates(
+        ModelManager $modelManager,
+        #[GetModels(Template::class)] array $templates
+    ): AjaxResponse {
+        foreach ($templates as $template) {
+            $modelManager->delete($template);
         }
 
         return $this->returnSuccess();
