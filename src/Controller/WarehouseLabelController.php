@@ -19,6 +19,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label;
 use GibsonOS\Module\Hc\Service\Warehouse\LabelService;
+use GibsonOS\Module\Hc\Store\Warehouse\Label\TemplateStore;
 use GibsonOS\Module\Hc\Store\Warehouse\LabelStore;
 use JsonException;
 use ReflectionException;
@@ -45,6 +46,17 @@ class WarehouseLabelController extends AbstractController
             'success' => true,
             'failure' => false,
         ]);
+    }
+
+    /**
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SelectError
+     */
+    #[CheckPermission(Permission::READ + Permission::MANAGE)]
+    public function templates(TemplateStore $templateStore): AjaxResponse
+    {
+        return $this->returnSuccess($templateStore->getList(), $templateStore->getCount());
     }
 
     /**

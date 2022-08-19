@@ -12,15 +12,26 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Form', {
             name: 'name',
             fieldLabel: 'Name',
         },{
-            xtype: 'gosModuleCoreParameterTypeAutoComplete',
+            xtype: 'gosCoreComponentFormFieldContainer',
             fieldLabel: 'Vorlage',
-            name: 'templateId',
-            parameterObject: {
-                config: {
-                    model: 'GibsonOS.module.hc.warehouse.model.label.Template',
-                    autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Warehouse\\Label\\TemplateAutoComplete'
+            items: [{
+                xtype: 'gosModuleCoreParameterTypeAutoComplete',
+                name: 'templateId',
+                margins: '0 5 0 0',
+                parameterObject: {
+                    config: {
+                        model: 'GibsonOS.module.hc.warehouse.model.label.Template',
+                        autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Warehouse\\Label\\TemplateAutoComplete'
+                    }
+                },
+            }, {
+                xtype: 'gosButton',
+                flex: 0,
+                text: '...',
+                handler() {
+                    new GibsonOS.module.hc.warehouse.label.template.App();
                 }
-            },
+            }]
         }];
 
         me.buttons = [{

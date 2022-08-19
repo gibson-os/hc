@@ -1,0 +1,37 @@
+.hcWarehouseLabelTemplate {
+    background-color: #AAA;
+    width: fit-content;
+    margin: 5px auto;
+}
+
+.hcWarehouseLabelTemplateRow * {
+    display: inline-block;
+    background-color: #FFF;
+    width: 30px;
+    height: 30px;
+    line-height: 20px;
+    text-align: center;
+}
+
+.hcWarehouseLabelTemplateLabel {
+    border: 1px solid #000;
+    float: left;
+}
+
+.hcWarehouseLabelTemplateNextColumnLabel {
+    border-top: 1px solid #000;
+    border-left: 1px solid #000;
+    border-bottom: 1px solid #000;
+}
+
+.hcWarehouseLabelTemplateNextRowLabel {
+    border-top: 1px solid #000;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    float: left;
+}
+
+.hcWarehouseLabelTemplateNextRowAndColumnLabel {
+    border-top: 1px solid #000;
+    border-left: 1px solid #000;
+}

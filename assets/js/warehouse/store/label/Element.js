@@ -3,7 +3,7 @@ Ext.define('GibsonOS.module.hc.warehouse.store.label.Element', {
     alias: ['store.gosModuleHcWarehouseLabelElementStore'],
     model: 'GibsonOS.module.hc.warehouse.model.label.Element',
     autoLoad: false,
-    constructor: function(data) {
+    constructor(data) {
         let me = this;
 
         me.proxy = {

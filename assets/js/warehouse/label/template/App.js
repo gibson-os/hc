@@ -4,7 +4,7 @@ Ext.define('GibsonOS.module.hc.warehouse.label.template.App', {
     title: 'Label Templates',
     appIcon: 'icon_led',
     width: 600,
-    height: 500,
+    height: 550,
     requiredPermission: {
         module: 'hc',
         task: 'warehouseLabel'
