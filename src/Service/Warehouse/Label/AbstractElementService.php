@@ -20,7 +20,7 @@ abstract class AbstractElementService
     protected function addTextElement(TCPDF $pdf, Element $element, float $top, float $left, string $text): void
     {
         $options = $element->getOptions();
-        $pdf->setFont('dejavusans', '', $options[self::OPTION_SIZE] ?? 10, '', true);
+        $pdf->setFont('dejavusans', '', $options[self::OPTION_SIZE] ?? 20, '', true);
         $this->setColor($pdf, $element);
         $this->setBackgroundColor($pdf, $element);
 

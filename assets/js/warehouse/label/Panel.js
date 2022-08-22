@@ -106,7 +106,7 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
 
         me.addAction({
             iconCls: 'icon_system system_save',
-            selectionNeeded: 1,
+            selectionNeeded: true,
             minSelectionNeeded: 1,
             maxSelectionAllowed: 1,
             handler() {
@@ -130,6 +130,24 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
                         name: label.get('name'),
                         elements: Ext.encode(elements)
                     }
+                });
+            }
+        });
+        me.addAction({
+            tbarText: 'Generieren',
+            selectionNeeded: true,
+            minSelectionNeeded: 1,
+            maxSelectionAllowed: 1,
+            handler() {
+                const records = labelGrid.getSelectionModel().getSelection();
+
+                if (records.length !== 1) {
+                    return;
+                }
+
+                new GibsonOS.module.hc.warehouse.label.generator.Window({
+                    moduleId: me.moduleId,
+                    labelId: records[0].get('id')
                 });
             }
         });

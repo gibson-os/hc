@@ -16,7 +16,7 @@ use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Service\Response\FileResponse;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Model\Warehouse\Box;
+use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use GibsonOS\Module\Hc\Model\Warehouse\Label;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Template;
 use GibsonOS\Module\Hc\Service\Warehouse\LabelService;
@@ -130,10 +130,11 @@ class WarehouseLabelController extends AbstractController
         LabelService $labelService,
         #[GetModel] Label $label,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModels(Box::class)] array $boxes,
-        int $offset = 0,
+        #[GetModels(Item::class)] array $items,
+        int $columnOffset = 0,
+        int $rowOffset = 0,
     ): FileResponse {
-        $pdf = $labelService->generate($module, $label, $offset);
+        $pdf = $labelService->generate($module, $label, $columnOffset, $rowOffset);
         $filename = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'warehouseLabel' . $module->getId() . '.pdf';
         $pdf->Output($filename, 'F');
 

@@ -23,10 +23,13 @@ class LabelService
     }
 
     /**
+     * @param mixed $rowOffset
+     *
      * @throws SelectError
      */
-    public function generate(Module $module, Label $label, int $offset = 0): TCPDF
+    public function generate(Module $module, Label $label, int $columnOffset = 0, int $rowOffset = 0): TCPDF
     {
+        $template = $label->getTemplate();
         $pdf = new TCPDF();
         $pdf->setCreator('Gibson OS');
         $pdf->setAuthor('Gibson OS');
@@ -34,8 +37,9 @@ class LabelService
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
         $pdf->setDocCreationTimestamp(time());
+        $pdf->setMargins(0, 0);
 
-        $this->generateLabels($pdf, $module, $label, $offset);
+        $this->generateLabels($pdf, $module, $label, $columnOffset, $rowOffset);
 
         return $pdf;
     }
@@ -43,19 +47,26 @@ class LabelService
     /**
      * @throws SelectError
      */
-    private function generateLabels(TCPDF $pdf, Module $module, Label $label, int $offset): void
+    private function generateLabels(TCPDF $pdf, Module $module, Label $label, int $columnOffset, int $rowOffset): void
     {
         $template = $label->getTemplate();
         $pdf->startPage('P', [$template->getPageWidth(), $template->getPageHeight()]);
         $pdf->setAutoPageBreak(true);
         $pdf->setMargins($template->getMarginLeft(), $template->getMarginTop());
-        $row = 0;
-        $column = 0;
+        $row = $rowOffset;
+        $column = $columnOffset;
 
         foreach ($this->boxRepository->getByModule($module) as $box) {
             foreach ($label->getElements() as $element) {
-                $top = $element->getTop() + ($row * $template->getItemHeight()) + ($row * $template->getItemMarginBottom());
-                $left = $element->getLeft() + ($column * $template->getItemWidth()) + ($column * $template->getItemMarginRight());
+                $top =
+                    $template->getMarginTop() + $element->getTop() +
+                    ($row * $template->getItemHeight()) + ($row * $template->getItemMarginBottom())
+                ;
+                $left =
+                    $template->getMarginLeft() + $element->getLeft() +
+                    ($column * $template->getItemWidth()) +
+                    ($column * $template->getItemMarginRight())
+                ;
 
                 foreach ($this->elementServices as $elementService) {
                     if ($elementService->getType() !== $element->getType()) {
