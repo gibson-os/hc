@@ -79,6 +79,7 @@ class MasterService
         )
             ->setMaster($master)
         ;
+        $master->setOffline(false);
 
         $this->logger->info(sprintf('Receive type %d', $busMessage->getType()));
         $module = null;
@@ -107,6 +108,8 @@ class MasterService
             $module = $this->moduleReceive($master, $busMessage);
             $log->setCommand($command);
         } else {
+            $master->setOffline(true);
+
             try {
                 $lastLogEntry = $this->logRepository->getLastEntryByMasterId(
                     $master->getId() ?? 0,
@@ -125,14 +128,15 @@ class MasterService
         }
 
         if ($module !== null) {
-            $this->modelManager->save(
+            $this->modelManager->saveWithoutChildren(
                 $module
                     ->setOffline(false)
                     ->setModified(new DateTime())
             );
         }
 
-        $this->modelManager->save($log->setModule($module));
+        $this->modelManager->saveWithoutChildren($master);
+        $this->modelManager->saveWithoutChildren($log->setModule($module));
     }
 
     /**

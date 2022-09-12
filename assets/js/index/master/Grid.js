@@ -1,15 +1,14 @@
 Ext.define('GibsonOS.module.hc.index.master.Grid', {
     extend: 'GibsonOS.module.core.component.grid.Panel',
     alias: ['widget.gosModuleHcIndexMasterGrid'],
-    itemId: 'hcIndexMasterGrid',
     viewConfig: {
-        getRowClass: function (record) {
+        getRowClass(record) {
             if (record.get('offline')) {
                 return 'hcModuleOffline';
             }
         },
         listeners: {
-            render: function (view) {
+            render(view) {
                 let grid = view.up('gridpanel');
 
                 grid.dragZone = Ext.create('Ext.dd.DragZone', view.getEl(), {
@@ -43,17 +42,10 @@ Ext.define('GibsonOS.module.hc.index.master.Grid', {
             }
         }
     },
-    initComponent: function (arguments) {
+    initComponent(arguments) {
         let me = this;
 
         me.store = new GibsonOS.module.hc.index.store.Master();
-        // me.dockedItems = [{
-        //     xtype: 'gosToolbarPaging',
-        //     itemId: 'hcIndexModulePaging',
-        //     store: this.store,
-        //     displayMsg: 'Module {0} - {1} von {2}',
-        //     emptyMsg: 'Keine Master vorhanden'
-        // }];
 
         me.callParent(arguments);
     },

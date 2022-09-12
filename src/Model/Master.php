@@ -41,6 +41,9 @@ class Master extends AbstractModel implements JsonSerializable, AutoCompleteMode
     #[Column(type: Column::TYPE_TIMESTAMP, attributes: [Column::ATTRIBUTE_CURRENT_TIMESTAMP])]
     private DateTimeInterface $modified;
 
+    #[Column]
+    private bool $offline = false;
+
     public function __construct(mysqlDatabase $database = null)
     {
         parent::__construct($database);
@@ -133,6 +136,18 @@ class Master extends AbstractModel implements JsonSerializable, AutoCompleteMode
         return $this;
     }
 
+    public function isOffline(): bool
+    {
+        return $this->offline;
+    }
+
+    public function setOffline(bool $offline): Master
+    {
+        $this->offline = $offline;
+
+        return $this;
+    }
+
     public function getAutoCompleteId(): int
     {
         return $this->getId() ?? 0;
@@ -150,6 +165,7 @@ class Master extends AbstractModel implements JsonSerializable, AutoCompleteMode
             'address' => $this->getAddress(),
             'added' => $added?->format('Y-m-d H:i:s'),
             'modified' => $modified?->format('Y-m-d H:i:s'),
+            'offline' => $this->isOffline(),
         ];
     }
 }

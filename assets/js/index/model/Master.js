@@ -15,8 +15,11 @@ Ext.define('GibsonOS.module.hc.index.model.Master', {
     },{
         name: 'added',
         type: 'string'
-    },{
+    }, {
         name: 'modified',
         type: 'string'
+    },{
+        name: 'offline',
+        type: 'bool'
     }]
 });

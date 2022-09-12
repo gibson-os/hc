@@ -13,11 +13,15 @@ use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Store\MasterStore;
+use JsonException;
+use ReflectionException;
 
 class MasterController extends AbstractController
 {
     /**
      * @throws SelectError
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::READ)]
     public function index(MasterStore $masterStore, int $start = 0, int $limit = 100, array $sort = []): AjaxResponse
@@ -25,7 +29,7 @@ class MasterController extends AbstractController
         $masterStore->setLimit($limit, $start);
         $masterStore->setSortByExt($sort);
 
-        return $this->returnSuccess(iterator_to_array($masterStore->getList()), $masterStore->getCount());
+        return $this->returnSuccess($masterStore->getList(), $masterStore->getCount());
     }
 
     /**

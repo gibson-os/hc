@@ -15,6 +15,7 @@ Ext.define('GibsonOS.module.hc.master.App', {
         me.title += ': ' + me.gos.data.master.name;
         me.items = [{
             xtype: 'gosCoreComponentTabPanel',
+            enableToolbar: false,
             items: [{
                 xtype: 'gosModuleHcIndexModuleGrid',
                 title: 'Module',
@@ -25,7 +26,7 @@ Ext.define('GibsonOS.module.hc.master.App', {
                         }
                     }
                 }
-            }, {
+            },{
                 xtype: 'gosModuleHcIndexLogGrid',
                 title: 'Log',
                 gos: {

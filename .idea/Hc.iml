@@ -105,6 +105,7 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/chillerlan/php-qrcode" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/chillerlan/php-settings-container" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/tecnickcom/tcpdf" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/smalot/pdfparser" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

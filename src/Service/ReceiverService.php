@@ -61,8 +61,6 @@ class ReceiverService
             $this->masterService->receive($masterModel, $busMessage);
         }
 
-        // Log schreiben
         // Push senden
-        // Callbacks ausführen
     }
 }
