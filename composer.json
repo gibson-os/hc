@@ -38,21 +38,21 @@
   },
   "scripts": {
     "fix": [
-      "@php-cs"
+      "@php:cs:fix"
     ],
     "test": [
-      "@php-cs-dry",
-      "@php-psalm",
-      "@php-md",
-      "@php-unit"
+      "@php:cs:dry",
+      "@php:psalm",
+      "@php:md",
+      "@php:unit:run"
     ],
-    "php-cs": "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose",
-    "php-cs-dry": "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose --dry-run",
-    "php-psalm": "php ./vendor/vimeo/psalm/psalm",
-    "php-md": "php ./vendor/phpmd/phpmd/src/bin/phpmd src text ruleset.xml",
-    "php-unit": "php ./vendor/codeception/codeception/codecept run unit --ext DotReporter",
-    "php-unit-push": "php ./vendor/codeception/codeception/codecept run unit --ext DotReporter --no-ansi --no-colors",
-    "php-unit-add": "php ./vendor/codeception/codeception/codecept generate:test unit"
+    "php:cs:fix": "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose",
+    "php:cs:dry": "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose --dry-run",
+    "php:psalm": "php ./vendor/vimeo/psalm/psalm",
+    "php:md": "php ./vendor/phpmd/phpmd/src/bin/phpmd src text ruleset.xml",
+    "php:unit:run": "php ./vendor/codeception/codeception/codecept run unit --ext DotReporter",
+    "php:unit:push": "php ./vendor/codeception/codeception/codecept run unit --ext DotReporter --no-ansi --no-colors",
+    "php:unit:add": "php ./vendor/codeception/codeception/codecept generate:test unit"
   },
   "config": {
     "allow-plugins": {

@@ -216,7 +216,7 @@
             "source": {
                 "type": "git",
                 "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git",
-                "reference": "128a738c677360c354c181e5bbe1008b7a1a4102"
+                "reference": "d358f97c73720a75f27a388fe6b05465e01abd62"
             },
             "require": {
                 "ext-curl": "*",
@@ -257,37 +257,37 @@
             },
             "scripts": {
                 "fix": [
-                    "@php-cs"
+                    "@php:cs:fix"
                 ],
                 "test": [
-                    "@php-cs-dry",
-                    "@php-psalm",
-                    "@php-md",
-                    "@php-unit"
+                    "@php:cs:dry",
+                    "@php:psalm",
+                    "@php:md",
+                    "@php:unit:run"
                 ],
-                "php-cs": [
+                "php:cs:fix": [
                     "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose"
                 ],
-                "php-cs-dry": [
+                "php:cs:dry": [
                     "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose --dry-run"
                 ],
-                "php-psalm": [
+                "php:psalm": [
                     "php ./vendor/vimeo/psalm/psalm"
                 ],
-                "php-md": [
+                "php:md": [
                     "php ./vendor/phpmd/phpmd/src/bin/phpmd src text ruleset.xml"
                 ],
-                "php-unit": [
+                "php:unit:run": [
                     "php ./vendor/codeception/codeception/codecept run unit --ext DotReporter"
                 ],
-                "php-unit-push": [
+                "php:unit:push": [
                     "php ./vendor/codeception/codeception/codecept run unit --ext DotReporter --no-ansi --no-colors"
                 ],
-                "php-unit-add": [
+                "php:unit:add": [
                     "php ./vendor/codeception/codeception/codecept generate:test unit"
                 ]
             },
-            "time": "2022-09-11T12:13:07+00:00"
+            "time": "2022-09-14T15:17:40+00:00"
         },
         {
             "name": "google/auth",
@@ -4440,16 +4440,16 @@
         },
         {
             "name": "sebastian/comparator",
-            "version": "4.0.6",
+            "version": "4.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/comparator.git",
-                "reference": "55f4261989e546dc112258c7a75935a81a7ce382"
+                "reference": "fa0f136dd2334583309d32b62544682ee972b51a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/55f4261989e546dc112258c7a75935a81a7ce382",
-                "reference": "55f4261989e546dc112258c7a75935a81a7ce382",
+                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/fa0f136dd2334583309d32b62544682ee972b51a",
+                "reference": "fa0f136dd2334583309d32b62544682ee972b51a",
                 "shasum": ""
             },
             "require": {
@@ -4502,7 +4502,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/comparator/issues",
-                "source": "https://github.com/sebastianbergmann/comparator/tree/4.0.6"
+                "source": "https://github.com/sebastianbergmann/comparator/tree/4.0.8"
             },
             "funding": [
                 {
@@ -4510,7 +4510,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-26T15:49:45+00:00"
+            "time": "2022-09-14T12:41:17+00:00"
         },
         {
             "name": "sebastian/complexity",
@@ -4700,16 +4700,16 @@
         },
         {
             "name": "sebastian/exporter",
-            "version": "4.0.4",
+            "version": "4.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/exporter.git",
-                "reference": "65e8b7db476c5dd267e65eea9cab77584d3cfff9"
+                "reference": "ac230ed27f0f98f597c8a2b6eb7ac563af5e5b9d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/65e8b7db476c5dd267e65eea9cab77584d3cfff9",
-                "reference": "65e8b7db476c5dd267e65eea9cab77584d3cfff9",
+                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/ac230ed27f0f98f597c8a2b6eb7ac563af5e5b9d",
+                "reference": "ac230ed27f0f98f597c8a2b6eb7ac563af5e5b9d",
                 "shasum": ""
             },
             "require": {
@@ -4765,7 +4765,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/exporter/issues",
-                "source": "https://github.com/sebastianbergmann/exporter/tree/4.0.4"
+                "source": "https://github.com/sebastianbergmann/exporter/tree/4.0.5"
             },
             "funding": [
                 {
@@ -4773,7 +4773,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-11-11T14:18:36+00:00"
+            "time": "2022-09-14T06:03:37+00:00"
         },
         {
             "name": "sebastian/global-state",
