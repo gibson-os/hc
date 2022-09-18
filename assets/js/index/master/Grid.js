@@ -50,7 +50,7 @@ Ext.define('GibsonOS.module.hc.index.master.Grid', {
         me.callParent(arguments);
     },
     enterFunction(master) {
-        new GibsonOS.module.hc.master.App({gos: {data: {master: master.getData()}}});
+        new GibsonOS.module.hc.master.App({master: master.getData()});
     },
     getColumns() {
         return [{

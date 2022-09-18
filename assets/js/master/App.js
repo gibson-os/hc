@@ -5,6 +5,7 @@ Ext.define('GibsonOS.module.hc.master.App', {
     appIcon: 'icon_homecontrol',
     width: 700,
     height: 400,
+    layout: 'border',
     requiredPermission: {
         module: 'hc',
         task: 'master'
@@ -12,17 +13,18 @@ Ext.define('GibsonOS.module.hc.master.App', {
     initComponent: function(arguments) {
         let me = this;
 
-        me.title += ': ' + me.gos.data.master.name;
+        me.title += ': ' + me.master.name;
         me.items = [{
             xtype: 'gosCoreComponentTabPanel',
             enableToolbar: false,
+            region: 'center',
             items: [{
                 xtype: 'gosModuleHcIndexModuleGrid',
                 title: 'Module',
                 gos: {
                     data: {
                         extraParams: {
-                            masterId: me.gos.data.master.id
+                            masterId: me.master.id
                         }
                     }
                 }
@@ -32,7 +34,7 @@ Ext.define('GibsonOS.module.hc.master.App', {
                 gos: {
                     data: {
                         extraParams: {
-                            masterId: this.gos.data.master.id
+                            masterId: me.master.id
                         }
                     }
                 }
@@ -40,5 +42,40 @@ Ext.define('GibsonOS.module.hc.master.App', {
         }];
 
         me.callParent(arguments);
+
+        if (me.master.offline) {
+            GibsonOS.Ajax.request({
+                url: baseDir + 'hc/index/lastLog',
+                params: {
+                    masterId: me.master.id,
+                    direction: 'INPUT'
+                },
+                success(response) {
+                    const lastLog = Ext.decode(response.responseText).data;
+
+                    if (lastLog.type === 127) {
+                        me.insert(0, {
+                            xtype: 'gosCoreComponentNoticePanel',
+                            region: 'north',
+                            flex: 0,
+                            height: 25,
+                            text: 'Bus funktioniert nicht. Master muss neugestartet werden!'
+                        });
+                    }
+                }
+            });
+        }
+
+        me.down('gosModuleHcIndexLogGrid').getStore().on('load', (stroe, records, successful) => {
+            if (!successful) {
+                return false;
+            }
+
+            if (records.length === 0) {
+                return false;
+            }
+
+            // const lastLog
+        });
     }
 });

@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Controller;
 
 use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FactoryError;
@@ -17,6 +18,8 @@ use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
+use GibsonOS\Module\Hc\Model\Master;
+use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Store\LogStore;
 use JsonException;
@@ -89,5 +92,28 @@ class IndexController extends AbstractController
         }
 
         return $this->returnSuccess();
+    }
+
+    /**
+     * @throws SelectError
+     */
+    #[CheckPermission(Permission::READ)]
+    public function lastLog(
+        LogRepository $logRepository,
+        #[GetModel(['id' => 'masterId'])] Master $master = null,
+        #[GetModel(['id' => 'moduleId'])] Module $module = null,
+        int $command = null,
+        int $type = null,
+        Direction $direction = null,
+    ) {
+        $lastLog = null;
+
+        if ($master !== null) {
+            $lastLog = $logRepository->getLastEntryByMasterId($master->getId() ?? 0, $command, $type, $direction);
+        } elseif ($module !== null) {
+            $lastLog = $logRepository->getLastEntryByModuleId($module->getId() ?? 0, $command, $type, $direction);
+        }
+
+        return $this->returnSuccess($lastLog);
     }
 }
