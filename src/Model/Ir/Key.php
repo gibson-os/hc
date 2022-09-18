@@ -79,9 +79,12 @@ class Key extends AbstractModel implements JsonSerializable, AutoCompleteModelIn
         return $this;
     }
 
-    public function getName(): string
+    /**
+     * @psalm-suppress RedundantPropertyInitializationCheck
+     */
+    public function getName(): ?string
     {
-        return $this->name;
+        return $this->name ?? null;
     }
 
     public function setName(string $name): Key

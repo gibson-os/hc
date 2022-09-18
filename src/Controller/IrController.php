@@ -120,7 +120,7 @@ class IrController extends AbstractController
                 if ($key->getId() !== null) {
                     $exception = new IrException(sprintf(
                         'Taste ist bereits unter dem Namen "%s" vorhanden!',
-                        $key->getName()
+                        $key->getName() ?? ''
                     ));
                     $exception->setType(AbstractException::INFO);
 
