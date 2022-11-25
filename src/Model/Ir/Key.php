@@ -34,10 +34,6 @@ class Key extends AbstractModel implements \JsonSerializable, AutoCompleteModelI
     #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $command;
 
-    #[Column(type: Column::TYPE_VARCHAR, length: 64)]
-    #[KeyAttribute(true)]
-    private string $name;
-
     #[Constraint('key', Name::class, orderBy: '`name`')]
     protected array $names = [];
 
@@ -85,21 +81,6 @@ class Key extends AbstractModel implements \JsonSerializable, AutoCompleteModelI
     public function setCommand(int $command): Key
     {
         $this->command = $command;
-
-        return $this;
-    }
-
-    /**
-     * @psalm-suppress RedundantPropertyInitializationCheck
-     */
-    public function getName(): ?string
-    {
-        return $this->name ?? null;
-    }
-
-    public function setName(string $name): Key
-    {
-        $this->name = $name;
 
         return $this;
     }

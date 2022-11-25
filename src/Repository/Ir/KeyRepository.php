@@ -52,6 +52,7 @@ class KeyRepository extends AbstractRepository
             )
             ->setWhere(sprintf('`%s`.`name` REGEXP ?', $this->nameTableName))
             ->addWhereParameter($this->getRegexString($name))
+            ->setOrderBy(sprintf('`%s`.`name`', $this->nameTableName))
         ;
 
         return $this->getModels($table, Key::class);
