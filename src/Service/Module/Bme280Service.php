@@ -16,9 +16,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
-use JsonException;
 use Psr\Log\LoggerInterface;
-use ReflectionException;
 
 class Bme280Service extends AbstractModule
 {
@@ -64,9 +62,9 @@ class Bme280Service extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
+     * @throws \JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -80,11 +78,11 @@ class Bme280Service extends AbstractModule
 
     /**
      * @throws AbstractException
-     * @throws JsonException
+     * @throws \JsonException
      * @throws SaveError
      * @throws FactoryError
      * @throws WriteException
-     * @throws ReflectionException
+     * @throws \ReflectionException
      */
     private function init(Module $slave): void
     {
@@ -96,8 +94,8 @@ class Bme280Service extends AbstractModule
     /**
      * @throws AbstractException
      * @throws ReceiveError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      */
     private function calibrate(Module $slave): void
     {
@@ -116,9 +114,9 @@ class Bme280Service extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
+     * @throws \JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      * @throws GetError
@@ -146,9 +144,9 @@ class Bme280Service extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws JsonException
+     * @throws \JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws SaveError
      */
     private function calibrateTemperatureAndPressure(Module $slave): array
@@ -179,9 +177,9 @@ class Bme280Service extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws JsonException
+     * @throws \JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws SaveError
      */
     private function calibrateHumidity(Module $slave): array

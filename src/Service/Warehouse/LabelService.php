@@ -9,7 +9,6 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Label;
 use GibsonOS\Module\Hc\Repository\Warehouse\BoxRepository;
 use GibsonOS\Module\Hc\Service\Warehouse\Label\AbstractElementService;
-use TCPDF;
 
 class LabelService
 {
@@ -27,10 +26,10 @@ class LabelService
      *
      * @throws SelectError
      */
-    public function generate(Module $module, Label $label, int $columnOffset = 0, int $rowOffset = 0): TCPDF
+    public function generate(Module $module, Label $label, int $columnOffset = 0, int $rowOffset = 0): \TCPDF
     {
         $template = $label->getTemplate();
-        $pdf = new TCPDF();
+        $pdf = new \TCPDF();
         $pdf->setCreator('Gibson OS');
         $pdf->setAuthor('Gibson OS');
         $pdf->setTitle(sprintf('Box Labels für %s', $module->getName()));
@@ -47,7 +46,7 @@ class LabelService
     /**
      * @throws SelectError
      */
-    private function generateLabels(TCPDF $pdf, Module $module, Label $label, int $columnOffset, int $rowOffset): void
+    private function generateLabels(\TCPDF $pdf, Module $module, Label $label, int $columnOffset, int $rowOffset): void
     {
         $template = $label->getTemplate();
         $pdf->startPage('P', [$template->getPageWidth(), $template->getPageHeight()]);

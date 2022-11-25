@@ -6,7 +6,6 @@ namespace GibsonOS\Module\Hc\Service\Warehouse\Label;
 use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
-use TCPDF;
 
 class LinksElementService extends AbstractElementService
 {
@@ -17,7 +16,7 @@ class LinksElementService extends AbstractElementService
         return Type::LINKS;
     }
 
-    public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
+    public function addElement(\TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
     {
         $this->addTextElement(
             $pdf,

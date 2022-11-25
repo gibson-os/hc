@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Command\Neopixel;
 
-use Exception;
 use GibsonOS\Core\Attribute\Command\Argument;
 use GibsonOS\Core\Attribute\GetEnv;
 use GibsonOS\Core\Command\AbstractCommand;
@@ -24,10 +23,7 @@ use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
 use GibsonOS\Module\Hc\Service\Module\NeopixelService;
 use GibsonOS\Module\Hc\Service\Neopixel\AnimationService;
 use GibsonOS\Module\Hc\Service\Neopixel\LedService;
-use JsonException;
-use mysqlDatabase;
 use Psr\Log\LoggerInterface;
-use ReflectionException;
 
 /**
  * @description Play not transferred neopixel animation
@@ -46,7 +42,7 @@ class PlayAnimationCommand extends AbstractCommand
         private readonly AnimationRepository $animationRepository,
         private readonly LedService $ledService,
         private readonly ModuleRepository $moduleRepository,
-        private readonly mysqlDatabase $mysqlDatabase,
+        private readonly \mysqlDatabase $mysqlDatabase,
         private readonly ModelManager $modelManager,
         #[GetEnv('MYSQL_DATABASE')] private readonly string $mysqlDatabaseName,
         LoggerInterface $logger
@@ -61,7 +57,7 @@ class PlayAnimationCommand extends AbstractCommand
      * @throws ArgumentError
      * @throws DateTimeError
      * @throws GetError
-     * @throws Exception
+     * @throws \Exception
      */
     protected function run(): int
     {
@@ -116,7 +112,7 @@ class PlayAnimationCommand extends AbstractCommand
     /**
      * @param AnimationLed[] $leds
      *
-     * @throws Exception
+     * @throws \Exception
      *
      * @return AnimationLed[]
      */
@@ -144,8 +140,8 @@ class PlayAnimationCommand extends AbstractCommand
      * @throws DateTimeError
      * @throws SaveError
      * @throws WriteException
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      */
     private function writeLeds(
         Module $slave,

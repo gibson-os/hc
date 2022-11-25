@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
-use DateTimeImmutable;
-use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
@@ -12,8 +10,6 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
-use JsonSerializable;
-use mysqlDatabase;
 
 /**
  * @method Module|null getModule()
@@ -25,7 +21,7 @@ use mysqlDatabase;
 #[Key(columns: ['module_id', 'added', 'type', 'direction', 'command'])]
 #[Key(columns: ['module_id', 'direction'])]
 #[Key(columns: ['module_id', 'master_id', 'id', 'command', 'direction'])]
-class Log extends AbstractModel implements JsonSerializable
+class Log extends AbstractModel implements \JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
@@ -35,7 +31,7 @@ class Log extends AbstractModel implements JsonSerializable
 
     #[Column(type: Column::TYPE_TIMESTAMP, default: Column::DEFAULT_CURRENT_TIMESTAMP)]
     #[Key]
-    private DateTimeInterface $added;
+    private \DateTimeInterface $added;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private ?int $masterId = null;
@@ -79,11 +75,11 @@ class Log extends AbstractModel implements JsonSerializable
     /** @var Explain[]|null Virtual Field */
     private ?array $explains = null;
 
-    public function __construct(mysqlDatabase $database = null)
+    public function __construct(\mysqlDatabase $database = null)
     {
         parent::__construct($database);
 
-        $this->added = new DateTimeImmutable();
+        $this->added = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -110,12 +106,12 @@ class Log extends AbstractModel implements JsonSerializable
         return $this;
     }
 
-    public function getAdded(): DateTimeInterface
+    public function getAdded(): \DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(DateTimeInterface $added): Log
+    public function setAdded(\DateTimeInterface $added): Log
     {
         $this->added = $added;
 

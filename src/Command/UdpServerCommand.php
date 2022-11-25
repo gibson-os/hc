@@ -14,7 +14,6 @@ use GibsonOS\Core\Service\EnvService;
 use GibsonOS\Core\Service\LockService;
 use GibsonOS\Module\Hc\Service\Protocol\UdpService;
 use GibsonOS\Module\Hc\Service\ReceiverService;
-use mysqlDatabase;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -35,7 +34,7 @@ class UdpServerCommand extends AbstractCommand
         private UdpService $protocol,
         private ReceiverService $receiverService,
         private EnvService $envService,
-        private mysqlDatabase $mysqlDatabase,
+        private \mysqlDatabase $mysqlDatabase,
         private LockService $lockService,
         LoggerInterface $logger
     ) {

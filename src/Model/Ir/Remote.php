@@ -9,7 +9,6 @@ use GibsonOS\Core\Attribute\Install\Database\Key as KeyAttribute;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Ir\Remote\Button;
-use JsonSerializable;
 
 /**
  * @method Button[] getButtons()
@@ -17,7 +16,7 @@ use JsonSerializable;
  * @method Remote   setButtons(Button[] $buttons)
  */
 #[Table]
-class Remote extends AbstractModel implements JsonSerializable
+class Remote extends AbstractModel implements \JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

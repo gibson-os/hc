@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Install;
 
-use Generator;
 use GibsonOS\Core\Dto\Install\Success;
 use GibsonOS\Core\Install\AbstractInstall;
 use GibsonOS\Core\Service\InstallService;
@@ -11,7 +10,7 @@ use GibsonOS\Core\Service\PriorityInterface;
 
 class FilePathInstall extends AbstractInstall implements PriorityInterface
 {
-    public function install(string $module): Generator
+    public function install(string $module): \Generator
     {
         yield $filePathInput = $this->getSettingInput(
             'hc',

@@ -35,15 +35,13 @@ use GibsonOS\Module\Hc\Repository\Warehouse\BoxRepository;
 use GibsonOS\Module\Hc\Service\Warehouse\BoxService;
 use GibsonOS\Module\Hc\Service\Warehouse\ItemService;
 use GibsonOS\Module\Hc\Store\Warehouse\BoxStore;
-use JsonException;
-use ReflectionException;
 
 class WarehouseController extends AbstractController
 {
     /**
      * @throws SelectError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      */
     #[CheckPermission(Permission::READ)]
     public function index(
@@ -60,8 +58,8 @@ class WarehouseController extends AbstractController
      * @param File[] $newFiles
      * @param File[] $newImages
      *
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws RequestError
      * @throws SaveError
      * @throws SelectError

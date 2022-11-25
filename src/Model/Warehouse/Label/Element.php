@@ -9,14 +9,13 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Label;
-use JsonSerializable;
 
 /**
  * @method Label   getLabel()
  * @method Element setLabel(Label $label)
  */
 #[Table]
-class Element extends AbstractModel implements JsonSerializable
+class Element extends AbstractModel implements \JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

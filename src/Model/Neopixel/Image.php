@@ -11,7 +11,6 @@ use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Image\Led;
-use JsonSerializable;
 
 /**
  * @method Module getModule()
@@ -22,7 +21,7 @@ use JsonSerializable;
  */
 #[Table]
 #[Key(unique: true, columns: ['module_id', 'name'])]
-class Image extends AbstractModel implements AutoCompleteModelInterface, JsonSerializable
+class Image extends AbstractModel implements AutoCompleteModelInterface, \JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

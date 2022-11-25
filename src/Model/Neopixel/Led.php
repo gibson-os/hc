@@ -10,7 +10,6 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Module;
-use JsonSerializable;
 
 /**
  * @method Module getModule()
@@ -19,7 +18,7 @@ use JsonSerializable;
 #[Table]
 #[Key(unique: true, columns: ['module_id', 'number'])]
 #[Key(columns: ['module_id', 'channel'])]
-class Led extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
+class Led extends AbstractModel implements \JsonSerializable, AutoCompleteModelInterface
 {
     use LedTrait;
 

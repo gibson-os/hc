@@ -12,7 +12,6 @@ use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Led;
-use JsonSerializable;
 
 /**
  * @method Module getModule()
@@ -25,7 +24,7 @@ use JsonSerializable;
  * @method Box    setItems(Item[] $leds)
  */
 #[Table]
-class Box extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
+class Box extends AbstractModel implements \JsonSerializable, AutoCompleteModelInterface
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

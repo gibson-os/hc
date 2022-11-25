@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Factory;
 
-use Exception;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Manager\ServiceManager;
 use GibsonOS\Module\Hc\Formatter\AbstractFormatter;
@@ -14,7 +13,7 @@ use GibsonOS\Module\Hc\Model\Log;
 class FormatterFactory
 {
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function get(Log $log): FormatterInterface
     {

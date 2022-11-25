@@ -3,15 +3,12 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Neopixel;
 
-use Exception;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led as AnimationLed;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Service\Module\NeopixelService;
-use JsonException;
-use OutOfRangeException;
 
 class LedService
 {
@@ -22,7 +19,7 @@ class LedService
     /**
      * @param Led[] $leds
      *
-     * @throws JsonException
+     * @throws \JsonException
      *
      * @return int[]
      */
@@ -38,7 +35,7 @@ class LedService
     }
 
     /**
-     * @throws JsonException
+     * @throws \JsonException
      */
     public function getNumberById(Module $slave, int $id): int
     {
@@ -53,11 +50,11 @@ class LedService
             $channelEndId += $count;
         }
 
-        throw new OutOfRangeException('LED ' . $id . ' liegt in keinem Channel');
+        throw new \OutOfRangeException('LED ' . $id . ' liegt in keinem Channel');
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      *
      * @return Led[]
      */
@@ -101,8 +98,8 @@ class LedService
     /**
      * @param Led[] $leds
      *
-     * @throws OutOfRangeException
-     * @throws JsonException
+     * @throws \OutOfRangeException
+     * @throws \JsonException
      */
     public function getChannelCounts(Module $slave, array $leds): array
     {
@@ -121,7 +118,7 @@ class LedService
     }
 
     /**
-     * @throws JsonException
+     * @throws \JsonException
      */
     private function setLedChannel(Module $slave, Led $led): int
     {
@@ -138,6 +135,6 @@ class LedService
             }
         }
 
-        throw new OutOfRangeException('LED ' . $led->getNumber() . ' liegt in keinem Channel');
+        throw new \OutOfRangeException('LED ' . $led->getNumber() . ' liegt in keinem Channel');
     }
 }

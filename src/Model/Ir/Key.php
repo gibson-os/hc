@@ -4,16 +4,23 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Model\Ir;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
+use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key as KeyAttribute;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Dto\Ir\Protocol;
-use JsonSerializable;
+use GibsonOS\Module\Hc\Model\Ir\Key\Name;
 
+/**
+ * @method Name[] getNames()
+ * @method Key    unloadNames()
+ * @method Key    addNames(Name[] $names)
+ * @method Key    setNames(Name[] $names)
+ */
 #[Table]
 #[KeyAttribute(unique: true, columns: ['protocol', 'address', 'command'])]
-class Key extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
+class Key extends AbstractModel implements \JsonSerializable, AutoCompleteModelInterface
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
@@ -30,6 +37,9 @@ class Key extends AbstractModel implements JsonSerializable, AutoCompleteModelIn
     #[Column(type: Column::TYPE_VARCHAR, length: 64)]
     #[KeyAttribute(true)]
     private string $name;
+
+    #[Constraint('key', Name::class, orderBy: '`name`')]
+    protected array $names = [];
 
     public function getId(): ?int
     {
@@ -96,9 +106,12 @@ class Key extends AbstractModel implements JsonSerializable, AutoCompleteModelIn
 
     public function jsonSerialize(): array
     {
+        $names = $this->getNames();
+
         return [
             'id' => $this->getId(),
-            'name' => $this->getId() === null ? null : $this->getName(),
+            'name' => implode(', ', array_map(static fn (Name $name): string => $name->getName(), $names)),
+            'names' => $this->getNames(),
             'protocol' => $this->getProtocol()->value,
             'command' => $this->getCommand(),
             'address' => $this->getAddress(),

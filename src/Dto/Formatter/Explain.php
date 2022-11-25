@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Dto\Formatter;
 
-use JsonSerializable;
-
-class Explain implements JsonSerializable
+class Explain implements \JsonSerializable
 {
     public const COLOR_WHITE = 'white';
 

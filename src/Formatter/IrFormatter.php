@@ -14,7 +14,6 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\Module\IrService;
 use GibsonOS\Module\Hc\Service\TransformService;
-use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 
@@ -32,7 +31,7 @@ class IrFormatter extends AbstractHcFormatter
     /**
      * @throws LoaderError
      * @throws SyntaxError
-     * @throws Throwable
+     * @throws \Throwable
      *
      * @return Explain[]|null
      */
@@ -51,7 +50,7 @@ class IrFormatter extends AbstractHcFormatter
     /**
      * @throws LoaderError
      * @throws SyntaxError
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function render(Log $log): ?string
     {
@@ -114,7 +113,7 @@ class IrFormatter extends AbstractHcFormatter
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      * @throws LoaderError
      * @throws SyntaxError
      *

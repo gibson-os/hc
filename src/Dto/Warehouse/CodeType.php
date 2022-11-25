@@ -4,9 +4,8 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Dto\Warehouse;
 
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
-use JsonSerializable;
 
-class CodeType implements JsonSerializable, AutoCompleteModelInterface
+class CodeType implements \JsonSerializable, AutoCompleteModelInterface
 {
     public function __construct(private readonly Code $code)
     {

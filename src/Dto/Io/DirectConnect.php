@@ -5,9 +5,8 @@ namespace GibsonOS\Module\Hc\Dto\Io;
 
 use GibsonOS\Module\Hc\Model\Io\DirectConnect as DirectConnectModel;
 use GibsonOS\Module\Hc\Model\Io\Port;
-use JsonSerializable;
 
-class DirectConnect implements JsonSerializable
+class DirectConnect implements \JsonSerializable
 {
     public function __construct(
         private readonly Port $inputPort,

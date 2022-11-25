@@ -10,7 +10,6 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Dto\Warehouse\Code as CodeType;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
-use JsonSerializable;
 
 /**
  * @method Link setItem(Item $item)
@@ -18,7 +17,7 @@ use JsonSerializable;
  */
 #[Table]
 #[Key(unique: true, columns: ['item_id', 'type', 'code'])]
-class Code extends AbstractModel implements JsonSerializable
+class Code extends AbstractModel implements \JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

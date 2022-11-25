@@ -19,10 +19,14 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Core\Service\Response\ExceptionResponse;
+use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Hc\Exception\IrException;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
 use GibsonOS\Module\Hc\Model\Ir\Key;
+use GibsonOS\Module\Hc\Model\Ir\Key\Name;
 use GibsonOS\Module\Hc\Model\Ir\Remote;
 use GibsonOS\Module\Hc\Model\Ir\Remote\Button;
 use GibsonOS\Module\Hc\Model\Module;
@@ -31,14 +35,12 @@ use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\Module\IrService;
 use GibsonOS\Module\Hc\Store\Ir\KeyStore;
 use GibsonOS\Module\Hc\Store\Ir\RemoteStore;
-use JsonException;
-use ReflectionException;
 
 class IrController extends AbstractController
 {
     /**
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SelectError
      */
     #[CheckPermission(Permission::READ)]
@@ -58,15 +60,18 @@ class IrController extends AbstractController
     }
 
     /**
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function addKey(
         ModelManager $modelManager,
         #[GetMappedModel] Key $key,
+        string $name,
     ): AjaxResponse {
+        $key->unloadNames();
+        $key->addNames([(new Name())->setName($name)]);
         $modelManager->save($key);
 
         return $this->returnSuccess();
@@ -76,7 +81,7 @@ class IrController extends AbstractController
      * @param Key[] $keys
      *
      * @throws DeleteError
-     * @throws JsonException
+     * @throws \JsonException
      */
     #[CheckPermission(Permission::MANAGE + Permission::DELETE)]
     public function deleteKeys(
@@ -97,6 +102,7 @@ class IrController extends AbstractController
     public function waitForKey(
         LogRepository $logRepository,
         IrFormatter $irFormatter,
+        StatusCode $statusCode,
         int $moduleId,
         int $lastLogId = null
     ): AjaxResponse {
@@ -119,12 +125,28 @@ class IrController extends AbstractController
 
                 if ($key->getId() !== null) {
                     $exception = new IrException(sprintf(
-                        'Taste ist bereits unter dem Namen "%s" vorhanden!',
-                        $key->getName() ?? ''
+                        'Taste ist bereits unter den Namen "%s" vorhanden. Trotzdem speichern?',
+                        implode('", "', array_map(
+                            static fn (Name $name): string => $name->getName(),
+                            $key->getNames()
+                        ))
                     ));
-                    $exception->setType(AbstractException::INFO);
+                    $exception->setType(AbstractException::QUESTION);
+                    $exception->setTitle('Taste bereits vorhanden');
+                    $exception->addButton('Ja', value: true);
+                    $exception->addButton('Nein', value: false);
 
-                    throw $exception;
+                    $response = new ExceptionResponse(
+                        $exception,
+                        $this->requestService,
+                        $this->twigService,
+                        $statusCode,
+                    );
+
+                    $body = JsonUtility::decode($response->getBody());
+                    $body['data'] = array_merge($body['data'], $data);
+
+                    return new AjaxResponse($body, StatusCode::CONFLICT);
                 }
 
                 break;
@@ -140,8 +162,8 @@ class IrController extends AbstractController
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -163,8 +185,8 @@ class IrController extends AbstractController
     }
 
     /**
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SelectError
      */
     #[CheckPermission(Permission::READ)]
@@ -184,8 +206,8 @@ class IrController extends AbstractController
     }
 
     /**
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
@@ -202,7 +224,7 @@ class IrController extends AbstractController
      * @param Remote[] $remotes
      *
      * @throws DeleteError
-     * @throws JsonException
+     * @throws \JsonException
      */
     #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
     public function deleteRemotes(
@@ -218,13 +240,13 @@ class IrController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws JsonException
+     * @throws \JsonException
      * @throws SaveError
      * @throws SelectError
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]

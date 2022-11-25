@@ -7,7 +7,6 @@ use GibsonOS\Module\Hc\Dto\Warehouse\Label\Barcode;
 use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
-use TCPDF;
 
 class CodesElementService extends AbstractElementService
 {
@@ -26,7 +25,7 @@ class CodesElementService extends AbstractElementService
         return Type::CODES;
     }
 
-    public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
+    public function addElement(\TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
     {
         $codes = $this->getCodes($element, $box);
 

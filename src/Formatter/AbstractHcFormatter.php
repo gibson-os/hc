@@ -12,7 +12,6 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\TransformService;
 use LogicException;
-use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -77,7 +76,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
     /**
      * @throws LoaderError
      * @throws SyntaxError
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function command(Log $log): ?string
     {
@@ -93,7 +92,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
     /**
      * @throws LoaderError
      * @throws SyntaxError
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function text(Log $log): ?string
     {
@@ -131,7 +130,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
     /**
      * @throws LoaderError
      * @throws SyntaxError
-     * @throws Throwable
+     * @throws \Throwable
      *
      * @return Explain[]|null
      */
@@ -167,7 +166,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      * @throws LoaderError
      * @throws SyntaxError
      */

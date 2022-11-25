@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
-use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
@@ -24,13 +23,11 @@ use GibsonOS\Module\Hc\Model\Neopixel\Animation;
 use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
 use GibsonOS\Module\Hc\Service\Neopixel\AnimationService;
 use GibsonOS\Module\Hc\Store\Neopixel\AnimationStore;
-use JsonException;
-use ReflectionException;
 
 class NeopixelAnimationController extends AbstractController
 {
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     #[CheckPermission(Permission::READ)]
     public function index(
@@ -59,9 +56,9 @@ class NeopixelAnimationController extends AbstractController
     }
 
     /**
-     * @throws JsonException
+     * @throws \JsonException
      * @throws SelectError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      */
     #[CheckPermission(Permission::READ)]
     public function list(
@@ -85,8 +82,8 @@ class NeopixelAnimationController extends AbstractController
     /**
      * @throws SaveError
      * @throws SelectError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws ImageExists
      */
     #[CheckPermission(Permission::WRITE, ['id' => Permission::WRITE + Permission::DELETE])]
@@ -122,8 +119,8 @@ class NeopixelAnimationController extends AbstractController
     /**
      * @throws AbstractException
      * @throws DeleteError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
@@ -144,8 +141,8 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
@@ -165,8 +162,8 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
@@ -184,8 +181,8 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
@@ -202,8 +199,8 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException

@@ -17,7 +17,6 @@ use GibsonOS\Module\Hc\Mapper\Bme280Mapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\Module\Bme280Service;
-use JsonException;
 
 class Bme280Controller extends AbstractController
 {
@@ -26,7 +25,7 @@ class Bme280Controller extends AbstractController
      * @throws ReceiveError
      * @throws SaveError
      * @throws SelectError
-     * @throws JsonException
+     * @throws \JsonException
      */
     #[CheckPermission(Permission::READ)]
     public function measure(Bme280Service $bme280Service, #[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
@@ -36,7 +35,7 @@ class Bme280Controller extends AbstractController
 
     /**
      * @throws SelectError
-     * @throws JsonException
+     * @throws \JsonException
      */
     #[CheckPermission(Permission::READ)]
     public function status(

@@ -9,7 +9,6 @@ use GibsonOS\Core\Attribute\Install\Database\Key as KeyAttribute;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Ir\Key as IrKey;
-use JsonSerializable;
 
 /**
  * @method Button getButton()
@@ -19,7 +18,7 @@ use JsonSerializable;
  */
 #[Table]
 #[KeyAttribute(unique: true, columns: ['button_id', 'order'])]
-class Key extends AbstractModel implements JsonSerializable
+class Key extends AbstractModel implements \JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

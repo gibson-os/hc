@@ -9,7 +9,6 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Neopixel\Led as NeopixelLed;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
-use JsonSerializable;
 
 /**
  * @method Box         getBox()
@@ -18,7 +17,7 @@ use JsonSerializable;
  * @method Led         setLed(NeopixelLed $led)
  */
 #[Table]
-class Led extends AbstractModel implements JsonSerializable
+class Led extends AbstractModel implements \JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

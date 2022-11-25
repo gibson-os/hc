@@ -3,16 +3,12 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
-use DateTimeImmutable;
-use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
-use JsonSerializable;
-use mysqlDatabase;
 
 /**
  * @method Type        getType()
@@ -22,7 +18,7 @@ use mysqlDatabase;
  */
 #[Table]
 #[Key(unique: true, columns: ['master_id', 'address'])]
-class Module extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
+class Module extends AbstractModel implements \JsonSerializable, AutoCompleteModelInterface
 {
     public const MAX_ADDRESS = 119;
 
@@ -67,10 +63,10 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
     private bool $offline = false;
 
     #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
-    private DateTimeInterface $added;
+    private \DateTimeInterface $added;
 
     #[Column(type: Column::TYPE_TIMESTAMP, attributes: [Column::ATTRIBUTE_CURRENT_TIMESTAMP])]
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     #[Constraint]
     protected Type $type;
@@ -90,12 +86,12 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
     #[Column]
     private ?int $group = null;
 
-    public function __construct(mysqlDatabase $database = null)
+    public function __construct(\mysqlDatabase $database = null)
     {
         parent::__construct($database);
 
-        $this->added = new DateTimeImmutable();
-        $this->modified = new DateTimeImmutable();
+        $this->added = new \DateTimeImmutable();
+        $this->modified = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -254,24 +250,24 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
         return $this;
     }
 
-    public function getAdded(): DateTimeInterface
+    public function getAdded(): \DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(DateTimeInterface $added): Module
+    public function setAdded(\DateTimeInterface $added): Module
     {
         $this->added = $added;
 
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }
 
-    public function setModified(DateTimeInterface $modified): Module
+    public function setModified(\DateTimeInterface $modified): Module
     {
         $this->modified = $modified;
 

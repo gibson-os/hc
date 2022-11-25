@@ -17,15 +17,13 @@ use GibsonOS\Module\Hc\Mapper\Ssd1306\PixelMapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Module\Ssd1306Service;
 use GibsonOS\Module\Hc\Store\Ssd1306\PixelStore;
-use JsonException;
-use ReflectionException;
 
 class Ssd1306Controller extends AbstractController
 {
     /**
      * @throws SelectError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      */
     #[CheckPermission(Permission::READ)]
     public function index(
@@ -40,8 +38,8 @@ class Ssd1306Controller extends AbstractController
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -62,8 +60,8 @@ class Ssd1306Controller extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      * @throws FactoryError

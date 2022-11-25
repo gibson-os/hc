@@ -21,8 +21,6 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Store\Io\PortStore;
-use JsonException;
-use ReflectionException;
 
 class IoController extends AbstractController
 {
@@ -43,8 +41,8 @@ class IoController extends AbstractController
     }
 
     /**
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SelectError
      */
     #[CheckPermission(Permission::READ)]
@@ -76,9 +74,9 @@ class IoController extends AbstractController
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
+     * @throws \JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws GetError
@@ -97,8 +95,8 @@ class IoController extends AbstractController
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */

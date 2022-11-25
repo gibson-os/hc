@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Module;
 
-use Exception;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\EventException;
@@ -35,10 +34,7 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
-use JsonException;
 use Psr\Log\LoggerInterface;
-use ReflectionException;
-use Throwable;
 
 class IoService extends AbstractHcModule
 {
@@ -144,7 +140,7 @@ class IoService extends AbstractHcModule
      * @throws DateTimeError
      * @throws ReceiveError
      * @throws SaveError
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function slaveHandshake(Module $module): Module
     {
@@ -165,7 +161,7 @@ class IoService extends AbstractHcModule
             foreach ($ports as $port) {
                 $this->modelManager->save($port);
             }
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             $this->portRepository->rollback();
 
             throw $exception;
@@ -185,8 +181,8 @@ class IoService extends AbstractHcModule
     }
 
     /**
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws SelectError
      */
@@ -223,9 +219,9 @@ class IoService extends AbstractHcModule
 
     /**
      * @throws AbstractException
-     * @throws JsonException
+     * @throws \JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws SaveError
      */
     public function readPort(Port $port): Port
@@ -247,8 +243,8 @@ class IoService extends AbstractHcModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -262,9 +258,9 @@ class IoService extends AbstractHcModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
+     * @throws \JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws GetError
      */
@@ -286,8 +282,8 @@ class IoService extends AbstractHcModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -304,7 +300,7 @@ class IoService extends AbstractHcModule
 
     /**
      * @throws AbstractException
-     * @throws Exception
+     * @throws \Exception
      */
     public function toggleValue(Port $port): void
     {
@@ -327,7 +323,7 @@ class IoService extends AbstractHcModule
      * @param string[] $valueNames
      *
      * @throws AbstractException
-     * @throws Exception
+     * @throws \Exception
      */
     public function setPort(Port $port): void
     {
@@ -340,7 +336,7 @@ class IoService extends AbstractHcModule
         try {
             $this->modelManager->save($port);
             $this->writePort($port);
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             $this->portRepository->rollback();
 
             throw $exception;
@@ -353,9 +349,9 @@ class IoService extends AbstractHcModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws JsonException
+     * @throws \JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws SelectError
      *
@@ -377,7 +373,7 @@ class IoService extends AbstractHcModule
 
     /**
      * @throws AbstractException
-     * @throws Exception
+     * @throws \Exception
      */
     public function saveDirectConnect(Module $module, DirectConnect $directConnect): void
     {
@@ -423,7 +419,7 @@ class IoService extends AbstractHcModule
      * @throws AbstractException
      * @throws ReceiveError
      * @throws SaveError
-     * @throws Exception
+     * @throws \Exception
      */
     public function readDirectConnect(Module $slave, Port $port, int $order): DirectConnectDto
     {
@@ -490,8 +486,8 @@ class IoService extends AbstractHcModule
      * @throws RepositoryDeleteError
      * @throws UpdateError
      * @throws WriteException
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      */
     public function deleteDirectConnect(Module $module, DirectConnect $directConnect): void
     {
@@ -513,7 +509,7 @@ class IoService extends AbstractHcModule
                 self::COMMAND_DELETE_DIRECT_CONNECT,
                 $this->getDeviceIdAsString($module->getDeviceId() ?? 0) . chr($number) . chr($order)
             );
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             $this->directConnectRepository->rollback();
 
             throw $exception;
@@ -531,8 +527,8 @@ class IoService extends AbstractHcModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -574,8 +570,8 @@ class IoService extends AbstractHcModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -593,8 +589,8 @@ class IoService extends AbstractHcModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -609,9 +605,9 @@ class IoService extends AbstractHcModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws JsonException
+     * @throws \JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws SaveError
      */
     public function isDirectConnectActive(Module $slave): bool

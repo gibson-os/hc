@@ -3,19 +3,15 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Model;
 
-use DateTimeImmutable;
-use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
-use JsonSerializable;
-use mysqlDatabase;
 
 #[Table]
 #[Key(unique: true, columns: ['protocol', 'address'])]
-class Master extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
+class Master extends AbstractModel implements \JsonSerializable, AutoCompleteModelInterface
 {
     public const PROTOCOL_UDP = 'udp';
 
@@ -36,20 +32,20 @@ class Master extends AbstractModel implements JsonSerializable, AutoCompleteMode
     private int $sendPort;
 
     #[Column(default: Column::DEFAULT_CURRENT_TIMESTAMP)]
-    private DateTimeInterface $added;
+    private \DateTimeInterface $added;
 
     #[Column(type: Column::TYPE_TIMESTAMP, attributes: [Column::ATTRIBUTE_CURRENT_TIMESTAMP])]
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     #[Column]
     private bool $offline = false;
 
-    public function __construct(mysqlDatabase $database = null)
+    public function __construct(\mysqlDatabase $database = null)
     {
         parent::__construct($database);
 
-        $this->added = new DateTimeImmutable();
-        $this->modified = new DateTimeImmutable();
+        $this->added = new \DateTimeImmutable();
+        $this->modified = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -112,24 +108,24 @@ class Master extends AbstractModel implements JsonSerializable, AutoCompleteMode
         return $this;
     }
 
-    public function getAdded(): ?DateTimeInterface
+    public function getAdded(): ?\DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(DateTimeInterface $added): Master
+    public function setAdded(\DateTimeInterface $added): Master
     {
         $this->added = $added;
 
         return $this;
     }
 
-    public function getModified(): ?DateTimeInterface
+    public function getModified(): ?\DateTimeInterface
     {
         return $this->modified;
     }
 
-    public function setModified(DateTimeInterface $modified): Master
+    public function setModified(\DateTimeInterface $modified): Master
     {
         $this->modified = $modified;
 

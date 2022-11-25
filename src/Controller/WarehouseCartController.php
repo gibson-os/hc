@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
-use Generator;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
@@ -22,14 +21,12 @@ use GibsonOS\Module\Hc\Model\Warehouse\Cart\Item;
 use GibsonOS\Module\Hc\Service\Warehouse\BoxService;
 use GibsonOS\Module\Hc\Store\Warehouse\Cart\ItemStore;
 use GibsonOS\Module\Hc\Store\Warehouse\CartStore;
-use JsonException;
-use ReflectionException;
 
 class WarehouseCartController extends AbstractController
 {
     /**
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SelectError
      */
     #[CheckPermission(Permission::READ)]
@@ -41,8 +38,8 @@ class WarehouseCartController extends AbstractController
     }
 
     /**
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SelectError
      */
     #[CheckPermission(Permission::READ)]
@@ -60,7 +57,7 @@ class WarehouseCartController extends AbstractController
             ->setCart($cart)
             ->setLimit($limit, $start)
         ;
-        /** @var Generator<Item> $list */
+        /** @var \Generator<Item> $list */
         $list = $itemStore->getList();
 
         return new AjaxResponse([
@@ -75,8 +72,8 @@ class WarehouseCartController extends AbstractController
 
     /**
      * @throws SaveError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      */
     #[CheckPermission(Permission::WRITE)]
     public function save(

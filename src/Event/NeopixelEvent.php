@@ -28,9 +28,7 @@ use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Module\NeopixelService;
-use JsonException;
 use Psr\Log\LoggerInterface;
-use ReflectionException;
 
 #[Event('Neopixel')]
 #[Event\Listener('image', 'module', ['params' => [
@@ -54,7 +52,7 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws SaveError
-     * @throws JsonException
+     * @throws \JsonException
      */
     #[Event\Method('LEDs setzen')]
     public function writeSetLeds(
@@ -71,8 +69,8 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      * @throws WriteException
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      */
     #[Event\Method('Channel schreiben')]
     public function writeChannel(
@@ -85,8 +83,8 @@ class NeopixelEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      * @throws FactoryError
@@ -102,8 +100,8 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -117,8 +115,8 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -132,8 +130,8 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -148,9 +146,9 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
+     * @throws \JsonException
      * @throws ReceiveError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws GetError
      */
@@ -165,8 +163,8 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -181,8 +179,8 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws SaveError
      * @throws ReceiveError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      */
     #[Event\Method('LED Anzahl lesen')]
 //    #[Event\ReturnValue(className: CollectionParameter::class, options: [
@@ -198,8 +196,8 @@ class NeopixelEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -301,7 +299,7 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
-     * @throws JsonException
+     * @throws \JsonException
      */
     #[Event\Method('Farbe setzen')]
     public function sendColor(
@@ -350,7 +348,7 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
-     * @throws JsonException
+     * @throws \JsonException
      */
     #[Event\Method('Heller')]
     public function brighter(
@@ -400,7 +398,7 @@ class NeopixelEvent extends AbstractHcEvent
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
-     * @throws JsonException
+     * @throws \JsonException
      */
     #[Event\Method('Dunkler')]
     public function darker(
@@ -448,7 +446,7 @@ class NeopixelEvent extends AbstractHcEvent
 
     /**
      * @throws SelectError
-     * @throws JsonException
+     * @throws \JsonException
      *
      * @return Led[]
      */

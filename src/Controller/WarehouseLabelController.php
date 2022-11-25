@@ -22,15 +22,13 @@ use GibsonOS\Module\Hc\Model\Warehouse\Label\Template;
 use GibsonOS\Module\Hc\Service\Warehouse\LabelService;
 use GibsonOS\Module\Hc\Store\Warehouse\Label\TemplateStore;
 use GibsonOS\Module\Hc\Store\Warehouse\LabelStore;
-use JsonException;
-use ReflectionException;
 
 class WarehouseLabelController extends AbstractController
 {
     /**
      * @throws SelectError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      */
     #[CheckPermission(Permission::READ)]
     public function index(LabelStore $labelStore): AjaxResponse
@@ -50,8 +48,8 @@ class WarehouseLabelController extends AbstractController
     }
 
     /**
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SelectError
      */
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
@@ -61,8 +59,8 @@ class WarehouseLabelController extends AbstractController
     }
 
     /**
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      */
     #[CheckPermission(Permission::WRITE)]
@@ -76,7 +74,7 @@ class WarehouseLabelController extends AbstractController
     }
 
     /**
-     * @throws JsonException
+     * @throws \JsonException
      * @throws DeleteError
      */
     #[CheckPermission(Permission::DELETE)]
@@ -92,8 +90,8 @@ class WarehouseLabelController extends AbstractController
     }
 
     /**
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws SaveError
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
@@ -107,7 +105,7 @@ class WarehouseLabelController extends AbstractController
     }
 
     /**
-     * @throws JsonException
+     * @throws \JsonException
      * @throws DeleteError
      */
     #[CheckPermission(Permission::DELETE + Permission::MANAGE)]

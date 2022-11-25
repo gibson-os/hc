@@ -1,42 +1,41 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Model\Warehouse;
+namespace GibsonOS\Module\Hc\Model\Ir\Key;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
-use GibsonOS\Core\Attribute\Install\Database\Key;
+use GibsonOS\Core\Attribute\Install\Database\Key as KeyAttribute;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
-use GibsonOS\Module\Hc\Model\Warehouse\Cart\Item;
+use GibsonOS\Module\Hc\Model\Ir\Key;
 
 /**
- * @method Item[] getItems()
- * @method Cart   setItems(Item[] $items)
- * @method Cart   addItems(Item[] $items)
+ * @method Key  getKey()
+ * @method Name setKey(Key $key)
  */
 #[Table]
-class Cart extends AbstractModel implements \JsonSerializable
+class Name extends AbstractModel implements \JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
     #[Column(type: Column::TYPE_VARCHAR, length: 64)]
-    #[Key(true)]
+    #[KeyAttribute(true)]
     private string $name;
 
-    #[Column(type: Column::TYPE_VARCHAR, length: 512)]
-    private ?string $description = null;
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $keyId;
 
-    #[Constraint('cart', Item::class)]
-    protected array $items = [];
+    #[Constraint]
+    protected Key $key;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(int $id): Cart
+    public function setId(int $id): Name
     {
         $this->id = $id;
 
@@ -48,21 +47,21 @@ class Cart extends AbstractModel implements \JsonSerializable
         return $this->name;
     }
 
-    public function setName(string $name): Cart
+    public function setName(string $name): Name
     {
         $this->name = $name;
 
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getKeyId(): int
     {
-        return $this->description;
+        return $this->keyId;
     }
 
-    public function setDescription(?string $description): Cart
+    public function setKeyId(int $keyId): Name
     {
-        $this->description = $description;
+        $this->keyId = $keyId;
 
         return $this;
     }
@@ -72,7 +71,6 @@ class Cart extends AbstractModel implements \JsonSerializable
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
-            'description' => $this->getDescription(),
         ];
     }
 }

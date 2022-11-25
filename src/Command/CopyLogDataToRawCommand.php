@@ -10,11 +10,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\TransformService;
-use JsonException;
-use mysqlDatabase;
-use mysqlTable;
 use Psr\Log\LoggerInterface;
-use ReflectionException;
 
 /**
  * @description TEMP copy old log data to new raw field
@@ -23,7 +19,7 @@ class CopyLogDataToRawCommand extends AbstractCommand
 {
     public function __construct(
         LoggerInterface $logger,
-        private mysqlDatabase $mysqlDatabase,
+        private \mysqlDatabase $mysqlDatabase,
         private TransformService $transformService,
         private ModelManager $modelManager,
         #[GetTableName(Log::class)] private string $logTableName
@@ -34,12 +30,12 @@ class CopyLogDataToRawCommand extends AbstractCommand
     /**
      * @throws GetError
      * @throws SaveError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      */
     protected function run(): int
     {
-        $logTable = new mysqlTable($this->mysqlDatabase, $this->logTableName);
+        $logTable = new \mysqlTable($this->mysqlDatabase, $this->logTableName);
         $logTable->setWhere('`data`!="" AND `raw_data`=""');
 
         if (!$logTable->select()) {

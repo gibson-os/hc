@@ -7,7 +7,6 @@ use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
 use GibsonOS\Module\Hc\Model\Warehouse\Tag;
-use TCPDF;
 
 class TagsElementService extends AbstractElementService
 {
@@ -18,7 +17,7 @@ class TagsElementService extends AbstractElementService
         return Type::TAGS;
     }
 
-    public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
+    public function addElement(\TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
     {
         $this->addTextElement(
             $pdf,

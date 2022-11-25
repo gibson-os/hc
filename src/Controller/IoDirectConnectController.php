@@ -23,8 +23,6 @@ use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Store\Io\DirectConnectStore;
-use JsonException;
-use ReflectionException;
 
 class IoDirectConnectController extends AbstractController
 {
@@ -33,10 +31,10 @@ class IoDirectConnectController extends AbstractController
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws JsonException
+     * @throws \JsonException
      * @throws MapperException
      * @throws ReceiveError
-     * @throws ReflectionException
+     * @throws \ReflectionException
      * @throws SaveError
      * @throws SelectError
      */
@@ -75,7 +73,7 @@ class IoDirectConnectController extends AbstractController
      * @throws AbstractException
      * @throws SelectError
      * @throws WriteException
-     * @throws JsonException
+     * @throws \JsonException
      */
     #[CheckPermission(Permission::DELETE)]
     public function delete(

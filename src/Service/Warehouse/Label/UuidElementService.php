@@ -7,7 +7,6 @@ use GibsonOS\Core\Attribute\GetEnv;
 use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
-use TCPDF;
 
 class UuidElementService extends AbstractElementService
 {
@@ -23,7 +22,7 @@ class UuidElementService extends AbstractElementService
         return Type::UUID;
     }
 
-    public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
+    public function addElement(\TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
     {
         ($element->getOptions()[self::OPTION_STRING] ?? false)
             ? $this->addTextElement(

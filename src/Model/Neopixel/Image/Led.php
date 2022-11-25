@@ -11,7 +11,6 @@ use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Neopixel\Image;
 use GibsonOS\Module\Hc\Model\Neopixel\Led as NeopixelLed;
 use GibsonOS\Module\Hc\Model\Neopixel\LedTrait;
-use JsonSerializable;
 
 /**
  * @method Image       getImage()
@@ -21,7 +20,7 @@ use JsonSerializable;
  */
 #[Table]
 #[Key(unique: true, columns: ['image_id', 'led_id'])]
-class Led extends AbstractModel implements JsonSerializable
+class Led extends AbstractModel implements \JsonSerializable
 {
     use LedTrait;
 
