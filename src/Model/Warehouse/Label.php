@@ -32,7 +32,7 @@ class Label extends AbstractModel implements \JsonSerializable, AutoCompleteMode
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $templateId;
 
-    #[Constraint(onDelete: null)]
+    #[Constraint]
     protected Template $template;
 
     #[Constraint('label', Element::class)]

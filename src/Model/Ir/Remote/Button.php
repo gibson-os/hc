@@ -76,7 +76,7 @@ class Button extends AbstractModel implements \JsonSerializable
     #[Constraint]
     protected Remote $remote;
 
-    #[Constraint(onDelete: null)]
+    #[Constraint(onDelete: Constraint::RULE_SET_NULL)]
     protected ?Event $event;
 
     #[Constraint('button', Key::class, orderBy: '`order`')]
