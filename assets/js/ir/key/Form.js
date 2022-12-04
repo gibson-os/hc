@@ -6,6 +6,7 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
         permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.WRITE
     },
     lastLogId: null,
+    keyId: null,
     initComponent() {
         const me = this;
 
@@ -28,9 +29,6 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
         },{
             xtype: 'gosFormHidden',
             name: 'protocol',
-        },{
-            xtype: 'gosFormHidden',
-            name: 'id',
         }];
 
         me.buttons = [{
@@ -42,7 +40,7 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
                     xtype: 'gosFormActionAction',
                     url: baseDir + 'hc/ir/addKey',
                     params: {
-                        id: me.getForm().findField('id').getValue() ?? 0,
+                        id: me.keyId ?? 0,
                         address: me.getForm().findField('address').getValue(),
                         command: me.getForm().findField('command').getValue()
                     },
@@ -74,8 +72,9 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
         const me = this;
 
         me.lastLogId = null;
-        me.getForm().reset();
+        me.keyId = null;
         me.loadMask.show();
+        me.getForm().reset();
         me.waitForKey();
     },
     waitForKey() {
@@ -97,7 +96,9 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
                         }
 
                         if (button.value) {
-                            me.getForm().setValues(Ext.decode(response.responseText).data.key);
+                            const key = Ext.decode(response.responseText).data.key;
+                            me.getForm().setValues(key);
+                            me.keyId = key.id;
                             me.loadMask.hide();
 
                             return;
@@ -112,6 +113,7 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
 
                     if (data.key) {
                         me.getForm().setValues(data.key);
+                        me.keyId = null;
                         me.loadMask.hide();
                     } else {
                         if (!me.isVisible()) {
