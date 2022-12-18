@@ -2,8 +2,7 @@
   "name": "gibson-os/hc",
   "require": {
     "php": " ^8.1",
-    "mdo/mdo": "dev-master",
-    "gibson-os/core": "dev-master",
+    "gibson-os/core": "^1.0.0",
     "ext-mbstring": "*",
     "ext-json": "*",
     "chillerlan/php-qrcode": "^4.3",
@@ -20,16 +19,6 @@
     "phpspec/prophecy-phpunit": "^2.0",
     "rector/rector": "^0.11.57"
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "git@wolli.dyndns.tv:/home/git/mdo.git"
-    },
-    {
-      "type": "vcs",
-      "url": "git@wolli.dyndns.tv:/home/git/gibsonOs/Core.git"
-    }
-  ],
   "autoload": {
     "psr-4": {
       "GibsonOS\\Module\\Hc\\": "src/",
