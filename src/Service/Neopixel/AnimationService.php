@@ -42,11 +42,11 @@ class AnimationService
         $module = $animation->getModule();
         $this->stop($module);
         $this->commandService->executeAsync(PlayAnimationCommand::class, [
-            'slaveId' => $module->getId(),
+            'moduleId' => $module->getId(),
             'iterations' => $iterations,
         ]);
         $animation->setStarted(true);
-        $this->modelManager->save($animation);
+        $this->modelManager->saveWithoutChildren($animation);
     }
 
     /**
@@ -76,26 +76,30 @@ class AnimationService
      */
     public function stop(Module $module): bool
     {
-        $startedAnimation = $this->animationRepository->getStarted($module);
-        $pid = $startedAnimation->getPid();
+        try {
+            $startedAnimation = $this->animationRepository->getStarted($module);
+            $pid = $startedAnimation->getPid();
 
-        $startedAnimation
-            ->setPid(null)
-            ->setStarted(false)
-            ->setPaused(false)
-        ;
+            $startedAnimation
+                ->setPid(null)
+                ->setStarted(false)
+                ->setPaused(false)
+            ;
 
-        if ($pid !== null) {
-            $this->modelManager->save($startedAnimation);
+            if ($pid !== null) {
+                $this->modelManager->save($startedAnimation);
 
-            return $this->processService->kill($pid);
-        }
+                return $this->processService->kill($pid);
+            }
 
-        if ($startedAnimation->isTransmitted()) {
-            $this->neopixelService->writeSequenceStop($module);
-            $this->modelManager->save($startedAnimation);
+            if ($startedAnimation->isTransmitted()) {
+                $this->neopixelService->writeSequenceStop($module);
+                $this->modelManager->save($startedAnimation);
 
-            return true;
+                return true;
+            }
+        } catch (SelectError) {
+            // do nothing
         }
 
         return false;

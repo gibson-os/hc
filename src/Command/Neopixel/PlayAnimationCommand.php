@@ -16,7 +16,6 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led as AnimationLed;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
@@ -77,7 +76,13 @@ class PlayAnimationCommand extends AbstractCommand
                 $newLeds = [];
 
                 foreach ($leds as $led) {
-                    $newLeds[$led->getLed()->getNumber()] = $led;
+                    $newLeds[$led->getLed()->getNumber()] = $led->getLed()
+                        ->setRed($led->getRed())
+                        ->setGreen($led->getGreen())
+                        ->setBlue($led->getBlue())
+                        ->setBlink($led->getBlink())
+                        ->setFadeIn($led->getFadeIn())
+                    ;
                 }
 
                 $this->mysqlDatabase->openDB($this->mysqlDatabaseName);
@@ -110,32 +115,23 @@ class PlayAnimationCommand extends AbstractCommand
     }
 
     /**
-     * @param AnimationLed[] $leds
+     * @param Led[] $leds
      *
      * @throws \Exception
      *
-     * @return AnimationLed[]
+     * @return Led[]
      */
     private function getChanges(Module $slave, array &$leds): array
     {
         ksort($leds);
 
-        return $this->ledService->getChanges(
-            array_map(
-                fn (Led $led) => (new AnimationLed())
-                    ->setLed($led)
-                    ->setRed($led->getRed())
-                    ->setGreen($led->getGreen())
-                    ->setBlue($led->getBlue())
-                    ->setFadeIn($led->getFadeIn())
-                    ->setBlink($led->getBlink()),
-                $this->ledService->getActualState($slave)
-            ),
-            $leds
-        );
+        return $this->ledService->getChanges($this->ledService->getActualState($slave), $leds);
     }
 
     /**
+     * @param Led[] $leds
+     * @param Led[] $changedSlaveLeds
+     *
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
@@ -155,7 +151,7 @@ class PlayAnimationCommand extends AbstractCommand
 
         $neopixelService->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
 
-        array_walk($changedSlaveLeds, function (AnimationLed $led) {
+        array_walk($changedSlaveLeds, function (Led $led) {
             $this->modelManager->save($led);
         });
 
@@ -174,5 +170,19 @@ class PlayAnimationCommand extends AbstractCommand
                 $lastChangedIds
             )
         );
+    }
+
+    public function setModuleId(int $moduleId): PlayAnimationCommand
+    {
+        $this->moduleId = $moduleId;
+
+        return $this;
+    }
+
+    public function setIterations(int $iterations): PlayAnimationCommand
+    {
+        $this->iterations = $iterations;
+
+        return $this;
     }
 }

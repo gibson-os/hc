@@ -92,7 +92,7 @@ class NeopixelAnimationController extends AbstractController
         ModelManager $modelManager,
         ?int $id,
         #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModel(['name' => 'name'], ['module' => 'module'])] Animation $animation
+        #[GetMappedModel(['name' => 'name', 'module_id' => 'moduleId'])] Animation $animation
     ): AjaxResponse {
         if ($animation->getId() !== null && $animation->getId() !== $id) {
             throw new ImageExists(
@@ -150,8 +150,7 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function play(
         AnimationService $animationService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModel(mapping: ['module' => 'module'])] Animation $animation,
+        #[GetMappedModel(['id' => 'id', 'module_id' => 'moduleId'])] Animation $animation,
         int $iterations,
     ): AjaxResponse {
         $animation->setName($animation->getName() ?? '');
