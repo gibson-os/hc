@@ -130,9 +130,7 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function send(
         AnimationService $animationService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModel(['id' => 'id'], ['module' => 'module'])] Animation $animation,
-        array $items = []
+        #[GetMappedModel(['id' => 'id', 'module_id' => 'moduleId'])] Animation $animation,
     ): AjaxResponse {
         $animationService->send($animation);
 

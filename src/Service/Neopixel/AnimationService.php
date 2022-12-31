@@ -149,7 +149,13 @@ class AnimationService
             $newLeds = [];
 
             foreach ($leds as $led) {
-                $newLeds[$led->getLed()->getNumber()] = $led;
+                $newLeds[$led->getLed()->getNumber()] = $led->getLed()
+                    ->setRed($led->getRed())
+                    ->setGreen($led->getGreen())
+                    ->setBlue($led->getBlue())
+                    ->setBlink($led->getBlink())
+                    ->setFadeIn($led->getFadeIn())
+                ;
             }
 
             $changedLeds = $this->ledService->getChanges($oldLeds, $newLeds);

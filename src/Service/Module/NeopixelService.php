@@ -19,7 +19,6 @@ use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Mapper\LedMapper;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led as AnimationLed;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
@@ -388,7 +387,7 @@ class NeopixelService extends AbstractHcModule
     }
 
     /**
-     * @param AnimationLed[] $leds
+     * @param Led[] $leds
      *
      * @throws AbstractException
      * @throws FactoryError
