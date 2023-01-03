@@ -34,4 +34,14 @@ class MasterAutoComplete implements AutoCompleteInterface
     {
         return 'GibsonOS.module.hc.index.model.Master';
     }
+
+    public function getValueField(): string
+    {
+        return 'id';
+    }
+
+    public function getDisplayField(): string
+    {
+        return 'name';
+    }
 }

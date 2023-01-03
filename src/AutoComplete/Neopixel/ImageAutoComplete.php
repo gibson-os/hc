@@ -34,4 +34,14 @@ class ImageAutoComplete implements AutoCompleteInterface
     {
         return 'GibsonOS.module.hc.neopixel.model.Image';
     }
+
+    public function getValueField(): string
+    {
+        return 'id';
+    }
+
+    public function getDisplayField(): string
+    {
+        return 'name';
+    }
 }

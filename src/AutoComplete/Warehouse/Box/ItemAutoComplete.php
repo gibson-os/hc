@@ -39,4 +39,14 @@ class ItemAutoComplete implements AutoCompleteInterface
     {
         return 'GibsonOS.module.hc.warehouse.model.box.Item';
     }
+
+    public function getValueField(): string
+    {
+        return 'id';
+    }
+
+    public function getDisplayField(): string
+    {
+        return 'name';
+    }
 }

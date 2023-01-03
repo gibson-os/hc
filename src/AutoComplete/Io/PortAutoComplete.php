@@ -41,4 +41,14 @@ class PortAutoComplete implements AutoCompleteInterface
     {
         return [];
     }
+
+    public function getValueField(): string
+    {
+        return 'id';
+    }
+
+    public function getDisplayField(): string
+    {
+        return 'name';
+    }
 }

@@ -36,4 +36,14 @@ class TagAutoComplete implements AutoCompleteInterface
     {
         return 'GibsonOS.module.hc.warehouse.model.box.item.Tag';
     }
+
+    public function getValueField(): string
+    {
+        return 'id';
+    }
+
+    public function getDisplayField(): string
+    {
+        return 'name';
+    }
 }

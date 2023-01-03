@@ -31,4 +31,14 @@ class CodeTypeAutoComplete implements AutoCompleteInterface
     {
         return 'GibsonOS.module.hc.warehouse.model.CodeType';
     }
+
+    public function getValueField(): string
+    {
+        return 'id';
+    }
+
+    public function getDisplayField(): string
+    {
+        return 'name';
+    }
 }

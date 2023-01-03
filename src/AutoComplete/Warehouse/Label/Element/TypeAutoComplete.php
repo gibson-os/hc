@@ -31,4 +31,14 @@ class TypeAutoComplete implements AutoCompleteInterface
     {
         return 'GibsonOS.module.hc.warehouse.model.label.ElementType';
     }
+
+    public function getValueField(): string
+    {
+        return 'id';
+    }
+
+    public function getDisplayField(): string
+    {
+        return 'name';
+    }
 }

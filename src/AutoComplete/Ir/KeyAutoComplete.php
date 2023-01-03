@@ -41,4 +41,14 @@ class KeyAutoComplete implements AutoCompleteInterface
     {
         return 'GibsonOS.module.hc.ir.model.Key';
     }
+
+    public function getValueField(): string
+    {
+        return 'id';
+    }
+
+    public function getDisplayField(): string
+    {
+        return 'name';
+    }
 }

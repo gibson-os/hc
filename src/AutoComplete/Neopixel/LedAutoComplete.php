@@ -34,4 +34,14 @@ class LedAutoComplete implements AutoCompleteInterface
     {
         return 'GibsonOS.module.hc.neopixel.model.Led';
     }
+
+    public function getValueField(): string
+    {
+        return 'id';
+    }
+
+    public function getDisplayField(): string
+    {
+        return 'number';
+    }
 }

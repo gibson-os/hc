@@ -36,4 +36,14 @@ class LabelAutoComplete implements AutoCompleteInterface
     {
         return 'GibsonOS.module.hc.warehouse.model.Label';
     }
+
+    public function getValueField(): string
+    {
+        return 'id';
+    }
+
+    public function getDisplayField(): string
+    {
+        return 'name';
+    }
 }
