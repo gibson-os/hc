@@ -310,6 +310,8 @@ class Module extends AbstractModel implements \JsonSerializable, AutoCompleteMod
             'address' => $this->getAddress(),
             'offline' => $this->isOffline(),
             'settings' => $this->getType()->getUiSettings(),
+            'added' => $this->added->format('Y-m-d H:i:s'),
+            'modified' => $this->modified->format('Y-m-d H:i:s'),
         ];
     }
 

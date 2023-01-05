@@ -16,6 +16,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Core\Service\FcmService;
 use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
 use GibsonOS\Module\Hc\Dto\Io\Direction;
 use GibsonOS\Module\Hc\Dto\Parameter\Io\PortParameter;
@@ -277,11 +278,12 @@ class IoEvent extends AbstractHcEvent
         ReflectionManager $reflectionManager,
         TypeRepository $typeRepository,
         LoggerInterface $logger,
+        FcmService $fcmService,
         private readonly IoService $ioService,
         private readonly PortRepository $portRepository,
         private readonly DirectConnectRepository $directConnectRepository,
     ) {
-        parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->ioService);
+        parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $fcmService, $this->ioService);
     }
 
     /**

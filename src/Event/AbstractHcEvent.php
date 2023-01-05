@@ -4,20 +4,26 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Event;
 
 use GibsonOS\Core\Attribute\Event;
+use GibsonOS\Core\Dto\Fcm\Message;
 use GibsonOS\Core\Dto\Parameter\BoolParameter;
 use GibsonOS\Core\Dto\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Parameter\StringParameter;
+use GibsonOS\Core\Dto\Parameter\UserParameter;
 use GibsonOS\Core\Event\AbstractEvent;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
+use GibsonOS\Core\Exception\FcmException;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Exception\WebException;
 use GibsonOS\Core\Manager\ReflectionManager;
+use GibsonOS\Core\Model\User;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Core\Service\FcmService;
 use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\TypeParameter;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -376,7 +382,8 @@ abstract class AbstractHcEvent extends AbstractEvent
         ReflectionManager $reflectionManager,
         private TypeRepository $typeRepository,
         protected LoggerInterface $logger,
-        private AbstractHcModule $slaveService
+        private FcmService $fcmService,
+        private AbstractHcModule $slaveService,
     ) {
         parent::__construct($eventService, $reflectionManager);
     }
@@ -989,5 +996,38 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)] Module $slave
     ): array {
         return $this->slaveService->readAllLeds($slave);
+    }
+
+    /**
+     * @throws FcmException
+     * @throws WebException
+     * @throws \JsonException
+     */
+    #[Event\Method('Nachricht senden')]
+    public function pushMessage(
+        #[Event\Parameter(UserParameter::class)] User $user,
+        #[Event\Parameter(ModuleParameter::class)] Module $module,
+        #[Event\Parameter(StringParameter::class, 'Titel')] ?string $title,
+        #[Event\Parameter(StringParameter::class, 'Text')] ?string $body,
+    ): void {
+        foreach ($user->getDevices() as $device) {
+            $token = $device->getToken();
+            $fcmToken = $device->getFcmToken();
+
+            if ($token === null || $fcmToken === null) {
+                continue;
+            }
+
+            $this->fcmService->pushMessage(new Message(
+                $token,
+                $fcmToken,
+                title: $title,
+                body: $body,
+                module: 'hc',
+                task: $module->getType()->getHelper(),
+                action: 'index',
+                data: ['module' => $module],
+            ));
+        }
     }
 }

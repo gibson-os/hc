@@ -9,6 +9,7 @@ use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Core\Service\FcmService;
 use GibsonOS\Module\Hc\Dto\Parameter\Ir\KeyParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -44,9 +45,10 @@ class IrEvent extends AbstractHcEvent
         ReflectionManager $reflectionManager,
         TypeRepository $typeRepository,
         LoggerInterface $logger,
-        private readonly IrService $irService
+        FcmService $fcmService,
+        private readonly IrService $irService,
     ) {
-        parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->irService);
+        parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $fcmService, $this->irService);
     }
 
     /**

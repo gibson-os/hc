@@ -17,6 +17,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Core\Service\FcmService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\Neopixel\ImageParameter;
@@ -43,10 +44,11 @@ class NeopixelEvent extends AbstractHcEvent
         ReflectionManager $reflectionManager,
         TypeRepository $typeRepository,
         LoggerInterface $logger,
+        FcmService $fcmService,
         private readonly NeopixelService $neopixelService,
         private readonly LedRepository $ledRepository,
     ) {
-        parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $this->neopixelService);
+        parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $fcmService, $this->neopixelService);
     }
 
     /**
