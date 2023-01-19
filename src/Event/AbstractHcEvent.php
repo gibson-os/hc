@@ -5,7 +5,9 @@ namespace GibsonOS\Module\Hc\Event;
 
 use GibsonOS\Core\Attribute\Event;
 use GibsonOS\Core\Dto\Fcm\Message;
+use GibsonOS\Core\Dto\Fcm\Message\Vibrate;
 use GibsonOS\Core\Dto\Parameter\BoolParameter;
+use GibsonOS\Core\Dto\Parameter\EnumParameter;
 use GibsonOS\Core\Dto\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Dto\Parameter\UserParameter;
@@ -1009,6 +1011,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)] Module $module,
         #[Event\Parameter(StringParameter::class, 'Titel')] ?string $title,
         #[Event\Parameter(StringParameter::class, 'Text')] ?string $body,
+        #[Event\Parameter(EnumParameter::class, 'Vibration', ['className' => [Vibrate::class]])] ?Vibrate $vibrate,
     ): void {
         foreach ($user->getDevices() as $device) {
             $token = $device->getToken();
@@ -1027,6 +1030,7 @@ abstract class AbstractHcEvent extends AbstractEvent
                 task: $module->getType()->getHelper(),
                 action: 'index',
                 data: ['module' => $module],
+                vibrate: $vibrate
             ));
         }
     }
