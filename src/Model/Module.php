@@ -9,6 +9,7 @@ use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
+use GibsonOS\Core\Utility\JsonUtility;
 
 /**
  * @method Type        getType()
@@ -309,7 +310,7 @@ class Module extends AbstractModel implements \JsonSerializable, AutoCompleteMod
             'helper' => $this->getType()->getHelper(),
             'address' => $this->getAddress(),
             'offline' => $this->isOffline(),
-            'settings' => $this->getType()->getUiSettings(),
+            'settings' => JsonUtility::decode($this->getType()->getUiSettings() ?? '[]'),
             'added' => $this->added->format('Y-m-d H:i:s'),
             'modified' => $this->modified->format('Y-m-d H:i:s'),
         ];

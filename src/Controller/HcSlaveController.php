@@ -17,6 +17,7 @@ use GibsonOS\Core\Exception\SetError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Model\Module;
@@ -143,7 +144,7 @@ class HcSlaveController extends AbstractController
             'added' => $module->getAdded(),
             'modified' => $module->getModified(),
             'type' => $module->getType()->getName(),
-            'settings' => $module->getType()->getUiSettings(),
+            'settings' => JsonUtility::decode($module->getType()->getUiSettings() ?? '[]'),
             'helper' => $module->getType()->getHelper(),
         ]);
     }

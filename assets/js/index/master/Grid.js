@@ -1,44 +1,29 @@
 Ext.define('GibsonOS.module.hc.index.master.Grid', {
     extend: 'GibsonOS.module.core.component.grid.Panel',
     alias: ['widget.gosModuleHcIndexMasterGrid'],
+    multiSelect: true,
+    enableDrag: true,
+    getShortcuts(records) {
+        let shortcuts = [];
+
+        Ext.iterate(records, (record) => {
+            shortcuts.push({
+                id: null,
+                module: 'hc',
+                task: 'master',
+                action: 'view',
+                text: record.get('name'),
+                icon: 'icon_homecontrol',
+                parameters: record.getData()
+            });
+        });
+
+        return shortcuts;
+    },
     viewConfig: {
         getRowClass(record) {
             if (record.get('offline')) {
                 return 'hcModuleOffline';
-            }
-        },
-        listeners: {
-            render(view) {
-                let grid = view.up('gridpanel');
-
-                grid.dragZone = Ext.create('Ext.dd.DragZone', view.getEl(), {
-                    getDragData: function (event) {
-                        let sourceElement = event.getTarget().parentNode.parentNode;
-                        let record = view.getRecord(sourceElement);
-
-                        if (sourceElement) {
-                            let clone = sourceElement.cloneNode(true);
-                            let data = {
-                                module: 'hc',
-                                task: 'master',
-                                action: 'view',
-                                text: record.get('name'),
-                                icon: 'icon_homecontrol',
-                                params: record.getData()
-                            };
-
-                            return grid.dragData = {
-                                sourceEl: sourceElement,
-                                repairXY: Ext.fly(sourceElement).getXY(),
-                                ddel: clone,
-                                shortcut: data
-                            };
-                        }
-                    },
-                    getRepairXY: function () {
-                        return this.dragData.repairXY;
-                    }
-                });
             }
         }
     },
