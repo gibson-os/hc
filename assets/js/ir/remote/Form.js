@@ -80,6 +80,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Form', {
             xtype: 'gosModuleCoreParameterTypeAutoComplete',
             fieldLabel: 'Event',
             name: 'eventId',
+            displayField: 'name',
             parameterObject: {
                 config: {
                     model: 'GibsonOS.module.core.event.model.Grid',

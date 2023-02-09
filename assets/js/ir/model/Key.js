@@ -1,6 +1,6 @@
 Ext.define('GibsonOS.module.hc.ir.model.Key', {
     extend: 'GibsonOS.data.Model',
-    idProperty: 'name',
+    idProperty: 'id',
     fields: [{
         name: 'id',
         type: 'int'
