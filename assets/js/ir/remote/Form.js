@@ -84,7 +84,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Form', {
                 config: {
                     model: 'GibsonOS.module.core.event.model.Grid',
                     autoCompleteClassname: 'GibsonOS\\Core\\AutoComplete\\EventAutoComplete',
-                    displayField: 'name',
+                    displayField: 'name'
                 }
             }
         },{
@@ -95,6 +95,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Form', {
                 config: {
                     model: 'GibsonOS.module.hc.ir.model.Key',
                     autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Ir\\KeyAutoComplete',
+                    displayField: 'name'
                 }
             }
         },{
