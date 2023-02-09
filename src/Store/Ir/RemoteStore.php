@@ -12,4 +12,9 @@ class RemoteStore extends AbstractDatabaseStore
     {
         return Remote::class;
     }
+
+    protected function getDefaultOrder(): string
+    {
+        return '`name`';
+    }
 }
