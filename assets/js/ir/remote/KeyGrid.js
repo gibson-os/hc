@@ -11,7 +11,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.KeyGrid', {
         const me = this;
 
         me.store = new Ext.data.ArrayStore({
-            model: 'GibsonOS.module.hc.ir.model.Key'
+            model: 'GibsonOS.module.hc.ir.model.remote.Key'
         })
 
         me.callParent();

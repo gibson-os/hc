@@ -1,4 +1,4 @@
-Ext.define('GibsonOS.module.hc.ir.model.RemoteKey', {
+Ext.define('GibsonOS.module.hc.ir.model.remote.Button', {
     extend: 'GibsonOS.data.Model',
     fields: [{
         name: 'width',

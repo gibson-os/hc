@@ -17,7 +17,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
             }
         });
 
-        store.add(new GibsonOS.module.hc.ir.model.RemoteKey({
+        store.add(new GibsonOS.module.hc.ir.model.remote.Button({
             left: 0,
             top: maxTop,
             width: 3,
@@ -62,7 +62,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
 
             if (records.length !== 1) {
                 form.disable();
-                form.loadRecord(new GibsonOS.module.hc.ir.model.RemoteKey());
+                form.loadRecord(new GibsonOS.module.hc.ir.model.remote.Button());
 
                 return;
             }
@@ -128,7 +128,7 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                     return event.getTarget('#' + me.viewItem.getId());
                 },
                 onNodeOver: function(target, dd, event, data) {
-                    if (data.record instanceof GibsonOS.module.hc.ir.model.RemoteKey) {
+                    if (data.record instanceof GibsonOS.module.hc.ir.model.remote.Button) {
                         return Ext.dd.DropZone.prototype.dropAllowed;
                     }
 

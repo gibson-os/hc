@@ -2,7 +2,7 @@ Ext.define('GibsonOS.module.hc.ir.store.RemoteKey', {
     extend: 'GibsonOS.data.Store',
     alias: ['hcIrRemoteStore'],
     autoLoad: false,
-    model: 'GibsonOS.module.hc.ir.model.RemoteKey',
+    model: 'GibsonOS.module.hc.ir.model.remote.Button',
     remoteId: null,
     constructor(data) {
         const me = this;
