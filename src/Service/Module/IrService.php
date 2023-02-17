@@ -88,24 +88,16 @@ class IrService extends AbstractHcModule
 
         $this->eventService->fire($this->getEventClassName(), IrEvent::BEFORE_WRITE_IR, ['slave' => $module]);
 
-        $data = '';
-        $i = 0;
-
         foreach ($keys as $key) {
-            if ($i === 6) {
-                $this->write($module, self::COMMAND_SEND, $data);
-                $data = '';
-            }
-
-            $data .=
+            $this->write(
+                $module,
+                self::COMMAND_SEND,
                 chr($key->getProtocol()->value) .
                 chr($key->getAddress() >> 8) . chr($key->getAddress() & 255) .
                 chr($key->getCommand() >> 8) . chr($key->getCommand() & 255)
-            ;
-            ++$i;
+            );
+            usleep(10);
         }
-
-        $this->write($module, self::COMMAND_SEND, $data);
 
         $this->eventService->fire($this->getEventClassName(), IrEvent::AFTER_WRITE_IR, ['slave' => $module]);
 
