@@ -5,12 +5,12 @@ namespace GibsonOS\Module\Hc\Event;
 
 use GibsonOS\Core\Attribute\Event;
 use GibsonOS\Core\Dto\Fcm\Message;
-use GibsonOS\Core\Dto\Fcm\Message\Vibrate;
 use GibsonOS\Core\Dto\Parameter\BoolParameter;
 use GibsonOS\Core\Dto\Parameter\EnumParameter;
 use GibsonOS\Core\Dto\Parameter\IntParameter;
 use GibsonOS\Core\Dto\Parameter\StringParameter;
 use GibsonOS\Core\Dto\Parameter\UserParameter;
+use GibsonOS\Core\Enum\Middleware\Message\Vibrate;
 use GibsonOS\Core\Event\AbstractEvent;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
