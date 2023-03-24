@@ -1005,16 +1005,16 @@
         },
         {
             "name": "smalot/pdfparser",
-            "version": "v2.3.0",
+            "version": "v2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/smalot/pdfparser.git",
-                "reference": "70433d171a86dc881fc8c68fd6af4d60acb8313e"
+                "reference": "43a1c145b91d83f6b9c6fb4e5c2e6b274d2a0a17"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/smalot/pdfparser/zipball/70433d171a86dc881fc8c68fd6af4d60acb8313e",
-                "reference": "70433d171a86dc881fc8c68fd6af4d60acb8313e",
+                "url": "https://api.github.com/repos/smalot/pdfparser/zipball/43a1c145b91d83f6b9c6fb4e5c2e6b274d2a0a17",
+                "reference": "43a1c145b91d83f6b9c6fb4e5c2e6b274d2a0a17",
                 "shasum": ""
             },
             "require": {
@@ -1050,9 +1050,9 @@
             ],
             "support": {
                 "issues": "https://github.com/smalot/pdfparser/issues",
-                "source": "https://github.com/smalot/pdfparser/tree/v2.3.0"
+                "source": "https://github.com/smalot/pdfparser/tree/v2.4.0"
             },
-            "time": "2022-12-21T16:52:55+00:00"
+            "time": "2023-03-14T08:13:58+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -1667,16 +1667,16 @@
         },
         {
             "name": "captainhook/captainhook",
-            "version": "5.15.4",
+            "version": "5.16.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/captainhookphp/captainhook.git",
-                "reference": "935d8f4f308b868b0bdfdbe0542315b9cc788c78"
+                "reference": "ab9091e3cf607edc52bb9fdf26abf3f85f9a43be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/captainhookphp/captainhook/zipball/935d8f4f308b868b0bdfdbe0542315b9cc788c78",
-                "reference": "935d8f4f308b868b0bdfdbe0542315b9cc788c78",
+                "url": "https://api.github.com/repos/captainhookphp/captainhook/zipball/ab9091e3cf607edc52bb9fdf26abf3f85f9a43be",
+                "reference": "ab9091e3cf607edc52bb9fdf26abf3f85f9a43be",
                 "shasum": ""
             },
             "require": {
@@ -1738,7 +1738,7 @@
             ],
             "support": {
                 "issues": "https://github.com/captainhookphp/captainhook/issues",
-                "source": "https://github.com/captainhookphp/captainhook/tree/5.15.4"
+                "source": "https://github.com/captainhookphp/captainhook/tree/5.16.1"
             },
             "funding": [
                 {
@@ -1746,7 +1746,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-03-18T16:14:22+00:00"
+            "time": "2023-03-24T10:02:02+00:00"
         },
         {
             "name": "captainhook/plugin-composer",

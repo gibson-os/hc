@@ -44,7 +44,8 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.general.Form', {
                     autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\TypeAutoComplete',
                     parameters: {
                         onlyHcSlave: true
-                    }
+                    },
+                    displayField: 'name'
                 }
             }
         },{
