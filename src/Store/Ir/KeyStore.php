@@ -7,12 +7,13 @@ use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Ir\Key\Name;
+use mysqlDatabase;
 
 class KeyStore extends AbstractDatabaseStore
 {
     public function __construct(
         #[GetTableName(Name::class)] private readonly string $nameTableName,
-        \mysqlDatabase $database = null,
+        mysqlDatabase $database = null,
     ) {
         parent::__construct($database);
     }

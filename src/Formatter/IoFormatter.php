@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Formatter;
 
+use Exception;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Module\Hc\Dto\Direction;
@@ -18,6 +19,7 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 
@@ -38,8 +40,8 @@ class IoFormatter extends AbstractHcFormatter
     }
 
     /**
-     * @throws \Exception
-     * @throws \Throwable
+     * @throws Exception
+     * @throws Throwable
      */
     public function command(Log $log): ?string
     {
@@ -72,7 +74,7 @@ class IoFormatter extends AbstractHcFormatter
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      * @throws LoaderError
      * @throws SyntaxError
      */
@@ -117,7 +119,7 @@ class IoFormatter extends AbstractHcFormatter
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function render(Log $log): ?string
     {
@@ -359,7 +361,7 @@ class IoFormatter extends AbstractHcFormatter
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function getDirectConnectTableRows(Log $log, Port $inputPort, string $data): string
     {

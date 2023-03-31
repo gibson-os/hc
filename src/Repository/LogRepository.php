@@ -8,6 +8,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Model\Log;
+use mysqlTable;
 
 class LogRepository extends AbstractRepository
 {
@@ -87,7 +88,7 @@ class LogRepository extends AbstractRepository
     }
 
     private function completeWhere(
-        \mysqlTable $table,
+        mysqlTable $table,
         int $command = null,
         int $type = null,
         Direction $direction = null

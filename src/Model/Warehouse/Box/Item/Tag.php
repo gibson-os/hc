@@ -10,6 +10,7 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use GibsonOS\Module\Hc\Model\Warehouse\Tag as WarehouseTag;
+use JsonSerializable;
 
 /**
  * @method Tag          setItem(Item $item)
@@ -19,7 +20,7 @@ use GibsonOS\Module\Hc\Model\Warehouse\Tag as WarehouseTag;
  */
 #[Table]
 #[Key(unique: true, columns: ['item_id', 'tag_id'])]
-class Tag extends AbstractModel implements \JsonSerializable
+class Tag extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

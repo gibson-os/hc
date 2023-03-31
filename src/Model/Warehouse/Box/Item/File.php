@@ -9,6 +9,7 @@ use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
+use JsonSerializable;
 
 /**
  * @method File setItem(Item $item)
@@ -16,7 +17,7 @@ use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
  */
 #[Table]
 #[Key(unique: true, columns: ['item_id', 'name'])]
-class File extends AbstractModel implements \JsonSerializable
+class File extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

@@ -14,6 +14,7 @@ use GibsonOS\Module\Hc\Model\Warehouse\Box\Item\Code;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item\File;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item\Link;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item\Tag;
+use JsonSerializable;
 
 /**
  * @method Box    getBox()
@@ -33,7 +34,7 @@ use GibsonOS\Module\Hc\Model\Warehouse\Box\Item\Tag;
  */
 #[Table]
 #[Key(unique: true, columns: ['box_id', 'name'])]
-class Item extends AbstractModel implements \JsonSerializable, AutoCompleteModelInterface
+class Item extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

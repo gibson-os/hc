@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Service;
+namespace GibsonOS\Test\Unit\Hc\Service;
 
 use Codeception\Test\Unit;
 use GibsonOS\Module\Hc\Service\TransformService;

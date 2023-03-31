@@ -25,7 +25,9 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 abstract class AbstractHcModule extends AbstractModule
 {
@@ -179,9 +181,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws EventException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
@@ -259,8 +261,8 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -281,8 +283,8 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
@@ -315,8 +317,8 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -338,8 +340,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -356,8 +358,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -369,8 +371,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -411,8 +413,8 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws GetError
      * @throws ReceiveError
      * @throws SaveError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     public function readDeviceId(Module $slave): int
     {
@@ -435,8 +437,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -462,9 +464,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readTypeId(Module $slave): int
@@ -482,8 +484,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -511,8 +513,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -532,8 +534,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -554,9 +556,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     protected function readConfig(Module $slave, int $length): string
@@ -572,9 +574,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readHertz(Module $slave): int
@@ -593,9 +595,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readPwmSpeed(Module $slave): int
@@ -614,9 +616,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readEepromSize(Module $slave): int
@@ -635,9 +637,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readEepromFree(Module $slave): int
@@ -656,9 +658,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readEepromPosition(Module $slave): int
@@ -676,8 +678,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -697,8 +699,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -719,9 +721,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readBufferSize(Module $slave): int
@@ -740,9 +742,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readLedStatus(Module $slave): array
@@ -775,8 +777,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -792,8 +794,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -809,8 +811,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -826,8 +828,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -843,8 +845,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -860,8 +862,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -877,8 +879,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -895,9 +897,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readPowerLed(Module $slave): bool
@@ -919,9 +921,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readErrorLed(Module $slave): bool
@@ -943,9 +945,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readConnectLed(Module $slave): bool
@@ -967,9 +969,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readTransreceiveLed(Module $slave): bool
@@ -991,9 +993,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readTransceiveLed(Module $slave): bool
@@ -1015,9 +1017,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readReceiveLed(Module $slave): bool
@@ -1039,9 +1041,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readCustomLed(Module $slave): bool
@@ -1062,8 +1064,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -1117,9 +1119,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readRgbLed(Module $slave): array
@@ -1148,8 +1150,8 @@ abstract class AbstractHcModule extends AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -1197,9 +1199,9 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readAllLeds(Module $slave): array

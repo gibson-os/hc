@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service;
 
+use DateTime;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\GetError;
@@ -24,7 +25,9 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\Protocol\UdpService;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 class MasterService
 {
@@ -60,9 +63,9 @@ class MasterService
 
     /**
      * @throws FactoryError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      */
@@ -128,7 +131,7 @@ class MasterService
             $this->modelManager->saveWithoutChildren(
                 $module
                     ->setOffline(false)
-                    ->setModified(new \DateTime())
+                    ->setModified(new DateTime())
             );
         }
 
@@ -153,8 +156,8 @@ class MasterService
      * @throws AbstractException
      * @throws GetError
      * @throws SaveError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     public function handshake(ProtocolInterface $protocolService, BusMessage $busMessage): void
     {
@@ -250,7 +253,7 @@ class MasterService
                 ->setName('Neues Modul')
                 ->setAddress($address)
                 ->setMaster($master)
-                ->setAdded(new \DateTime())
+                ->setAdded(new DateTime())
             ;
 
             try {

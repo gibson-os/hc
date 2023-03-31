@@ -11,6 +11,7 @@ use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Dto\Io\Direction;
 use GibsonOS\Module\Hc\Model\Module;
+use JsonSerializable;
 
 /**
  * @method Module getModule()
@@ -18,7 +19,7 @@ use GibsonOS\Module\Hc\Model\Module;
  */
 #[Table]
 #[Key(unique: true, columns: ['module_id', 'number'])]
-class Port extends AbstractModel implements AutoCompleteModelInterface, \JsonSerializable
+class Port extends AbstractModel implements AutoCompleteModelInterface, JsonSerializable
 {
     use PortTrait;
 

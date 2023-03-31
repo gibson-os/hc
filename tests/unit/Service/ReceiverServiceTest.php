@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Gibson\Test\Unit\Service;
+namespace GibsonOS\Test\Unit\Hc\Service;
 
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Module\Hc\Dto\BusMessage;

@@ -35,12 +35,14 @@ use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\Module\IrService;
 use GibsonOS\Module\Hc\Store\Ir\KeyStore;
 use GibsonOS\Module\Hc\Store\Ir\RemoteStore;
+use JsonException;
+use ReflectionException;
 
 class IrController extends AbstractController
 {
     /**
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SelectError
      */
     #[CheckPermission(Permission::READ)]
@@ -60,8 +62,8 @@ class IrController extends AbstractController
     }
 
     /**
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
@@ -81,7 +83,7 @@ class IrController extends AbstractController
      * @param Key[] $keys
      *
      * @throws DeleteError
-     * @throws \JsonException
+     * @throws JsonException
      */
     #[CheckPermission(Permission::MANAGE + Permission::DELETE)]
     public function deleteKeys(
@@ -162,8 +164,8 @@ class IrController extends AbstractController
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -185,8 +187,8 @@ class IrController extends AbstractController
     }
 
     /**
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SelectError
      */
     #[CheckPermission(Permission::READ)]
@@ -206,8 +208,8 @@ class IrController extends AbstractController
     }
 
     /**
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
@@ -224,7 +226,7 @@ class IrController extends AbstractController
      * @param Remote[] $remotes
      *
      * @throws DeleteError
-     * @throws \JsonException
+     * @throws JsonException
      */
     #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
     public function deleteRemotes(
@@ -240,13 +242,13 @@ class IrController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws \JsonException
+     * @throws JsonException
      * @throws SaveError
      * @throws SelectError
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws WriteException
      */
     #[CheckPermission(Permission::WRITE)]

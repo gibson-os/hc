@@ -29,7 +29,9 @@ use GibsonOS\Module\Hc\Repository\Io\DirectConnectRepository;
 use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Module\IoService;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 #[Event('I/O')]
 #[Event\Listener('port', 'module', ['params' => [
@@ -288,9 +290,9 @@ class IoEvent extends AbstractHcEvent
 
     /**
      * @throws AbstractException
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Port lesen')]
@@ -528,7 +530,7 @@ class IoEvent extends AbstractHcEvent
     /**
      * @throws AbstractException
      * @throws WriteException
-     * @throws \JsonException
+     * @throws JsonException
      */
     #[Event\Method('DirectConnect löschen')]
     public function deleteDirectConnect(

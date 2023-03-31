@@ -16,7 +16,9 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 abstract class AbstractModule
 {
@@ -35,8 +37,8 @@ abstract class AbstractModule
 
     /**
      * @throws AbstractException
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      * @throws FactoryError
@@ -70,9 +72,9 @@ abstract class AbstractModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws GetError
      */
@@ -118,8 +120,8 @@ abstract class AbstractModule
 
     /**
      * @throws SaveError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     private function addLog(Module $slave, int $command, string $data, Direction $direction): void
     {

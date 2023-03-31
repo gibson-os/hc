@@ -12,6 +12,7 @@ return (new PhpCsFixer\Config())
         'combine_consecutive_issets' => true,
         'combine_consecutive_unsets' => true,
         'compact_nullable_typehint' => true,
+        'global_namespace_import' => true,
         'heredoc_to_nowdoc' => true,
         'is_null' => true,
         'list_syntax' => ['syntax' => 'long'],

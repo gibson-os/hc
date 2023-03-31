@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetMappedModels;
@@ -29,13 +30,15 @@ use GibsonOS\Module\Hc\Service\Module\NeopixelService;
 use GibsonOS\Module\Hc\Service\Neopixel\LedService;
 use GibsonOS\Module\Hc\Store\Neopixel\ImageStore;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
+use JsonException;
+use ReflectionException;
 
 class NeopixelController extends AbstractController
 {
     /**
-     * @throws \JsonException
+     * @throws JsonException
      * @throws SelectError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::READ)]
     public function index(LedStore $ledStore, #[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
@@ -78,10 +81,10 @@ class NeopixelController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      * @throws DeleteError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws SaveError
      * @throws SelectError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws WriteException
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
@@ -114,7 +117,7 @@ class NeopixelController extends AbstractController
             );
 
             $ledRepository->deleteWithNumberBiggerAs($module, count($leds) - 1);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $ledRepository->rollback();
 
             throw $exception;
@@ -130,8 +133,8 @@ class NeopixelController extends AbstractController
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::WRITE)]
     public function send(
@@ -152,9 +155,9 @@ class NeopixelController extends AbstractController
     }
 
     /**
-     * @throws \JsonException
+     * @throws JsonException
      * @throws SelectError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::READ)]
     public function images(
@@ -171,8 +174,8 @@ class NeopixelController extends AbstractController
 
     /**
      * @throws ImageExists
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      */

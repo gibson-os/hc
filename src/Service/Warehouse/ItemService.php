@@ -18,6 +18,8 @@ use GibsonOS\Core\Model\Setting;
 use GibsonOS\Core\Service\FileService;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use GibsonOS\Module\Hc\Repository\Warehouse\Box\Item\FileRepository;
+use JsonException;
+use ReflectionException;
 
 class ItemService
 {
@@ -82,9 +84,9 @@ class ItemService
     }
 
     /**
-     * @throws \JsonException
+     * @throws JsonException
      * @throws SaveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function saveTags(Item $item): void
     {
@@ -106,7 +108,7 @@ class ItemService
      * @throws GetError
      * @throws ModelDeleteError
      * @throws SelectError
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function deleteFilesNotIn(Item $item): void
     {

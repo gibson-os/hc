@@ -7,6 +7,7 @@ use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
 use GibsonOS\Module\Hc\Service\Warehouse\ItemService;
+use TCPDF;
 
 class ImageElementService extends AbstractElementService
 {
@@ -19,7 +20,7 @@ class ImageElementService extends AbstractElementService
         return Type::IMAGE;
     }
 
-    public function addElement(\TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
+    public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
     {
         $images = $this->getImages($box);
         $imageCount = count($images);

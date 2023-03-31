@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
+use DateTime;
+use Exception;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -64,7 +66,7 @@ class MasterRepository extends AbstractRepository
 
     /**
      * @throws SaveError
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(string $name, string $protocol, string $address): Master
     {
@@ -73,7 +75,7 @@ class MasterRepository extends AbstractRepository
             ->setProtocol($protocol)
             ->setAddress($address)
             ->setSendPort($this->findFreePort())
-            ->setAdded(new \DateTime());
+            ->setAdded(new DateTime());
         $this->modelManager->save($model);
 
         return $model;

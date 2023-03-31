@@ -11,6 +11,7 @@ use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Template;
+use JsonSerializable;
 
 /**
  * @method Template  getTemplate()
@@ -20,7 +21,7 @@ use GibsonOS\Module\Hc\Model\Warehouse\Label\Template;
  * @method Label     addElements(Element[] $elements)
  */
 #[Table]
-class Label extends AbstractModel implements \JsonSerializable, AutoCompleteModelInterface
+class Label extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

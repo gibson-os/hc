@@ -11,6 +11,7 @@ use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Dto\Ir\Protocol;
 use GibsonOS\Module\Hc\Model\Ir\Key\Name;
+use JsonSerializable;
 
 /**
  * @method Name[] getNames()
@@ -20,7 +21,7 @@ use GibsonOS\Module\Hc\Model\Ir\Key\Name;
  */
 #[Table]
 #[KeyAttribute(unique: true, columns: ['protocol', 'address', 'command'])]
-class Key extends AbstractModel implements \JsonSerializable, AutoCompleteModelInterface
+class Key extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

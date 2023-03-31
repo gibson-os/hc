@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
@@ -21,12 +22,14 @@ use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Store\LogStore;
+use JsonException;
+use ReflectionException;
 
 class IndexController extends AbstractController
 {
     /**
      * @throws SelectError
-     * @throws \Exception
+     * @throws Exception
      */
     #[CheckPermission(Permission::READ)]
     public function log(
@@ -65,8 +68,8 @@ class IndexController extends AbstractController
      * @throws SelectError
      * @throws WriteException
      * @throws GetError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::WRITE)]
     public function logSend(ModuleFactory $slaveFactory, LogRepository $logRepository, int $id): AjaxResponse

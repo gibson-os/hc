@@ -32,7 +32,9 @@ use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 abstract class AbstractHcEvent extends AbstractEvent
 {
@@ -397,8 +399,8 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws EventException
      * @throws FactoryError
      * @throws WriteException
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[Event\Method('Adresse schreiben')]
     public function writeAddress(
@@ -411,9 +413,9 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws GetError
      */
@@ -428,8 +430,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -445,9 +447,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Typ lesen')]
@@ -461,8 +463,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
@@ -479,8 +481,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -495,9 +497,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Hertz lesen')]
@@ -512,9 +514,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('EEPROM Größe lesen')]
@@ -529,9 +531,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Freier Platz im EEPROM lesen')]
@@ -546,9 +548,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('EEPROM Zeigerposition lesen')]
@@ -562,8 +564,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -578,8 +580,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -594,9 +596,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Buffer Größe lesen')]
@@ -611,9 +613,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('PWM Geschwindigkeit lesen')]
@@ -627,8 +629,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -644,9 +646,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('LED Status lesen')]
@@ -667,8 +669,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -683,8 +685,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -699,8 +701,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -715,8 +717,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -731,8 +733,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -747,8 +749,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -763,8 +765,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -780,9 +782,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Power LED lesen')]
@@ -797,9 +799,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Error LED lesen')]
@@ -814,9 +816,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Connect LED lesen')]
@@ -831,9 +833,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Transreceive LED lesen')]
@@ -848,9 +850,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Transceive LED lesen')]
@@ -865,9 +867,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Receive LED lesen')]
@@ -882,9 +884,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Custom LED lesen')]
@@ -898,8 +900,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -928,9 +930,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('RGB LED schreiben')]
@@ -949,8 +951,8 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -981,9 +983,9 @@ abstract class AbstractHcEvent extends AbstractEvent
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[Event\Method('Alle LEDs lesen')]
@@ -1003,7 +1005,7 @@ abstract class AbstractHcEvent extends AbstractEvent
     /**
      * @throws FcmException
      * @throws WebException
-     * @throws \JsonException
+     * @throws JsonException
      */
     #[Event\Method('Nachricht senden')]
     public function pushMessage(

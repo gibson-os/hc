@@ -16,6 +16,8 @@ use GibsonOS\Module\Hc\Model\Neopixel\Animation;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led;
 use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
 use GibsonOS\Module\Hc\Service\Module\NeopixelService;
+use JsonException;
+use ReflectionException;
 
 class AnimationService
 {
@@ -31,8 +33,8 @@ class AnimationService
 
     /**
      * @throws AbstractException
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
@@ -51,8 +53,8 @@ class AnimationService
 
     /**
      * @throws AbstractException
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
@@ -67,8 +69,8 @@ class AnimationService
     }
 
     /**
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws AbstractException
      * @throws SaveError
      * @throws SelectError
@@ -107,8 +109,8 @@ class AnimationService
 
     /**
      * @throws AbstractException
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
@@ -129,8 +131,8 @@ class AnimationService
 
     /**
      * @throws AbstractException
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */

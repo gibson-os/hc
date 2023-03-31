@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Gibson\Test\Unit\Service\Slave;
+namespace GibsonOS\Test\Unit\Hc\Service\Slave;
 
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;

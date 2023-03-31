@@ -11,6 +11,7 @@ use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation;
 use GibsonOS\Module\Hc\Model\Neopixel\Led as NeopixelLed;
 use GibsonOS\Module\Hc\Model\Neopixel\LedTrait;
+use JsonSerializable;
 
 /**
  * @method Animation   getAnimation()
@@ -20,7 +21,7 @@ use GibsonOS\Module\Hc\Model\Neopixel\LedTrait;
  */
 #[Table]
 #[Key(unique: true, columns: ['animation_id', 'led_id', 'time'])]
-class Led extends AbstractModel implements \JsonSerializable
+class Led extends AbstractModel implements JsonSerializable
 {
     use LedTrait;
 

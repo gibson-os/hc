@@ -3,12 +3,13 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Neopixel;
 
+use Generator;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 
 /**
- * @method \Generator<Led> getList()
+ * @method Generator<Led> getList()
  */
 class LedStore extends AbstractDatabaseStore
 {

@@ -7,6 +7,7 @@ use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
+use TCPDF;
 
 class StockElementService extends AbstractElementService
 {
@@ -17,7 +18,7 @@ class StockElementService extends AbstractElementService
         return Type::STOCK;
     }
 
-    public function addElement(\TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
+    public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void
     {
         $this->addTextElement(
             $pdf,

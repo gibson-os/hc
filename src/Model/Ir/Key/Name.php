@@ -9,13 +9,14 @@ use GibsonOS\Core\Attribute\Install\Database\Key as KeyAttribute;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Ir\Key;
+use JsonSerializable;
 
 /**
  * @method Key  getKey()
  * @method Name setKey(Key $key)
  */
 #[Table]
-class Name extends AbstractModel implements \JsonSerializable
+class Name extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

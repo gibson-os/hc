@@ -9,6 +9,7 @@ use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
+use JsonSerializable;
 
 /**
  * @method Port          getInputPort()
@@ -18,7 +19,7 @@ use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
  */
 #[Table]
 #[Key(unique: true, columns: ['input_port_id', 'order'])]
-class DirectConnect extends AbstractModel implements \JsonSerializable
+class DirectConnect extends AbstractModel implements JsonSerializable
 {
     use PortTrait;
 

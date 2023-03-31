@@ -12,7 +12,9 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 class ReceiverService
 {
@@ -31,8 +33,8 @@ class ReceiverService
      * @throws SaveError
      * @throws SelectError
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     public function receive(ProtocolInterface $protocolService): void
     {

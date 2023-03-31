@@ -213,16 +213,16 @@
         },
         {
             "name": "gibson-os/core",
-            "version": "v1.4.1",
+            "version": "v1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gibson-os/core.git",
-                "reference": "658eef843ffbb90340c78f6c3a63a789a9962505"
+                "reference": "1c18872ac4e8fa56b52eea94d8406a864b34a879"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gibson-os/core/zipball/658eef843ffbb90340c78f6c3a63a789a9962505",
-                "reference": "658eef843ffbb90340c78f6c3a63a789a9962505",
+                "url": "https://api.github.com/repos/gibson-os/core/zipball/1c18872ac4e8fa56b52eea94d8406a864b34a879",
+                "reference": "1c18872ac4e8fa56b52eea94d8406a864b34a879",
                 "shasum": ""
             },
             "require": {
@@ -259,28 +259,29 @@
                 "psr-4": {
                     "GibsonOS\\Core\\": "src/",
                     "GibsonOS\\Mock\\": "tests/mock/",
-                    "GibsonOS\\UnitTest\\": "tests/unit/"
+                    "GibsonOS\\Test\\Unit\\Core\\": "tests/unit/",
+                    "GibsonOS\\Test\\Functional\\Core\\": "tests/functional/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "support": {
                 "issues": "https://github.com/gibson-os/core/issues",
-                "source": "https://github.com/gibson-os/core/tree/v1.4.1"
+                "source": "https://github.com/gibson-os/core/tree/v1.6.0"
             },
-            "time": "2023-03-17T10:58:02+00:00"
+            "time": "2023-03-30T10:50:09+00:00"
         },
         {
             "name": "gibson-os/mdo",
-            "version": "v1.0.0",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gibson-os/mdo.git",
-                "reference": "32997fe90da649429a10c90882782234c08628d9"
+                "reference": "ccce3259a1afd5ebe9f247ae6d8b78b481554bc5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gibson-os/mdo/zipball/32997fe90da649429a10c90882782234c08628d9",
-                "reference": "32997fe90da649429a10c90882782234c08628d9",
+                "url": "https://api.github.com/repos/gibson-os/mdo/zipball/ccce3259a1afd5ebe9f247ae6d8b78b481554bc5",
+                "reference": "ccce3259a1afd5ebe9f247ae6d8b78b481554bc5",
                 "shasum": ""
             },
             "require": {
@@ -307,9 +308,9 @@
             "notification-url": "https://packagist.org/downloads/",
             "support": {
                 "issues": "https://github.com/gibson-os/mdo/issues",
-                "source": "https://github.com/gibson-os/mdo/tree/v1.0.0"
+                "source": "https://github.com/gibson-os/mdo/tree/v1.0.2"
             },
-            "time": "2022-12-18T16:22:22+00:00"
+            "time": "2023-03-28T15:10:05+00:00"
         },
         {
             "name": "google/auth",
@@ -1667,16 +1668,16 @@
         },
         {
             "name": "captainhook/captainhook",
-            "version": "5.16.1",
+            "version": "5.16.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/captainhookphp/captainhook.git",
-                "reference": "ab9091e3cf607edc52bb9fdf26abf3f85f9a43be"
+                "reference": "ed0279fd108aa4729b7843633b99326826c6fd76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/captainhookphp/captainhook/zipball/ab9091e3cf607edc52bb9fdf26abf3f85f9a43be",
-                "reference": "ab9091e3cf607edc52bb9fdf26abf3f85f9a43be",
+                "url": "https://api.github.com/repos/captainhookphp/captainhook/zipball/ed0279fd108aa4729b7843633b99326826c6fd76",
+                "reference": "ed0279fd108aa4729b7843633b99326826c6fd76",
                 "shasum": ""
             },
             "require": {
@@ -1686,7 +1687,7 @@
                 "php": ">=7.4",
                 "sebastianfeldmann/camino": "^0.9.2",
                 "sebastianfeldmann/cli": "^3.3",
-                "sebastianfeldmann/git": "^3.8.6",
+                "sebastianfeldmann/git": "^3.8.9",
                 "symfony/console": "^2.7 || ^3.0 || ^4.0 || ^5.0 || ^6.0",
                 "symfony/filesystem": "^2.7 || ^3.0 || ^4.0 || ^5.0 || ^6.0",
                 "symfony/process": "^2.7 || ^3.0 || ^4.0 || ^5.0 || ^6.0"
@@ -1738,7 +1739,7 @@
             ],
             "support": {
                 "issues": "https://github.com/captainhookphp/captainhook/issues",
-                "source": "https://github.com/captainhookphp/captainhook/tree/5.16.1"
+                "source": "https://github.com/captainhookphp/captainhook/tree/5.16.3"
             },
             "funding": [
                 {
@@ -1746,7 +1747,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-03-24T10:02:02+00:00"
+            "time": "2023-03-30T16:40:06+00:00"
         },
         {
             "name": "captainhook/plugin-composer",
@@ -3389,16 +3390,16 @@
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "1.7.0",
+            "version": "1.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "1534aea9bde19a5c85c5d1e1f834ab63f4c5dcf5"
+                "reference": "dfc078e8af9c99210337325ff5aa152872c98714"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/1534aea9bde19a5c85c5d1e1f834ab63f4c5dcf5",
-                "reference": "1534aea9bde19a5c85c5d1e1f834ab63f4c5dcf5",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/dfc078e8af9c99210337325ff5aa152872c98714",
+                "reference": "dfc078e8af9c99210337325ff5aa152872c98714",
                 "shasum": ""
             },
             "require": {
@@ -3441,9 +3442,9 @@
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "support": {
                 "issues": "https://github.com/phpDocumentor/TypeResolver/issues",
-                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.7.0"
+                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.7.1"
             },
-            "time": "2023-03-12T10:13:29+00:00"
+            "time": "2023-03-27T19:02:04+00:00"
         },
         {
             "name": "phpmd/phpmd",
@@ -4077,16 +4078,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.6.5",
+            "version": "9.6.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "86e761949019ae83f49240b2f2123fb5ab3b2fc5"
+                "reference": "b65d59a059d3004a040c16a82e07bbdf6cfdd115"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/86e761949019ae83f49240b2f2123fb5ab3b2fc5",
-                "reference": "86e761949019ae83f49240b2f2123fb5ab3b2fc5",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b65d59a059d3004a040c16a82e07bbdf6cfdd115",
+                "reference": "b65d59a059d3004a040c16a82e07bbdf6cfdd115",
                 "shasum": ""
             },
             "require": {
@@ -4159,7 +4160,8 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.5"
+                "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.6"
             },
             "funding": [
                 {
@@ -4175,7 +4177,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-03-09T06:34:10+00:00"
+            "time": "2023-03-27T11:43:46+00:00"
         },
         {
             "name": "psr/container",
@@ -5421,16 +5423,16 @@
         },
         {
             "name": "sebastianfeldmann/git",
-            "version": "3.8.6",
+            "version": "3.8.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianfeldmann/git.git",
-                "reference": "d4ce674cf5104a162f8401033d88ea7f47134c5d"
+                "reference": "38586be69b0932b630337afcc8db12e5b7981254"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianfeldmann/git/zipball/d4ce674cf5104a162f8401033d88ea7f47134c5d",
-                "reference": "d4ce674cf5104a162f8401033d88ea7f47134c5d",
+                "url": "https://api.github.com/repos/sebastianfeldmann/git/zipball/38586be69b0932b630337afcc8db12e5b7981254",
+                "reference": "38586be69b0932b630337afcc8db12e5b7981254",
                 "shasum": ""
             },
             "require": {
@@ -5470,7 +5472,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianfeldmann/git/issues",
-                "source": "https://github.com/sebastianfeldmann/git/tree/3.8.6"
+                "source": "https://github.com/sebastianfeldmann/git/tree/3.8.9"
             },
             "funding": [
                 {
@@ -5478,7 +5480,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-02-24T21:21:52+00:00"
+            "time": "2023-03-30T16:37:34+00:00"
         },
         {
             "name": "symfony/config",

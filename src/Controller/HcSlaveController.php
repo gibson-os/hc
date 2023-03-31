@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
+use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
@@ -24,6 +25,8 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
+use JsonException;
+use ReflectionException;
 
 class HcSlaveController extends AbstractController
 {
@@ -46,7 +49,7 @@ class HcSlaveController extends AbstractController
      * @throws DateTimeError
      * @throws FactoryError
      * @throws SelectError
-     * @throws \Exception
+     * @throws Exception
      */
     #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
     public function saveGeneralSettings(
@@ -156,8 +159,8 @@ class HcSlaveController extends AbstractController
      * @throws ReceiveError
      * @throws SaveError
      * @throws EventException
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
     public function eepromSettings(
@@ -178,8 +181,8 @@ class HcSlaveController extends AbstractController
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -200,8 +203,8 @@ class HcSlaveController extends AbstractController
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -221,8 +224,8 @@ class HcSlaveController extends AbstractController
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -242,9 +245,9 @@ class HcSlaveController extends AbstractController
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     #[CheckPermission(Permission::READ + Permission::MANAGE)]
@@ -283,8 +286,8 @@ class HcSlaveController extends AbstractController
      * @throws DateTimeError
      * @throws EventException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */

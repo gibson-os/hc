@@ -7,6 +7,7 @@ use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Matrix;
 use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
+use TCPDF;
 
 abstract class AbstractElementService
 {
@@ -14,9 +15,9 @@ abstract class AbstractElementService
 
     abstract public function getType(): Type;
 
-    abstract public function addElement(\TCPDF $pdf, Element $element, Box $box, float $top, float $left): void;
+    abstract public function addElement(TCPDF $pdf, Element $element, Box $box, float $top, float $left): void;
 
-    protected function addTextElement(\TCPDF $pdf, Element $element, float $top, float $left, string $text): void
+    protected function addTextElement(TCPDF $pdf, Element $element, float $top, float $left, string $text): void
     {
         $options = $element->getOptions();
         $pdf->setFont('dejavusans', '', $options[self::OPTION_SIZE] ?? 20, '', true);
@@ -35,13 +36,13 @@ abstract class AbstractElementService
         );
     }
 
-    protected function setColor(\TCPDF $pdf, Element $element): void
+    protected function setColor(TCPDF $pdf, Element $element): void
     {
         $color = hexdec($element->getColor() ?? '000000');
         $pdf->setColor('text', $color >> 16, ($color >> 8) & 255, $color & 255);
     }
 
-    protected function setBackgroundColor(\TCPDF $pdf, Element $element): void
+    protected function setBackgroundColor(TCPDF $pdf, Element $element): void
     {
         $backgroundColor = $element->getBackgroundColor();
 

@@ -20,7 +20,9 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 class IrService extends AbstractHcModule
 {
@@ -77,8 +79,8 @@ class IrService extends AbstractHcModule
      * @throws SaveError
      * @throws WriteException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     public function sendKeys(Module $module, array $keys): IrService
     {

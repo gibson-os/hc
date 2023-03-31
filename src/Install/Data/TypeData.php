@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Install\Data;
 
+use Generator;
 use GibsonOS\Core\Dto\Install\Success;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Install\AbstractInstall;
@@ -10,14 +11,15 @@ use GibsonOS\Core\Service\InstallService;
 use GibsonOS\Core\Service\PriorityInterface;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Type;
+use JsonException;
 
 class TypeData extends AbstractInstall implements PriorityInterface
 {
     /**
-     * @throws \JsonException
+     * @throws JsonException
      * @throws SaveError
      */
-    public function install(string $module): \Generator
+    public function install(string $module): Generator
     {
         $this
             ->setType(0, 'Neues Modul', 'blank', uiSettings: ['icon' => 'icon_bug'], defaultAddresses: [97])
@@ -38,7 +40,7 @@ class TypeData extends AbstractInstall implements PriorityInterface
      * @param int[] $defaultAddresses
      *
      * @throws SaveError
-     * @throws \JsonException
+     * @throws JsonException
      */
     private function setType(
         int $id,

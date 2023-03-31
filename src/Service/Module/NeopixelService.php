@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Module;
 
+use Exception;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
@@ -29,7 +30,10 @@ use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Neopixel\LedService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
+use JsonException;
+use LogicException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 class NeopixelService extends AbstractHcModule
 {
@@ -95,7 +99,7 @@ class NeopixelService extends AbstractHcModule
      * @throws DeleteError
      * @throws ReceiveError
      * @throws SaveError
-     * @throws \Exception
+     * @throws Exception
      */
     public function slaveHandshake(Module $module): Module
     {
@@ -156,8 +160,8 @@ class NeopixelService extends AbstractHcModule
      * @throws AbstractException
      * @throws ReceiveError
      * @throws WriteException
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     public function onOverwriteExistingSlave(Module $module, Module $existingSlave): Module
     {
@@ -181,14 +185,14 @@ class NeopixelService extends AbstractHcModule
         $config = $this->getConfig($module);
 
         if ($config[self::CONFIG_CHANNELS] < $maxUsedChannel) {
-            throw new \LogicException(
+            throw new LogicException(
                 'Slave hat ' . $config[self::CONFIG_CHANNELS] . ' Kanäle. ' .
                 'Benötig werden ' . $maxUsedChannel . ' Kanäle.'
             );
         }
 
         if ($config[self::CONFIG_MAX_LEDS] < $usedLedsCount) {
-            throw new \LogicException(
+            throw new LogicException(
                 'Slave hat ' . $config[self::CONFIG_MAX_LEDS] . ' LEDs. ' .
                 'Benötig werden ' . $usedLedsCount . ' LEDs.'
             );
@@ -215,8 +219,8 @@ class NeopixelService extends AbstractHcModule
      * @param Led[] $leds
      *
      * @throws AbstractException
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      * @throws FactoryError
@@ -236,8 +240,8 @@ class NeopixelService extends AbstractHcModule
      * @throws AbstractException
      * @throws SaveError
      * @throws WriteException
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     public function writeChannel(Module $slave, int $channel, int $length = 0): NeopixelService
     {
@@ -250,8 +254,8 @@ class NeopixelService extends AbstractHcModule
      * @throws AbstractException
      * @throws SaveError
      * @throws WriteException
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     public function writeChannels(Module $slave, array $channelsLength): NeopixelService
     {
@@ -292,8 +296,8 @@ class NeopixelService extends AbstractHcModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -307,8 +311,8 @@ class NeopixelService extends AbstractHcModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -322,8 +326,8 @@ class NeopixelService extends AbstractHcModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -337,8 +341,8 @@ class NeopixelService extends AbstractHcModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -357,9 +361,9 @@ class NeopixelService extends AbstractHcModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function readSequenceEepromAddress(Module $slave): int
@@ -374,8 +378,8 @@ class NeopixelService extends AbstractHcModule
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -391,8 +395,8 @@ class NeopixelService extends AbstractHcModule
      *
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -416,9 +420,9 @@ class NeopixelService extends AbstractHcModule
 
     /**
      * @throws SaveError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws AbstractException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws ReceiveError
      *
      * @return array<int, int>
@@ -443,8 +447,8 @@ class NeopixelService extends AbstractHcModule
      *
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */
@@ -467,7 +471,7 @@ class NeopixelService extends AbstractHcModule
      * @throws AbstractException
      * @throws DateTimeError
      * @throws SaveError
-     * @throws \Exception
+     * @throws Exception
      */
     public function writeLeds(Module $slave, array $leds): void
     {
@@ -545,9 +549,9 @@ class NeopixelService extends AbstractHcModule
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
+     * @throws JsonException
      * @throws ReceiveError
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws SaveError
      */
     private function getConfig(Module $slave): array

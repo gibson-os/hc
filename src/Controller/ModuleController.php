@@ -20,6 +20,8 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Store\ModuleStore;
+use JsonException;
+use ReflectionException;
 
 class ModuleController extends AbstractController
 {
@@ -27,8 +29,8 @@ class ModuleController extends AbstractController
      * @throws SaveError
      * @throws SelectError
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
     public function add(
@@ -71,8 +73,8 @@ class ModuleController extends AbstractController
     }
 
     /**
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SelectError
      */
     #[CheckPermission(Permission::READ)]

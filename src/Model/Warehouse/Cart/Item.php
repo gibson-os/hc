@@ -10,6 +10,7 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item as BoxItem;
 use GibsonOS\Module\Hc\Model\Warehouse\Cart;
+use JsonSerializable;
 
 /**
  * @method Cart    getCart()
@@ -19,7 +20,7 @@ use GibsonOS\Module\Hc\Model\Warehouse\Cart;
  */
 #[Table]
 #[Key(true, ['cart_id', 'item_id'])]
-class Item extends AbstractModel implements \JsonSerializable
+class Item extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

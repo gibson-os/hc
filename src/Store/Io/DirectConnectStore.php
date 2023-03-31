@@ -11,6 +11,7 @@ use GibsonOS\Module\Hc\Dto\Io\Direction;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
+use mysqlDatabase;
 
 class DirectConnectStore extends AbstractDatabaseStore
 {
@@ -19,7 +20,7 @@ class DirectConnectStore extends AbstractDatabaseStore
     public function __construct(
         #[GetTableName(DirectConnect::class)] private readonly string $directConnectTableName,
         #[GetTableName(Port::class)] private readonly string $portTableName,
-        \mysqlDatabase $database = null,
+        mysqlDatabase $database = null,
     ) {
         parent::__construct($database);
     }

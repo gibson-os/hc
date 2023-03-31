@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store;
 
+use DateTimeImmutable;
+use Exception;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
@@ -12,6 +14,7 @@ use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
+use mysqlDatabase;
 
 class LogStore extends AbstractDatabaseStore
 {
@@ -29,7 +32,7 @@ class LogStore extends AbstractDatabaseStore
         #[GetTableName(Module::class)] private string $moduleTableName,
         private FormatterFactory $formatterFactory,
         private DateTimeService $dateTimeService,
-        \mysqlDatabase $database = null
+        mysqlDatabase $database = null
     ) {
         parent::__construct($database);
     }
@@ -119,7 +122,7 @@ class LogStore extends AbstractDatabaseStore
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @return Log[]
      */
@@ -188,7 +191,7 @@ class LogStore extends AbstractDatabaseStore
                     ->setOffline((bool) $log['offline'])
                     ->setAdded(
                         empty($log['module_added'])
-                            ? new \DateTimeImmutable()
+                            ? new DateTimeImmutable()
                             : $this->dateTimeService->get((string) $log['module_added'])
                     )
                     ->setModified(

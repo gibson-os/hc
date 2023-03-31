@@ -17,6 +17,8 @@ use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Module\BlankService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
+use ReflectionException;
 
 class BlankController extends AbstractController
 {
@@ -32,8 +34,8 @@ class BlankController extends AbstractController
      * @throws SaveError
      * @throws FactoryError
      * @throws GetError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
     #[CheckPermission(Permission::READ)]
     public function read(
@@ -57,8 +59,8 @@ class BlankController extends AbstractController
     /**
      * @throws AbstractException
      * @throws FactoryError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
      */

@@ -7,6 +7,7 @@ use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
+use mysqlDatabase;
 
 class ModuleStore extends AbstractDatabaseStore
 {
@@ -14,7 +15,7 @@ class ModuleStore extends AbstractDatabaseStore
 
     public function __construct(
         #[GetTableName(Type::class)] private string $typeTableName,
-        \mysqlDatabase $database = null
+        mysqlDatabase $database = null
     ) {
         parent::__construct($database);
     }

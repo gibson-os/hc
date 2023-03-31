@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Exception;
 
-class WriteException extends \Exception
+use Exception;
+
+class WriteException extends Exception
 {
 }

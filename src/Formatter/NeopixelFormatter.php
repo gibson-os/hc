@@ -15,6 +15,9 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Module\NeopixelService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
+use JsonException;
+use ReflectionException;
+use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 
@@ -38,7 +41,7 @@ class NeopixelFormatter extends AbstractHcFormatter
     /**
      * @throws LoaderError
      * @throws SyntaxError
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function render(Log $log): ?string
     {
@@ -84,7 +87,7 @@ class NeopixelFormatter extends AbstractHcFormatter
     /**
      * @throws LoaderError
      * @throws SyntaxError
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function text(Log $log): ?string
     {
@@ -118,7 +121,7 @@ class NeopixelFormatter extends AbstractHcFormatter
     /**
      * @throws LoaderError
      * @throws SyntaxError
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return Explain[]|null
      */
@@ -189,8 +192,8 @@ class NeopixelFormatter extends AbstractHcFormatter
 
     /**
      * @throws SelectError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      *
      * @return Led[]
      */
@@ -209,7 +212,7 @@ class NeopixelFormatter extends AbstractHcFormatter
     /**
      * @throws LoaderError
      * @throws SyntaxError
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return Explain[]
      */
@@ -239,7 +242,7 @@ class NeopixelFormatter extends AbstractHcFormatter
     /**
      * @throws LoaderError
      * @throws SyntaxError
-     * @throws \Throwable
+     * @throws Throwable
      */
     private function explainSetLeds(string $data, int $offset = 0): array
     {

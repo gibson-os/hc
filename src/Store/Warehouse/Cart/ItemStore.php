@@ -9,11 +9,12 @@ use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item as BoxItem;
 use GibsonOS\Module\Hc\Model\Warehouse\Cart;
 use GibsonOS\Module\Hc\Model\Warehouse\Cart\Item;
+use mysqlDatabase;
 
 class ItemStore extends AbstractDatabaseStore
 {
     public function __construct(
-        \mysqlDatabase $database = null,
+        mysqlDatabase $database = null,
         #[GetTableName(Item::class)] private string $itemTableName,
         #[GetTableName(BoxItem::class)] private string $boxItemTableName,
     ) {

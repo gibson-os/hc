@@ -11,6 +11,7 @@ use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led;
+use JsonSerializable;
 
 /**
  * @method Module    getModule()
@@ -23,7 +24,7 @@ use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led;
 #[Key(unique: true, columns: ['module_id', 'name'])]
 #[Key(columns: ['module_id', 'started'])]
 #[Key(columns: ['module_id', 'transmitted'])]
-class Animation extends AbstractModel implements \JsonSerializable, AutoCompleteModelInterface
+class Animation extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;

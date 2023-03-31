@@ -8,12 +8,14 @@ use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Ir\Key\Name;
+use mysqlDatabase;
+use mysqlTable;
 use Psr\Log\LoggerInterface;
 
 class CopyIrKeyNames extends AbstractCommand
 {
     public function __construct(
-        private readonly \mysqlDatabase $database,
+        private readonly mysqlDatabase $database,
         private readonly ModelManager $modelManager,
         LoggerInterface $logger,
         #[GetTableName(Key::class)] private readonly string $keyTableName,
@@ -23,7 +25,7 @@ class CopyIrKeyNames extends AbstractCommand
 
     protected function run(): int
     {
-        $table = new \mysqlTable($this->database, $this->keyTableName);
+        $table = new mysqlTable($this->database, $this->keyTableName);
         $table->select();
 
         do {
