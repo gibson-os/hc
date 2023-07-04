@@ -16,8 +16,6 @@ class FileRepository extends AbstractRepository
     }
 
     /**
-     * @param File[] $files
-     *
      * @throws SelectError
      *
      * @return File[]

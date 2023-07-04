@@ -215,8 +215,8 @@ abstract class AbstractHcModule extends AbstractModule
         $deviceId = $this->readDeviceId($slave);
 
         if (
-            $deviceId !== $slave->getDeviceId() ||
-            $slave->getId() === null
+            $deviceId !== $slave->getDeviceId()
+            || $slave->getId() === null
         ) {
             try {
                 $slave = $this->moduleRepository->getByDeviceId($deviceId);
@@ -269,8 +269,8 @@ abstract class AbstractHcModule extends AbstractModule
     private function checkDeviceId(Module $slave): void
     {
         if (
-            $slave->getDeviceId() > 0 &&
-            $slave->getDeviceId() <= self::MAX_DEVICE_ID
+            $slave->getDeviceId() > 0
+            && $slave->getDeviceId() <= self::MAX_DEVICE_ID
         ) {
             return;
         }

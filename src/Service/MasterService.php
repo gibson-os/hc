@@ -117,8 +117,8 @@ class MasterService
                 );
 
                 if (
-                    $lastLogEntry->getType() === self::TYPE_ERROR &&
-                    $lastLogEntry->getRawData() === ($data ?? '')
+                    $lastLogEntry->getType() === self::TYPE_ERROR
+                    && $lastLogEntry->getRawData() === ($data ?? '')
                 ) {
                     return;
                 }

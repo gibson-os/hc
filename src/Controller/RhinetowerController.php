@@ -5,13 +5,13 @@ namespace GibsonOS\Module\Hc\Controller;
 
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
-use GibsonOS\Core\Model\User\Permission;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 
 class RhinetowerController extends AbstractController
 {
-    #[CheckPermission(Permission::WRITE)]
-    public function setClock(
+    #[CheckPermission([Permission::WRITE])]
+    public function postClock(
         int $year,
         int $month,
         int $day,
@@ -22,45 +22,45 @@ class RhinetowerController extends AbstractController
         return $this->returnSuccess();
     }
 
-    #[CheckPermission(Permission::WRITE)]
-    public function showClock(): AjaxResponse
+    #[CheckPermission([Permission::WRITE])]
+    public function getClock(): AjaxResponse
     {
         return $this->returnSuccess();
     }
 
-    #[CheckPermission(Permission::WRITE)]
-    public function playAnimation(int $id): AjaxResponse
+    #[CheckPermission([Permission::WRITE])]
+    public function postAnimation(int $id): AjaxResponse
     {
         return $this->returnSuccess();
     }
 
-    #[CheckPermission(Permission::WRITE)]
-    public function set(array $leds, bool $withClock = false): AjaxResponse
+    #[CheckPermission([Permission::WRITE])]
+    public function post(array $leds, bool $withClock = false): AjaxResponse
     {
         return $this->returnSuccess();
     }
 
-    #[CheckPermission(Permission::READ, ['renew' => Permission::WRITE])]
-    public function status(): AjaxResponse
+    #[CheckPermission([Permission::READ], ['renew' => [Permission::WRITE]])]
+    public function get(): AjaxResponse
     {
         return $this->returnSuccess();
     }
 
-    #[CheckPermission(Permission::READ)]
-     public function image(int $id): AjaxResponse
-     {
-         return $this->returnSuccess();
-     }
+    #[CheckPermission([Permission::READ])]
+    public function getImage(int $id): AjaxResponse
+    {
+        return $this->returnSuccess();
+    }
 
-    #[CheckPermission(Permission::WRITE)]
-     public function saveImage(int $id): AjaxResponse
-     {
-         return $this->returnSuccess();
-     }
+    #[CheckPermission([Permission::WRITE])]
+    public function postImage(int $id): AjaxResponse
+    {
+        return $this->returnSuccess();
+    }
 
-    #[CheckPermission(Permission::DELETE)]
-     public function deleteImage(int $id): AjaxResponse
-     {
-         return $this->returnSuccess();
-     }
+    #[CheckPermission([Permission::DELETE])]
+    public function deleteImage(int $id): AjaxResponse
+    {
+        return $this->returnSuccess();
+    }
 }

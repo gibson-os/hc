@@ -94,8 +94,8 @@ class RfmrhinetowerFormatter extends AbstractFormatter
 
         foreach ($keyList as $x => $list) {
             if (
-                $smallList &&
-                !array_key_exists($x, self::SMALL_KEY_LIST)
+                $smallList
+                && !array_key_exists($x, self::SMALL_KEY_LIST)
             ) {
                 $i += 16;
 
@@ -108,8 +108,8 @@ class RfmrhinetowerFormatter extends AbstractFormatter
 
             foreach ($keyList[$x] ?? [] as $y) {
                 if (
-                    $smallList &&
-                    !in_array($y, self::SMALL_KEY_LIST[$x])
+                    $smallList
+                    && !in_array($y, self::SMALL_KEY_LIST[$x])
                 ) {
                     $i += 2;
 
@@ -228,16 +228,16 @@ class RfmrhinetowerFormatter extends AbstractFormatter
         for ($x = 0; $x < 54; ++$x) {
             for ($y = 0; $y < 9; ++$y) {
                 if (
-                    array_key_exists($x, $matches) &&
-                    array_key_exists($y, $matches[$x])
+                    array_key_exists($x, $matches)
+                    && array_key_exists($y, $matches[$x])
                 ) {
                     $match = $matches[$x][$y];
                     $color = '000';
 
                     if (
-                        array_key_exists($match[0], $ledList) &&
-                        array_key_exists($match[1], $ledList[$match[0]]) &&
-                        $ledList[$match[0]][$match[1]]['brightness']
+                        array_key_exists($match[0], $ledList)
+                        && array_key_exists($match[1], $ledList[$match[0]])
+                        && $ledList[$match[0]][$match[1]]['brightness']
                     ) {
                         $color = $match[2];
                     }

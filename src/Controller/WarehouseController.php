@@ -12,6 +12,7 @@ use GibsonOS\Core\Attribute\GetObjects;
 use GibsonOS\Core\Attribute\GetSetting;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Dto\File;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\CreateError;
 use GibsonOS\Core\Exception\DateTimeError;
@@ -25,7 +26,6 @@ use GibsonOS\Core\Exception\RequestError;
 use GibsonOS\Core\Exception\SetError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\Setting;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Service\Response\FileResponse;
 use GibsonOS\Core\Utility\JsonUtility;
@@ -45,8 +45,8 @@ class WarehouseController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      */
-    #[CheckPermission(Permission::READ)]
-    public function index(
+    #[CheckPermission([Permission::READ])]
+    public function get(
         BoxStore $boxStore,
         #[GetModel(['id' => 'moduleId'])] Module $module,
     ): AjaxResponse {
@@ -72,8 +72,8 @@ class WarehouseController extends AbstractController
      * @throws ModelDeleteError
      * @throws SetError
      */
-    #[CheckPermission(Permission::READ + Permission::MANAGE)]
-    public function save(
+    #[CheckPermission([Permission::READ, Permission::MANAGE])]
+    public function post(
         ModelManager $modelManager,
         ItemService $itemService,
         BoxRepository $boxRepository,
@@ -109,8 +109,8 @@ class WarehouseController extends AbstractController
         return $this->returnSuccess();
     }
 
-    #[CheckPermission(Permission::READ)]
-    public function qrCode(
+    #[CheckPermission([Permission::READ])]
+    public function getQrCode(
         #[GetEnv('WEB_URL')] string $webUrl,
         #[GetModel] Box $box
     ): FileResponse {
@@ -123,8 +123,8 @@ class WarehouseController extends AbstractController
         ;
     }
 
-    #[CheckPermission(Permission::READ)]
-    public function image(
+    #[CheckPermission([Permission::READ])]
+    public function getImage(
         ItemService $itemService,
         #[GetModel] ?Box\Item $item
     ): FileResponse {
@@ -153,8 +153,8 @@ class WarehouseController extends AbstractController
         ;
     }
 
-    #[CheckPermission(Permission::READ)]
-    public function download(
+    #[CheckPermission([Permission::READ])]
+    public function getDownload(
         #[GetSetting('file_path')] Setting $filePath,
         #[GetModel] Box\Item\File $file
     ): FileResponse {
@@ -171,7 +171,7 @@ class WarehouseController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      */
-    public function show(
+    public function postShow(
         BoxService $boxService,
         #[GetModel(['id' => 'id', 'module_id' => 'moduleId'])] Box $box,
         int $red = 255,

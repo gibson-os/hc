@@ -110,7 +110,7 @@ class ModuleRepository extends AbstractRepository
         $deviceId = mt_rand(1, AbstractHcModule::MAX_DEVICE_ID);
         ++$tryCount;
 
-        $count = $this->getAggregate('COUNT(`device_id`)', '`device_id`=?', [$deviceId], Module::class);
+        $count = $this->getAggregate('COUNT(`device_id`)', Module::class, '`device_id`=?', [$deviceId]);
 
         if (!empty($count) && (int) $count[0] > 0) {
             if ($tryCount === self::MAX_GENERATE_DEVICE_ID_RETRY) {

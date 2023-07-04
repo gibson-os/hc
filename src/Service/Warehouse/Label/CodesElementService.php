@@ -97,8 +97,8 @@ class CodesElementService extends AbstractElementService
         foreach ($box->getItems() as $item) {
             foreach ($item->getCodes() as $code) {
                 if (
-                    count($options[self::OPTION_INPUT_TYPES] ?? []) > 0 &&
-                    !in_array($code->getType()->value, $options[self::OPTION_INPUT_TYPES] ?? [])
+                    count($options[self::OPTION_INPUT_TYPES] ?? []) > 0
+                    && !in_array($code->getType()->value, $options[self::OPTION_INPUT_TYPES] ?? [])
                 ) {
                     continue;
                 }

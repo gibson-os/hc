@@ -6,12 +6,12 @@ namespace GibsonOS\Module\Hc\Controller;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
@@ -37,8 +37,8 @@ class BlankController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      */
-    #[CheckPermission(Permission::READ)]
-    public function read(
+    #[CheckPermission([Permission::READ])]
+    public function get(
         BlankService $blankService,
         TransformService $transformService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
@@ -64,8 +64,8 @@ class BlankController extends AbstractController
      * @throws SaveError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function write(
+    #[CheckPermission([Permission::WRITE])]
+    public function post(
         BlankService $blankService,
         TransformService $transformService,
         #[GetModel(['id' => 'moduleId'])] Module $module,

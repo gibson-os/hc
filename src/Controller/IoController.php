@@ -7,13 +7,13 @@ use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Io\Port;
@@ -30,8 +30,8 @@ class IoController extends AbstractController
      * @throws AbstractException
      * @throws SelectError
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function set(
+    #[CheckPermission([Permission::WRITE])]
+    public function post(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetMappedModel(mapping: ['module' => 'module'])] Port $port,
@@ -47,8 +47,8 @@ class IoController extends AbstractController
      * @throws ReflectionException
      * @throws SelectError
      */
-    #[CheckPermission(Permission::READ)]
-    public function ports(
+    #[CheckPermission([Permission::READ])]
+    public function getPorts(
         PortStore $portStore,
         #[GetModel(['id' => 'moduleId'])] Module $module,
     ): AjaxResponse {
@@ -61,8 +61,8 @@ class IoController extends AbstractController
      * @throws AbstractException
      * @throws SelectError
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function toggle(
+    #[CheckPermission([Permission::WRITE])]
+    public function postToggle(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetModel] Port $port
@@ -83,8 +83,8 @@ class IoController extends AbstractController
      * @throws SelectError
      * @throws GetError
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function loadFromEeprom(
+    #[CheckPermission([Permission::WRITE])]
+    public function getEeprom(
         IoService $ioService,
         PortRepository $portRepository,
         #[GetModel(['id' => 'moduleId'])] Module $module
@@ -102,8 +102,8 @@ class IoController extends AbstractController
      * @throws SaveError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function saveToEeprom(
+    #[CheckPermission([Permission::WRITE])]
+    public function postEeprom(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {

@@ -9,12 +9,12 @@ use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Attribute\GetModels;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Cart;
@@ -32,8 +32,8 @@ class WarehouseCartController extends AbstractController
      * @throws ReflectionException
      * @throws SelectError
      */
-    #[CheckPermission(Permission::READ)]
-    public function index(CartStore $cartStore, int $start = 0, int $limit = 100): AjaxResponse
+    #[CheckPermission([Permission::READ])]
+    public function get(CartStore $cartStore, int $start = 0, int $limit = 100): AjaxResponse
     {
         $cartStore->setLimit($limit, $start);
 
@@ -45,8 +45,8 @@ class WarehouseCartController extends AbstractController
      * @throws ReflectionException
      * @throws SelectError
      */
-    #[CheckPermission(Permission::READ)]
-    public function items(
+    #[CheckPermission([Permission::READ])]
+    public function getItems(
         ItemStore $itemStore,
         #[GetModel] ?Cart $cart,
         int $start = 0,
@@ -78,8 +78,8 @@ class WarehouseCartController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function save(
+    #[CheckPermission([Permission::WRITE])]
+    public function post(
         ModelManager $modelManager,
         #[GetMappedModel] Cart $cart
     ): AjaxResponse {
@@ -95,8 +95,8 @@ class WarehouseCartController extends AbstractController
      * @throws AbstractException
      * @throws DateTimeError
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function show(
+    #[CheckPermission([Permission::WRITE])]
+    public function postShow(
         BoxService $boxService,
         #[GetModels(Item::class)] array $items,
         int $red = 255,

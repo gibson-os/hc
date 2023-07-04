@@ -324,8 +324,6 @@ class IoService extends AbstractHcModule
     }
 
     /**
-     * @param string[] $valueNames
-     *
      * @throws AbstractException
      * @throws Exception
      */

@@ -343,15 +343,15 @@ class IoFormatter extends AbstractHcFormatter
 
             if ($port->getDirection() === IoDirection::INPUT) {
                 if (
-                    $lastPort->getDelay() !== $port->getDelay() ||
-                    $lastPort->hasPullUp() !== $port->hasPullUp()
+                    $lastPort->getDelay() !== $port->getDelay()
+                    || $lastPort->hasPullUp() !== $port->hasPullUp()
                 ) {
                     $changedPorts[$number] = $port;
                 }
             } elseif (
-                $lastPort->getPwm() !== $port->getPwm() ||
-                $lastPort->getFadeIn() !== $port->getFadeIn() ||
-                $lastPort->getBlink() !== $port->getBlink()
+                $lastPort->getPwm() !== $port->getPwm()
+                || $lastPort->getFadeIn() !== $port->getFadeIn()
+                || $lastPort->getBlink() !== $port->getBlink()
             ) {
                 $changedPorts[$number] = $port;
             }

@@ -34,8 +34,8 @@ abstract class AbstractFormatter implements FormatterInterface
             );
         }
         if (
-            $log->getType() == MasterService::TYPE_STATUS &&
-            $log->getDirection() === Direction::OUTPUT
+            $log->getType() == MasterService::TYPE_STATUS
+            && $log->getDirection() === Direction::OUTPUT
         ) {
             return 'Status abfragen';
         }
@@ -55,8 +55,8 @@ abstract class AbstractFormatter implements FormatterInterface
         }
 
         if (
-            $log->getType() === MasterService::TYPE_STATUS &&
-            $log->getDirection() === Direction::OUTPUT
+            $log->getType() === MasterService::TYPE_STATUS
+            && $log->getDirection() === Direction::OUTPUT
         ) {
             return true;
         }

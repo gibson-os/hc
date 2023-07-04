@@ -7,6 +7,7 @@ use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\EventException;
@@ -15,7 +16,6 @@ use GibsonOS\Core\Exception\MapperException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
@@ -40,8 +40,8 @@ class IoDirectConnectController extends AbstractController
      * @throws SaveError
      * @throws SelectError
      */
-    #[CheckPermission(Permission::READ)]
-    public function index(
+    #[CheckPermission([Permission::READ])]
+    public function get(
         IoService $ioService,
         DirectConnectStore $directConnectStore,
         #[GetModel(['id' => 'moduleId'])] Module $module
@@ -58,8 +58,8 @@ class IoDirectConnectController extends AbstractController
      * @throws AbstractException
      * @throws SelectError
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function save(
+    #[CheckPermission([Permission::WRITE])]
+    public function post(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetModel(['id' => 'inputPortId'])] Port $inputPort,
@@ -77,7 +77,7 @@ class IoDirectConnectController extends AbstractController
      * @throws WriteException
      * @throws JsonException
      */
-    #[CheckPermission(Permission::DELETE)]
+    #[CheckPermission([Permission::DELETE])]
     public function delete(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
@@ -90,11 +90,14 @@ class IoDirectConnectController extends AbstractController
 
     /**
      * @throws AbstractException
-     * @throws SelectError
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws SaveError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::DELETE)]
-    public function reset(
+    #[CheckPermission([Permission::DELETE])]
+    public function deleteReset(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetModel(['id' => 'id', 'module_id' => 'moduleId'])] Port $port,
@@ -106,13 +109,15 @@ class IoDirectConnectController extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::READ)]
-    public function read(
+    #[CheckPermission([Permission::READ])]
+    public function getRead(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetModel(['number' => 'inputPort', 'module_id' => 'moduleId'])] Port $port,
@@ -128,12 +133,14 @@ class IoDirectConnectController extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function defragment(
+    #[CheckPermission([Permission::WRITE])]
+    public function postDefragment(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
@@ -144,12 +151,14 @@ class IoDirectConnectController extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function activate(
+    #[CheckPermission([Permission::WRITE])]
+    public function postActivate(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         bool $activate

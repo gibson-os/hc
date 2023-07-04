@@ -7,13 +7,13 @@ use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -31,8 +31,8 @@ class IndexController extends AbstractController
      * @throws SelectError
      * @throws Exception
      */
-    #[CheckPermission(Permission::READ)]
-    public function log(
+    #[CheckPermission([Permission::READ])]
+    public function getLog(
         LogStore $logStore,
         ?int $masterId,
         ?int $moduleId,
@@ -71,8 +71,8 @@ class IndexController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function logSend(ModuleFactory $slaveFactory, LogRepository $logRepository, int $id): AjaxResponse
+    #[CheckPermission([Permission::WRITE])]
+    public function postLog(ModuleFactory $slaveFactory, LogRepository $logRepository, int $id): AjaxResponse
     {
         $log = $logRepository->getById($id);
         $module = $log->getModule();
@@ -97,8 +97,8 @@ class IndexController extends AbstractController
     /**
      * @throws SelectError
      */
-    #[CheckPermission(Permission::READ)]
-    public function lastLog(
+    #[CheckPermission([Permission::READ])]
+    public function getLastLog(
         LogRepository $logRepository,
         #[GetModel(['id' => 'masterId'])] Master $master = null,
         #[GetModel(['id' => 'moduleId'])] Module $module = null,

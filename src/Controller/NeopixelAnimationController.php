@@ -8,6 +8,7 @@ use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\MapperException;
@@ -15,7 +16,6 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -32,8 +32,8 @@ class NeopixelAnimationController extends AbstractController
     /**
      * @throws Exception
      */
-    #[CheckPermission(Permission::READ)]
-    public function index(
+    #[CheckPermission([Permission::READ])]
+    public function get(
         AnimationRepository $animationRepository,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
@@ -63,8 +63,8 @@ class NeopixelAnimationController extends AbstractController
      * @throws SelectError
      * @throws ReflectionException
      */
-    #[CheckPermission(Permission::READ)]
-    public function list(
+    #[CheckPermission([Permission::READ])]
+    public function getList(
         AnimationStore $animationStore,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
@@ -76,8 +76,8 @@ class NeopixelAnimationController extends AbstractController
         );
     }
 
-    #[CheckPermission(Permission::READ)]
-    public function load(#[GetModel] Animation $animation): AjaxResponse
+    #[CheckPermission([Permission::READ])]
+    public function getLoad(#[GetModel] Animation $animation): AjaxResponse
     {
         return $this->returnSuccess($animation->getLeds());
     }
@@ -89,8 +89,8 @@ class NeopixelAnimationController extends AbstractController
      * @throws ReflectionException
      * @throws ImageExists
      */
-    #[CheckPermission(Permission::WRITE, ['id' => Permission::WRITE + Permission::DELETE])]
-    public function save(
+    #[CheckPermission([Permission::WRITE], ['id' => [Permission::WRITE, Permission::DELETE]])]
+    public function post(
         AnimationStore $animationStore,
         ModelManager $modelManager,
         ?int $id,
@@ -130,8 +130,8 @@ class NeopixelAnimationController extends AbstractController
      * @throws FactoryError
      * @throws MapperException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function send(
+    #[CheckPermission([Permission::WRITE])]
+    public function postSend(
         AnimationService $animationService,
         #[GetMappedModel(['id' => 'id', 'module_id' => 'moduleId'])] Animation $animation,
     ): AjaxResponse {
@@ -148,8 +148,8 @@ class NeopixelAnimationController extends AbstractController
      * @throws SelectError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function play(
+    #[CheckPermission([Permission::WRITE])]
+    public function postPlay(
         AnimationService $animationService,
         #[GetMappedModel(['id' => 'id', 'module_id' => 'moduleId'])] Animation $animation,
         int $iterations,
@@ -168,8 +168,8 @@ class NeopixelAnimationController extends AbstractController
      * @throws SelectError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function start(
+    #[CheckPermission([Permission::WRITE])]
+    public function postStart(
         AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         int $iterations = 0
@@ -187,8 +187,8 @@ class NeopixelAnimationController extends AbstractController
      * @throws SelectError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function pause(
+    #[CheckPermission([Permission::WRITE])]
+    public function postPause(
         AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
@@ -205,8 +205,8 @@ class NeopixelAnimationController extends AbstractController
      * @throws SelectError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function stop(
+    #[CheckPermission([Permission::WRITE])]
+    public function postStop(
         AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {

@@ -6,11 +6,11 @@ namespace GibsonOS\Module\Hc\Controller;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\Ssd1306\PixelMapper;
@@ -27,8 +27,8 @@ class Ssd1306Controller extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      */
-    #[CheckPermission(Permission::READ)]
-    public function index(
+    #[CheckPermission([Permission::READ])]
+    public function get(
         PixelStore $pixelStore,
         #[GetModel(['id' => 'moduleId'])] Module $module,
     ): AjaxResponse {
@@ -45,8 +45,8 @@ class Ssd1306Controller extends AbstractController
      * @throws SaveError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function change(
+    #[CheckPermission([Permission::WRITE])]
+    public function post(
         Ssd1306Service $ssd1306Service,
         PixelMapper $pixelMapper,
         #[GetModel(['id' => 'moduleId'])] Module $module,
@@ -68,8 +68,8 @@ class Ssd1306Controller extends AbstractController
      * @throws WriteException
      * @throws FactoryError
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function displayOn(
+    #[CheckPermission([Permission::WRITE])]
+    public function postOn(
         Ssd1306Service $ssd1306Service,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         bool $on

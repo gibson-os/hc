@@ -8,6 +8,8 @@ use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Attribute\GetModels;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\HttpStatusCode;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\EventException;
@@ -16,12 +18,10 @@ use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Service\Response\ExceptionResponse;
 use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Hc\Exception\IrException;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
@@ -37,6 +37,9 @@ use GibsonOS\Module\Hc\Store\Ir\KeyStore;
 use GibsonOS\Module\Hc\Store\Ir\RemoteStore;
 use JsonException;
 use ReflectionException;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class IrController extends AbstractController
 {
@@ -45,8 +48,8 @@ class IrController extends AbstractController
      * @throws ReflectionException
      * @throws SelectError
      */
-    #[CheckPermission(Permission::READ)]
-    public function keys(
+    #[CheckPermission([Permission::READ])]
+    public function getKeys(
         KeyStore $keyStore,
         int $limit = 100,
         int $start = 0,
@@ -66,8 +69,8 @@ class IrController extends AbstractController
      * @throws ReflectionException
      * @throws SaveError
      */
-    #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
-    public function addKey(
+    #[CheckPermission([Permission::MANAGE, Permission::WRITE])]
+    public function postKey(
         ModelManager $modelManager,
         #[GetMappedModel] Key $key,
         string $name,
@@ -85,7 +88,7 @@ class IrController extends AbstractController
      * @throws DeleteError
      * @throws JsonException
      */
-    #[CheckPermission(Permission::MANAGE + Permission::DELETE)]
+    #[CheckPermission([Permission::MANAGE, Permission::DELETE])]
     public function deleteKeys(
         ModelManager $modelManager,
         #[GetModels(Key::class)] array $keys,
@@ -98,13 +101,15 @@ class IrController extends AbstractController
     }
 
     /**
-     * @throws IrException
+     * @throws JsonException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    #[CheckPermission(Permission::READ)]
-    public function waitForKey(
+    #[CheckPermission([Permission::READ])]
+    public function getWaitForKey(
         LogRepository $logRepository,
         IrFormatter $irFormatter,
-        StatusCode $statusCode,
         int $moduleId,
         int $lastLogId = null
     ): AjaxResponse {
@@ -142,13 +147,12 @@ class IrController extends AbstractController
                         $exception,
                         $this->requestService,
                         $this->twigService,
-                        $statusCode,
                     );
 
                     $body = JsonUtility::decode($response->getBody());
                     $body['data'] = array_merge($body['data'], $data);
 
-                    return new AjaxResponse($body, StatusCode::CONFLICT);
+                    return new AjaxResponse($body, HttpStatusCode::CONFLICT);
                 }
 
                 break;
@@ -169,8 +173,8 @@ class IrController extends AbstractController
      * @throws SaveError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function send(
+    #[CheckPermission([Permission::WRITE])]
+    public function post(
         IrService $irService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetModel] Key $key
@@ -180,8 +184,8 @@ class IrController extends AbstractController
         return $this->returnSuccess();
     }
 
-    #[CheckPermission(Permission::READ)]
-    public function remote(#[GetModel] Remote $remote): AjaxResponse
+    #[CheckPermission([Permission::READ])]
+    public function getRemote(#[GetModel] Remote $remote): AjaxResponse
     {
         return $this->returnSuccess($remote);
     }
@@ -191,8 +195,8 @@ class IrController extends AbstractController
      * @throws ReflectionException
      * @throws SelectError
      */
-    #[CheckPermission(Permission::READ)]
-    public function remotes(
+    #[CheckPermission([Permission::READ])]
+    public function getRemotes(
         RemoteStore $remoteStore,
         int $limit = 100,
         int $start = 0,
@@ -212,8 +216,8 @@ class IrController extends AbstractController
      * @throws ReflectionException
      * @throws SaveError
      */
-    #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
-    public function saveRemote(
+    #[CheckPermission([Permission::WRITE, Permission::MANAGE])]
+    public function postRemote(
         ModelManager $modelManager,
         #[GetMappedModel] Remote $remote,
     ): AjaxResponse {
@@ -228,7 +232,7 @@ class IrController extends AbstractController
      * @throws DeleteError
      * @throws JsonException
      */
-    #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
+    #[CheckPermission([Permission::DELETE, Permission::MANAGE])]
     public function deleteRemotes(
         ModelManager $modelManager,
         #[GetModels(Remote::class)] array $remotes
@@ -251,8 +255,8 @@ class IrController extends AbstractController
      * @throws ReflectionException
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function sendButton(
+    #[CheckPermission([Permission::WRITE])]
+    public function postButton(
         EventService $eventService,
         IrService $irService,
         #[GetModel(['id' => 'moduleId'])] Module $module,

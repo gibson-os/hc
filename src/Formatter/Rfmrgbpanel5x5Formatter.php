@@ -77,10 +77,10 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
                 $key = 'l' . ($j + 1);
 
                 if (
-                    array_key_exists($key, $ledList) &&
-                    array_key_exists('color', $ledList[$key]) &&
-                    null !== $ledList[$key]['color'] &&
-                    mb_strlen($ledList[$key]['color']) == 3
+                    array_key_exists($key, $ledList)
+                    && array_key_exists('color', $ledList[$key])
+                    && null !== $ledList[$key]['color']
+                    && mb_strlen($ledList[$key]['color']) == 3
                 ) {
                     $color = $ledList[$key]['color'];
                 } else {

@@ -10,16 +10,16 @@ use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetMappedModels;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\HttpStatusCode;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
@@ -40,8 +40,8 @@ class NeopixelController extends AbstractController
      * @throws SelectError
      * @throws ReflectionException
      */
-    #[CheckPermission(Permission::READ)]
-    public function index(LedStore $ledStore, #[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
+    #[CheckPermission([Permission::READ])]
+    public function get(LedStore $ledStore, #[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
     {
         $ledStore->setModule($module);
 
@@ -64,8 +64,8 @@ class NeopixelController extends AbstractController
      * @throws SaveError
      * @throws SelectError
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function showLeds(
+    #[CheckPermission([Permission::WRITE])]
+    public function postShowLeds(
         NeopixelService $neopixelService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         #[GetMappedModels(Led::class, ['module_id' => 'module.id', 'number' => 'number'])] array $leds = []
@@ -87,8 +87,8 @@ class NeopixelController extends AbstractController
      * @throws ReflectionException
      * @throws WriteException
      */
-    #[CheckPermission(Permission::MANAGE + Permission::WRITE)]
-    public function setLeds(
+    #[CheckPermission([Permission::MANAGE, Permission::WRITE])]
+    public function postLeds(
         NeopixelService $neopixelService,
         LedService $ledService,
         ModelManager $modelManager,
@@ -136,8 +136,8 @@ class NeopixelController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function send(
+    #[CheckPermission([Permission::WRITE])]
+    public function post(
         NeopixelService $neopixelService,
         LedService $ledService,
         #[GetModel(['id' => 'moduleId'])] Module $module,
@@ -159,8 +159,8 @@ class NeopixelController extends AbstractController
      * @throws SelectError
      * @throws ReflectionException
      */
-    #[CheckPermission(Permission::READ)]
-    public function images(
+    #[CheckPermission([Permission::READ])]
+    public function getImages(
         ImageStore $imageStore,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
@@ -179,8 +179,8 @@ class NeopixelController extends AbstractController
      * @throws SaveError
      * @throws SelectError
      */
-    #[CheckPermission(Permission::WRITE, ['id' => Permission::WRITE + Permission::DELETE])]
-    public function saveImage(
+    #[CheckPermission([Permission::WRITE], ['id' => [Permission::WRITE, Permission::DELETE]])]
+    public function postImage(
         ImageStore $imageStore,
         ModelManager $modelManager,
         ?int $id,
@@ -195,7 +195,7 @@ class NeopixelController extends AbstractController
                     $image->getName(),
                     PHP_EOL
                 ),
-                StatusCode::CONFLICT
+                HttpStatusCode::CONFLICT
             );
         }
 

@@ -7,6 +7,7 @@ use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\EventException;
@@ -16,7 +17,6 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\SetError;
 use GibsonOS\Core\Manager\ModelManager;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -30,8 +30,8 @@ use ReflectionException;
 
 class HcSlaveController extends AbstractController
 {
-    #[CheckPermission(Permission::READ + Permission::MANAGE)]
-    public function generalSettings(#[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
+    #[CheckPermission([Permission::READ, Permission::MANAGE])]
+    public function getGeneralSettings(#[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
     {
         return $this->returnSuccess([
             'name' => $module->getName(),
@@ -51,8 +51,8 @@ class HcSlaveController extends AbstractController
      * @throws SelectError
      * @throws Exception
      */
-    #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
-    public function saveGeneralSettings(
+    #[CheckPermission([Permission::WRITE, Permission::MANAGE])]
+    public function postGeneralSettings(
         ModuleFactory $slaveFactory,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
@@ -85,7 +85,7 @@ class HcSlaveController extends AbstractController
                         $moduleRepository->deleteByIds([$module->getId() ?? 0]);
                         $module->setId((int) $existingSlave->getId());
                         $typeId = $module->getTypeId();
-                    // @todo log umschreiben?
+                        // @todo log umschreiben?
                     } elseif ($deleteSlave) {
                         $moduleRepository->deleteByIds([(int) $existingSlave->getId()]);
                     } else {
@@ -162,8 +162,8 @@ class HcSlaveController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      */
-    #[CheckPermission(Permission::READ + Permission::MANAGE)]
-    public function eepromSettings(
+    #[CheckPermission([Permission::READ, Permission::MANAGE])]
+    public function getEepromSettings(
         ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
@@ -186,8 +186,8 @@ class HcSlaveController extends AbstractController
      * @throws SaveError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
-    public function saveEepromSettings(
+    #[CheckPermission([Permission::WRITE, Permission::MANAGE])]
+    public function postEepromSettings(
         ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         int $position
@@ -208,8 +208,8 @@ class HcSlaveController extends AbstractController
      * @throws SaveError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
-    public function eraseEeprom(
+    #[CheckPermission([Permission::DELETE, Permission::MANAGE])]
+    public function deleteEeprom(
         ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
@@ -229,8 +229,8 @@ class HcSlaveController extends AbstractController
      * @throws SaveError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
-    public function restart(
+    #[CheckPermission([Permission::WRITE, Permission::MANAGE])]
+    public function postRestart(
         ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])] Module $module
     ): AjaxResponse {
@@ -250,7 +250,7 @@ class HcSlaveController extends AbstractController
      * @throws ReflectionException
      * @throws SaveError
      */
-    #[CheckPermission(Permission::READ + Permission::MANAGE)]
+    #[CheckPermission([Permission::READ, Permission::MANAGE])]
     public function getStatusLeds(
         ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])] Module $module
@@ -261,8 +261,8 @@ class HcSlaveController extends AbstractController
 
         foreach ($activeLeds as $led => $active) {
             if (
-                !$active ||
-                $led === AbstractHcModule::RGB_LED_KEY
+                !$active
+                || $led === AbstractHcModule::RGB_LED_KEY
             ) {
                 continue;
             }
@@ -291,8 +291,8 @@ class HcSlaveController extends AbstractController
      * @throws SaveError
      * @throws WriteException
      */
-    #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
-    public function setStatusLeds(
+    #[CheckPermission([Permission::WRITE, Permission::MANAGE])]
+    public function postStatusLeds(
         ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])] Module $module,
         bool $power = false,
@@ -323,12 +323,12 @@ class HcSlaveController extends AbstractController
         );
 
         if (
-            $powerCode !== null ||
-            $errorCode !== null ||
-            $connectCode !== null ||
-            $transceiveCode !== null ||
-            $receiveCode !== null ||
-            $customCode !== null
+            $powerCode !== null
+            || $errorCode !== null
+            || $connectCode !== null
+            || $transceiveCode !== null
+            || $receiveCode !== null
+            || $customCode !== null
         ) {
             $slaveService->writeRgbLed(
                 $module,

@@ -8,11 +8,11 @@ use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Attribute\GetModels;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Service\Response\FileResponse;
 use GibsonOS\Module\Hc\Model\Module;
@@ -32,14 +32,14 @@ class WarehouseLabelController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      */
-    #[CheckPermission(Permission::READ)]
-    public function index(LabelStore $labelStore): AjaxResponse
+    #[CheckPermission([Permission::READ])]
+    public function get(LabelStore $labelStore): AjaxResponse
     {
         return $this->returnSuccess($labelStore->getList(), $labelStore->getCount());
     }
 
-    #[CheckPermission(Permission::READ)]
-    public function elements(#[GetModel] Label $label): AjaxResponse
+    #[CheckPermission([Permission::READ])]
+    public function getElements(#[GetModel] Label $label): AjaxResponse
     {
         return new AjaxResponse([
             'data' => $label->getElements(),
@@ -54,8 +54,8 @@ class WarehouseLabelController extends AbstractController
      * @throws ReflectionException
      * @throws SelectError
      */
-    #[CheckPermission(Permission::READ + Permission::MANAGE)]
-    public function templates(TemplateStore $templateStore): AjaxResponse
+    #[CheckPermission([Permission::READ, Permission::MANAGE])]
+    public function getTemplates(TemplateStore $templateStore): AjaxResponse
     {
         return $this->returnSuccess($templateStore->getList(), $templateStore->getCount());
     }
@@ -65,8 +65,8 @@ class WarehouseLabelController extends AbstractController
      * @throws ReflectionException
      * @throws SaveError
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function save(
+    #[CheckPermission([Permission::WRITE])]
+    public function post(
         ModelManager $modelManager,
         #[GetMappedModel] Label $label,
     ): AjaxResponse {
@@ -79,7 +79,7 @@ class WarehouseLabelController extends AbstractController
      * @throws JsonException
      * @throws DeleteError
      */
-    #[CheckPermission(Permission::DELETE)]
+    #[CheckPermission([Permission::DELETE])]
     public function delete(
         ModelManager $modelManager,
         #[GetModels(Label::class)] array $labels
@@ -96,8 +96,8 @@ class WarehouseLabelController extends AbstractController
      * @throws ReflectionException
      * @throws SaveError
      */
-    #[CheckPermission(Permission::WRITE + Permission::MANAGE)]
-    public function saveTemplate(
+    #[CheckPermission([Permission::WRITE, Permission::MANAGE])]
+    public function postTemplate(
         ModelManager $modelManager,
         #[GetMappedModel] Template $template,
     ): AjaxResponse {
@@ -110,7 +110,7 @@ class WarehouseLabelController extends AbstractController
      * @throws JsonException
      * @throws DeleteError
      */
-    #[CheckPermission(Permission::DELETE + Permission::MANAGE)]
+    #[CheckPermission([Permission::DELETE, Permission::MANAGE])]
     public function deleteTemplates(
         ModelManager $modelManager,
         #[GetModels(Template::class)] array $templates
@@ -125,8 +125,8 @@ class WarehouseLabelController extends AbstractController
     /**
      * @throws SelectError
      */
-    #[CheckPermission(Permission::READ)]
-    public function generate(
+    #[CheckPermission([Permission::READ])]
+    public function postGenerate(
         LabelService $labelService,
         #[GetModel] Label $label,
         #[GetModel(['id' => 'moduleId'])] Module $module,
