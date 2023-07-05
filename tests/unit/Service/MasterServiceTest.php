@@ -3,11 +3,15 @@ declare(strict_types=1);
 
 namespace GibsonOS\Test\Unit\Hc\Service;
 
+use Codeception\Test\Unit;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Manager\ServiceManager;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Core\Service\LoggerService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Mapper\MasterMapper;
@@ -25,69 +29,50 @@ use GibsonOS\Module\Hc\Service\Module\AbstractModule;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\SenderService;
 use GibsonOS\Module\Hc\Service\TransformService;
-use GibsonOS\UnitTest\AbstractTest;
+use GibsonOS\Test\Unit\Core\ModelManagerTrait;
+use mysqlDatabase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
 
-class MasterServiceTest extends AbstractTest
+class MasterServiceTest extends Unit
 {
     use ProphecyTrait;
+    use ModelManagerTrait;
 
-    /**
-     * @var ObjectProphecy|SenderService
-     */
-    private $senderService;
+    private ObjectProphecy|SenderService $senderService;
 
-    /**
-     * @var ObjectProphecy|EventService
-     */
-    private $eventService;
+    private ObjectProphecy|EventService $eventService;
 
-    /**
-     * @var TransformService
-     */
-    private $transformService;
+    private TransformService $transformService;
 
-    /**
-     * @var ObjectProphecy|ModuleRepository
-     */
-    private $moduleRepository;
+    private ObjectProphecy|ModuleRepository $moduleRepository;
 
-    /**
-     * @var ObjectProphecy|TypeRepository
-     */
-    private $typeRepository;
+    private ObjectProphecy|TypeRepository $typeRepository;
 
-    /**
-     * @var ObjectProphecy|ModuleFactory
-     */
-    private $slaveFactory;
+    private ObjectProphecy|ModuleFactory $slaveFactory;
 
-    /**
-     * @var LogRepository
-     */
-    private $logRepository;
+    private ServiceManager $serviceManager;
 
-    /**
-     * @var MasterService
-     */
-    private $masterService;
+    private MasterService $masterService;
 
-    /**
-     * @var ObjectProphecy|MasterRepository
-     */
-    private $masterRepository;
+    private ObjectProphecy|MasterRepository $masterRepository;
 
     protected function _before(): void
     {
+        $this->loadModelManager();
         $this->senderService = $this->prophesize(SenderService::class);
         $this->transformService = new TransformService();
         $this->slaveFactory = $this->prophesize(ModuleFactory::class);
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
+        $this->serviceManager = new ServiceManager();
+        $this->serviceManager->setInterface(LoggerInterface::class, LoggerService::class);
+        $this->serviceManager->setService(mysqlDatabase::class, $this->mysqlDatabase->reveal());
+        $this->serviceManager->setService(ModelManager::class, $this->modelManager->reveal());
+
         $this->masterService = new MasterService(
             $this->senderService->reveal(),
             $this->slaveFactory->reveal(),

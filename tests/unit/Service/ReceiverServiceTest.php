@@ -3,7 +3,11 @@ declare(strict_types=1);
 
 namespace GibsonOS\Test\Unit\Hc\Service;
 
+use Codeception\Test\Unit;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Manager\ServiceManager;
+use GibsonOS\Core\Service\LoggerService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Model\Master;
@@ -11,40 +15,38 @@ use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\ReceiverService;
-use GibsonOS\UnitTest\AbstractTest;
+use GibsonOS\Test\Unit\Core\ModelManagerTrait;
+use mysqlDatabase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
 
-class ReceiverServiceTest extends AbstractTest
+class ReceiverServiceTest extends Unit
 {
     use ProphecyTrait;
+    use ModelManagerTrait;
 
-    /**
-     * @var ObjectProphecy|MasterService
-     */
-    private $masterService;
+    private ObjectProphecy|MasterService $masterService;
 
-    /**
-     * @var ObjectProphecy|MasterMapper
-     */
-    private $masterMapper;
+    private ObjectProphecy|MasterMapper $masterMapper;
 
-    /**
-     * @var ObjectProphecy|MasterRepository
-     */
-    private $masterRepository;
+    private ObjectProphecy|MasterRepository $masterRepository;
 
-    /**
-     * @var ReceiverService
-     */
-    private $receiverService;
+    private ReceiverService $receiverService;
+
+    private ServiceManager $serviceManager;
 
     protected function _before(): void
     {
+        $this->loadModelManager();
         $this->masterService = $this->prophesize(MasterService::class);
         $this->masterMapper = $this->prophesize(MasterMapper::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
+        $this->serviceManager = new ServiceManager();
+        $this->serviceManager->setInterface(LoggerInterface::class, LoggerService::class);
+        $this->serviceManager->setService(mysqlDatabase::class, $this->mysqlDatabase->reveal());
+        $this->serviceManager->setService(ModelManager::class, $this->modelManager->reveal());
+
         $this->receiverService = new ReceiverService(
             $this->masterService->reveal(),
             $this->masterMapper->reveal(),

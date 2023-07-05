@@ -3,9 +3,12 @@ declare(strict_types=1);
 
 namespace GibsonOS\Test\Unit\Hc\Service\Slave;
 
+use Codeception\Test\Unit;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Manager\ServiceManager;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Core\Service\LoggerService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Model\Log;
@@ -20,62 +23,42 @@ use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\Module\AbstractModule;
 use GibsonOS\Module\Hc\Service\TransformService;
-use GibsonOS\UnitTest\AbstractTest;
+use GibsonOS\Test\Unit\Core\ModelManagerTrait;
+use mysqlDatabase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
 
-class AbstractHcSlaveTest extends AbstractTest
+class AbstractHcModuleTest extends Unit
 {
     use ProphecyTrait;
+    use ModelManagerTrait;
 
-    /**
-     * @var AbstractHcModule
-     */
-    private $abstractHcSlave;
+    private AbstractHcModule $abstractHcSlave;
 
-    /**
-     * @var ObjectProphecy|MasterService
-     */
-    private $masterService;
+    private ObjectProphecy|MasterService $masterService;
 
     private TransformService $transformService;
 
     private EventService $eventService;
 
-    /**
-     * @var ObjectProphecy|ModuleRepository
-     */
-    private $moduleRepository;
+    private ObjectProphecy|ModuleRepository $moduleRepository;
 
-    /**
-     * @var ObjectProphecy|TypeRepository
-     */
-    private $typeRepository;
+    private ObjectProphecy|TypeRepository $typeRepository;
 
-    /**
-     * @var ObjectProphecy|MasterRepository
-     */
-    private $masterRepository;
+    private ObjectProphecy|MasterRepository $masterRepository;
 
     private ModuleFactory $moduleFactory;
 
-    /**
-     * @var ObjectProphecy|Module
-     */
-    private $slave;
+    private ObjectProphecy|Module $slave;
 
-    /**
-     * @var ObjectProphecy|LogRepository
-     */
-    private $logRepository;
+    private ObjectProphecy|LogRepository $logRepository;
 
-    /**
-     * @var ObjectProphecy|Master
-     */
-    private $master;
+    private ObjectProphecy|Master $master;
 
     private LoggerInterface $logger;
+
+    private ServiceManager $serviceManager;
 
     protected function _before(): void
     {
@@ -90,6 +73,10 @@ class AbstractHcSlaveTest extends AbstractTest
         $this->logger = $this->serviceManager->get(LoggerInterface::class);
         $this->slave = $this->prophesize(Module::class);
         $this->master = $this->prophesize(Master::class);
+        $this->serviceManager = new ServiceManager();
+        $this->serviceManager->setInterface(LoggerInterface::class, LoggerService::class);
+        $this->serviceManager->setService(mysqlDatabase::class, $this->mysqlDatabase->reveal());
+        $this->serviceManager->setService(ModelManager::class, $this->modelManager->reveal());
 
         $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService, $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->moduleFactory->reveal(), $this->logger, $this->modelManager->reveal(), $this->slave->reveal()) extends AbstractHcModule {
             private Module $module;

@@ -8,10 +8,7 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 class TransformServiceTest extends Unit
 {
-    /**
-     * @var TransformService
-     */
-    private $transformService;
+    private TransformService $transformService;
 
     protected function _before(): void
     {

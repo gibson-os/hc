@@ -3,10 +3,14 @@ declare(strict_types=1);
 
 namespace GibsonOS\Test\Unit\Hc\Service\Slave;
 
+use Codeception\Test\Unit;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Manager\ServiceManager;
 use GibsonOS\Core\Service\DevicePushService;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Core\Service\LoggerService;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Mapper\Io\DirectConnectMapper;
 use GibsonOS\Module\Hc\Mapper\Io\PortMapper;
@@ -24,60 +28,38 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
-use GibsonOS\UnitTest\AbstractTest;
+use GibsonOS\Test\Unit\Core\ModelManagerTrait;
+use mysqlDatabase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
 
-class IoServiceTest extends AbstractTest
+class IoServiceTest extends Unit
 {
     use ProphecyTrait;
+    use ModelManagerTrait;
 
-    /**
-     * @var IoService
-     */
-    private $ioService;
+    private IoService $ioService;
 
-    /**
-     * @var ObjectProphecy|MasterService
-     */
-    private $masterService;
+    private ObjectProphecy|MasterService $masterService;
 
     private TransformService $transformService;
 
     private EventService $eventService;
 
-    /**
-     * @var ObjectProphecy|ModuleRepository
-     */
-    private $moduleRepository;
+    private ObjectProphecy|ModuleRepository $moduleRepository;
 
-    /**
-     * @var ObjectProphecy|TypeRepository
-     */
-    private $typeRepository;
+    private ObjectProphecy|TypeRepository $typeRepository;
 
-    /**
-     * @var ObjectProphecy|MasterRepository
-     */
-    private $masterRepository;
+    private ObjectProphecy|MasterRepository $masterRepository;
 
     private ModuleFactory $moduleFactory;
 
-    /**
-     * @var ObjectProphecy|Module
-     */
-    private $module;
+    private ObjectProphecy|Module $module;
 
-    /**
-     * @var ObjectProphecy|LogRepository
-     */
-    private $logRepository;
+    private ObjectProphecy|LogRepository $logRepository;
 
-    /**
-     * @var ObjectProphecy|Master
-     */
-    private $master;
+    private ObjectProphecy|Master $master;
 
     private ObjectProphecy|PortRepository $portRepository;
 
@@ -85,9 +67,16 @@ class IoServiceTest extends AbstractTest
 
     private ObjectProphecy|DevicePushService $devicePushService;
 
+    private ServiceManager $serviceManager;
+
     protected function _before(): void
     {
+        $this->loadModelManager();
         $this->masterService = $this->prophesize(MasterService::class);
+        $this->serviceManager = new ServiceManager();
+        $this->serviceManager->setInterface(LoggerInterface::class, LoggerService::class);
+        $this->serviceManager->setService(mysqlDatabase::class, $this->mysqlDatabase->reveal());
+        $this->serviceManager->setService(ModelManager::class, $this->modelManager->reveal());
         $this->transformService = $this->serviceManager->get(TransformService::class);
         $this->eventService = $this->serviceManager->get(EventService::class);
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);

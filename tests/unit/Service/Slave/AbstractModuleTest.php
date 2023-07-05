@@ -3,7 +3,10 @@ declare(strict_types=1);
 
 namespace GibsonOS\Test\Unit\Hc\Service\Slave;
 
+use Codeception\Test\Unit;
 use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Manager\ServiceManager;
+use GibsonOS\Core\Service\LoggerService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
@@ -12,12 +15,11 @@ use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Module\AbstractModule;
 use GibsonOS\Module\Hc\Service\TransformService;
-use GibsonOS\UnitTest\AbstractTest;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
 
-class AbstractSlaveTest extends AbstractTest
+class AbstractSlaveTest extends Unit
 {
     use ProphecyTrait;
 
@@ -31,9 +33,13 @@ class AbstractSlaveTest extends AbstractTest
 
     private Module $module;
 
+    private ServiceManager $serviceManager;
+
     protected function _before(): void
     {
         $this->masterService = $this->prophesize(MasterService::class);
+        $this->serviceManager = new ServiceManager();
+        $this->serviceManager->setInterface(LoggerInterface::class, LoggerService::class);
         $this->serviceManager->setService(MasterService::class, $this->masterService->reveal());
         $this->transformService = $this->serviceManager->get(TransformService::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
@@ -50,7 +56,7 @@ class AbstractSlaveTest extends AbstractTest
 
             public function handshake(Module $slave): Module
             {
-                return $this->slave;
+                return $this->module;
             }
         };
     }

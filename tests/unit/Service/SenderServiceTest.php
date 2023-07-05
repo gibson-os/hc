@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Test\Unit\Hc\Service;
 
+use Codeception\Test\Unit;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\ProtocolFactory;
@@ -10,28 +11,18 @@ use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\SenderService;
-use GibsonOS\UnitTest\AbstractTest;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
-class SenderServiceTest extends AbstractTest
+class SenderServiceTest extends Unit
 {
     use ProphecyTrait;
 
-    /**
-     * @var SenderService
-     */
-    private $senderService;
+    private SenderService $senderService;
 
-    /**
-     * @var ObjectProphecy|MasterMapper
-     */
-    private $masterMapper;
+    private ObjectProphecy|MasterMapper $masterMapper;
 
-    /**
-     * @var ObjectProphecy|ProtocolFactory
-     */
-    private $protocolFactory;
+    private ObjectProphecy|ProtocolFactory $protocolFactory;
 
     protected function _before(): void
     {
