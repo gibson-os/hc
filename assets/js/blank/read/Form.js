@@ -22,7 +22,8 @@ Ext.define('GibsonOS.module.hc.blank.read.Form', {
             handler: function() {
                 me.getForm().submit({
                     xtype: 'gosFormActionAction',
-                    url: baseDir + 'hc/blank/read',
+                    url: baseDir + 'hc/blank',
+                    method: 'GET',
                     params: {
                         moduleId: me.gos.data.module.id
                     },

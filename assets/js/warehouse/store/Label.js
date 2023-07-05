@@ -8,7 +8,8 @@ Ext.define('GibsonOS.module.hc.warehouse.store.Label', {
 
         me.proxy = {
             type: 'gosDataProxyAjax',
-            url: baseDir + 'hc/warehouseLabel/index'
+            url: baseDir + 'hc/warehouseLabel',
+            method: 'GET'
         };
 
         me.callParent(arguments);

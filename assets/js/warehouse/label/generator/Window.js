@@ -7,7 +7,8 @@ Ext.define('GibsonOS.module.hc.warehouse.label.generator.Window', {
     requiredPermission: {
         module: 'hc',
         task: 'warehouse',
-        action: 'generate'
+        action: 'generate',
+        method: 'GET'
     },
     initComponent() {
         const me = this;

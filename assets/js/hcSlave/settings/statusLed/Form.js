@@ -2,7 +2,8 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.statusLed.Form', {
     extend: 'GibsonOS.form.Panel',
     alias: ['widget.gosModuleHcHcSlaveSettingsStatusLedForm'],
     requiredPermission: {
-        action: 'getStatusLeds',
+        action: 'statusLeds',
+        method: 'GET',
         permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.READ
     },
     initComponent: function() {
@@ -17,13 +18,15 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.statusLed.Form', {
         me.buttons = [{
             text: 'Speichern',
             requiredPermission: {
-                action: 'setStatusLeds',
+                action: 'statusLeds',
+                method: 'POST',
                 permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.WRITE
             },
             handler: function() {
                 me.getForm().submit({
                     xtype: 'gosFormActionAction',
-                    url: baseDir + 'hc/hcSlave/setStatusLeds',
+                    url: baseDir + 'hc/hcSlave/statusLeds',
+                    method: 'POST',
                     params: {
                         moduleId: me.gos.data.module.id
                     },
@@ -46,7 +49,8 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.statusLed.Form', {
         me.on('render', function() {
             me.load({
                 xtype: 'gosFormActionAction',
-                url: baseDir + 'hc/hcSlave/getStatusLeds',
+                url: baseDir + 'hc/hcSlave/statusLeds',
+                method: 'GET',
                 params: {
                     moduleId: me.gos.data.module.id
                 },

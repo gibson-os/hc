@@ -8,7 +8,8 @@ Ext.define('GibsonOS.module.hc.neopixel.store.Animation', {
 
         me.proxy = {
             type: 'gosDataProxyAjax',
-            url: baseDir + 'hc/neopixelAnimation/index',
+            url: baseDir + 'hc/neopixelAnimation',
+            method: 'GET'
         };
 
         me.callParent(arguments);

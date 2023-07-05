@@ -5,7 +5,8 @@ Ext.define('GibsonOS.module.hc.index.store.Type', {
     pageSize: 100,
     proxy: {
         type: 'gosDataProxyAjax',
-        url: baseDir + 'hc/type/index'
+        url: baseDir + 'hc/type',
+        method: 'GET'
     },
     model: 'GibsonOS.module.hc.index.model.Type'
 });

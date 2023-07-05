@@ -23,7 +23,8 @@ Ext.define('GibsonOS.module.hc.ssd1306.Panel', {
                     me.setLoading(true);
 
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/ssd1306/displayOn',
+                        url: baseDir + 'hc/ssd1306/on',
+                        method: 'POST',
                         params:  {
                             moduleId: me.hcModuleId,
                             on: pressed

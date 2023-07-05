@@ -9,7 +9,7 @@ Ext.define('GibsonOS.module.hc.bme280.App', {
         var me = this;
 
         me.dataUpdateActive = true;
-        me.dataUrl = baseDir + 'hc/bme280/status';
+        me.dataUrl = baseDir + 'hc/bme280';
         me.dataParams = {
             moduleId: me.gos.data.module.id
         };

@@ -287,6 +287,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
                         GibsonOS.Ajax.request({
                             url: baseDir + 'hc/neopixelAnimation/send',
+                            method: 'POST',
                             params: {
                                 id: saved ? me.down('#hcNeopixelAnimationPanelAnimationAutoComplete').getValue() : 0,
                                 moduleId: me.hcModuleId,
@@ -315,6 +316,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
                         GibsonOS.Ajax.request({
                             url: baseDir + 'hc/neopixelAnimation/start',
+                            method: 'POST',
                             params: {
                                 moduleId: me.hcModuleId,
                                 iterations: me.down('#hcNeopixelAnimationPanelAnimationIterations').getValue()
@@ -337,6 +339,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
                         GibsonOS.Ajax.request({
                             url: baseDir + 'hc/neopixelAnimation/play',
+                            method: 'POST',
                             params: {
                                 id: saved ? me.down('#hcNeopixelAnimationPanelAnimationAutoComplete').getValue() : 0,
                                 moduleId: me.hcModuleId,
@@ -364,6 +367,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
                     GibsonOS.Ajax.request({
                         url: baseDir + 'hc/neopixelAnimation/pause',
+                        method: 'POST',
                         params: {
                             moduleId: me.hcModuleId
                         },
@@ -386,6 +390,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
                     GibsonOS.Ajax.request({
                         url: baseDir + 'hc/neopixelAnimation/stop',
+                        method: 'POST',
                         params: {
                             moduleId: me.hcModuleId
                         },
@@ -410,6 +415,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             addToContainerContextMenu: false,
             requiredPermission: {
                 action: 'list',
+                method: 'GET',
                 permission: GibsonOS.Permission.READ
             },
             parameterObject: {
@@ -428,6 +434,7 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
 
                     GibsonOS.Ajax.request({
                         url: baseDir + 'hc/neopixelAnimation/load',
+                        method: 'GET',
                         params: {
                             moduleId: me.hcModuleId,
                             id: records[0].get('id'),
@@ -473,14 +480,16 @@ Ext.define('GibsonOS.module.hc.neopixel.animation.Panel', {
             addToItemContextMenu: false,
             addToContainerContextMenu: false,
             requiredPermission: {
-                action: 'save',
+                action: '',
+                method: 'POST',
                 permission: GibsonOS.Permission.WRITE
             },
             save(name, callback = null) {
                 me.setLoading(true);
 
                 GibsonOS.Ajax.request({
-                    url: baseDir + 'hc/neopixelAnimation/save',
+                    url: baseDir + 'hc/neopixelAnimation',
+                    method: 'POST',
                     params: {
                         moduleId: me.hcModuleId,
                         name: name,

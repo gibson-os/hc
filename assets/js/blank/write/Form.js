@@ -25,7 +25,8 @@ Ext.define('GibsonOS.module.hc.blank.write.Form', {
             handler: function() {
                 me.getForm().submit({
                     xtype: 'gosFormActionAction',
-                    url: baseDir + 'hc/blank/write',
+                    url: baseDir + 'hc/blank',
+                    method: 'POST',
                     params: {
                         moduleId: me.gos.data.module.id
                     },

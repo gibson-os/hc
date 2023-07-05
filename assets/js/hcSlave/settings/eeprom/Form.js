@@ -3,6 +3,7 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.eeprom.Form', {
     alias: ['widget.gosModuleHcHcSlaveSettingsEepromForm'],
     requiredPermission: {
         action: 'eepromSettings',
+        method: 'GET',
         permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.READ
     },
     initComponent: function () {
@@ -25,13 +26,15 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.eeprom.Form', {
         me.buttons = [{
             text: 'Speichern',
             requiredPermission: {
-                action: 'saveEepromSettings',
+                action: 'eepromSettings',
+                method: 'POST',
                 permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.WRITE
             },
             handler: function () {
                 me.getForm().submit({
                     xtype: 'gosFormActionAction',
-                    url: baseDir + 'hc/hcSlave/saveEepromSettings',
+                    url: baseDir + 'hc/hcSlave/eepromSettings',
+                    method: 'POST',
                     params: {
                         moduleId: me.gos.data.module.id
                     },
@@ -50,7 +53,8 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.eeprom.Form', {
         },{
             text: 'Formatieren',
             requiredPermission: {
-                action: 'eraseEeprom',
+                action: 'eeprom',
+                method: 'DELETE',
                 permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.DELETE
             },
             handler: function() {
@@ -62,7 +66,8 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.eeprom.Form', {
                         text: 'Ja',
                         handler: function() {
                             GibsonOS.Ajax.request({
-                                url: baseDir + 'hc/hcSlave/eraseEeprom',
+                                url: baseDir + 'hc/hcSlave/eeprom',
+                                method: 'DELETE',
                                 params:  {
                                     moduleId: me.gos.data.module.id
                                 },
@@ -91,6 +96,7 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.eeprom.Form', {
             me.load({
                 xtype: 'gosFormActionAction',
                 url: baseDir + 'hc/hcSlave/eepromSettings',
+                method: 'GET',
                 params: {
                     moduleId: me.gos.data.module.id
                 }

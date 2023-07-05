@@ -126,7 +126,7 @@ class WarehouseLabelController extends AbstractController
      * @throws SelectError
      */
     #[CheckPermission([Permission::READ])]
-    public function postGenerate(
+    public function getGenerate(
         LabelService $labelService,
         #[GetModel] Label $label,
         #[GetModel(['id' => 'moduleId'])] Module $module,

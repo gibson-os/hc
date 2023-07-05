@@ -9,6 +9,7 @@ Ext.define('GibsonOS.module.hc.warehouse.store.cart.Item', {
         me.proxy = {
             type: 'gosDataProxyAjax',
             url: baseDir + 'hc/warehouseCart/items',
+            method: 'GET',
             extraParams: {
                 id: data.cartId
             }

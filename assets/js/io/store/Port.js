@@ -9,6 +9,7 @@ Ext.define('GibsonOS.module.hc.io.store.Port', {
         me.proxy = {
             type: 'gosDataProxyAjax',
             url: baseDir + 'hc/io/ports',
+            method: 'GET',
             extraParams: {
                 moduleId: data.gos.data.module.id
             }

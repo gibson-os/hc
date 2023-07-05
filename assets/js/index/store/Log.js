@@ -5,7 +5,8 @@ Ext.define('GibsonOS.module.hc.index.store.Log', {
     pageSize: 100,
     proxy: {
         type: 'gosDataProxyAjax',
-        url: baseDir + 'hc/index/log'
+        url: baseDir + 'hc/index/log',
+        method: 'GET',
     },
     model: 'GibsonOS.module.hc.index.model.Log'
 });

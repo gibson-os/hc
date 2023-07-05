@@ -20,7 +20,8 @@ Ext.define('GibsonOS.module.hc.ir.key.Grid', {
         me.setLoading(true);
 
         GibsonOS.Ajax.request({
-            url: baseDir + 'hc/ir/send',
+            url: baseDir + 'hc/ir',
+            method: 'POST',
             params:  {
                 moduleId: me.moduleId,
                 id: key.get('id')
@@ -49,7 +50,8 @@ Ext.define('GibsonOS.module.hc.ir.key.Grid', {
                     });
 
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/ir/deleteKeys',
+                        url: baseDir + 'hc/ir/keys',
+                        method: 'DELETE',
                         params: {
                             keys: Ext.encode(keys)
                         },

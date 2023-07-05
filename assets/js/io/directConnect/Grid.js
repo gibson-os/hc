@@ -80,7 +80,8 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                         me.setLoading(true);
 
                         GibsonOS.Ajax.request({
-                            url: baseDir + 'hc/ioDirectConnect/save',
+                            url: baseDir + 'hc/ioDirectConnect',
+                            method: 'POST',
                             params: {
                                 id: record.get('id'),
                                 moduleId: me.gos.data.module.id,
@@ -405,7 +406,8 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                                 me.setLoading(true);
 
                                 GibsonOS.Ajax.request({
-                                    url: baseDir + 'hc/ioDirectConnect/delete',
+                                    url: baseDir + 'hc/ioDirectConnect',
+                                    method: 'DELETE',
                                     params: {
                                         moduleId: me.gos.data.module.id,
                                         id: record.get('id')
@@ -464,6 +466,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
 
                                 GibsonOS.Ajax.request({
                                     url: baseDir + 'hc/ioDirectConnect/reset',
+                                    method: 'DELETE',
                                     params: {
                                         moduleId: me.gos.data.module.id,
                                         id: record.get('inputPort').id
@@ -499,6 +502,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
 
                     GibsonOS.Ajax.request({
                         url: baseDir + 'hc/ioDirectConnect/activate',
+                        method: 'POST',
                         params: {
                             moduleId: me.gos.data.module.id,
                             activate: pressed
@@ -530,7 +534,8 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
                     }
 
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/ioDirectConnect/read',
+                        url: baseDir + 'hc/ioDirectConnect',
+                        method: 'GET',
                         params:  {
                             moduleId: me.gos.data.module.id,
                             inputPort: port,
@@ -584,6 +589,7 @@ Ext.define('GibsonOS.module.hc.io.directConnect.Grid', {
 
                             GibsonOS.Ajax.request({
                                 url: baseDir + 'hc/ioDirectConnect/defragment',
+                                method: 'POST',
                                 params: {
                                     moduleId: me.gos.data.module.id
                                 },

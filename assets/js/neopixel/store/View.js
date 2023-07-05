@@ -8,7 +8,8 @@ Ext.define('GibsonOS.module.hc.neopixel.store.View', {
 
         me.proxy = {
             type: 'gosDataProxyAjax',
-            url: baseDir + 'hc/neopixel/index'
+            url: baseDir + 'hc/neopixel',
+            method: 'GET'
         };
 
         me.callParent(arguments);

@@ -42,7 +42,8 @@ Ext.define('GibsonOS.module.hc.warehouse.label.template.Panel', {
                 text: 'Ja',
                 handler: function() {
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/warehouseLabel/deleteTemplates',
+                        url: baseDir + 'hc/warehouseLabel/templates',
+                        method: 'DELETE',
                         params:  {
                             templates: Ext.encode(templates)
                         },
@@ -145,7 +146,8 @@ Ext.define('GibsonOS.module.hc.warehouse.label.template.Panel', {
 
                 me.down('form').submit({
                     xtype: 'gosFormActionAction',
-                    url: baseDir + 'hc/warehouseLabel/saveTemplate',
+                    url: baseDir + 'hc/warehouseLabel/template',
+                    method: 'POST',
                     success() {
                         me.viewItem.getStore().load();
                     }

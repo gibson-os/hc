@@ -72,7 +72,8 @@ Ext.define('GibsonOS.module.hc.ssd1306.View', {
             });
 
             GibsonOS.Ajax.request({
-                url: baseDir + 'hc/ssd1306/change',
+                url: baseDir + 'hc/ssd1306',
+                method: 'POST',
                 params:  {
                     moduleId: me.hcModuleId,
                     data: Ext.encode(data)

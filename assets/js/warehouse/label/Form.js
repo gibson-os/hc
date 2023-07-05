@@ -40,7 +40,8 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Form', {
             handler() {
                 me.getForm().submit({
                     xtype: 'gosFormActionAction',
-                    url: baseDir + 'hc/warehouseLabel/save',
+                    url: baseDir + 'hc/warehouseLabel',
+                    method: 'POST'
                 });
             }
         }];

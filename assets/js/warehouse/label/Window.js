@@ -7,7 +7,8 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Window', {
     requiredPermission: {
         module: 'hc',
         task: 'warehouse',
-        action: 'save'
+        action: '',
+        method: 'POST'
     },
     initComponent() {
         const me = this;

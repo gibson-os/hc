@@ -175,6 +175,7 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
                 iconCls: 'icon_system system_filter',
                 requiredPermission: {
                     action: 'log',
+                    method: 'GET',
                     permission: GibsonOS.Permission.READ
                 },
                 menu: [{
@@ -224,7 +225,8 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
                 iconCls: 'icon_system system_update',
                 disabled: true,
                 requiredPermission: {
-                    action: 'logSend',
+                    action: 'log',
+                    method: 'POST',
                     permission: GibsonOS.Permission.WRITE
                 },
                 handler: function() {
@@ -235,14 +237,15 @@ Ext.define('GibsonOS.module.hc.index.log.Grid', {
                     record = record[0];
 
                     GibsonOS.Ajax.request({
-                        url             : baseDir + 'hc/index/logSend',
-                        params          : {
-                            id              : record.get('id')
+                        url: baseDir + 'hc/index/log',
+                        method: 'POST',
+                        params: {
+                            id: record.get('id')
                         },
-                        success         : function() {
+                        success: function() {
                             btn.enable();
                         },
-                        failure         : function() {
+                        failure: function() {
                             btn.enable();
                             Ext.Msg.alert('Fehler!', 'Log Eintrag konnte nicht gesendet werden.');
                         }

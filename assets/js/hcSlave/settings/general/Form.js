@@ -3,6 +3,7 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.general.Form', {
     alias: ['widget.gosModuleHcHcSlaveSettingsGeneralForm'],
     requiredPermission: {
         action: 'generalSettings',
+        method: 'GET',
         permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.READ
     },
     initComponent: function () {
@@ -65,13 +66,15 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.general.Form', {
         me.buttons = [{
             text: 'Speichern',
             requiredPermission: {
-                action: 'saveGeneralSettings',
+                action: 'generalSettings',
+                method: 'POST',
                 permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.WRITE
             },
             handler: function() {
                 me.getForm().submit({
                     xtype: 'gosFormActionAction',
-                    url: baseDir + 'hc/hcSlave/saveGeneralSettings',
+                    url: baseDir + 'hc/hcSlave/GeneralSettings',
+                    method: 'POST',
                     params: {
                         moduleId: me.gos.data.module.id
                     },
@@ -91,6 +94,7 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.general.Form', {
             text: 'Neu starten',
             requiredPermission: {
                 action: 'restart',
+                method: 'POST',
                 permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.WRITE
             },
             handler: function() {
@@ -103,6 +107,7 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.general.Form', {
                         handler: function() {
                             GibsonOS.Ajax.request({
                                 url: baseDir + 'hc/hcSlave/restart',
+                                method: 'POST',
                                 params:  {
                                     moduleId: me.gos.data.module.id
                                 },
@@ -131,6 +136,7 @@ Ext.define('GibsonOS.module.hc.hcSlave.settings.general.Form', {
             me.load({
                 xtype: 'gosFormActionAction',
                 url: baseDir + 'hc/hcSlave/generalSettings',
+                method: 'GET',
                 params: {
                     moduleId: me.gos.data.module.id
                 },

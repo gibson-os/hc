@@ -42,7 +42,8 @@ Ext.define('GibsonOS.module.hc.ir.remote.Grid', {
                     });
 
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/ir/deleteRemotes',
+                        url: baseDir + 'hc/ir/remotes',
+                        method: 'DELETE',
                         params: {
                             remotes: Ext.encode(ids)
                         },

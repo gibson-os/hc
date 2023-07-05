@@ -191,7 +191,8 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
             addToContainerContextMenu: false,
             addToItemContextMenu: false,
             requiredPermission: {
-                action: 'saveRemote',
+                action: 'remote',
+                method: 'POST',
                 permission: GibsonOS.Permission.WRITE + GibsonOS.Permission.MANAGE
             },
             handler: function() {
@@ -203,7 +204,8 @@ Ext.define('GibsonOS.module.hc.ir.remote.Panel', {
                 });
 
                 GibsonOS.Ajax.request({
-                    url: baseDir + 'hc/ir/saveRemote',
+                    url: baseDir + 'hc/ir/remote',
+                    method: 'POST',
                     params: {
                         moduleId: me.moduleId,
                         id: me.remoteId ?? 0,

@@ -8,7 +8,8 @@ Ext.define('GibsonOS.module.hc.warehouse.store.Box', {
 
         me.proxy = {
             type: 'gosDataProxyAjax',
-            url: baseDir + 'hc/warehouse/index',
+            url: baseDir + 'hc/warehouse',
+            method: 'GET',
             extraParams: {
                 moduleId: data.moduleId
             }

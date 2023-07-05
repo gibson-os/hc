@@ -2,7 +2,8 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Form', {
     extend: 'GibsonOS.module.core.component.form.Panel',
     alias: ['widget.gosModuleHcWarehouseBoxForm'],
     requiredPermission: {
-        action: 'save',
+        action: '',
+        method: 'POST',
         permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.WRITE
     },
     initComponent() {

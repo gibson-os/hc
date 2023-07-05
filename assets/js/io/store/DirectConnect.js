@@ -8,7 +8,8 @@ Ext.define('GibsonOS.module.hc.io.store.DirectConnect', {
 
         me.proxy = {
             type: 'gosDataProxyAjax',
-            url: baseDir + 'hc/ioDirectConnect/index',
+            url: baseDir + 'hc/ioDirectConnect',
+            method: 'GET',
             extraParams: {
                 moduleId: data.gos.data.module.id
             }

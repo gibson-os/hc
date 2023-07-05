@@ -65,7 +65,8 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                             me.setLoading(true);
 
                             GibsonOS.Ajax.request({
-                                url: baseDir + 'hc/io/set',
+                                url: baseDir + 'hc/io',
+                                method: 'POST',
                                 params:  {
                                     moduleId: me.gos.data.module.id,
                                     id: record.get('id'),
@@ -125,6 +126,7 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
 
                 GibsonOS.Ajax.request({
                     url: baseDir + 'hc/io/toggle',
+                    method: 'POST',
                     params:  {
                         moduleId: me.gos.data.module.id,
                         id: record.get('id')
@@ -248,7 +250,8 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
             xtype: 'gosButton',
             text: 'Standard laden',
             requiredPermission: {
-                action: 'loadFromEeprom',
+                action: 'eeprom',
+                method: 'GET',
                 permission: GibsonOS.Permission.READ
             },
             handler: function () {
@@ -256,7 +259,8 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                 me.setLoading(true);
 
                 GibsonOS.Ajax.request({
-                    url: baseDir + 'hc/io/loadFromEeprom',
+                    url: baseDir + 'hc/io/eeprom',
+                    method: 'GET',
                     params:  {
                         moduleId: me.gos.data.module.id
                     },
@@ -274,7 +278,8 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
             xtype: 'gosButton',
             text: 'Als Standard setzen',
             requiredPermission: {
-                action: 'saveToEeprom',
+                action: 'eeprom',
+                method: 'POST',
                 permission: GibsonOS.Permission.WRITE
             },
             handler: function() {
@@ -282,7 +287,8 @@ Ext.define('GibsonOS.module.hc.io.port.Grid', {
                 me.setLoading(true);
 
                 GibsonOS.Ajax.request({
-                    url: baseDir + 'hc/io/saveToEeprom',
+                    url: baseDir + 'hc/io/eeprom',
+                    method: 'POST',
                     params:  {
                         moduleId: me.gos.data.module.id
                     },

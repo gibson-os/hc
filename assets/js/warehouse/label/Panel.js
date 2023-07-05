@@ -34,7 +34,8 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
                 text: 'Ja',
                 handler: function() {
                     GibsonOS.Ajax.request({
-                        url: baseDir + 'hc/warehouseLabel/delete',
+                        url: baseDir + 'hc/warehouseLabel',
+                        method: 'DELETE',
                         params:  {
                             labels: Ext.encode(labels)
                         },
@@ -124,7 +125,8 @@ Ext.define('GibsonOS.module.hc.warehouse.label.Panel', {
                 });
 
                 GibsonOS.Ajax.request({
-                    url: baseDir + 'hc/warehouseLabel/save',
+                    url: baseDir + 'hc/warehouseLabel',
+                    method: 'POST',
                     params:  {
                         id: label.get('id'),
                         name: label.get('name'),

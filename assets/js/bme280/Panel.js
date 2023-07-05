@@ -19,11 +19,13 @@ Ext.define('GibsonOS.module.hc.bme280.Panel', {
             text: 'Messen',
             requiredPermission: {
                 action: 'measure',
+                method: 'GET',
                 permission: GibsonOS.Permission.READ
             },
             handler: function() {
                 GibsonOS.Ajax.request({
                     url: baseDir + 'hc/bme280/measure',
+                    method: 'GET',
                     params:  {
                         moduleId: me.gos.data.module.id
                     },

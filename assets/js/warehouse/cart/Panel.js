@@ -43,7 +43,8 @@ Ext.define('GibsonOS.module.hc.warehouse.cart.Panel', {
                 });
 
                 GibsonOS.Ajax.request({
-                    url: baseDir + 'hc/warehouseCart/save',
+                    url: baseDir + 'hc/warehouseCart',
+                    method: 'POST',
                     params:  {
                         id: me.cartId ?? 0,
                         name: me.down('form').getForm().findField('name').getValue(),

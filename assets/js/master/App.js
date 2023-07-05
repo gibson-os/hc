@@ -46,6 +46,7 @@ Ext.define('GibsonOS.module.hc.master.App', {
         if (me.master.offline) {
             GibsonOS.Ajax.request({
                 url: baseDir + 'hc/index/lastLog',
+                method: 'GET',
                 params: {
                     masterId: me.master.id,
                     direction: 'INPUT'

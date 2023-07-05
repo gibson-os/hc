@@ -7,7 +7,8 @@ Ext.define('GibsonOS.module.hc.ssd1306.store.View', {
 
         me.proxy = {
             type: 'gosDataProxyAjax',
-            url: baseDir + 'hc/ssd1306/index'
+            url: baseDir + 'hc/ssd1306',
+            method: 'GET'
         };
 
         me.callParent(arguments);

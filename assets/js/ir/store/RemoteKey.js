@@ -10,6 +10,7 @@ Ext.define('GibsonOS.module.hc.ir.store.RemoteKey', {
         me.proxy = {
             type: 'gosDataProxyAjax',
             url: baseDir + 'hc/ir/remote',
+            method: 'GET',
             extraParams: {
                 id: data.remoteId
             },

@@ -2,7 +2,8 @@ Ext.define('GibsonOS.module.hc.module.add.Form', {
     extend: 'GibsonOS.module.core.component.form.Panel',
     alias: ['widget.gosModuleHcModuleAddForm'],
     requiredPermission: {
-        action: 'add',
+        action: '',
+        method: 'POST',
         permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.READ
     },
     initComponent() {
@@ -51,7 +52,8 @@ Ext.define('GibsonOS.module.hc.module.add.Form', {
             handler() {
                 me.getForm().submit({
                     xtype: 'gosFormActionAction',
-                    url: baseDir + 'hc/module/add',
+                    url: baseDir + 'hc/module',
+                    method: 'POST',
                     success: function () {
                         // @todo close window on success
                         GibsonOS.MessageBox.show({

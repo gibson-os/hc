@@ -2,7 +2,8 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
     extend: 'GibsonOS.module.core.component.form.Panel',
     alias: ['widget.gosModuleHcIrKeyForm'],
     requiredPermission: {
-        action: 'addKey',
+        action: 'key',
+        method: 'POST',
         permission: GibsonOS.Permission.MANAGE + GibsonOS.Permission.WRITE
     },
     lastLogId: null,
@@ -38,7 +39,8 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
             handler: function() {
                 me.getForm().submit({
                     xtype: 'gosFormActionAction',
-                    url: baseDir + 'hc/ir/addKey',
+                    url: baseDir + 'hc/ir/key',
+                    method: 'POST',
                     params: {
                         id: me.keyId ?? 0,
                         address: me.getForm().findField('address').getValue(),
@@ -83,6 +85,7 @@ Ext.define('GibsonOS.module.hc.ir.key.Form', {
         const runRequest = function() {
             GibsonOS.Ajax.request({
                 url: baseDir + 'hc/ir/waitForKey',
+                method: 'GET',
                 params: {
                     moduleId: me.moduleId,
                     lastLogId: me.lastLogId

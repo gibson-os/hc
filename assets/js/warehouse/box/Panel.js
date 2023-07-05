@@ -70,6 +70,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
 
                 GibsonOS.Ajax.request({
                     url: baseDir + 'hc/warehouse/show',
+                    method: 'POST',
                     params:  {
                         moduleId: me.moduleId,
                         id: record.get('id')
@@ -117,7 +118,7 @@ Ext.define('GibsonOS.module.hc.warehouse.box.Panel', {
                 formData.append('boxes', Ext.encode(boxes));
 
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', baseDir + 'hc/warehouse/save');
+                xhr.open('POST', baseDir + 'hc/warehouse');
                 xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                 xhr.upload.onprogress = function(uploadEvent) {
                     // if (options.progress) {

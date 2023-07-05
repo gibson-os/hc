@@ -102,6 +102,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             addToContainerContextMenu: false,
             requiredPermission: {
                 action: 'images',
+                method: 'GET',
                 permission: GibsonOS.Permission.READ
             },
             parameterObject: {
@@ -147,7 +148,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
             addToItemContextMenu: false,
             addToContainerContextMenu: false,
             requiredPermission: {
-                action: 'saveImage',
+                action: 'image',
+                method: 'POST',
                 permission: GibsonOS.Permission.WRITE
             },
             save: name => {
@@ -169,7 +171,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
                 });
 
                 GibsonOS.Ajax.request({
-                    url: baseDir + 'hc/neopixel/saveImage',
+                    url: baseDir + 'hc/neopixel/image',
+                    method: 'POST',
                     params: {
                         moduleId: me.hcModuleId,
                         name: name,
@@ -492,7 +495,8 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
         });
 
         GibsonOS.Ajax.request({
-            url: baseDir + 'hc/neopixel/setLeds',
+            url: baseDir + 'hc/neopixel/leds',
+            method: 'POST',
             params: {
                 moduleId: me.hcModuleId,
                 leds: Ext.encode(leds)
@@ -521,6 +525,7 @@ Ext.define('GibsonOS.module.hc.neopixel.led.Panel', {
 
         GibsonOS.Ajax.request({
             url: baseDir + 'hc/neopixel/showLeds',
+            method: 'POST',
             params: {
                 moduleId: me.hcModuleId,
                 leds: Ext.encode(paramLeds)

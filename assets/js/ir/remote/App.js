@@ -40,7 +40,8 @@ Ext.define('GibsonOS.module.hc.ir.remote.App', {
             });
 
             GibsonOS.Ajax.request({
-                url: baseDir + 'hc/ir/sendButton',
+                url: baseDir + 'hc/ir/button',
+                method: 'POST',
                 params:  {
                     moduleId: me.moduleId,
                     id: record.get('id')
