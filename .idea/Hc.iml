@@ -113,6 +113,18 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/captainhook/captainhook" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/guzzlehttp/psr7" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpmailer/phpmailer" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/google/protobuf" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/open-telemetry/api" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/open-telemetry/context" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/open-telemetry/exporter-otlp" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/open-telemetry/gen-otlp-protobuf" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/open-telemetry/sdk" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/open-telemetry/sem-conv" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/php-http/discovery" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/php-http/guzzle7-adapter" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/php-http/httplug" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/php-http/promise" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/polyfill-php82" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -161,6 +161,18 @@
       <path value="$PROJECT_DIR$/vendor/captainhook/captainhook" />
       <path value="$PROJECT_DIR$/vendor/guzzlehttp/psr7" />
       <path value="$PROJECT_DIR$/vendor/phpmailer/phpmailer" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php82" />
+      <path value="$PROJECT_DIR$/vendor/php-http/httplug" />
+      <path value="$PROJECT_DIR$/vendor/php-http/guzzle7-adapter" />
+      <path value="$PROJECT_DIR$/vendor/php-http/discovery" />
+      <path value="$PROJECT_DIR$/vendor/open-telemetry/exporter-otlp" />
+      <path value="$PROJECT_DIR$/vendor/open-telemetry/context" />
+      <path value="$PROJECT_DIR$/vendor/open-telemetry/api" />
+      <path value="$PROJECT_DIR$/vendor/php-http/promise" />
+      <path value="$PROJECT_DIR$/vendor/google/protobuf" />
+      <path value="$PROJECT_DIR$/vendor/open-telemetry/sem-conv" />
+      <path value="$PROJECT_DIR$/vendor/open-telemetry/sdk" />
+      <path value="$PROJECT_DIR$/vendor/open-telemetry/gen-otlp-protobuf" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2">

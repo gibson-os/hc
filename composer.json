@@ -2,7 +2,7 @@
   "name": "gibson-os/hc",
   "require": {
     "php": " ^8.2",
-    "gibson-os/core": "^2.0.0",
+    "gibson-os/core": "^1.3.13.0.0",
     "ext-mbstring": "*",
     "ext-json": "*",
     "chillerlan/php-qrcode": "^4.3",
@@ -47,7 +47,8 @@
   "config": {
     "allow-plugins": {
       "composer/package-versions-deprecated": true,
-      "captainhook/plugin-composer": true
+      "captainhook/plugin-composer": true,
+      "php-http/discovery": true
     }
   }
 }
