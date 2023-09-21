@@ -6,6 +6,9 @@ namespace GibsonOS\Module\Hc\Store;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Type;
 
+/**
+ * @extends AbstractDatabaseStore<Type>
+ */
 class TypeStore extends AbstractDatabaseStore
 {
     protected function getModelClassName(): string

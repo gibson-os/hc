@@ -11,12 +11,17 @@ use GibsonOS\Module\Hc\Model\Warehouse\Cart;
 use GibsonOS\Module\Hc\Model\Warehouse\Cart\Item;
 use mysqlDatabase;
 
+/**
+ * @extends AbstractDatabaseStore<Item>
+ */
 class ItemStore extends AbstractDatabaseStore
 {
     public function __construct(
         mysqlDatabase $database = null,
-        #[GetTableName(Item::class)] private string $itemTableName,
-        #[GetTableName(BoxItem::class)] private string $boxItemTableName,
+        #[GetTableName(Item::class)]
+        private string $itemTableName,
+        #[GetTableName(BoxItem::class)]
+        private string $boxItemTableName,
     ) {
         parent::__construct($database);
     }

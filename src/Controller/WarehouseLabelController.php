@@ -68,7 +68,8 @@ class WarehouseLabelController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function post(
         ModelManager $modelManager,
-        #[GetMappedModel] Label $label,
+        #[GetMappedModel]
+        Label $label,
     ): AjaxResponse {
         $modelManager->save($label);
 
@@ -82,7 +83,8 @@ class WarehouseLabelController extends AbstractController
     #[CheckPermission([Permission::DELETE])]
     public function delete(
         ModelManager $modelManager,
-        #[GetModels(Label::class)] array $labels
+        #[GetModels(Label::class)]
+        array $labels
     ): AjaxResponse {
         foreach ($labels as $label) {
             $modelManager->delete($label);
@@ -99,7 +101,8 @@ class WarehouseLabelController extends AbstractController
     #[CheckPermission([Permission::WRITE, Permission::MANAGE])]
     public function postTemplate(
         ModelManager $modelManager,
-        #[GetMappedModel] Template $template,
+        #[GetMappedModel]
+        Template $template,
     ): AjaxResponse {
         $modelManager->save($template);
 
@@ -113,7 +116,8 @@ class WarehouseLabelController extends AbstractController
     #[CheckPermission([Permission::DELETE, Permission::MANAGE])]
     public function deleteTemplates(
         ModelManager $modelManager,
-        #[GetModels(Template::class)] array $templates
+        #[GetModels(Template::class)]
+        array $templates
     ): AjaxResponse {
         foreach ($templates as $template) {
             $modelManager->delete($template);
@@ -128,9 +132,12 @@ class WarehouseLabelController extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function getGenerate(
         LabelService $labelService,
-        #[GetModel] Label $label,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModels(Item::class)] array $items,
+        #[GetModel]
+        Label $label,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetModels(Item::class)]
+        array $items,
         int $columnOffset = 0,
         int $rowOffset = 0,
     ): FileResponse {

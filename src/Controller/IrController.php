@@ -72,7 +72,8 @@ class IrController extends AbstractController
     #[CheckPermission([Permission::MANAGE, Permission::WRITE])]
     public function postKey(
         ModelManager $modelManager,
-        #[GetMappedModel] Key $key,
+        #[GetMappedModel]
+        Key $key,
         string $name,
     ): AjaxResponse {
         $key->unloadNames();
@@ -91,7 +92,8 @@ class IrController extends AbstractController
     #[CheckPermission([Permission::MANAGE, Permission::DELETE])]
     public function deleteKeys(
         ModelManager $modelManager,
-        #[GetModels(Key::class)] array $keys,
+        #[GetModels(Key::class)]
+        array $keys,
     ): AjaxResponse {
         foreach ($keys as $key) {
             $modelManager->delete($key);
@@ -176,8 +178,10 @@ class IrController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function post(
         IrService $irService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModel] Key $key
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetModel]
+        Key $key
     ): AjaxResponse {
         $irService->sendKeys($module, [$key]);
 
@@ -219,7 +223,8 @@ class IrController extends AbstractController
     #[CheckPermission([Permission::WRITE, Permission::MANAGE])]
     public function postRemote(
         ModelManager $modelManager,
-        #[GetMappedModel] Remote $remote,
+        #[GetMappedModel]
+        Remote $remote,
     ): AjaxResponse {
         $modelManager->save($remote);
 
@@ -235,7 +240,8 @@ class IrController extends AbstractController
     #[CheckPermission([Permission::DELETE, Permission::MANAGE])]
     public function deleteRemotes(
         ModelManager $modelManager,
-        #[GetModels(Remote::class)] array $remotes
+        #[GetModels(Remote::class)]
+        array $remotes
     ): AjaxResponse {
         foreach ($remotes as $remote) {
             $modelManager->delete($remote);
@@ -259,8 +265,10 @@ class IrController extends AbstractController
     public function postButton(
         EventService $eventService,
         IrService $irService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModel] Button $button,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetModel]
+        Button $button,
     ): AjaxResponse {
         $event = $button->getEvent();
 

@@ -12,9 +12,12 @@ use GibsonOS\Module\Hc\Model\Warehouse\Tag;
 class ItemRepository extends AbstractRepository
 {
     public function __construct(
-        #[GetTableName(Item::class)] private readonly string $itemTableName,
-        #[GetTableName(Item\Tag::class)] private readonly string $itemTagTableName,
-        #[GetTableName(Tag::class)] private readonly string $tagTableName,
+        #[GetTableName(Item::class)]
+        private readonly string $itemTableName,
+        #[GetTableName(Item\Tag::class)]
+        private readonly string $itemTagTableName,
+        #[GetTableName(Tag::class)]
+        private readonly string $tagTableName,
     ) {
     }
 

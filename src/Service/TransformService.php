@@ -125,10 +125,16 @@ class TransformService
 
     public function transformHertz(int $hertz): string
     {
-        for ($i = 0; $hertz > 1000; $hertz /= 1000) {
+        $transformedHertz = $hertz;
+
+        for ($i = 0; $transformedHertz > 1000; $transformedHertz /= 1000) {
             ++$i;
         }
 
-        return str_replace('.', ',', (string) $hertz) . ' ' . self::HERTZ_UNITS[$i];
+        if (!isset(self::HERTZ_UNITS[$i])) {
+            $transformedHertz = $hertz;
+        }
+
+        return str_replace('.', ',', (string) $transformedHertz) . ' ' . (self::HERTZ_UNITS[$i] ?? '');
     }
 }

@@ -6,6 +6,9 @@ namespace GibsonOS\Module\Hc\Store\Ir;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Ir\Remote;
 
+/**
+ * @extends AbstractDatabaseStore<Remote>
+ */
 class RemoteStore extends AbstractDatabaseStore
 {
     protected function getModelClassName(): string

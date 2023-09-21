@@ -16,6 +16,9 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
 use mysqlDatabase;
 
+/**
+ * @extends AbstractDatabaseStore<Log>
+ */
 class LogStore extends AbstractDatabaseStore
 {
     private ?int $masterId = null;
@@ -27,9 +30,12 @@ class LogStore extends AbstractDatabaseStore
     private array $types = [];
 
     public function __construct(
-        #[GetTableName(Master::class)] private string $masterTableName,
-        #[GetTableName(Type::class)] private string $typeTableName,
-        #[GetTableName(Module::class)] private string $moduleTableName,
+        #[GetTableName(Master::class)]
+        private string $masterTableName,
+        #[GetTableName(Type::class)]
+        private string $typeTableName,
+        #[GetTableName(Module::class)]
+        private string $moduleTableName,
         private FormatterFactory $formatterFactory,
         private DateTimeService $dateTimeService,
         mysqlDatabase $database = null

@@ -9,12 +9,16 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
 use mysqlDatabase;
 
+/**
+ * @extends AbstractDatabaseStore<Module>
+ */
 class ModuleStore extends AbstractDatabaseStore
 {
     private ?int $masterId = null;
 
     public function __construct(
-        #[GetTableName(Type::class)] private string $typeTableName,
+        #[GetTableName(Type::class)]
+        private string $typeTableName,
         mysqlDatabase $database = null
     ) {
         parent::__construct($database);

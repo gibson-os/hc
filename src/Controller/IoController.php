@@ -33,8 +33,10 @@ class IoController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function post(
         IoService $ioService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModel(mapping: ['module' => 'module'])] Port $port,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetMappedModel(mapping: ['module' => 'module'])]
+        Port $port,
     ): AjaxResponse {
         $ioService->setPort($port);
         $ioService->pushUpdate($module, [$port]);
@@ -50,7 +52,8 @@ class IoController extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function getPorts(
         PortStore $portStore,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
     ): AjaxResponse {
         $portStore->setModule($module);
 
@@ -64,8 +67,10 @@ class IoController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postToggle(
         IoService $ioService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModel] Port $port
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetModel]
+        Port $port
     ): AjaxResponse {
         $ioService->toggleValue($port);
         $ioService->pushUpdate($module, [$port]);
@@ -87,7 +92,8 @@ class IoController extends AbstractController
     public function getEeprom(
         IoService $ioService,
         PortRepository $portRepository,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         $ioService->readPortsFromEeprom($module);
 
@@ -105,7 +111,8 @@ class IoController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postEeprom(
         IoService $ioService,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         $ioService->writePortsToEeprom($module);
 

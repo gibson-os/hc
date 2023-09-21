@@ -48,7 +48,8 @@ class WarehouseCartController extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function getItems(
         ItemStore $itemStore,
-        #[GetModel] ?Cart $cart,
+        #[GetModel]
+        ?Cart $cart,
         int $start = 0,
         int $limit = 100
     ): AjaxResponse {
@@ -81,7 +82,8 @@ class WarehouseCartController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function post(
         ModelManager $modelManager,
-        #[GetMappedModel] Cart $cart
+        #[GetMappedModel]
+        Cart $cart
     ): AjaxResponse {
         $modelManager->save($cart);
 
@@ -98,7 +100,8 @@ class WarehouseCartController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postShow(
         BoxService $boxService,
-        #[GetModels(Item::class)] array $items,
+        #[GetModels(Item::class)]
+        array $items,
         int $red = 255,
         int $green = 255,
         int $blue = 255,

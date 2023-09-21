@@ -9,10 +9,14 @@ use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Ir\Key\Name;
 use mysqlDatabase;
 
+/**
+ * @extends AbstractDatabaseStore<Key>
+ */
 class KeyStore extends AbstractDatabaseStore
 {
     public function __construct(
-        #[GetTableName(Name::class)] private readonly string $nameTableName,
+        #[GetTableName(Name::class)]
+        private readonly string $nameTableName,
         mysqlDatabase $database = null,
     ) {
         parent::__construct($database);

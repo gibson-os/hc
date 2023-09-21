@@ -35,7 +35,8 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function get(
         AnimationRepository $animationRepository,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         try {
             $startedAnimation = $animationRepository->getStarted($module);
@@ -66,7 +67,8 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function getList(
         AnimationStore $animationStore,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         $animationStore->setModule($module);
 
@@ -94,8 +96,10 @@ class NeopixelAnimationController extends AbstractController
         AnimationStore $animationStore,
         ModelManager $modelManager,
         ?int $id,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModel(['name' => 'name', 'module_id' => 'moduleId'])] Animation $animation
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetMappedModel(['name' => 'name', 'module_id' => 'moduleId'])]
+        Animation $animation
     ): AjaxResponse {
         if ($animation->getId() !== null && $animation->getId() !== $id) {
             throw new ImageExists(
@@ -133,7 +137,8 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postSend(
         AnimationService $animationService,
-        #[GetMappedModel(['id' => 'id', 'module_id' => 'moduleId'])] Animation $animation,
+        #[GetMappedModel(['id' => 'id', 'module_id' => 'moduleId'])]
+        Animation $animation,
     ): AjaxResponse {
         $animationService->send($animation);
 
@@ -151,7 +156,8 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postPlay(
         AnimationService $animationService,
-        #[GetMappedModel(['id' => 'id', 'module_id' => 'moduleId'])] Animation $animation,
+        #[GetMappedModel(['id' => 'id', 'module_id' => 'moduleId'])]
+        Animation $animation,
         int $iterations,
     ): AjaxResponse {
         $animation->setName($animation->getName() ?? '');
@@ -171,7 +177,8 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postStart(
         AnimationService $animationService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
         int $iterations = 0
     ): AjaxResponse {
         $animationService->start($module, $iterations);
@@ -190,7 +197,8 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postPause(
         AnimationService $animationService,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         $animationService->pause($module);
 
@@ -208,7 +216,8 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postStop(
         AnimationService $animationService,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         return $animationService->stop($module)
             ? $this->returnSuccess()

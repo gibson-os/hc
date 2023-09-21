@@ -6,6 +6,9 @@ namespace GibsonOS\Module\Hc\Store\Warehouse;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Warehouse\Label;
 
+/**
+ * @extends AbstractDatabaseStore<Label>
+ */
 class LabelStore extends AbstractDatabaseStore
 {
     protected function getModelClassName(): string

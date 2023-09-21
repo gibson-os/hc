@@ -29,7 +29,8 @@ class ItemService
         private readonly FileService $fileService,
         private readonly FileRepository $fileRepository,
         private readonly ModelManager $modelManager,
-        #[GetSetting('file_path')] private readonly Setting $filePath,
+        #[GetSetting('file_path')]
+        private readonly Setting $filePath,
     ) {
     }
 

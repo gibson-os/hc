@@ -9,6 +9,8 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 
 /**
+ * @extends AbstractDatabaseStore<Led>
+ *
  * @method Generator<Led> getList()
  */
 class LedStore extends AbstractDatabaseStore

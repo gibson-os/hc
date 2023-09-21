@@ -41,7 +41,8 @@ class BlankController extends AbstractController
     public function get(
         BlankService $blankService,
         TransformService $transformService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
         int $command,
         string $dataFormat,
         int $length
@@ -68,7 +69,8 @@ class BlankController extends AbstractController
     public function post(
         BlankService $blankService,
         TransformService $transformService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
         int $command,
         string $dataFormat,
         string $data,

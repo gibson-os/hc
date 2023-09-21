@@ -7,6 +7,9 @@ use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Ssd1306\Pixel;
 
+/**
+ * @extends AbstractDatabaseStore<Pixel>
+ */
 class PixelStore extends AbstractDatabaseStore
 {
     protected Module $module;

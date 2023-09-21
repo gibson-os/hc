@@ -14,7 +14,8 @@ class UuidElementService extends AbstractElementService
     private const OPTION_STRING = 'string';
 
     public function __construct(
-        #[GetEnv('WEB_URL')] private readonly string $webUrl
+        #[GetEnv('WEB_URL')]
+        private readonly string $webUrl
     ) {
     }
 

@@ -18,7 +18,8 @@ class CopyIrKeyNames extends AbstractCommand
         private readonly mysqlDatabase $database,
         private readonly ModelManager $modelManager,
         LoggerInterface $logger,
-        #[GetTableName(Key::class)] private readonly string $keyTableName,
+        #[GetTableName(Key::class)]
+        private readonly string $keyTableName,
     ) {
         parent::__construct($logger);
     }

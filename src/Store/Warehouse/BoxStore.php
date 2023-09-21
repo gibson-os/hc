@@ -7,6 +7,9 @@ use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 
+/**
+ * @extends AbstractDatabaseStore<Box>
+ */
 class BoxStore extends AbstractDatabaseStore
 {
     private Module $module;

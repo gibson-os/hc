@@ -48,7 +48,8 @@ class WarehouseController extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function get(
         BoxStore $boxStore,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
     ): AjaxResponse {
         $boxStore->setModule($module);
 
@@ -77,10 +78,14 @@ class WarehouseController extends AbstractController
         ModelManager $modelManager,
         ItemService $itemService,
         BoxRepository $boxRepository,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModels(Box::class)] array $boxes,
-        #[GetObjects(File::class)] array $newFiles = [],
-        #[GetObjects(File::class)] array $newImages = [],
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetMappedModels(Box::class)]
+        array $boxes,
+        #[GetObjects(File::class)]
+        array $newFiles = [],
+        #[GetObjects(File::class)]
+        array $newImages = [],
     ): AjaxResponse {
         $rawBoxes = JsonUtility::decode($this->requestService->getRequestValue('boxes'));
 
@@ -111,8 +116,10 @@ class WarehouseController extends AbstractController
 
     #[CheckPermission([Permission::READ])]
     public function getQrCode(
-        #[GetEnv('WEB_URL')] string $webUrl,
-        #[GetModel] Box $box
+        #[GetEnv('WEB_URL')]
+        string $webUrl,
+        #[GetModel]
+        Box $box
     ): FileResponse {
         $fileName = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'qrCode' . md5((string) mt_rand());
         (new QRCode())->render($webUrl . '/hc/warehouse/box/uuid/' . $box->getUuid(), $fileName);
@@ -126,7 +133,8 @@ class WarehouseController extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function getImage(
         ItemService $itemService,
-        #[GetModel] ?Box\Item $item
+        #[GetModel]
+        ?Box\Item $item
     ): FileResponse {
         $image = realpath(
             __DIR__ . DIRECTORY_SEPARATOR .
@@ -155,8 +163,10 @@ class WarehouseController extends AbstractController
 
     #[CheckPermission([Permission::READ])]
     public function getDownload(
-        #[GetSetting('file_path')] Setting $filePath,
-        #[GetModel] Box\Item\File $file
+        #[GetSetting('file_path')]
+        Setting $filePath,
+        #[GetModel]
+        Box\Item\File $file
     ): FileResponse {
         return (new FileResponse(
             $this->requestService,
@@ -173,7 +183,8 @@ class WarehouseController extends AbstractController
      */
     public function postShow(
         BoxService $boxService,
-        #[GetModel(['id' => 'id', 'module_id' => 'moduleId'])] Box $box,
+        #[GetModel(['id' => 'id', 'module_id' => 'moduleId'])]
+        Box $box,
         int $red = 255,
         int $green = 255,
         int $blue = 255,

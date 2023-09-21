@@ -30,7 +30,8 @@ class Ssd1306Controller extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function get(
         PixelStore $pixelStore,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
     ): AjaxResponse {
         $pixelStore->setModule($module);
 
@@ -49,7 +50,8 @@ class Ssd1306Controller extends AbstractController
     public function post(
         Ssd1306Service $ssd1306Service,
         PixelMapper $pixelMapper,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
         array $data
     ): AjaxResponse {
         $ssd1306Service->writePixels(
@@ -71,7 +73,8 @@ class Ssd1306Controller extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postOn(
         Ssd1306Service $ssd1306Service,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
         bool $on
     ): AjaxResponse {
         if ($on) {

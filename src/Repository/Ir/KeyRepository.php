@@ -13,8 +13,10 @@ use GibsonOS\Module\Hc\Model\Ir\Key\Name;
 class KeyRepository extends AbstractRepository
 {
     public function __construct(
-        #[GetTableName(Key::class)] private readonly string $keyTableName,
-        #[GetTableName(Name::class)] private readonly string $nameTableName,
+        #[GetTableName(Key::class)]
+        private readonly string $keyTableName,
+        #[GetTableName(Name::class)]
+        private readonly string $nameTableName,
     ) {
     }
 

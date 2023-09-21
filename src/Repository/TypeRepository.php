@@ -11,8 +11,10 @@ use GibsonOS\Module\Hc\Model\Type;
 class TypeRepository extends AbstractRepository
 {
     public function __construct(
-        #[GetTableName(Type::class)] private string $typeTableName,
-        #[GetTableName(Type\DefaultAddress::class)] private string $defaultAddressTableName,
+        #[GetTableName(Type::class)]
+        private string $typeTableName,
+        #[GetTableName(Type\DefaultAddress::class)]
+        private string $defaultAddressTableName,
     ) {
     }
 

@@ -307,8 +307,10 @@ class IoEvent extends AbstractHcEvent
     #[Event\ReturnValue(className: IntParameter::class, title: 'Fade In', key: IoService::ATTRIBUTE_PORT_KEY_FADE_IN)]
     #[Event\ReturnValue(className: IntParameter::class, title: 'Blink', key: IoService::ATTRIBUTE_PORT_KEY_BLINK)]
     public function readPort(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] Port $port,
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(PortParameter::class)]
+        Port $port,
     ): Port {
         return $this->ioService->readPort($port);
     }
@@ -320,7 +322,8 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Ports aus EEPROM lesen')]
     public function readPortsFromEeprom(
-        #[Event\Parameter(ModuleParameter::class)] Module $module
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module
     ): void {
         $this->ioService->readPortsFromEeprom($module);
     }
@@ -330,7 +333,8 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Ports auslesen')]
     public function getPorts(
-        #[Event\Parameter(ModuleParameter::class)] Module $module
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module
     ): array {
         return $this->portRepository->getByModule($module);
     }
@@ -350,9 +354,12 @@ class IoEvent extends AbstractHcEvent
     #[Event\ReturnValue(className: IntParameter::class, title: 'Addieren oder subtrahieren', key: IoService::ATTRIBUTE_DIRECT_CONNECT_KEY_ADD_OR_SUB)]
     #[Event\ReturnValue(className: BoolParameter::class, title: 'Es gibt weitere DirectConnects', key: 'hasMore')]
     public function readDirectConnect(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] Port $port,
-        #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(PortParameter::class)]
+        Port $port,
+        #[Event\Parameter(IntParameter::class, 'Reihenfolge')]
+        int $order
     ): array {
         return $this->ioService->readDirectConnect($module, $port, $order)->getDirectConnect()?->jsonSerialize() ?? [];
     }
@@ -365,7 +372,8 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Ist DirectConnect aktiv')]
     #[Event\ReturnValue(BoolParameter::class, 'Aktiv')]
     public function isDirectConnectActive(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
     ): bool {
         return $this->ioService->isDirectConnectActive($module);
     }
@@ -375,19 +383,29 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Port setzen')]
     public function setPort(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] Port $port,
-        #[Event\Parameter(StringParameter::class, 'Name')] string $name,
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(PortParameter::class)]
+        Port $port,
+        #[Event\Parameter(StringParameter::class, 'Name')]
+        string $name,
         #[Event\Parameter(OptionParameter::class, 'Richtung', ['options' => [[
             0 => 'Eingang',
             1 => 'Ausgang',
-        ]]])] int $direction,
-        #[Event\Parameter(BoolParameter::class, 'PullUp')] bool $pullUp,
-        #[Event\Parameter(IntParameter::class, 'Verzögerung')] int $delay,
-        #[Event\Parameter(IntParameter::class, 'PWM')] int $pwm,
-        #[Event\Parameter(IntParameter::class, 'Blink')] int $blink,
-        #[Event\Parameter(IntParameter::class, 'Fade In')] int $fadeIn,
-        #[Event\Parameter(StringParameter::class, 'Werte Name')] string $valueNames,
+        ]]])]
+        int $direction,
+        #[Event\Parameter(BoolParameter::class, 'PullUp')]
+        bool $pullUp,
+        #[Event\Parameter(IntParameter::class, 'Verzögerung')]
+        int $delay,
+        #[Event\Parameter(IntParameter::class, 'PWM')]
+        int $pwm,
+        #[Event\Parameter(IntParameter::class, 'Blink')]
+        int $blink,
+        #[Event\Parameter(IntParameter::class, 'Fade In')]
+        int $fadeIn,
+        #[Event\Parameter(StringParameter::class, 'Werte Name')]
+        string $valueNames,
     ): void {
         $port
             ->setName($name)
@@ -407,9 +425,12 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Port Zustand setzen')]
     public function setValue(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] Port $port,
-        #[Event\Parameter(BoolParameter::class, 'Zustand')] bool $value,
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(PortParameter::class)]
+        Port $port,
+        #[Event\Parameter(BoolParameter::class, 'Zustand')]
+        bool $value,
     ): void {
         $port->setValue($value);
         $this->ioService->setPort($port);
@@ -420,9 +441,12 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Port Fade In setzen')]
     public function setFadeIn(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] Port $port,
-        #[Event\Parameter(IntParameter::class, 'Fade In')] int $fadeIn,
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(PortParameter::class)]
+        Port $port,
+        #[Event\Parameter(IntParameter::class, 'Fade In')]
+        int $fadeIn,
     ): void {
         $port->setFadeIn($fadeIn);
         $this->ioService->setPort($port);
@@ -433,9 +457,12 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Port Blinken setzen')]
     public function setBlink(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] Port $port,
-        #[Event\Parameter(IntParameter::class, 'Blink')] int $blink,
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(PortParameter::class)]
+        Port $port,
+        #[Event\Parameter(IntParameter::class, 'Blink')]
+        int $blink,
     ): void {
         $port->setBlink($blink);
         $this->ioService->setPort($port);
@@ -446,9 +473,12 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Port PWM setzen')]
     public function setPwm(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] Port $port,
-        #[Event\Parameter(IntParameter::class, 'Fade In')] int $pwm,
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(PortParameter::class)]
+        Port $port,
+        #[Event\Parameter(IntParameter::class, 'Fade In')]
+        int $pwm,
     ): void {
         $port->setBlink($pwm);
         $this->ioService->setPort($port);
@@ -459,9 +489,12 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Port Delay setzen')]
     public function setDelay(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] Port $port,
-        #[Event\Parameter(IntParameter::class, 'Verzögerung')] int $delay,
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(PortParameter::class)]
+        Port $port,
+        #[Event\Parameter(IntParameter::class, 'Verzögerung')]
+        int $delay,
     ): void {
         $port->setDelay($delay);
         $this->ioService->setPort($port);
@@ -472,9 +505,12 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Port PullUp setzen')]
     public function setPullUp(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] Port $port,
-        #[Event\Parameter(BoolParameter::class, 'PullUp')] bool $pullUp,
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(PortParameter::class)]
+        Port $port,
+        #[Event\Parameter(BoolParameter::class, 'PullUp')]
+        bool $pullUp,
     ): void {
         $port->setPullUp($pullUp);
         $this->ioService->setPort($port);
@@ -487,7 +523,8 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Ports in EEPROM schreiben')]
     public function writePortsToEeprom(
-        #[Event\Parameter(ModuleParameter::class)] Module $module
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module
     ): void {
         $this->ioService->writePortsToEeprom($module);
     }
@@ -501,16 +538,26 @@ class IoEvent extends AbstractHcEvent
         'recordKey' => 'id',
     ]])]
     public function saveDirectConnect(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class, 'Eingangsport')] Port $inputPort,
-        #[Event\Parameter(BoolParameter::class, 'Eingangsport geschloßen')] bool $inputValue,
-        #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order,
-        #[Event\Parameter(PortParameter::class, 'Ausgangsport')] Port $outputPort,
-        #[Event\Parameter(BoolParameter::class, 'Ausgangsport An')] bool $value,
-        #[Event\Parameter(IntParameter::class, 'Ausgangsport PWM')] int $pwm,
-        #[Event\Parameter(IntParameter::class, 'Ausgangsport Blinken')] int $blink,
-        #[Event\Parameter(IntParameter::class, 'Ausgangsport Fade In')] int $fadeIn,
-        #[Event\Parameter(IntParameter::class, 'Addieren oder subtrahieren')] int $addOrSub
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(PortParameter::class, 'Eingangsport')]
+        Port $inputPort,
+        #[Event\Parameter(BoolParameter::class, 'Eingangsport geschloßen')]
+        bool $inputValue,
+        #[Event\Parameter(IntParameter::class, 'Reihenfolge')]
+        int $order,
+        #[Event\Parameter(PortParameter::class, 'Ausgangsport')]
+        Port $outputPort,
+        #[Event\Parameter(BoolParameter::class, 'Ausgangsport An')]
+        bool $value,
+        #[Event\Parameter(IntParameter::class, 'Ausgangsport PWM')]
+        int $pwm,
+        #[Event\Parameter(IntParameter::class, 'Ausgangsport Blinken')]
+        int $blink,
+        #[Event\Parameter(IntParameter::class, 'Ausgangsport Fade In')]
+        int $fadeIn,
+        #[Event\Parameter(IntParameter::class, 'Addieren oder subtrahieren')]
+        int $addOrSub
     ): void {
         $this->ioService->saveDirectConnect(
             $module,
@@ -534,9 +581,12 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('DirectConnect löschen')]
     public function deleteDirectConnect(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] Port $port,
-        #[Event\Parameter(IntParameter::class, 'Reihenfolge')] int $order
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(PortParameter::class)]
+        Port $port,
+        #[Event\Parameter(IntParameter::class, 'Reihenfolge')]
+        int $order
     ): void {
         $this->ioService->deleteDirectConnect($module, $this->directConnectRepository->getByOrder($port, $order));
     }
@@ -547,9 +597,12 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('Alle DirectConnects löschen')]
     public function resetDirectConnect(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(PortParameter::class)] Port $port,
-        #[Event\Parameter(BoolParameter::class, 'Nur Datenbank')] bool $databaseOnly
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(PortParameter::class)]
+        Port $port,
+        #[Event\Parameter(BoolParameter::class, 'Nur Datenbank')]
+        bool $databaseOnly
     ): void {
         $this->ioService->resetDirectConnect($module, $port, $databaseOnly);
     }
@@ -561,7 +614,8 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('DirectConnect defragmentieren')]
     public function defragmentDirectConnect(
-        #[Event\Parameter(ModuleParameter::class)] Module $module
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module
     ): void {
         $this->ioService->defragmentDirectConnect($module);
     }
@@ -576,8 +630,10 @@ class IoEvent extends AbstractHcEvent
      */
     #[Event\Method('DirectConnect de-/aktivieren')]
     public function activateDirectConnect(
-        #[Event\Parameter(ModuleParameter::class)] Module $module,
-        #[Event\Parameter(BoolParameter::class, 'Aktiv')] bool $active
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $module,
+        #[Event\Parameter(BoolParameter::class, 'Aktiv')]
+        bool $active
     ): void {
         $this->ioService->activateDirectConnect($module, $active);
     }

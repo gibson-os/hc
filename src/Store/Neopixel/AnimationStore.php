@@ -7,6 +7,9 @@ use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation;
 
+/**
+ * @extends AbstractDatabaseStore<Animation>
+ */
 class AnimationStore extends AbstractDatabaseStore
 {
     protected Module $module;

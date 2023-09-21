@@ -100,8 +100,10 @@ class IndexController extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function getLastLog(
         LogRepository $logRepository,
-        #[GetModel(['id' => 'masterId'])] Master $master = null,
-        #[GetModel(['id' => 'moduleId'])] Module $module = null,
+        #[GetModel(['id' => 'masterId'])]
+        Master $master = null,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module = null,
         int $command = null,
         int $type = null,
         Direction $direction = null,

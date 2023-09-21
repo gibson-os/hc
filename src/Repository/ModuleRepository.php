@@ -19,7 +19,8 @@ class ModuleRepository extends AbstractRepository
 
     public function __construct(
         private LoggerInterface $logger,
-        #[GetTableName(Module::class)] private string $moduleTableName
+        #[GetTableName(Module::class)]
+        private string $moduleTableName
     ) {
     }
 

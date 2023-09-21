@@ -7,6 +7,9 @@ use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 
+/**
+ * @extends AbstractDatabaseStore<Port>
+ */
 class PortStore extends AbstractDatabaseStore
 {
     protected Module $module;

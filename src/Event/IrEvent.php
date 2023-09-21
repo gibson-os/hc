@@ -63,8 +63,10 @@ class IrEvent extends AbstractHcEvent
      */
     #[Event\Method('Taste senden')]
     public function sendKey(
-        #[Event\Parameter(ModuleParameter::class)] Module $slave,
-        #[Event\Parameter(KeyParameter::class)] Key $key,
+        #[Event\Parameter(ModuleParameter::class)]
+        Module $slave,
+        #[Event\Parameter(KeyParameter::class)]
+        Key $key,
     ): void {
         $this->irService->sendKeys($slave, [$key]);
     }

@@ -47,7 +47,8 @@ class PlayAnimationCommand extends AbstractCommand
         private readonly ModuleRepository $moduleRepository,
         private readonly mysqlDatabase $mysqlDatabase,
         private readonly ModelManager $modelManager,
-        #[GetEnv('MYSQL_DATABASE')] private readonly string $mysqlDatabaseName,
+        #[GetEnv('MYSQL_DATABASE')]
+        private readonly string $mysqlDatabaseName,
         LoggerInterface $logger
     ) {
         parent::__construct($logger);

@@ -38,8 +38,10 @@ class ModuleController extends AbstractController
         ModuleFactory $moduleFactory,
         DateTimeService $dateTimeService,
         ModelManager $modelManager,
-        #[GetModel(['id' => 'masterId'])] Master $master,
-        #[GetModel(['address' => 'address', 'master_id' => 'masterId'])] ?Module $module,
+        #[GetModel(['id' => 'masterId'])]
+        Master $master,
+        #[GetModel(['address' => 'address', 'master_id' => 'masterId'])]
+        ?Module $module,
         string $name,
         int $address,
         int $typeId,

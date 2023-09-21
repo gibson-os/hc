@@ -26,7 +26,8 @@ class CopyLogDataToRawCommand extends AbstractCommand
         private mysqlDatabase $mysqlDatabase,
         private TransformService $transformService,
         private ModelManager $modelManager,
-        #[GetTableName(Log::class)] private string $logTableName
+        #[GetTableName(Log::class)]
+        private string $logTableName
     ) {
         parent::__construct($logger);
     }

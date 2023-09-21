@@ -44,12 +44,13 @@ class IoDirectConnectController extends AbstractController
     public function get(
         IoService $ioService,
         DirectConnectStore $directConnectStore,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         $directConnectStore->setModule($module);
 
         return new AjaxResponse([
-            'data' => [...$directConnectStore->getList()],
+            'data' => iterator_to_array($directConnectStore->getList()),
             'active' => $ioService->isDirectConnectActive($module),
         ]);
     }
@@ -61,10 +62,14 @@ class IoDirectConnectController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function post(
         IoService $ioService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModel(['id' => 'inputPortId'])] Port $inputPort,
-        #[GetModel(['id' => 'outputPortId'])] Port $outputPort,
-        #[GetMappedModel] DirectConnect $directConnect,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetModel(['id' => 'inputPortId'])]
+        Port $inputPort,
+        #[GetModel(['id' => 'outputPortId'])]
+        Port $outputPort,
+        #[GetMappedModel]
+        DirectConnect $directConnect,
     ): AjaxResponse {
         $ioService->saveDirectConnect($module, $directConnect);
 
@@ -80,8 +85,10 @@ class IoDirectConnectController extends AbstractController
     #[CheckPermission([Permission::DELETE])]
     public function delete(
         IoService $ioService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModel(['id' => 'id'])] DirectConnect $directConnect
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetModel(['id' => 'id'])]
+        DirectConnect $directConnect
     ): AjaxResponse {
         $ioService->deleteDirectConnect($module, $directConnect);
 
@@ -99,8 +106,10 @@ class IoDirectConnectController extends AbstractController
     #[CheckPermission([Permission::DELETE])]
     public function deleteReset(
         IoService $ioService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModel(['id' => 'id', 'module_id' => 'moduleId'])] Port $port,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetModel(['id' => 'id', 'module_id' => 'moduleId'])]
+        Port $port,
     ): AjaxResponse {
         $ioService->resetDirectConnect($module, $port);
 
@@ -119,8 +128,10 @@ class IoDirectConnectController extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function getRead(
         IoService $ioService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetModel(['number' => 'inputPort', 'module_id' => 'moduleId'])] Port $port,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetModel(['number' => 'inputPort', 'module_id' => 'moduleId'])]
+        Port $port,
         int $order,
         bool $reset
     ): AjaxResponse {
@@ -142,7 +153,8 @@ class IoDirectConnectController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postDefragment(
         IoService $ioService,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         $ioService->defragmentDirectConnect($module);
 
@@ -160,7 +172,8 @@ class IoDirectConnectController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postActivate(
         IoService $ioService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
         bool $activate
     ): AjaxResponse {
         $ioService->activateDirectConnect($module, $activate);

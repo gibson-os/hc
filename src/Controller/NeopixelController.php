@@ -67,8 +67,10 @@ class NeopixelController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postShowLeds(
         NeopixelService $neopixelService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModels(Led::class, ['module_id' => 'module.id', 'number' => 'number'])] array $leds = []
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetMappedModels(Led::class, ['module_id' => 'module.id', 'number' => 'number'])]
+        array $leds = []
     ): AjaxResponse {
         $neopixelService->writeLeds($module, $leds);
 
@@ -93,8 +95,10 @@ class NeopixelController extends AbstractController
         LedService $ledService,
         ModelManager $modelManager,
         LedRepository $ledRepository,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModels(Led::class, ['module_id' => 'module.id', 'number' => 'number'])] array $leds = []
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetMappedModels(Led::class, ['module_id' => 'module.id', 'number' => 'number'])]
+        array $leds = []
     ): AjaxResponse {
         $ledCounts = $ledService->getChannelCounts($module, $leds);
         $config = JsonUtility::decode($module->getConfig() ?? '[]');
@@ -140,7 +144,8 @@ class NeopixelController extends AbstractController
     public function post(
         NeopixelService $neopixelService,
         LedService $ledService,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
         array $channels = []
     ): AjaxResponse {
         $neopixelService->writeChannels(
@@ -162,7 +167,8 @@ class NeopixelController extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function getImages(
         ImageStore $imageStore,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         $imageStore->setModule($module);
 
@@ -184,8 +190,10 @@ class NeopixelController extends AbstractController
         ImageStore $imageStore,
         ModelManager $modelManager,
         ?int $id,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
-        #[GetMappedModel(['name' => 'name'], ['module' => 'module'])] Image $image,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
+        #[GetMappedModel(['name' => 'name'], ['module' => 'module'])]
+        Image $image,
     ): AjaxResponse {
         if ($image->getId() !== null && $image->getId() !== $id) {
             throw new ImageExists(
@@ -203,7 +211,7 @@ class NeopixelController extends AbstractController
         $imageStore->setModule($image->getModule());
 
         return new AjaxResponse([
-            'data' => [...$imageStore->getList()],
+            'data' => iterator_to_array($imageStore->getList()),
             'total' => $imageStore->getCount(),
             'id' => $image->getId(),
             'success' => true,

@@ -57,7 +57,8 @@ class HcSlaveController extends AbstractController
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         ModelManager $modelManager,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
         string $name,
         int $deviceId,
         int $typeId,
@@ -165,7 +166,8 @@ class HcSlaveController extends AbstractController
     #[CheckPermission([Permission::READ, Permission::MANAGE])]
     public function getEepromSettings(
         ModuleFactory $slaveFactory,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
 
@@ -189,7 +191,8 @@ class HcSlaveController extends AbstractController
     #[CheckPermission([Permission::WRITE, Permission::MANAGE])]
     public function postEepromSettings(
         ModuleFactory $slaveFactory,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
         int $position
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
@@ -211,7 +214,8 @@ class HcSlaveController extends AbstractController
     #[CheckPermission([Permission::DELETE, Permission::MANAGE])]
     public function deleteEeprom(
         ModuleFactory $slaveFactory,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
         $slaveService->writeEepromErase($module);
@@ -232,7 +236,8 @@ class HcSlaveController extends AbstractController
     #[CheckPermission([Permission::WRITE, Permission::MANAGE])]
     public function postRestart(
         ModuleFactory $slaveFactory,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
         $slaveService->writeRestart($module);
@@ -253,7 +258,8 @@ class HcSlaveController extends AbstractController
     #[CheckPermission([Permission::READ, Permission::MANAGE])]
     public function getStatusLeds(
         ModuleFactory $slaveFactory,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
         $activeLeds = $slaveService->readLedStatus($module);
@@ -294,7 +300,8 @@ class HcSlaveController extends AbstractController
     #[CheckPermission([Permission::WRITE, Permission::MANAGE])]
     public function postStatusLeds(
         ModuleFactory $slaveFactory,
-        #[GetModel(['id' => 'moduleId'])] Module $module,
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module,
         bool $power = false,
         bool $error = false,
         bool $connect = false,

@@ -35,7 +35,7 @@ class Bme280Mapper
 
         $var1 = ($temperatureFine / 2) - 64000;
         $var2 = $var1 * $var1 * $calibration['pressure'][5] / 32768;
-        $var2 = $var2 + ($var1 * $calibration['pressure'][4] * 2);
+        $var2 += ($var1 * $calibration['pressure'][4] * 2);
         $var2 = ($var2 / 4) + ($calibration['pressure'][3] * 65536);
         $var1 = (($calibration['pressure'][2] * $var1 * $var1 / 524288) + ($calibration['pressure'][1] * $var1)) / 524288;
         $var1 = (($var1 / 32768) + 1) * $calibration['pressure'][0];
@@ -47,14 +47,14 @@ class Bme280Mapper
             $pressure = (($pressure - $var2 / 4096) * 6250) / $var1;
             $var1 = $calibration['pressure'][8] * $pressure * $pressure / 2147483648;
             $var2 = $pressure * $calibration['pressure'][7] / 32768;
-            $pressure = $pressure + (($var1 + $var2 + $calibration['pressure'][6]) / 16);
+            $pressure += (($var1 + $var2 + $calibration['pressure'][6]) / 16);
         }
 
         $humidity = $temperatureFine - 76800;
         $var1 = $humidityRaw - (($calibration['humidity'][3] * 64) + ($calibration['humidity'][4] / 16384 * $humidity));
         $var2 = $calibration['humidity'][1] / 65536 * (1 + ($calibration['humidity'][5] / 67108864 * $humidity * (1 + ($calibration['humidity'][2] / 67108864 * $humidity))));
         $humidity = $var1 * $var2;
-        $humidity = $humidity * (1 - ($calibration['humidity'][0] * $humidity / 524288));
+        $humidity *= (1 - ($calibration['humidity'][0] * $humidity / 524288));
 
         if ($humidity > 100) {
             $humidity = 100;

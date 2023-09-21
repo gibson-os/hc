@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store\Io;
 
+use Generator;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
@@ -13,13 +14,20 @@ use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 use mysqlDatabase;
 
+/**
+ * @extends AbstractDatabaseStore<Port>
+ *
+ * @method Generator<Port> getList()
+ */
 class DirectConnectStore extends AbstractDatabaseStore
 {
     protected Module $module;
 
     public function __construct(
-        #[GetTableName(DirectConnect::class)] private readonly string $directConnectTableName,
-        #[GetTableName(Port::class)] private readonly string $portTableName,
+        #[GetTableName(DirectConnect::class)]
+        private readonly string $directConnectTableName,
+        #[GetTableName(Port::class)]
+        private readonly string $portTableName,
         mysqlDatabase $database = null,
     ) {
         parent::__construct($database);

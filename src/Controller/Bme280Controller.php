@@ -42,7 +42,8 @@ class Bme280Controller extends AbstractController
     public function get(
         Bme280Mapper $bme280Mapper,
         LogRepository $logRepository,
-        #[GetModel(['id' => 'moduleId'])] Module $module
+        #[GetModel(['id' => 'moduleId'])]
+        Module $module
     ): AjaxResponse {
         $log = $logRepository->getLastEntryByModuleId(
             $module->getId() ?? 0,
