@@ -6,4 +6,6 @@ namespace GibsonOS\Module\Hc\Enum\Blueprint;
 enum Geometry: string
 {
     case LINE = 'line';
+    case ELLIPSE = 'ellipse';
+    case RECTANGLE = 'rectangle';
 }
