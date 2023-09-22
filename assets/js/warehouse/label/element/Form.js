@@ -13,7 +13,7 @@ Ext.define('GibsonOS.module.hc.warehouse.label.element.Form', {
                     model: 'GibsonOS.module.hc.warehouse.model.label.ElementType',
                     autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\Warehouse\\Label\\Element\\TypeAutoComplete'
                 }
-            },
+            }
         },{
             xtype: 'gosCoreComponentFormFieldNumberField',
             fieldLabel: 'Breite',

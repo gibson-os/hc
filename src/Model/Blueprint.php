@@ -7,8 +7,10 @@ use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Enum\Blueprint\Type;
 use GibsonOS\Module\Hc\Model\Blueprint\Geometry;
+use JsonSerializable;
 
 /**
  * @method Blueprint|null getParent()
@@ -21,7 +23,7 @@ use GibsonOS\Module\Hc\Model\Blueprint\Geometry;
  * @method Blueprint      setGeometries(Geometry[] $children)
  */
 #[Table]
-class Blueprint extends AbstractModel
+class Blueprint extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
@@ -120,5 +122,18 @@ class Blueprint extends AbstractModel
         $this->left = $left;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+        ];
+    }
+
+    public function getAutoCompleteId(): string|int|float
+    {
+        return $this->getId() ?? 0;
     }
 }

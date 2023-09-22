@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Repository;
 
 use GibsonOS\Core\Attribute\GetTableName;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Blueprint;
 use GibsonOS\Module\Hc\Model\Blueprint\Geometry;
@@ -44,6 +45,26 @@ class BlueprintRepository extends AbstractRepository
     }
 
     /**
+     * @throws SelectError
+     */
+    public function getById(int $id): Blueprint
+    {
+        return $this->fetchOne('`id`=?', [$id], Blueprint::class);
+    }
+
+    /**
+     * @throws SelectError
+     *
+     * @return Blueprint[]
+     */
+    public function findByName(string $name): array
+    {
+        return $this->fetchAll('`name` LIKE ?', [$name . '%'], Blueprint::class);
+    }
+
+    /**
+     * @throws SelectError
+     *
      * @return array<int, Blueprint>
      */
     private function collectChildren(Blueprint $blueprint, array $childrenTypes): array
