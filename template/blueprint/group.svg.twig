@@ -1,11 +1,8 @@
 <g id="blueprint{{ blueprint.id }}">
     {% for geometry in blueprint.getGeometries() %}
-        {% include "@hc/blueprint/geometry/" ~ geometry.type.value ~ ".svg.twig" with {'blueprint': blueprint, 'geometry': geometry} %}
-    <path
-        style="fill:none;stroke:#000000;stroke-width:1"
-        d="M {{ blueprint.left+geometry.left }},{{ blueprint.top+geometry.top }} {% if geometry.width != 0 and geometry.height != 0 %}{{ geometry.width }},{{ geometry.height }},{% elseif geometry.width == 0 %}v {{ geometry.height }}{% else %}H {{ blueprint.left+geometry.width+geometry.left }}{% endif %}" />
+        {% include "@hc/blueprint/geometry/" ~ geometry.type.value ~ ".svg.twig" with {'blueprint': blueprint, 'geometry': geometry, 'withDimensions': withDimensions} %}
     {% endfor %}
     {% for children in blueprint.getChildren() %}
-        {% include "@hc/blueprint/group.svg.twig" with {'blueprint': children, 'childrenTypes': childrenTypes} %}
+        {% include "@hc/blueprint/group.svg.twig" with {'blueprint': children, 'withDimensions': withDimensions} %}
     {% endfor %}
 </g>

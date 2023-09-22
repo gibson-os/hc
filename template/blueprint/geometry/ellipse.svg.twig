@@ -1,6 +1,7 @@
 <ellipse
-    style="fill:none;stroke:#000000;stroke-width:0.264583"
-    cx="{{ blueprint.left+(geometry.left/2) }}"
-    cy="{{ blueprint.top+(geometry.top/2) }}"
-    rx="{{ geomertry.width/2 }}"
-    ry="{{ geomertry.height/2 }}" />
+    style="fill:none;stroke:#000000;stroke-width:1"
+    id="geometry{{ geometry.id }}"
+    cx="{{ blueprint.left+geometry.left+(geometry.width/2) }}"
+    cy="{{ blueprint.top+geometry.top+(geometry.height/2) }}"
+    rx="{{ geometry.width/2 }}"
+    ry="{{ geometry.height/2 }}" />

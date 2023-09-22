@@ -15,11 +15,15 @@ class BlueprintController extends AbstractController
     public function getSvg(
         int $id,
         BlueprintRepository $blueprintRepository,
-        array $childrenTypes = []
+        array $childrenTypes = [],
+        bool $withDimensions = false,
     ): TwigResponse {
         $maxWidth = 0;
         $maxHeight = 0;
-        $blueprint = $blueprintRepository->getExpanded($id, $childrenTypes);
+        $blueprint = $blueprintRepository->getExpanded($id, $childrenTypes)
+            ->setLeft(0)
+            ->setTop(0)
+        ;
 
         foreach ($blueprint->getGeometries() as $geometry) {
             $maxWidth = max($maxWidth, $geometry->getWidth() + $geometry->getLeft());
@@ -32,9 +36,9 @@ class BlueprintController extends AbstractController
             headers: ['Content-Type' => 'image/svg+xml'],
         ))
             ->setVariable('blueprint', $blueprint)
-            ->setVariable('childrenTypes', $childrenTypes)
             ->setVariable('width', $maxWidth)
             ->setVariable('height', $maxHeight)
+            ->setVariable('withDimensions', $withDimensions)
         ;
     }
 }
