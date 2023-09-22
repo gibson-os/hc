@@ -1,8 +1,8 @@
 <g id="blueprint{{ blueprint.id }}">
     {% for geometry in blueprint.getGeometries() %}
-        {% include "@hc/blueprint/geometry/" ~ geometry.type.value ~ ".svg.twig" with {'blueprint': blueprint, 'geometry': geometry, 'withDimensions': withDimensions} %}
+        {% include "@hc/blueprint/geometry/" ~ geometry.type.value ~ ".svg.twig" with {'offsetLeft': offsetLeft, 'offsetTop': offsetTop, 'geometry': geometry, 'withDimensions': withDimensions} %}
     {% endfor %}
     {% for children in blueprint.getChildren() %}
-        {% include "@hc/blueprint/group.svg.twig" with {'blueprint': children, 'withDimensions': withDimensions} %}
+        {% include "@hc/blueprint/group.svg.twig" with {'blueprint': children, 'offsetLeft': offsetLeft+children.left, 'offsetTop': offsetTop+children.top, 'withDimensions': withDimensions} %}
     {% endfor %}
 </g>

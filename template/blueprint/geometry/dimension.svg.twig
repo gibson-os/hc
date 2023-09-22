@@ -1,46 +1,46 @@
 {% if withDimensions %}
-    {% set offsetTop = 0 %}
-    {% set offsetLeft = 0 %}
-    {% set textOffsetTop = 10 %}
-    {% set textOffsetLeft = 10 %}
+    {% set dimensionOffsetTop = 0 %}
+    {% set dimensionOffsetLeft = 0 %}
+    {% set dimensionTextOffsetTop = 10 %}
+    {% set dimensionTextOffsetLeft = 10 %}
     {% if geometry.width == 0 %}
-        {% set offsetLeft = -30 %}
-        {% set textOffsetLeft = -50 %}
+        {% set dimensionOffsetLeft = -30 %}
+        {% set dimensionTextOffsetLeft = -50 %}
         {% if geometry.left == 0 %}
-            {% set offsetLeft = 30 %}
-            {% set textOffsetLeft = 0 %}
+            {% set dimensionOffsetLeft = 30 %}
+            {% set dimensionTextOffsetLeft = 0 %}
         {% endif %}
     {% else %}
-        {% set offsetTop = -30 %}
-        {% set textOffsetTop = -50 %}
+        {% set dimensionOffsetTop = -30 %}
+        {% set dimensionTextOffsetTop = -50 %}
         {% if geometry.top == 0 %}
-            {% set offsetTop = 30 %}
-            {% set textOffsetTop = 70 %}
+            {% set dimensionOffsetTop = 30 %}
+            {% set dimensionTextOffsetTop = 70 %}
         {% endif %}
     {% endif %}
     <path
         style="fill:none;stroke:#000000;stroke-width:1"
-        d="M {{ blueprint.left+geometry.left+offsetLeft }},{{ blueprint.top+geometry.top+offsetTop }} {% if geometry.width != 0 and geometry.height != 0 %}{{ geometry.width }},{{ geometry.height }},{% elseif geometry.width == 0 %}v {{ geometry.height }}{% else %}H {{ blueprint.left+geometry.width+geometry.left-offsetLeft }}{% endif %}" />
+        d="M {{ offsetLeft+geometry.left+dimensionOffsetLeft }},{{ offsetTop+geometry.top+dimensionOffsetTop }} {% if geometry.width != 0 and geometry.height != 0 %}{{ geometry.width }},{{ geometry.height }},{% elseif geometry.width == 0 %}v {{ geometry.height }}{% else %}H {{ offsetLeft+geometry.width+geometry.left-dimensionOffsetLeft }}{% endif %}" />
     <path
         style="fill:none;stroke:#000000;stroke-width:1"
         d="M
-            {% if offsetLeft != 0 %}{{ blueprint.left+geometry.left+offsetLeft-20 }}{% else %}{{ blueprint.left+geometry.left+offsetLeft }}{% endif %},
-            {% if offsetTop != 0 %}{{ blueprint.top+geometry.top+offsetTop-20 }}{% else %}{{ blueprint.top+geometry.top+offsetTop }}{% endif %}
-            {% if geometry.width == 0 %}H {{ blueprint.left+geometry.width+geometry.left+offsetLeft+20 }}
+            {% if dimensionOffsetLeft != 0 %}{{ offsetLeft+geometry.left+dimensionOffsetLeft-20 }}{% else %}{{ offsetLeft+geometry.left+dimensionOffsetLeft }}{% endif %},
+            {% if dimensionOffsetTop != 0 %}{{ offsetTop+geometry.top+dimensionOffsetTop-20 }}{% else %}{{ offsetTop+geometry.top+dimensionOffsetTop }}{% endif %}
+            {% if geometry.width == 0 %}H {{ offsetLeft+geometry.width+geometry.left+dimensionOffsetLeft+20 }}
             {% else %}v 40
             {% endif %}" />
     <path
         style="fill:none;stroke:#000000;stroke-width:1"
         d="M
-            {% if offsetLeft != 0 %}{{ blueprint.left+geometry.left+geometry.width+offsetLeft-20 }}{% else %}{{ blueprint.left+geometry.left+geometry.width+offsetLeft }}{% endif %},
-            {% if offsetTop != 0 %}{{ blueprint.top+geometry.top+geometry.height+offsetTop-20 }}{% else %}{{ blueprint.top+geometry.top+geometry.height+offsetTop }}{% endif %}
-            {% if geometry.width == 0 %}H {{ blueprint.left+geometry.width+geometry.left+geometry.width+offsetLeft+20 }}
+            {% if dimensionOffsetLeft != 0 %}{{ offsetLeft+geometry.left+geometry.width+dimensionOffsetLeft-20 }}{% else %}{{ offsetLeft+geometry.left+geometry.width+dimensionOffsetLeft }}{% endif %},
+            {% if dimensionOffsetTop != 0 %}{{ offsetTop+geometry.top+geometry.height+dimensionOffsetTop-20 }}{% else %}{{ offsetTop+geometry.top+geometry.height+dimensionOffsetTop }}{% endif %}
+            {% if geometry.width == 0 %}H {{ offsetLeft+geometry.width+geometry.left+geometry.width+dimensionOffsetLeft+20 }}
             {% else %}v 40
             {% endif %}" />
     <text
         style="text-align:center;fill:#000000;stroke:#000000;font-size:2em;"
-        x="{{ blueprint.left+geometry.left+(geometry.width/2)+textOffsetLeft }}"
-        y="{{ blueprint.top+geometry.top+(geometry.height/2)+textOffsetTop }}">
+        x="{{ offsetLeft+geometry.left+(geometry.width/2)+dimensionTextOffsetLeft }}"
+        y="{{ offsetTop+geometry.top+(geometry.height/2)+dimensionTextOffsetTop }}">
             {% if geometry.width == 0 %}{{ geometry.height }}{% else %}{{ geometry.width }}{% endif %}mm
     </text>
 {% endif %}

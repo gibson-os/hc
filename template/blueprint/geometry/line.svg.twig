@@ -1,5 +1,5 @@
 <path
     style="fill:none;stroke:#000000;stroke-width:1"
     id="geometry{{ geometry.id }}"
-    d="M {{ blueprint.left+geometry.left }},{{ blueprint.top+geometry.top }} {% if geometry.width != 0 and geometry.height != 0 %}{{ geometry.width }},{{ geometry.height }},{% elseif geometry.width == 0 %}v {{ geometry.height }}{% else %}H {{ blueprint.left+geometry.width+geometry.left }}{% endif %}" />
-{% include "@hc/blueprint/geometry/dimension.svg.twig" with {'blueprint': blueprint, 'geometry': geometry, 'withDimensions': withDimensions} %}
+    d="M {{ offsetLeft+geometry.left }},{{ offsetTop+geometry.top }} {% if geometry.width != 0 and geometry.height != 0 %}{{ geometry.width }},{{ geometry.height }},{% elseif geometry.width == 0 %}v {{ geometry.height }}{% else %}H {{ offsetLeft+geometry.width+geometry.left }}{% endif %}" />
+{% include "@hc/blueprint/geometry/dimension.svg.twig" with {'offsetLeft': offsetLeft, 'offsetTop': offsetTop, 'geometry': geometry, 'withDimensions': withDimensions} %}
