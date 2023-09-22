@@ -20,7 +20,8 @@
     {% endif %}
     <path
         style="fill:none;stroke:#000000;stroke-width:1"
-        d="M {{ offsetLeft+geometry.left+dimensionOffsetLeft }},{{ offsetTop+geometry.top+dimensionOffsetTop }} {% if geometry.width != 0 and geometry.height != 0 %}{{ geometry.width }},{{ geometry.height }},{% elseif geometry.width == 0 %}v {{ geometry.height }}{% else %}H {{ offsetLeft+geometry.width+geometry.left-dimensionOffsetLeft }}{% endif %}" />
+        d="M {{ offsetLeft+geometry.left+dimensionOffsetLeft }},{{ offsetTop+geometry.top+dimensionOffsetTop }} {% if geometry.width != 0 and geometry.height != 0 %}{{ geometry.width }},{{ geometry.height }},{% elseif geometry.width == 0 %}v {{ geometry.height }}{% else %}H {{ offsetLeft+geometry.width+geometry.left-dimensionOffsetLeft }}{% endif %}"
+    />
     <path
         style="fill:none;stroke:#000000;stroke-width:1"
         d="M
@@ -28,7 +29,8 @@
             {% if dimensionOffsetTop != 0 %}{{ offsetTop+geometry.top+dimensionOffsetTop-20 }}{% else %}{{ offsetTop+geometry.top+dimensionOffsetTop }}{% endif %}
             {% if geometry.width == 0 %}H {{ offsetLeft+geometry.width+geometry.left+dimensionOffsetLeft+20 }}
             {% else %}v 40
-            {% endif %}" />
+            {% endif %}"
+    />
     <path
         style="fill:none;stroke:#000000;stroke-width:1"
         d="M
@@ -36,7 +38,8 @@
             {% if dimensionOffsetTop != 0 %}{{ offsetTop+geometry.top+geometry.height+dimensionOffsetTop-20 }}{% else %}{{ offsetTop+geometry.top+geometry.height+dimensionOffsetTop }}{% endif %}
             {% if geometry.width == 0 %}H {{ offsetLeft+geometry.width+geometry.left+geometry.width+dimensionOffsetLeft+20 }}
             {% else %}v 40
-            {% endif %}" />
+            {% endif %}"
+    />
     <text
         style="text-align:center;fill:#000000;stroke:#000000;font-size:2em;"
         x="{{ offsetLeft+geometry.left+(geometry.width/2)+dimensionTextOffsetLeft }}"

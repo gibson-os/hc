@@ -1,0 +1,9 @@
+{% for moduleBlueprintId, blueprintModules in modules %}
+    {% if blueprintId == moduleBlueprintId %}
+        {% for module in blueprintModules %}
+            {% if module.geometryId == geometryId %}
+                data-module-id="{{ module.moduleId }}" data-module-options="{{ module.options|json_encode }}"
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endfor %}

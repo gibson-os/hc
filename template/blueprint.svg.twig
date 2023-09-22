@@ -7,5 +7,13 @@
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:svg="http://www.w3.org/2000/svg">
-    {% include "@hc/blueprint/group.svg.twig" with {'blueprint': blueprint, 'offsetLeft': 0, 'offsetTop': 0, 'withDimensions': withDimensions} %}
+    {%
+        include "@hc/blueprint/group.svg.twig" with {
+            'blueprint': blueprint,
+            'offsetLeft': 0,
+            'offsetTop': 0,
+            'withDimensions': withDimensions,
+            'modules': modules
+        }
+    %}
 </svg>

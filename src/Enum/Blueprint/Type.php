@@ -8,4 +8,5 @@ enum Type: string
     case FRAME = 'frame';
     case ROOM = 'room';
     case FURNISHING = 'furnishing';
+    case MODULE = 'module';
 }
