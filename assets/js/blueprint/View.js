@@ -19,6 +19,7 @@ Ext.define('GibsonOS.module.hc.blueprint.View', {
 
         me.addAction({
             xtype: 'gosModuleCoreParameterTypeAutoComplete',
+            itemId: 'hcBlueprintViewAutoComplete',
             hideLabel: true,
             width: 150,
             enableKeyEvents: true,
@@ -38,18 +39,88 @@ Ext.define('GibsonOS.module.hc.blueprint.View', {
             },
             listeners: {
                 select(combo, records) {
-                    Ext.Ajax.request({
-                        url: baseDir + 'hc/blueprint/svg',
-                        method: 'GET',
-                        params:  {
-                            id: records[0].get('id'),
-                            'childrenTypes[]': ['FRAME', 'ROOM', 'FURNISHING', 'MODULE']
-                        },
-                        success(response) {
-                            me.update(response.responseText);
-                        }
-                    });
+                    me.loadSvg();
                 }
+            }
+        });
+        me.addAction({
+            iconCls: 'icon_system system_filter',
+            menu: [{
+                xtype: 'menucheckitem',
+                checked: true,
+                itemId: 'hcBlueprintViewFilterFrame',
+                text: 'Rahmen',
+                checkHandler() {
+                    me.loadSvg();
+                }
+            },{
+                xtype: 'menucheckitem',
+                checked: true,
+                itemId: 'hcBlueprintViewFilterRoom',
+                text: 'Räume',
+                checkHandler() {
+                    me.loadSvg();
+                }
+            },{
+                xtype: 'menucheckitem',
+                checked: true,
+                itemId: 'hcBlueprintViewFilterFurnishing',
+                text: 'Einrichtungen',
+                checkHandler() {
+                    me.loadSvg();
+                }
+            },{
+                xtype: 'menucheckitem',
+                checked: true,
+                itemId: 'hcBlueprintViewFilterModule',
+                text: 'Module',
+                checkHandler() {
+                    me.loadSvg();
+                }
+            },('-'),{
+                xtype: 'menucheckitem',
+                checked: false,
+                itemId: 'hcBlueprintViewFilterDimensions',
+                text: 'Mit Dimensionen',
+                checkHandler() {
+                    me.loadSvg();
+                }
+            }]
+        });
+    },
+    loadSvg() {
+        const me = this;
+        const id = me.down('#hcBlueprintViewAutoComplete').getValue();
+
+        if (id === null) {
+            return;
+        }
+
+        me.setLoading(true);
+
+        let childrenTypes = [];
+
+        const addChildrenType = (itemId, key) => {
+            if (me.down('#' + itemId).checked) {
+                childrenTypes.push(key);
+            }
+        };
+        addChildrenType('hcBlueprintViewFilterFrame', 'FRAME');
+        addChildrenType('hcBlueprintViewFilterRoom', 'ROOM');
+        addChildrenType('hcBlueprintViewFilterFurnishing', 'FURNISHING');
+        addChildrenType('hcBlueprintViewFilterModule', 'MODULE');
+
+        Ext.Ajax.request({
+            url: baseDir + 'hc/blueprint/svg',
+            method: 'GET',
+            params:  {
+                id: id,
+                'childrenTypes[]': childrenTypes,
+                withDimensions: me.down('#hcBlueprintViewFilterDimensions').checked
+            },
+            success(response) {
+                me.update(response.responseText);
+                me.setLoading(false);
             }
         });
     }
