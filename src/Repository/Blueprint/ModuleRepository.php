@@ -7,36 +7,38 @@ use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Blueprint;
+use GibsonOS\Module\Hc\Model\Blueprint\Geometry;
 use GibsonOS\Module\Hc\Model\Blueprint\Module;
 
 class ModuleRepository extends AbstractRepository
 {
-    public function __construct(#[GetTableName(Module::class)] private readonly string $moduleTableName)
-    {
+    public function __construct(
+        #[GetTableName(Module::class)]
+        private readonly string $moduleTableName,
+        #[GetTableName(Geometry::class)]
+        private readonly string $geometryTableName,
+    ) {
     }
 
     /**
      * @throws SelectError
      *
-     * @return array<int, Module[]>
+     * @return Module[]
      */
     public function getAllByBlueprint(Blueprint $blueprint): array
     {
         $blueprintIds = $this->getBlueprintIds($blueprint);
-        $modules = $this->fetchAll(
-            '`blueprint_id` IN (' . $this->getTable($this->moduleTableName)->getParametersString($blueprintIds) . ')',
-            $blueprintIds,
-            Module::class,
-        );
-        $modulesByBlueprintId = [];
+        $table = $this->getTable($this->moduleTableName);
+        $table
+            ->appendJoin(
+                sprintf('`%s` `g`', $this->geometryTableName),
+                sprintf('`%s`.`geometry_id`=`g`.`id`', $this->moduleTableName),
+            )
+            ->setWhere(sprintf('`g`.`blueprint_id` IN (%s)', $table->getParametersString($blueprintIds)))
+            ->setWhereParameters($blueprintIds)
+        ;
 
-        foreach ($modules as $module) {
-            $blueprintId = $module->getBlueprintId();
-            $modulesByBlueprintId[$blueprintId] ??= [];
-            $modulesByBlueprintId[$blueprintId][] = $module;
-        }
-
-        return $modulesByBlueprintId;
+        return $this->getModels($table, Module::class);
     }
 
     private function getBlueprintIds(Blueprint $blueprint): array

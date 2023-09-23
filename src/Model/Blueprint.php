@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Model;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
+use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
@@ -28,6 +29,7 @@ class Blueprint extends AbstractModel implements JsonSerializable, AutoCompleteM
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
+    #[Key]
     #[Column(length: 64)]
     private string $name;
 

@@ -120,6 +120,13 @@ Ext.define('GibsonOS.module.hc.blueprint.View', {
             },
             success(response) {
                 me.update(response.responseText);
+
+                Ext.iterate(document.querySelectorAll('#' + me.id + ' svg *[data-module-id]'), (geometry) => {
+                    geometry.onclick = function() {
+                        console.log(this);
+                    };
+                });
+
                 me.setLoading(false);
             }
         });
