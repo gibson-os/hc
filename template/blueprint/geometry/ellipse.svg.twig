@@ -1,7 +1,7 @@
 <ellipse
     style="fill:transparent;stroke:#000000;stroke-width:1"
     id="geometry{{ geometry.id }}"
-    {% include "@hc/blueprint/data.svg.twig" with { 'module': geometry.getModule() } %}
+    {% include "@hc/blueprint/data.svg.twig" with { 'geometry': geometry } %}
     cx="{{ offsetLeft+geometry.left+(geometry.width/2) }}"
     cy="{{ offsetTop+geometry.top+(geometry.height/2) }}"
     rx="{{ geometry.width/2 }}"

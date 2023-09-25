@@ -1,7 +1,7 @@
 <path
     style="fill:transparent;stroke:#000000;stroke-width:1"
     id="geometry{{ geometry.id }}"
-    {% include "@hc/blueprint/data.svg.twig" with { 'module': geometry.getModule() } %}
+    {% include "@hc/blueprint/data.svg.twig" with { 'geometry': geometry } %}
     d="M {{ offsetLeft+geometry.left }},{{ offsetTop+geometry.top }} {% if geometry.width != 0 and geometry.height != 0 %}{{ geometry.width }},{{ geometry.height }},{% elseif geometry.width == 0 %}v {{ geometry.height }}{% else %}H {{ offsetLeft+geometry.width+geometry.left }}{% endif %}"
 />
 {%

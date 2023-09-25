@@ -9,6 +9,7 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Hc\Enum\Blueprint\Geometry as GeometryType;
 use GibsonOS\Module\Hc\Model\Blueprint;
+use GibsonOS\Module\Hc\Model\Module;
 
 /**
  * @method Blueprint   getBlueprint()
@@ -42,6 +43,9 @@ class Geometry extends AbstractModel
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $height = 0;
+
+    #[Column]
+    private array $moduleOptions = [];
 
     #[Constraint]
     protected Blueprint $blueprint;
@@ -141,6 +145,18 @@ class Geometry extends AbstractModel
     public function setHeight(int $height): Geometry
     {
         $this->height = $height;
+
+        return $this;
+    }
+
+    public function getModuleOptions(): array
+    {
+        return $this->moduleOptions;
+    }
+
+    public function setModuleOptions(array $moduleOptions): Geometry
+    {
+        $this->moduleOptions = $moduleOptions;
 
         return $this;
     }
