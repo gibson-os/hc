@@ -1,13 +1,7 @@
 <rect
     style="fill:transparent;stroke:#000000;stroke-width:1"
     id="geometry{{ geometry.id }}"
-    {%
-        include "@hc/blueprint/data.svg.twig" with {
-        'modules': modules,
-        'blueprintId': geometry.blueprintId,
-        'geometryId': geometry.id,
-    }
-    %}
+    {% include "@hc/blueprint/data.svg.twig" with { 'module': geometry.getModule() } %}
     width="{{ geometry.width }}"
     height="{{ geometry.height }}"
     x="{{ offsetLeft+geometry.left }}"

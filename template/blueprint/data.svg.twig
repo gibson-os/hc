@@ -1,5 +1,3 @@
-{% for module in modules %}
-    {% if module.geometryId == geometryId %}
-        data-module-id="{{ module.moduleId }}" data-module-options="{{ module.options|json_encode }}"
-    {% endif %}
-{% endfor %}
+{% if module is defined %}
+    data-module-id="{{ module.moduleId }}" data-module-options="{{ module.options|json_encode }}"
+{% endif %}

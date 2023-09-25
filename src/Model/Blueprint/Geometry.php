@@ -11,8 +11,10 @@ use GibsonOS\Module\Hc\Enum\Blueprint\Geometry as GeometryType;
 use GibsonOS\Module\Hc\Model\Blueprint;
 
 /**
- * @method Blueprint getBlueprint()
- * @method Geometry  setBlueprint(Blueprint $blueprint)
+ * @method Blueprint   getBlueprint()
+ * @method Geometry    setBlueprint(Blueprint $blueprint)
+ * @method Module|null getModule()
+ * @method Geometry    setModule(Module|null $module)
  */
 #[Table]
 class Geometry extends AbstractModel
@@ -22,6 +24,9 @@ class Geometry extends AbstractModel
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $blueprintId;
+
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private ?int $moduleId = null;
 
     #[Column]
     private GeometryType $type = GeometryType::LINE;
@@ -40,6 +45,9 @@ class Geometry extends AbstractModel
 
     #[Constraint]
     protected Blueprint $blueprint;
+
+    #[Constraint]
+    protected ?Module $module = null;
 
     public function getId(): ?int
     {
@@ -73,6 +81,18 @@ class Geometry extends AbstractModel
     public function setBlueprintId(int $blueprintId): Geometry
     {
         $this->blueprintId = $blueprintId;
+
+        return $this;
+    }
+
+    public function getModuleId(): ?int
+    {
+        return $this->moduleId;
+    }
+
+    public function setModuleId(?int $moduleId): Geometry
+    {
+        $this->moduleId = $moduleId;
 
         return $this;
     }

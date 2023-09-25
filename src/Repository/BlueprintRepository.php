@@ -6,13 +6,20 @@ namespace GibsonOS\Module\Hc\Repository;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
+use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Module\Hc\Enum\Blueprint\Geometry as GeometryEnum;
 use GibsonOS\Module\Hc\Model\Blueprint;
 use GibsonOS\Module\Hc\Model\Blueprint\Geometry;
+use GibsonOS\Module\Hc\Model\Blueprint\Module;
 
 class BlueprintRepository extends AbstractRepository
 {
-    public function __construct(#[GetTableName(Geometry::class)] private readonly string $geometryTableName)
-    {
+    public function __construct(
+        #[GetTableName(Geometry::class)]
+        private readonly string $geometryTableName,
+        #[GetTableName(Module::class)]
+        private readonly string $moduleTableName,
+    ) {
     }
 
     public function getExpanded(int $blueprintId, array $childrenTypes): Blueprint
@@ -24,21 +31,77 @@ class BlueprintRepository extends AbstractRepository
         $geometryTable = $this->getTable($this->geometryTableName);
         $geometryTable
             ->setWhere('`blueprint_id` IN (' . $geometryTable->getParametersString(array_keys($children)) . ')')
+            ->appendJoinLeft(
+                sprintf('`%s` `m`', $this->moduleTableName),
+                sprintf('`m`.`id`=`%s`.`module_id`', $this->geometryTableName),
+            )
             ->setWhereParameters(array_keys($children))
+            ->setSelectString(sprintf(
+                '`%s`.`id` `geometryId`, ' .
+                '`%s`.`blueprint_id` `blueprintId`, ' .
+                '`%s`.`type`, ' .
+                '`%s`.`top`, ' .
+                '`%s`.`left`, ' .
+                '`%s`.`width`, ' .
+                '`%s`.`height`, ' .
+                '`m`.`id` `moduleId`, ' .
+                '`m`.`module_id` `moduleModuleId`, ' .
+                '`m`.`options` `options`',
+                $this->geometryTableName,
+                $this->geometryTableName,
+                $this->geometryTableName,
+                $this->geometryTableName,
+                $this->geometryTableName,
+                $this->geometryTableName,
+                $this->geometryTableName,
+            ))
         ;
 
-        $geometries = [];
+        if ($geometryTable->selectPrepared() === false) {
+            $exception = new SelectError($geometryTable->connection->error());
+            $exception->setTable($geometryTable);
 
-        foreach ($this->getModels($geometryTable, Geometry::class) as $geometry) {
-            $geometryBlueprintId = $geometry->getBlueprintId();
-            $geometry->setBlueprint($children[$geometryBlueprintId]);
+            throw $exception;
+        }
+
+        if ($geometryTable->countRecords() === 0) {
+            return $blueprint;
+        }
+
+        $geometries = [];
+        $modules = [];
+
+        foreach ($geometryTable->getRecords() as $record) {
+            $geometryBlueprintId = (int) ($record['blueprintId'] ?? 0);
+
+            $geometry = (new Geometry())
+                ->setId((int) ($record['geometryId'] ?? 0))
+                ->setBlueprint($children[$geometryBlueprintId])
+                ->setType(constant(sprintf('%s::%s', GeometryEnum::class, $record['type'])))
+                ->setTop((int) ($record['top'] ?? 0))
+                ->setLeft((int) ($record['left'] ?? 0))
+                ->setWidth((int) ($record['width'] ?? 0))
+                ->setHeight((int) ($record['height'] ?? 0))
+            ;
             $geometries[$geometryBlueprintId] ??= [];
             $geometries[$geometryBlueprintId][] = $geometry;
+            $moduleId = $record['moduleId'];
+
+            if ($moduleId === null) {
+                continue;
+            }
+
+            $moduleId = (int) $moduleId;
+            $modules[$moduleId] ??= (new Module())
+                ->setId($moduleId)
+                ->setModuleId((int) ($record['moduleModuleId'] ?? 0))
+                ->setOptions(JsonUtility::decode($record['options'] ?? '[]'))
+            ;
+            $geometry->setModule($modules[$moduleId]);
         }
 
         foreach ($geometries as $geometryBlueprintId => $childGeometries) {
-            $childrenBlueprint = $children[$geometryBlueprintId];
-            $childrenBlueprint->setGeometries($childGeometries);
+            $children[$geometryBlueprintId]->setGeometries($childGeometries);
         }
 
         return $blueprint;
