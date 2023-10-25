@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Store\Warehouse\Label;
 
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Template;
+use MDO\Enum\OrderDirection;
 
 /**
  * @extends AbstractDatabaseStore<Template>
@@ -16,8 +17,8 @@ class TemplateStore extends AbstractDatabaseStore
         return Template::class;
     }
 
-    protected function getDefaultOrder(): string
+    protected function getDefaultOrder(): array
     {
-        return '`name`';
+        return ['`name`' => OrderDirection::ASC];
     }
 }

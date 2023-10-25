@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Store\Io;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
+use MDO\Enum\OrderDirection;
 
 /**
  * @extends AbstractDatabaseStore<Port>
@@ -29,8 +30,8 @@ class PortStore extends AbstractDatabaseStore
         $this->addWhere('`module_id`=?', [$this->module->getId()]);
     }
 
-    protected function getDefaultOrder(): string
+    protected function getDefaultOrder(): array
     {
-        return '`number`';
+        return ['`number`' => OrderDirection::ASC];
     }
 }

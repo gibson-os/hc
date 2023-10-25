@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Store;
 
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Master;
+use MDO\Enum\OrderDirection;
 
 /**
  * @extends AbstractDatabaseStore<Master>
@@ -30,8 +31,8 @@ class MasterStore extends AbstractDatabaseStore
         ];
     }
 
-    protected function getDefaultOrder(): string
+    protected function getDefaultOrder(): array
     {
-        return '`name`';
+        return ['`name`' => OrderDirection::ASC];
     }
 }

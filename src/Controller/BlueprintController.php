@@ -6,11 +6,35 @@ namespace GibsonOS\Module\Hc\Controller;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Enum\Permission;
+use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Service\Response\TwigResponse;
 use GibsonOS\Module\Hc\Repository\BlueprintRepository;
+use GibsonOS\Module\Hc\Store\BlueprintStore;
+use JsonException;
+use ReflectionException;
 
 class BlueprintController extends AbstractController
 {
+    /**
+     * @throws SelectError
+     * @throws JsonException
+     * @throws ReflectionException
+     */
+    public function getIndex(
+        BlueprintStore $blueprintStore,
+        int $limit = 100,
+        int $start = 0,
+        array $sort = [],
+    ): AjaxResponse {
+        $blueprintStore
+            ->setLimit($limit, $start)
+            ->setSortByExt($sort)
+        ;
+
+        return $this->returnSuccess($blueprintStore->getList(), $blueprintStore->getCount());
+    }
+
     #[CheckPermission([Permission::READ])]
     public function getSvg(
         int $id,

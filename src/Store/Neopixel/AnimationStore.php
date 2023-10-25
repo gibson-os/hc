@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Store\Neopixel;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation;
+use MDO\Enum\OrderDirection;
 
 /**
  * @extends AbstractDatabaseStore<Animation>
@@ -29,8 +30,8 @@ class AnimationStore extends AbstractDatabaseStore
         $this->addWhere('`module_id`=?', [$this->module->getId()]);
     }
 
-    protected function getDefaultOrder(): string
+    protected function getDefaultOrder(): array
     {
-        return '`name`';
+        return ['`name`' => OrderDirection::ASC];
     }
 }

@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Store\Ssd1306;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Ssd1306\Pixel;
+use MDO\Enum\OrderDirection;
 
 /**
  * @extends AbstractDatabaseStore<Pixel>
@@ -29,8 +30,12 @@ class PixelStore extends AbstractDatabaseStore
         $this->addWhere('`module_id`=?', [$this->module->getId()]);
     }
 
-    protected function getDefaultOrder(): string
+    protected function getDefaultOrder(): array
     {
-        return '`page`, `column`, `bit`';
+        return [
+            '`page`' => OrderDirection::ASC,
+            '`column`' => OrderDirection::ASC,
+            '`bit`' => OrderDirection::ASC,
+        ];
     }
 }

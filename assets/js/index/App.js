@@ -25,7 +25,7 @@ Ext.define('GibsonOS.module.hc.index.App', {
                 xtype: 'gosModuleHcIndexTypeGrid',
                 title: 'Modul Typen'
             },{
-                xtype: 'gosModuleHcBlueprintPanel',
+                xtype: 'gosModuleHcBlueprintGrid',
                 title: 'Grundrisse'
             },{
                 xtype: 'gosModuleHcIndexLogGrid'

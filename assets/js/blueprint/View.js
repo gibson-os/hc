@@ -12,37 +12,8 @@ Ext.define('GibsonOS.module.hc.blueprint.View', {
     initComponent() {
         let me = this;
 
-        //me.tpl = new Ext.XTemplate('<img src="' + baseDir + 'hc/blueprint/svg?id=1&childrenTypes[]=FRAME&childrenTypes[]=ROOM&childrenTypes[]=FURNISHING&childrenTypes[]=MODULE" />');
-        // me.tpl = new Ext.XTemplate('<object id="svg-object" data="' + baseDir + 'hc/blueprint/svg?id=1&childrenTypes[]=FRAME&childrenTypes[]=ROOM&childrenTypes[]=FURNISHING&childrenTypes[]=MODULE" type="image/svg+xml"></object>');
-
         me.callParent(arguments);
 
-        me.addAction({
-            xtype: 'gosModuleCoreParameterTypeAutoComplete',
-            itemId: 'hcBlueprintViewAutoComplete',
-            hideLabel: true,
-            width: 150,
-            enableKeyEvents: true,
-            emptyText: 'Grundriss laden',
-            addToItemContextMenu: false,
-            addToContainerContextMenu: false,
-            requiredPermission: {
-                action: 'svg',
-                method: 'GET',
-                permission: GibsonOS.Permission.READ
-            },
-            parameterObject: {
-                config: {
-                    model: 'GibsonOS.module.hc.blueprint.model.Blueprint',
-                    autoCompleteClassname: 'GibsonOS\\Module\\Hc\\AutoComplete\\BlueprintAutoComplete'
-                }
-            },
-            listeners: {
-                select(combo, records) {
-                    me.loadSvg();
-                }
-            }
-        });
         me.addAction({
             iconCls: 'icon_system system_filter',
             menu: [{
@@ -87,18 +58,16 @@ Ext.define('GibsonOS.module.hc.blueprint.View', {
                 }
             }]
         });
+
+        me.on('render', () => {
+            me.loadSvg();
+        });
     },
     loadSvg() {
         const me = this;
-        const id = me.down('#hcBlueprintViewAutoComplete').getValue();
-
-        if (id === null) {
-            return;
-        }
+        let childrenTypes = [];
 
         me.setLoading(true);
-
-        let childrenTypes = [];
 
         const addChildrenType = (itemId, key) => {
             if (me.down('#' + itemId).checked) {
@@ -114,7 +83,7 @@ Ext.define('GibsonOS.module.hc.blueprint.View', {
             url: baseDir + 'hc/blueprint/svg',
             method: 'GET',
             params:  {
-                id: id,
+                id: me.blueprintId,
                 'childrenTypes[]': childrenTypes,
                 withDimensions: me.down('#hcBlueprintViewFilterDimensions').checked
             },
@@ -122,8 +91,14 @@ Ext.define('GibsonOS.module.hc.blueprint.View', {
                 me.update(response.responseText);
 
                 Ext.iterate(document.querySelectorAll('#' + me.id + ' svg *[data-module-id]'), (geometry) => {
-                    geometry.onclick = function() {
-                        console.log(this);
+                    geometry.onclick = () => {
+                        Ext.create('GibsonOS.module.hc.' + geometry.module.helper + '.App', {
+                            gos: {
+                                data: {
+                                    module: geometry.module
+                                }
+                            }
+                        });
                     };
                 });
 

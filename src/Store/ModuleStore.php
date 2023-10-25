@@ -3,11 +3,15 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store;
 
+use Generator;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
+use GibsonOS\Core\Wrapper\DatabaseStoreWrapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
-use mysqlDatabase;
+use MDO\Dto\Query\Join;
+use MDO\Enum\OrderDirection;
+use MDO\Exception\ClientException;
 
 /**
  * @extends AbstractDatabaseStore<Module>
@@ -17,11 +21,11 @@ class ModuleStore extends AbstractDatabaseStore
     private ?int $masterId = null;
 
     public function __construct(
+        DatabaseStoreWrapper $databaseStoreWrapper,
         #[GetTableName(Type::class)]
-        private string $typeTableName,
-        mysqlDatabase $database = null
+        private readonly string $typeTableName,
     ) {
-        parent::__construct($database);
+        parent::__construct($databaseStoreWrapper);
     }
 
     protected function getModelClassName(): string
@@ -29,14 +33,19 @@ class ModuleStore extends AbstractDatabaseStore
         return Module::class;
     }
 
-    protected function getCountField(): string
+    protected function getAlias(): ?string
     {
-        return '`hc_module`.`id`';
+        return 'm';
     }
 
-    protected function getDefaultOrder(): string
+    protected function getCountField(): string
     {
-        return '`hc_module`.`address`';
+        return '`m`.`id`';
+    }
+
+    protected function getDefaultOrder(): array
+    {
+        return ['`m`.`address`' => OrderDirection::ASC];
     }
 
     /**
@@ -57,39 +66,33 @@ class ModuleStore extends AbstractDatabaseStore
     protected function setWheres(): void
     {
         if ($this->masterId !== null) {
-            $this->addWhere('`hc_module`.`master_id`=?', [$this->masterId]);
+            $this->addWhere('`m`.`master_id`=?', [$this->masterId]);
         }
     }
 
-    public function initTable(): void
+    public function initQuery(): void
     {
-        parent::initTable();
+        parent::initQuery();
 
-        $this->table->appendJoinLeft(
-            $this->typeTableName,
-            '`' . $this->tableName . '`.`type_id`=`' . $this->typeTableName . '`.`id`'
-        );
+        $this->selectQuery
+            ->addJoin(new Join($this->getTable($this->typeTableName), 't', '`m`.`type_id=`t`.`id`'))
+            ->setSelect('IFNULL(`hc_module`.`hertz`, `hc_type`.`hertz`)', 'hertz')
+            ->setSelect('`hc_type`.`name`', 'type')
+            ->setSelect('`hc_type`.`ui_settings`', 'settings')
+            ->setSelect('`hc_type`.`helper`', 'helper')
+        ;
     }
 
-    public function getList(): array
+    /**
+     * @throws ClientException
+     */
+    public function getModels(): Generator
     {
-        $this->initTable();
-        $this->table->selectPrepared(
-            false,
-            '`hc_module`.`id`, '
-            . '`hc_module`.`name`, '
-            . '`hc_module`.`type_id`, '
-            . '`hc_module`.`address`, '
-            . '`hc_module`.`offline`, '
-            . '`hc_module`.`added`, '
-            . '`hc_module`.`modified`, '
-            . '`hc_type`.`name` AS `type`,'
-            . 'IFNULL(`hc_module`.`hertz`, `hc_type`.`hertz`) AS `hertz`,'
-            . '`hc_type`.`ui_settings` AS `settings`,'
-            . '`hc_type`.`helper`'
-        );
+        $result = $this->getDatabaseStoreWrapper()->getClient()->execute($this->selectQuery);
 
-        return $this->table->connection->fetchAssocList();
+        foreach ($result->iterateRecords() as $record) {
+            yield $record->getValuesAsArray();
+        }
     }
 
     public function setMasterId(?int $masterId): ModuleStore
