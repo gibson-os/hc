@@ -9,6 +9,7 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Manager\ServiceManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Service\LoggerService;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Model\Log;
@@ -24,14 +25,12 @@ use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\Module\AbstractModule;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Test\Unit\Core\ModelManagerTrait;
-use mysqlDatabase;
-use Prophecy\PhpUnit\ProphecyTrait;
+use MDO\Client;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
 
 class AbstractHcModuleTest extends Unit
 {
-    use ProphecyTrait;
     use ModelManagerTrait;
 
     private AbstractHcModule $abstractHcSlave;
@@ -40,7 +39,7 @@ class AbstractHcModuleTest extends Unit
 
     private TransformService $transformService;
 
-    private EventService $eventService;
+    private ObjectProphecy|EventService $eventService;
 
     private ObjectProphecy|ModuleRepository $moduleRepository;
 
@@ -48,7 +47,7 @@ class AbstractHcModuleTest extends Unit
 
     private ObjectProphecy|MasterRepository $masterRepository;
 
-    private ModuleFactory $moduleFactory;
+    private ObjectProphecy|ModuleFactory $moduleFactory;
 
     private ObjectProphecy|Module $slave;
 
@@ -62,23 +61,25 @@ class AbstractHcModuleTest extends Unit
 
     protected function _before(): void
     {
-        $this->masterService = $this->prophesize(MasterService::class);
-        $this->transformService = $this->serviceManager->get(TransformService::class);
-        $this->eventService = $this->serviceManager->get(EventService::class);
+        $this->loadModelManager();
+
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
-        $this->moduleFactory = $this->serviceManager->get(ModuleFactory::class);
+        $this->masterService = $this->prophesize(MasterService::class);
+        $this->serviceManager = new ServiceManager();
+        $this->serviceManager->setService(Client::class, $this->client->reveal());
+        $this->serviceManager->setInterface(LoggerInterface::class, LoggerService::class);
+        $this->serviceManager->setService(ModelManager::class, $this->modelManager->reveal());
+        $this->transformService = $this->serviceManager->get(TransformService::class);
+        $this->moduleFactory = $this->prophesize(ModuleFactory::class);
         $this->logger = $this->serviceManager->get(LoggerInterface::class);
+        $this->eventService = $this->prophesize(EventService::class);
         $this->slave = $this->prophesize(Module::class);
         $this->master = $this->prophesize(Master::class);
-        $this->serviceManager = new ServiceManager();
-        $this->serviceManager->setInterface(LoggerInterface::class, LoggerService::class);
-        $this->serviceManager->setService(mysqlDatabase::class, $this->mysqlDatabase->reveal());
-        $this->serviceManager->setService(ModelManager::class, $this->modelManager->reveal());
 
-        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService, $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->moduleFactory->reveal(), $this->logger, $this->modelManager->reveal(), $this->slave->reveal()) extends AbstractHcModule {
+        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService, $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->moduleFactory->reveal(), $this->logger, $this->modelManager->reveal(), $this->modelWrapper->reveal(), $this->slave->reveal()) extends AbstractHcModule {
             private Module $module;
 
             public function __construct(
@@ -92,6 +93,7 @@ class AbstractHcModuleTest extends Unit
                 ModuleFactory $moduleFactory,
                 LoggerInterface $logger,
                 ModelManager $modelManager,
+                ModelWrapper $modelWrapper,
                 Module $slave
             ) {
                 parent::__construct(
@@ -104,7 +106,8 @@ class AbstractHcModuleTest extends Unit
                     $logRepository,
                     $moduleFactory,
                     $logger,
-                    $modelManager
+                    $modelManager,
+                    $modelWrapper,
                 );
 
                 $this->module = $slave;

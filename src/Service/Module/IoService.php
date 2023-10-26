@@ -17,6 +17,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\DevicePushService;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Io\DirectConnect as DirectConnectDto;
 use GibsonOS\Module\Hc\Event\IoEvent;
@@ -119,6 +120,7 @@ class IoService extends AbstractHcModule
         ModuleFactory $moduleFactory,
         LoggerInterface $logger,
         ModelManager $modelManager,
+        ModelWrapper $modelWrapper,
         private readonly PortMapper $ioMapper,
         private readonly DirectConnectMapper $directConnectMapper,
         private readonly DevicePushService $devicePushService,
@@ -135,7 +137,8 @@ class IoService extends AbstractHcModule
             $logRepository,
             $moduleFactory,
             $logger,
-            $modelManager
+            $modelManager,
+            $modelWrapper,
         );
     }
 

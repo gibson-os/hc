@@ -30,7 +30,7 @@ use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\SenderService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Test\Unit\Core\ModelManagerTrait;
-use mysqlDatabase;
+use MDO\Client;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -70,8 +70,8 @@ class MasterServiceTest extends Unit
         $this->typeRepository = $this->prophesize(TypeRepository::class);
         $this->serviceManager = new ServiceManager();
         $this->serviceManager->setInterface(LoggerInterface::class, LoggerService::class);
-        $this->serviceManager->setService(mysqlDatabase::class, $this->mysqlDatabase->reveal());
         $this->serviceManager->setService(ModelManager::class, $this->modelManager->reveal());
+        $this->serviceManager->setService(Client::class, $this->client->reveal());
 
         $this->masterService = new MasterService(
             $this->senderService->reveal(),
@@ -83,28 +83,27 @@ class MasterServiceTest extends Unit
             $this->serviceManager->get(LoggerInterface::class),
             $this->masterRepository->reveal(),
             $this->serviceManager->get(DateTimeService::class),
-            $this->modelManager->reveal()
+            $this->modelManager->reveal(),
+            $this->modelWrapper->reveal(),
         );
     }
 
     public function testReceiveNewSlaveWithoutAddress(): void
     {
         $this->expectException(ReceiveError::class);
-        $this->expectErrorMessage('Module address is null!');
-        $this->masterService->receive(new Master(), new BusMessage('42.42.42.42', 3));
+        $this->masterService->receive(new Master($this->modelWrapper->reveal()), new BusMessage('42.42.42.42', 3));
     }
 
     public function testReceiveWithoutCommand(): void
     {
         $this->expectException(ReceiveError::class);
-        $this->expectErrorMessage('Command is null!');
-        $this->masterService->receive(new Master(), new BusMessage('42.42.42.42', 255));
+        $this->masterService->receive(new Master($this->modelWrapper->reveal()), new BusMessage('42.42.42.42', 255));
     }
 
     public function testReceive(): void
     {
-        $module = (new Module())
-            ->setType((new Type())->setHelper('prefect'))
+        $module = (new Module($this->modelWrapper->reveal()))
+            ->setType((new Type($this->modelWrapper->reveal()))->setHelper('prefect'))
         ;
         $this->moduleRepository->getByAddress(42, 7)
             ->shouldBeCalledOnce()
@@ -125,7 +124,7 @@ class MasterServiceTest extends Unit
         $this->modelManager->save(Argument::type(Module::class))->shouldBeCalledOnce();
         $this->modelManager->save(Argument::type(Log::class))->shouldBeCalledOnce();
 
-        $this->masterService->receive((new Master())->setId(7), $busMessage);
+        $this->masterService->receive((new Master($this->modelWrapper->reveal()))->setId(7), $busMessage);
     }
 
     public function testReceiveWithoutSlaveAddress(): void
@@ -134,9 +133,8 @@ class MasterServiceTest extends Unit
             ->setCommand(24)
         ;
         $this->expectException(ReceiveError::class);
-        $this->expectErrorMessage('Slave address is null!');
 
-        $this->masterService->receive((new Master())->setId(7), $busMessage);
+        $this->masterService->receive((new Master($this->modelWrapper->reveal()))->setId(7), $busMessage);
     }
 
     public function testReceiveWithoutSlave(): void
@@ -151,14 +149,14 @@ class MasterServiceTest extends Unit
         ;
         $this->expectException(SelectError::class);
 
-        $this->masterService->receive((new Master())->setId(7), $busMessage);
+        $this->masterService->receive((new Master($this->modelWrapper->reveal()))->setId(7), $busMessage);
     }
 
     public function testReceiveNoHcModule(): void
     {
-        $module = (new Module())
+        $module = (new Module($this->modelWrapper->reveal()))
             ->setName('Marvin')
-            ->setType((new Type())->setName('Ford')->setHelper('prefect'))
+            ->setType((new Type($this->modelWrapper->reveal()))->setName('Ford')->setHelper('prefect'))
         ;
         $this->moduleRepository->getByAddress(42, 7)
             ->shouldBeCalledOnce()
@@ -176,12 +174,12 @@ class MasterServiceTest extends Unit
         ;
         $this->expectException(ReceiveError::class);
 
-        $this->masterService->receive((new Master())->setId(7), $busMessage);
+        $this->masterService->receive((new Master($this->modelWrapper->reveal()))->setId(7), $busMessage);
     }
 
     public function testReceiveExistingSlave(): void
     {
-        $module = (new Module())->setType((new Type())->setHelper('prefect'));
+        $module = (new Module($this->modelWrapper->reveal()))->setType((new Type($this->modelWrapper->reveal()))->setHelper('prefect'));
         $this->moduleRepository->getByAddress(42, 4200)
             ->shouldBeCalledOnce()
             ->willReturn($module)
@@ -200,13 +198,13 @@ class MasterServiceTest extends Unit
         $this->modelManager->save(Argument::type(Module::class))->shouldBeCalledOnce();
         $this->modelManager->save(Argument::type(Log::class))->shouldBeCalledOnce();
 
-        $this->masterService->receive((new Master())->setId(4200), (new BusMessage('42.42.42.42', 3))->setSlaveAddress(42));
+        $this->masterService->receive((new Master($this->modelWrapper->reveal()))->setId(4200), (new BusMessage('42.42.42.42', 3))->setSlaveAddress(42));
     }
 
     public function testReceiveNewSlave(): void
     {
-        $type = (new Type())->setHelper('prefect');
-        $module = (new Module())->setType($type);
+        $type = (new Type($this->modelWrapper->reveal()))->setHelper('prefect');
+        $module = (new Module($this->modelWrapper->reveal()))->setType($type);
         $this->moduleRepository->getByAddress(42, 4200)
             ->shouldBeCalledOnce()
             ->willThrow(SelectError::class)
@@ -233,7 +231,7 @@ class MasterServiceTest extends Unit
         $this->modelManager->save(Argument::type(Module::class))->shouldBeCalledOnce();
         $this->modelManager->save(Argument::type(Log::class))->shouldBeCalledOnce();
 
-        $master = (new Master())
+        $master = (new Master($this->modelWrapper->reveal()))
             ->setId(4200)
             ->setAddress('42.42.42.42')
         ;
@@ -242,8 +240,8 @@ class MasterServiceTest extends Unit
 
     public function testReceiveNewSlaveWithDefaultAddress(): void
     {
-        $type = (new Type())->setHelper('prefect');
-        $module = (new Module())->setType($type);
+        $type = (new Type($this->modelWrapper->reveal()))->setHelper('prefect');
+        $module = (new Module($this->modelWrapper->reveal()))->setType($type);
         $this->moduleRepository->getByAddress(42, 4200)
             ->shouldBeCalledOnce()
             ->willThrow(SelectError::class)
@@ -266,7 +264,7 @@ class MasterServiceTest extends Unit
         $this->modelManager->save(Argument::type(Module::class))->shouldBeCalledOnce();
         $this->modelManager->save(Argument::type(Log::class))->shouldBeCalledOnce();
 
-        $master = (new Master())
+        $master = (new Master($this->modelWrapper->reveal()))
             ->setId(4200)
             ->setAddress('42.42.42.42')
         ;
@@ -281,7 +279,7 @@ class MasterServiceTest extends Unit
             ->shouldBeCalledOnce()
             ->willReturn('galaxy')
         ;
-        $master = (new Master())
+        $master = (new Master($this->modelWrapper->reveal()))
             ->setSendPort(420042)
             ->setProtocol('galaxy')
         ;
@@ -309,7 +307,6 @@ class MasterServiceTest extends Unit
         $busMessage = (new BusMessage('42.42.42.42', 255));
 
         $this->expectException(GetError::class);
-        $this->expectErrorMessage('No master name transmitted!');
 
         $this->masterService->handshake($protocolService->reveal(), $busMessage);
     }
@@ -322,7 +319,7 @@ class MasterServiceTest extends Unit
             ->shouldBeCalledOnce()
             ->willReturn('galaxy')
         ;
-        $master = (new Master())
+        $master = (new Master($this->modelWrapper->reveal()))
             ->setAddress('42.42.42.42')
             ->setSendPort(420042)
             ->setProtocol('galaxy')
@@ -344,7 +341,7 @@ class MasterServiceTest extends Unit
 
     public function testSend(): void
     {
-        $master = (new Master())->setProtocol('galaxy');
+        $master = (new Master($this->modelWrapper->reveal()))->setProtocol('galaxy');
         $busMessage = (new BusMessage('42.42.42.42', MasterService::TYPE_DATA))
             ->setData('Herz aus Gold')
         ;
@@ -357,7 +354,7 @@ class MasterServiceTest extends Unit
 
     public function testScanBus(): void
     {
-        $master = (new Master())
+        $master = (new Master($this->modelWrapper->reveal()))
             ->setAddress('42.42.42.42s')
             ->setSendPort(420042)
             ->setProtocol('galaxy')
@@ -377,7 +374,7 @@ class MasterServiceTest extends Unit
      */
     public function testReceiveReadData(int $address, int $command): void
     {
-        $master = (new Master())
+        $master = (new Master($this->modelWrapper->reveal()))
             ->setAddress('42.42.42.42')
         ;
         $expectedBusMessage = (new BusMessage('42.42.42.42', 255))

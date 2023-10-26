@@ -3,22 +3,21 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository;
 
-use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Model\Log;
-use mysqlTable;
+use JsonException;
+use MDO\Enum\OrderDirection;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class LogRepository extends AbstractRepository
 {
-    public function __construct(#[GetTableName(Log::class)] private readonly string $logTableName)
-    {
-    }
-
     public function create(int $type, string $data, Direction $direction): Log
     {
-        return (new Log())
+        return (new Log($this->getRepositoryWrapper()->getModelWrapper()))
             ->setType($type)
             ->setRawData($data)
             ->setDirection($direction)
@@ -27,6 +26,10 @@ class LogRepository extends AbstractRepository
 
     /**
      * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      */
     public function getById(int $id): Log
     {
@@ -34,6 +37,10 @@ class LogRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getLastEntryByModuleId(
@@ -42,25 +49,22 @@ class LogRepository extends AbstractRepository
         int $type = null,
         Direction $direction = null
     ): Log {
-        $table = $this->getTable($this->logTableName);
-        $table
-            ->addWhereParameter($moduleId)
-            ->setWhere('`module_id`=?' . $this->completeWhere($table, $command, $type, $direction))
-            ->setLimit(1)
-            ->setOrderBy('`id` DESC')
-        ;
+        $completeWhere = $this->completeWhere($command, $type, $direction);
+        $completeWhere['parameters']['moduleId'] = $moduleId;
 
-        if (!$table->selectPrepared()) {
-            $exception = new SelectError('Kein Log Eintrag für das Modul gefunden!');
-            $exception->setTable($table);
-
-            throw $exception;
-        }
-
-        return $this->getModel($table, Log::class);
+        return $this->fetchOne(
+            '`module_id`=:moduleId' . $completeWhere['where'],
+            $completeWhere['parameters'],
+            Log::class,
+            orderBy: ['`id`' => OrderDirection::DESC],
+        );
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getLastEntryByMasterId(
@@ -69,51 +73,51 @@ class LogRepository extends AbstractRepository
         int $type = null,
         Direction $direction = null
     ): Log {
-        $table = $this->getTable($this->logTableName);
-        $table
-            ->addWhereParameter($masterId)
-            ->setWhere('`master_id`=?' . $this->completeWhere($table, $command, $type, $direction))
-            ->setLimit(1)
-            ->setOrderBy('`id` DESC')
-        ;
+        $completeWhere = $this->completeWhere($command, $type, $direction);
+        $completeWhere['parameters']['masterId'] = $masterId;
 
-        if (!$table->selectPrepared()) {
-            $exception = new SelectError('Kein Log Eintrag für den Master gefunden!');
-            $exception->setTable($table);
-
-            throw $exception;
-        }
-
-        return $this->getModel($table, Log::class);
-    }
-
-    private function completeWhere(
-        mysqlTable $table,
-        int $command = null,
-        int $type = null,
-        Direction $direction = null
-    ): string {
-        $where = '';
-
-        if ($command !== null) {
-            $where .= ' AND `command`=?';
-            $table->addWhereParameter($command);
-        }
-
-        if ($type !== null) {
-            $where .= ' AND `type`=?';
-            $table->addWhereParameter($type);
-        }
-
-        if ($direction !== null) {
-            $where .= ' AND `direction`=?';
-            $table->addWhereParameter($direction->value);
-        }
-
-        return $where;
+        return $this->fetchOne(
+            '`master_id`=:masterId' . $completeWhere['where'],
+            $completeWhere['parameters'],
+            Log::class,
+            orderBy: ['`id`' => OrderDirection::DESC],
+        );
     }
 
     /**
+     * @return array{where: string, parameters: array}
+     */
+    private function completeWhere(
+        int $command = null,
+        int $type = null,
+        Direction $direction = null
+    ): array {
+        $where = '';
+        $parameters = [];
+
+        if ($command !== null) {
+            $where .= ' AND `command`=:command';
+            $parameters['command'] = $command;
+        }
+
+        if ($type !== null) {
+            $where .= ' AND `type`=:type';
+            $parameters['type'] = $type;
+        }
+
+        if ($direction !== null) {
+            $where .= ' AND `direction`=:direction';
+            $parameters['direction'] = $direction->value;
+        }
+
+        return ['where' => $where, 'parameters' => $parameters];
+    }
+
+    /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getPreviousEntryByModuleId(
@@ -123,21 +127,15 @@ class LogRepository extends AbstractRepository
         int $type = null,
         Direction $direction = null
     ): Log {
-        $table = $this->getTable($this->logTableName);
-        $table
-            ->setWhereParameters([$id, $moduleId])
-            ->setWhere('`id`<? AND `module_id`=?' . $this->completeWhere($table, $command, $type, $direction))
-            ->setLimit(1)
-            ->setOrderBy('`id` DESC')
-        ;
+        $completeWhere = $this->completeWhere($command, $type, $direction);
+        $completeWhere['parameters']['id'] = $id;
+        $completeWhere['parameters']['moduleId'] = $moduleId;
 
-        if (!$table->selectPrepared()) {
-            $exception = new SelectError('Kein Log Eintrag für das Modul gefunden!');
-            $exception->setTable($table);
-
-            throw $exception;
-        }
-
-        return $this->getModel($table, Log::class);
+        return $this->fetchOne(
+            '`id`<:id AND `module_id`=:moduleId' . $completeWhere['where'],
+            $completeWhere['parameters'],
+            Log::class,
+            orderBy: ['`id`' => OrderDirection::DESC],
+        );
     }
 }

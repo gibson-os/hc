@@ -29,7 +29,7 @@ use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Test\Unit\Core\ModelManagerTrait;
-use mysqlDatabase;
+use MDO\Client;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
@@ -75,7 +75,7 @@ class IoServiceTest extends Unit
         $this->masterService = $this->prophesize(MasterService::class);
         $this->serviceManager = new ServiceManager();
         $this->serviceManager->setInterface(LoggerInterface::class, LoggerService::class);
-        $this->serviceManager->setService(mysqlDatabase::class, $this->mysqlDatabase->reveal());
+        $this->serviceManager->setService(Client::class, $this->client->reveal());
         $this->serviceManager->setService(ModelManager::class, $this->modelManager->reveal());
         $this->transformService = $this->serviceManager->get(TransformService::class);
         $this->eventService = $this->serviceManager->get(EventService::class);
@@ -101,6 +101,7 @@ class IoServiceTest extends Unit
             $this->moduleFactory,
             $this->serviceManager->get(LoggerInterface::class),
             $this->modelManager->reveal(),
+            $this->modelWrapper->reveal(),
             $this->serviceManager->get(PortMapper::class),
             $this->serviceManager->get(DirectConnectMapper::class),
             $this->devicePushService->reveal(),

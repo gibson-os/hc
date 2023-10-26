@@ -7,6 +7,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
+use MDO\Enum\OrderDirection;
 
 class PortRepository extends AbstractRepository
 {
@@ -41,7 +42,7 @@ class PortRepository extends AbstractRepository
             '`module_id`=?',
             [$module->getId()],
             Port::class,
-            orderBy: '`number`'
+            orderBy: ['`number`' => OrderDirection::ASC]
         );
     }
 

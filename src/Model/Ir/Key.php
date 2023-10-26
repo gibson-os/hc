@@ -12,6 +12,7 @@ use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Dto\Ir\Protocol;
 use GibsonOS\Module\Hc\Model\Ir\Key\Name;
 use JsonSerializable;
+use MDO\Enum\OrderDirection;
 
 /**
  * @method Name[] getNames()
@@ -35,7 +36,7 @@ class Key extends AbstractModel implements JsonSerializable, AutoCompleteModelIn
     #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $command;
 
-    #[Constraint('key', Name::class, orderBy: '`name`')]
+    #[Constraint('key', Name::class, orderBy: ['`name`' => OrderDirection::ASC])]
     protected array $names = [];
 
     public function getId(): ?int

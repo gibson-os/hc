@@ -6,6 +6,7 @@ namespace GibsonOS\Module\Hc\Formatter;
 use Exception;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\TwigService;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
 use GibsonOS\Module\Hc\Dto\Io\Direction as IoDirection;
@@ -31,12 +32,13 @@ class IoFormatter extends AbstractHcFormatter
         TransformService $transformService,
         TwigService $twigService,
         TypeRepository $typeRepository,
+        ModelWrapper $modelWrapper,
         private readonly PortRepository $portRepository,
         private readonly LogRepository $logRepository,
         private readonly PortMapper $portMapper,
         private readonly DirectConnectMapper $directConnectMapper,
     ) {
-        parent::__construct($transformService, $twigService, $typeRepository);
+        parent::__construct($transformService, $twigService, $typeRepository, $modelWrapper);
     }
 
     /**
@@ -269,7 +271,7 @@ class IoFormatter extends AbstractHcFormatter
         }
 
         if ($log->getType() === MasterService::TYPE_DATA && $log->getCommand() < (int) $module->getConfig()) {
-            $port = $this->portMapper->getPort(new Port(), $log->getRawData());
+            $port = $this->portMapper->getPort(new Port($this->modelWrapper), $log->getRawData());
 
             $return =
                 '<table>' .

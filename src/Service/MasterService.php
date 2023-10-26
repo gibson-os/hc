@@ -12,6 +12,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\DateTimeService;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
@@ -26,6 +27,8 @@ use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\Protocol\UdpService;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
@@ -57,7 +60,8 @@ class MasterService
         private readonly LoggerInterface $logger,
         private readonly MasterRepository $masterRepository,
         private readonly DateTimeService $dateTimeService,
-        private readonly ModelManager $modelManager
+        private readonly ModelManager $modelManager,
+        private readonly ModelWrapper $modelWrapper,
     ) {
     }
 
@@ -68,6 +72,8 @@ class MasterService
      * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
+     * @throws RecordException
+     * @throws ClientException
      */
     public function receive(Master $master, BusMessage $busMessage): void
     {
@@ -155,9 +161,11 @@ class MasterService
     /**
      * @throws AbstractException
      * @throws GetError
-     * @throws SaveError
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
+     * @throws SaveError
+     * @throws ClientException
      */
     public function handshake(ProtocolInterface $protocolService, BusMessage $busMessage): void
     {
@@ -236,7 +244,11 @@ class MasterService
     }
 
     /**
+     * @throws ClientException
      * @throws FactoryError
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     private function slaveHandshake(Master $master, int $address): Module
@@ -249,7 +261,7 @@ class MasterService
                 $address,
                 $master->getAddress()
             ));
-            $slave = (new Module())
+            $slave = (new Module($this->modelWrapper))
                 ->setName('Neues Modul')
                 ->setAddress($address)
                 ->setMaster($master)
@@ -269,8 +281,12 @@ class MasterService
     }
 
     /**
+     * @throws ClientException
      * @throws FactoryError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     private function moduleReceive(Master $master, BusMessage $busMessage): Module

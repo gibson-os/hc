@@ -9,6 +9,7 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -17,6 +18,8 @@ use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
@@ -27,21 +30,24 @@ abstract class AbstractModule
     abstract public function handshake(Module $slave): Module;
 
     public function __construct(
-        protected MasterService $masterService,
-        protected TransformService $transformService,
+        protected readonly MasterService $masterService,
+        protected readonly TransformService $transformService,
         private readonly LogRepository $logRepository,
-        protected LoggerInterface $logger,
-        protected ModelManager $modelManager
+        protected readonly LoggerInterface $logger,
+        protected readonly ModelManager $modelManager,
+        protected readonly ModelWrapper $modelWrapper,
     ) {
     }
 
     /**
      * @throws AbstractException
+     * @throws ClientException
+     * @throws FactoryError
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
-     * @throws FactoryError
      */
     public function write(Module $slave, int $command, string $data): void
     {
@@ -71,12 +77,14 @@ abstract class AbstractModule
 
     /**
      * @throws AbstractException
+     * @throws ClientException
      * @throws FactoryError
+     * @throws GetError
      * @throws JsonException
      * @throws ReceiveError
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
-     * @throws GetError
      */
     public function read(Module $slave, int $command, int $length): string
     {
@@ -119,9 +127,11 @@ abstract class AbstractModule
     }
 
     /**
-     * @throws SaveError
      * @throws JsonException
      * @throws ReflectionException
+     * @throws SaveError
+     * @throws ClientException
+     * @throws RecordException
      */
     private function addLog(Module $slave, int $command, string $data, Direction $direction): void
     {

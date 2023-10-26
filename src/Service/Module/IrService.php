@@ -8,6 +8,7 @@ use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Event\IrEvent;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -39,6 +40,7 @@ class IrService extends AbstractHcModule
         ModuleFactory $moduleFactory,
         LoggerInterface $logger,
         ModelManager $modelManager,
+        ModelWrapper $modelWrapper,
         private readonly IrFormatter $irFormatter
     ) {
         parent::__construct(
@@ -51,7 +53,8 @@ class IrService extends AbstractHcModule
             $logRepository,
             $moduleFactory,
             $logger,
-            $modelManager
+            $modelManager,
+            $modelWrapper,
         );
     }
 

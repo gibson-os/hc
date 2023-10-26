@@ -6,12 +6,21 @@ namespace GibsonOS\Module\Hc\Repository\Warehouse\Box;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
+use GibsonOS\Core\Wrapper\RepositoryWrapper;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use GibsonOS\Module\Hc\Model\Warehouse\Tag;
+use JsonException;
+use MDO\Dto\Query\Join;
+use MDO\Dto\Query\Where;
+use MDO\Enum\OrderDirection;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class ItemRepository extends AbstractRepository
 {
     public function __construct(
+        RepositoryWrapper $repositoryWrapper,
         #[GetTableName(Item::class)]
         private readonly string $itemTableName,
         #[GetTableName(Item\Tag::class)]
@@ -19,10 +28,15 @@ class ItemRepository extends AbstractRepository
         #[GetTableName(Tag::class)]
         private readonly string $tagTableName,
     ) {
+        parent::__construct($repositoryWrapper);
     }
 
     /**
      * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      */
     public function getById(int $id): Item
     {
@@ -30,7 +44,10 @@ class ItemRepository extends AbstractRepository
     }
 
     /**
-     * @throws SelectError
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Item[]
      */
@@ -40,14 +57,17 @@ class ItemRepository extends AbstractRepository
             '`name` REGEXP ?',
             [$this->getRegexString($name)],
             Item::class,
-            orderBy: '`name`'
+            orderBy: ['`name`' => OrderDirection::ASC],
         );
     }
 
     /**
      * @param string[] $nameParts
      *
-     * @throws SelectError
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Item[]
      */
@@ -58,37 +78,20 @@ class ItemRepository extends AbstractRepository
             $nameParts
         );
 
-        $table = $this->getTable($this->itemTableName);
-        $table
-            ->appendJoinLeft(
-                $this->itemTagTableName,
-                sprintf('`%s`.`id`=`%s`.`item_id`', $this->itemTableName, $this->itemTagTableName)
-            )
-            ->appendJoinLeft(
-                $this->tagTableName,
-                sprintf('`%s`.`id`=`%s`.`tag_id`', $this->tagTableName, $this->itemTagTableName)
-            )
-            ->setWhere(sprintf(
-                '(`%s`.`name` REGEXP %s) OR (`%s`.`name` REGEXP %s)',
-                $this->itemTableName,
-                $table->getParametersString(
-                    $nameParts,
-                    sprintf(' AND `%s`.`name` REGEXP ', $this->itemTableName)
+        $selectQuery = $this->getSelectQuery($this->itemTableName, 'i')
+            ->addJoin(new Join($this->getTable($this->itemTagTableName), 'it', '`i`.`id`=`it`.`item_id`'))
+            ->addJoin(new Join($this->getTable($this->tagTableName), 't', '`t`.`id`=`it`.`tag_id`'))
+            ->addWhere(new Where(
+                sprintf(
+                    '(`i`.`name` REGEXP %s) OR (`t`.`name` REGEXP %s)',
+                    $this->getRepositoryWrapper()->getSelectService()->getParametersString($nameParts, ' AND `i`.`name` REGEXP '),
+                    $this->getRepositoryWrapper()->getSelectService()->getParametersString($nameParts, ' AND `t`.`name` REGEXP '),
                 ),
-                $this->tagTableName,
-                $table->getParametersString(
-                    $nameParts,
-                    sprintf(' AND `%s`.`name` REGEXP ', $this->tagTableName)
-                )
+                array_merge($nameParts, $nameParts),
             ))
-            ->setWhereParameters(array_merge($nameParts, $nameParts))
-            ->setOrderBy(sprintf(
-                '`%s`.`name`, `%s`.`name`',
-                $this->tagTableName,
-                $this->itemTableName,
-            ))
+            ->setOrders(['`t`.`name`' => OrderDirection::ASC, '`i`.`name`' => OrderDirection::ASC])
         ;
 
-        return $this->getModels($table, Item::class);
+        return $this->getModels($selectQuery, Item::class);
     }
 }

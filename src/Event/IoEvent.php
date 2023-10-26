@@ -17,6 +17,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Service\FcmService;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
 use GibsonOS\Module\Hc\Dto\Io\Direction;
 use GibsonOS\Module\Hc\Dto\Parameter\Io\PortParameter;
@@ -284,6 +285,7 @@ class IoEvent extends AbstractHcEvent
         private readonly IoService $ioService,
         private readonly PortRepository $portRepository,
         private readonly DirectConnectRepository $directConnectRepository,
+        private readonly ModelWrapper $modelWrapper,
     ) {
         parent::__construct($eventService, $reflectionManager, $typeRepository, $logger, $fcmService, $this->ioService);
     }
@@ -561,7 +563,7 @@ class IoEvent extends AbstractHcEvent
     ): void {
         $this->ioService->saveDirectConnect(
             $module,
-            (new DirectConnect())
+            (new DirectConnect($this->modelWrapper))
                 ->setInputPort($inputPort)
                 ->setOutputPort($outputPort)
                 ->setInputValue($inputValue)

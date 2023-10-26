@@ -13,6 +13,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Event\AbstractHcEvent;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -170,9 +171,10 @@ abstract class AbstractHcModule extends AbstractModule
         LogRepository $logRepository,
         private readonly ModuleFactory $moduleFactory,
         LoggerInterface $logger,
-        ModelManager $modelManager
+        ModelManager $modelManager,
+        ModelWrapper $modelWrapper,
     ) {
-        parent::__construct($masterService, $transformService, $logRepository, $logger, $modelManager);
+        parent::__construct($masterService, $transformService, $logRepository, $logger, $modelManager, $modelWrapper);
     }
 
     /**

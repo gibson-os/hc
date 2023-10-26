@@ -8,11 +8,17 @@ use Exception;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Repository\AbstractRepository;
+use GibsonOS\Core\Wrapper\RepositoryWrapper;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type\DefaultAddress;
+use JsonException;
+use MDO\Dto\Query\Where;
+use MDO\Dto\Record;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class MasterRepository extends AbstractRepository
 {
@@ -23,18 +29,20 @@ class MasterRepository extends AbstractRepository
     private const FIRST_SLAVE_ADDRESS = 8;
 
     public function __construct(
-        private ModelManager $modelManager,
-        #[GetTableName(Master::class)]
-        private string $masterTableName,
+        RepositoryWrapper $repositoryWrapper,
         #[GetTableName(DefaultAddress::class)]
-        private string $defaultAddressTableName,
+        private readonly string $defaultAddressTableName,
         #[GetTableName(Module::class)]
-        private string $moduleTableName,
+        private readonly string $moduleTableName,
     ) {
+        parent::__construct($repositoryWrapper);
     }
 
     /**
-     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Master[]
      */
@@ -44,6 +52,10 @@ class MasterRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getById(int $id): Master
@@ -52,6 +64,10 @@ class MasterRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getByAddress(string $address, string $protocol): Master
@@ -60,6 +76,10 @@ class MasterRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getByName(string $name, string $protocol): Master
@@ -73,52 +93,52 @@ class MasterRepository extends AbstractRepository
      */
     public function add(string $name, string $protocol, string $address): Master
     {
-        $model = (new Master())
+        $model = (new Master($this->getRepositoryWrapper()->getModelWrapper()))
             ->setName($name)
             ->setProtocol($protocol)
             ->setAddress($address)
             ->setSendPort($this->findFreePort())
-            ->setAdded(new DateTime());
-        $this->modelManager->save($model);
+            ->setAdded(new DateTime())
+        ;
+        $this->getRepositoryWrapper()->getModelManager()->save($model);
 
         return $model;
     }
 
     /**
+     * @throws ClientException
+     * @throws RecordException
      * @throws SelectError
      */
     public function getNextFreeAddress(int $masterId): int
     {
-        $table = $this->getTable($this->moduleTableName)
-            ->setWhere('`master_id`=?')
-            ->addWhereParameter($masterId)
+        $moduleSelectQuery = $this->getSelectQuery($this->moduleTableName)
+            ->addWhere(new Where('`master_id`=?', [$masterId]))
+            ->setSelects(['address' => '`address`'])
         ;
-        $table->setSelectString('`address`');
+        $typeDefaultAddressSelectQuery = $this->getSelectQuery($this->defaultAddressTableName)
+            ->setSelects(['address' => '`address`'])
+        ;
 
-        $typeDefaultAddressTable = $this->getTable($this->defaultAddressTableName);
-        $typeDefaultAddressTable->setSelectString('`address`');
-
-        $table->appendUnion($typeDefaultAddressTable->getSelect());
-        $table->setOrderBy('`address`');
-
-        if ($table->selectPrepared(false) === false) {
-            $exception = new SelectError('Konnte reservierte Adressen nicht laden!');
-            $exception->setTable($table);
-
-            throw $exception;
-        }
-
-        $reservedAddresses = $table->connection->fetchResultList();
+        $result = $this->getRepositoryWrapper()->getClient()->execute(
+            sprintf(
+                'SELECT (%s) UNION ALL (%s) ORDER BY `address`',
+                $moduleSelectQuery->getQuery(),
+                $typeDefaultAddressSelectQuery->getQuery(),
+            ),
+            $moduleSelectQuery->getWhereParameters(),
+        );
+        $reservedAddresses = array_map(
+            static fn (Record $record): int => (int) $record->get('address')->getValue(),
+            iterator_to_array($result->iterateRecords()),
+        );
         $address = self::FIRST_SLAVE_ADDRESS;
 
         while (in_array($address, $reservedAddresses)) {
             ++$address;
 
             if ($address > Module::MAX_ADDRESS) {
-                $exception = new SelectError('Keine freie Adresse vorhanden!');
-                $exception->setTable($table);
-
-                throw $exception;
+                throw new SelectError('Keine freie Adresse vorhanden!');
             }
         }
 
@@ -126,7 +146,10 @@ class MasterRepository extends AbstractRepository
     }
 
     /**
-     * @throws SelectError
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Master[]
      */
@@ -137,14 +160,15 @@ class MasterRepository extends AbstractRepository
 
     private function findFreePort(): int
     {
-        $table = $this->getTable($this->masterTableName);
         $port = mt_rand(self::MIN_PORT, self::MAX_PORT);
-        $table
-            ->setWhere('`send_port`=?')
-            ->addWhereParameter($port)
-        ;
+        $aggregations = $this->getAggregations(
+            ['count' => 'COUNT(`id`)'],
+            Master::class,
+            '`send_port=?',
+            [$port],
+        );
 
-        if (!$table->selectPrepared(false)) {
+        if ((int) $aggregations->get('count')->getValue() > 0) {
             return $this->findFreePort();
         }
 

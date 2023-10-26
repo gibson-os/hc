@@ -12,6 +12,7 @@ use GibsonOS\Core\Model\AutoCompleteModelInterface;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led;
 use JsonSerializable;
+use MDO\Enum\OrderDirection;
 
 /**
  * @method Module    getModule()
@@ -50,7 +51,7 @@ class Animation extends AbstractModel implements JsonSerializable, AutoCompleteM
     #[Constraint]
     protected Module $module;
 
-    #[Constraint('animation', Led::class, orderBy: '`id`')]
+    #[Constraint('animation', Led::class, orderBy: ['`id`' => OrderDirection::ASC])]
     protected array $leds = [];
 
     public function getId(): ?int

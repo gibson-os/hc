@@ -6,48 +6,55 @@ namespace GibsonOS\Module\Hc\Repository;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
+use GibsonOS\Core\Wrapper\RepositoryWrapper;
 use GibsonOS\Module\Hc\Model\Type;
+use JsonException;
+use MDO\Dto\Query\Join;
+use MDO\Dto\Query\Where;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class TypeRepository extends AbstractRepository
 {
     public function __construct(
+        RepositoryWrapper $repositoryWrapper,
         #[GetTableName(Type::class)]
-        private string $typeTableName,
+        private readonly string $typeTableName,
         #[GetTableName(Type\DefaultAddress::class)]
-        private string $defaultAddressTableName,
+        private readonly string $defaultAddressTableName,
     ) {
+        parent::__construct($repositoryWrapper);
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getByDefaultAddress(int $address): Type
     {
-        $tableName = $this->typeTableName;
-        $defaultAddressTableName = $this->defaultAddressTableName;
-        $table = self::getTable($tableName);
-        $table
-            ->appendJoin(
-                '`' . $defaultAddressTableName . '`',
-                '`' . $tableName . '`.`id`=`' . $defaultAddressTableName . '`.`type_id`'
-            )
-            ->setWhere('`' . $defaultAddressTableName . '`.`address`=?')
-            ->addWhereParameter($address)
+        $selectQuery = $this->getSelectQuery($this->typeTableName, 't')
+            ->addJoin(new Join(
+                $this->getTable($this->defaultAddressTableName),
+                'da',
+                '`t`.`id`=`da`.`type_id`',
+            ))
+            ->addWhere(new Where('`da`.`address`=?', [$address]))
             ->setLimit(1)
         ;
 
-        if (!$table->selectPrepared()) {
-            $exception = new SelectError(sprintf('No type under default address %d!', $address));
-            $exception->setTable($table);
-
-            throw $exception;
-        }
-
-        return $this->getModel($table, Type::class);
+        return $this->getModel($selectQuery, Type::class);
     }
 
     /**
      * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      */
     public function getById(int $id): Type
     {
@@ -55,6 +62,10 @@ class TypeRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getByHelperName(string $helperName): Type
@@ -63,7 +74,10 @@ class TypeRepository extends AbstractRepository
     }
 
     /**
-     * @throws SelectError
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Type[]
      */

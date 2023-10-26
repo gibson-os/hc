@@ -22,6 +22,7 @@ use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Service\Response\ExceptionResponse;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Exception\IrException;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
@@ -72,12 +73,13 @@ class IrController extends AbstractController
     #[CheckPermission([Permission::MANAGE, Permission::WRITE])]
     public function postKey(
         ModelManager $modelManager,
+        ModelWrapper $modelWrapper,
         #[GetMappedModel]
         Key $key,
         string $name,
     ): AjaxResponse {
         $key->unloadNames();
-        $key->addNames([(new Name())->setName($name)]);
+        $key->addNames([(new Name($modelWrapper))->setName($name)]);
         $modelManager->save($key);
 
         return $this->returnSuccess();

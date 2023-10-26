@@ -14,6 +14,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Event\NeopixelEvent;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -74,10 +75,11 @@ class NeopixelService extends AbstractHcModule
         ModuleFactory $moduleFactory,
         LoggerInterface $logger,
         ModelManager $modelManager,
+        ModelWrapper $modelWrapper,
         private readonly LedMapper $ledMapper,
         private readonly LedService $ledService,
         private readonly LedStore $ledStore,
-        private readonly LedRepository $ledRepository
+        private readonly LedRepository $ledRepository,
     ) {
         parent::__construct(
             $masterService,
@@ -89,7 +91,8 @@ class NeopixelService extends AbstractHcModule
             $logRepository,
             $moduleFactory,
             $logger,
-            $modelManager
+            $modelManager,
+            $modelWrapper,
         );
     }
 
@@ -135,12 +138,12 @@ class NeopixelService extends AbstractHcModule
                 }
 
                 $this->modelManager->save(
-                    (new Led())
-                    ->setModule($module)
-                    ->setNumber($number)
-                    ->setChannel($channel)
-                    ->setTop($channel * 3)
-                    ->setLeft($i * 3)
+                    (new Led($this->modelWrapper))
+                        ->setModule($module)
+                        ->setNumber($number)
+                        ->setChannel($channel)
+                        ->setTop($channel * 3)
+                        ->setLeft($i * 3)
                 );
                 ++$number;
             }

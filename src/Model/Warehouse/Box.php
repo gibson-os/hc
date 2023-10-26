@@ -13,6 +13,7 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Led;
 use JsonSerializable;
+use MDO\Enum\OrderDirection;
 
 /**
  * @method Module getModule()
@@ -58,7 +59,7 @@ class Box extends AbstractModel implements JsonSerializable, AutoCompleteModelIn
     #[Constraint('box', Led::class)]
     protected array $leds = [];
 
-    #[Constraint('box', Item::class, orderBy: '`id`')]
+    #[Constraint('box', Item::class, orderBy: ['`id`' => OrderDirection::ASC])]
     protected array $items = [];
 
     public function getId(): ?int

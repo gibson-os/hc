@@ -10,6 +10,7 @@ use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\Event;
 use GibsonOS\Module\Hc\Model\Ir\Remote;
 use JsonSerializable;
+use MDO\Enum\OrderDirection;
 
 /**
  * @method Remote     getRemote()
@@ -80,7 +81,7 @@ class Button extends AbstractModel implements JsonSerializable
     #[Constraint(onDelete: Constraint::RULE_SET_NULL)]
     protected ?Event $event;
 
-    #[Constraint('button', Key::class, orderBy: '`order`')]
+    #[Constraint('button', Key::class, orderBy: ['`order`' => OrderDirection::ASC])]
     protected array $keys = [];
 
     public function getId(): ?int

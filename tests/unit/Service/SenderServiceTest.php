@@ -11,12 +11,12 @@ use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\SenderService;
-use Prophecy\PhpUnit\ProphecyTrait;
+use GibsonOS\Test\Unit\Core\ModelManagerTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
 class SenderServiceTest extends Unit
 {
-    use ProphecyTrait;
+    use ModelManagerTrait;
 
     private SenderService $senderService;
 
@@ -26,6 +26,8 @@ class SenderServiceTest extends Unit
 
     protected function _before(): void
     {
+        $this->loadModelManager();
+
         $this->masterMapper = $this->prophesize(MasterMapper::class);
         $this->protocolFactory = $this->prophesize(ProtocolFactory::class);
         $this->senderService = new SenderService(
@@ -71,7 +73,7 @@ class SenderServiceTest extends Unit
             $this->expectException(ReceiveError::class);
         }
 
-        $master = (new Master())
+        $master = (new Master($this->modelWrapper->reveal()))
             ->setProtocol('galaxy')
             ->setSendPort(420042)
             ->setAddress('42.42.42.42')
@@ -82,7 +84,7 @@ class SenderServiceTest extends Unit
 
     public function testReceiveReceiveReturn(): void
     {
-        $master = (new Master())
+        $master = (new Master($this->modelWrapper->reveal()))
             ->setProtocol('prefect')
             ->setAddress('42.42.42.42')
         ;

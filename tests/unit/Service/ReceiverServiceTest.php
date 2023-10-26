@@ -16,7 +16,6 @@ use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
 use GibsonOS\Module\Hc\Service\ReceiverService;
 use GibsonOS\Test\Unit\Core\ModelManagerTrait;
-use mysqlDatabase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
@@ -44,7 +43,6 @@ class ReceiverServiceTest extends Unit
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->serviceManager = new ServiceManager();
         $this->serviceManager->setInterface(LoggerInterface::class, LoggerService::class);
-        $this->serviceManager->setService(mysqlDatabase::class, $this->mysqlDatabase->reveal());
         $this->serviceManager->setService(ModelManager::class, $this->modelManager->reveal());
 
         $this->receiverService = new ReceiverService(
@@ -146,7 +144,7 @@ class ReceiverServiceTest extends Unit
         $this->masterMapper->checksumEqual($busMessage)
             ->shouldBeCalledOnce()
         ;
-        $master = new Master();
+        $master = new Master($this->modelWrapper->reveal());
         $this->masterRepository->getByAddress('42.42.42.42', 'galaxy')
             ->shouldBeCalledOnce()
             ->willReturn($master)

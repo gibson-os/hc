@@ -5,24 +5,24 @@ namespace GibsonOS\Module\Hc\Service\Neopixel;
 
 use Exception;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led as AnimationLed;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Service\Module\NeopixelService;
-use JsonException;
 use OutOfRangeException;
 
 class LedService
 {
-    public function __construct(private readonly LedRepository $ledRepository)
-    {
+    public function __construct(
+        private readonly LedRepository $ledRepository,
+        private readonly ModelWrapper $modelWrapper,
+    ) {
     }
 
     /**
      * @param Led[] $leds
-     *
-     * @throws JsonException
      *
      * @return int[]
      */
@@ -37,9 +37,6 @@ class LedService
         return $lastIds;
     }
 
-    /**
-     * @throws JsonException
-     */
     public function getNumberById(Module $slave, int $id): int
     {
         $config = JsonUtility::decode((string) $slave->getConfig());
@@ -74,7 +71,7 @@ class LedService
         }
 
         for ($i = $ledCount; $i < $ledConfigCount; ++$i) {
-            $actualLeds[$i] = (new Led())
+            $actualLeds[$i] = (new Led($this->modelWrapper))
                 ->setModule($module)
                 ->setNumber($i)
             ;
@@ -100,9 +97,6 @@ class LedService
 
     /**
      * @param Led[] $leds
-     *
-     * @throws OutOfRangeException
-     * @throws JsonException
      */
     public function getChannelCounts(Module $slave, array $leds): array
     {
@@ -120,9 +114,6 @@ class LedService
         return $counts;
     }
 
-    /**
-     * @throws JsonException
-     */
     private function setLedChannel(Module $slave, Led $led): int
     {
         $config = JsonUtility::decode((string) $slave->getConfig());

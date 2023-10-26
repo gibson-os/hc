@@ -14,6 +14,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
@@ -38,6 +39,7 @@ class ModuleController extends AbstractController
         ModuleFactory $moduleFactory,
         DateTimeService $dateTimeService,
         ModelManager $modelManager,
+        ModelWrapper $modelWrapper,
         #[GetModel(['id' => 'masterId'])]
         Master $master,
         #[GetModel(['address' => 'address', 'master_id' => 'masterId'])]
@@ -57,7 +59,7 @@ class ModuleController extends AbstractController
             ));
         }
 
-        $slave = (new Module())
+        $slave = (new Module($modelWrapper))
             ->setName($name)
             ->setAddress($address)
             ->setMaster($master)

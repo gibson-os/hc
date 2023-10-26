@@ -10,6 +10,7 @@ use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Mapper\Bme280Mapper;
 use GibsonOS\Module\Hc\Model\Module;
@@ -56,9 +57,10 @@ class Bme280Service extends AbstractModule
         LogRepository $logRepository,
         private readonly Bme280Mapper $bme280Mapper,
         LoggerInterface $logger,
-        ModelManager $modelManager
+        ModelManager $modelManager,
+        ModelWrapper $modelWrapper,
     ) {
-        parent::__construct($masterService, $transformService, $logRepository, $logger, $modelManager);
+        parent::__construct($masterService, $transformService, $logRepository, $logger, $modelManager, $modelWrapper);
     }
 
     /**

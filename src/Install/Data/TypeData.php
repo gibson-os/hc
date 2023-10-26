@@ -12,11 +12,17 @@ use GibsonOS\Core\Service\PriorityInterface;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Type;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class TypeData extends AbstractInstall implements PriorityInterface
 {
     /**
+     * @throws ClientException
      * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SaveError
      */
     public function install(string $module): Generator
@@ -39,8 +45,11 @@ class TypeData extends AbstractInstall implements PriorityInterface
     /**
      * @param int[] $defaultAddresses
      *
-     * @throws SaveError
      * @throws JsonException
+     * @throws SaveError
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      */
     private function setType(
         int $id,
@@ -53,7 +62,7 @@ class TypeData extends AbstractInstall implements PriorityInterface
         array $defaultAddresses = []
     ): TypeData {
         $this->logger->info(sprintf('Add homecontrol type #%d "%s"', $id, $name));
-        $type = (new Type())
+        $type = (new Type($this->modelWrapper))
             ->setId($id)
             ->setName($name)
             ->setHelper($helper)
@@ -66,7 +75,7 @@ class TypeData extends AbstractInstall implements PriorityInterface
 
         foreach ($defaultAddresses as $defaultAddress) {
             $this->modelManager->save(
-                (new Type\DefaultAddress())
+                (new Type\DefaultAddress($this->modelWrapper))
                     ->setType($type)
                     ->setAddress($defaultAddress)
             );

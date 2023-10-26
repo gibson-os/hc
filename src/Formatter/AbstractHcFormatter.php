@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\TwigService;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Type;
@@ -41,8 +42,9 @@ abstract class AbstractHcFormatter extends AbstractFormatter
 
     public function __construct(
         TransformService $transformService,
-        protected TwigService $twigService,
-        protected TypeRepository $typeRepository
+        protected readonly TwigService $twigService,
+        protected readonly TypeRepository $typeRepository,
+        protected readonly ModelWrapper $modelWrapper,
     ) {
         parent::__construct($transformService);
 
@@ -113,7 +115,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
                     try {
                         $this->loadedTypes[$typeId] = $this->typeRepository->getById($typeId);
                     } catch (SelectError) {
-                        $this->loadedTypes[$typeId] = (new Type())
+                        $this->loadedTypes[$typeId] = (new Type($this->modelWrapper))
                             ->setId($typeId)
                             ->setName('Unbekannter Typ')
                         ;

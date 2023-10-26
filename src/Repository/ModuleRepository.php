@@ -5,46 +5,54 @@ namespace GibsonOS\Module\Hc\Repository;
 
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\GetError;
-use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
+use GibsonOS\Core\Wrapper\RepositoryWrapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
+use JsonException;
+use MDO\Dto\Query\Where;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use MDO\Query\DeleteQuery;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 class ModuleRepository extends AbstractRepository
 {
     private const MAX_GENERATE_DEVICE_ID_RETRY = 10;
 
     public function __construct(
-        private LoggerInterface $logger,
+        RepositoryWrapper $repositoryWrapper,
+        private readonly LoggerInterface $logger,
         #[GetTableName(Module::class)]
-        private string $moduleTableName
+        private readonly string $moduleTableName
     ) {
+        parent::__construct($repositoryWrapper);
     }
 
     public function create(string $name, Type $type): Module
     {
-        $this->logger->debug(sprintf('Create slave with name %d and type %d', $name, $type->getName()));
+        $this->logger->debug(sprintf('Create module with name %d and type %d', $name, $type->getName()));
 
-        return (new Module())
+        return (new Module($this->getRepositoryWrapper()->getModelWrapper()))
             ->setName($name)
             ->setType($type)
         ;
     }
 
     /**
-     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Module[]
      */
     public function findByName(string $name, int $typeId = null): array
     {
         $this->logger->debug(sprintf('Find slave with name %s and type id %d', $name, $typeId ?? 0));
-
-        $tableName = $this->moduleTableName;
-        $table = self::getTable($tableName);
 
         $where = '`name` LIKE ?';
         $parameters = [$name . '%'];
@@ -54,13 +62,14 @@ class ModuleRepository extends AbstractRepository
             $parameters[] = $typeId;
         }
 
-        $table->setWhere($where);
-
         return $this->fetchAll($where, $parameters, Module::class);
     }
 
     /**
-     * @throws SelectError
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Module[]
      */
@@ -72,6 +81,10 @@ class ModuleRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getByDeviceId(int $deviceId): Module
@@ -82,6 +95,10 @@ class ModuleRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getById(int $id): Module
@@ -92,6 +109,10 @@ class ModuleRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getByAddress(int $address, int $masterId): Module
@@ -102,7 +123,10 @@ class ModuleRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
      * @throws GetError
+     * @throws RecordException
+     * @throws SelectError
      */
     public function getFreeDeviceId(int $tryCount = 0): int
     {
@@ -111,9 +135,14 @@ class ModuleRepository extends AbstractRepository
         $deviceId = mt_rand(1, AbstractHcModule::MAX_DEVICE_ID);
         ++$tryCount;
 
-        $count = $this->getAggregate('COUNT(`device_id`)', Module::class, '`device_id`=?', [$deviceId]);
+        $aggregations = $this->getAggregations(
+            ['count' => 'COUNT(`device_id`)'],
+            Module::class,
+            '`device_id`=?',
+            [$deviceId],
+        );
 
-        if (!empty($count) && (int) $count[0] > 0) {
+        if ((int) $aggregations->get('count')->getValue() > 0) {
             if ($tryCount === self::MAX_GENERATE_DEVICE_ID_RETRY) {
                 throw new GetError('Es konnte keine freie Device ID ermittelt werden!');
             }
@@ -126,24 +155,27 @@ class ModuleRepository extends AbstractRepository
 
     /**
      * @param int[] $ids
-     *
-     * @throws DeleteError
      */
-    public function deleteByIds(array $ids)
+    public function deleteByIds(array $ids): bool
     {
         $this->logger->debug(sprintf('Delete slaves by IDs %s', implode(', ', $ids)));
 
-        $table = self::getTable($this->moduleTableName);
-        $table
-            ->setWhere('`id` IN (' . $table->getParametersString($ids) . ')')
-            ->setWhereParameters($ids)
+        $deleteQuery = (new DeleteQuery($this->getTable($this->moduleTableName)))
+            ->addWhere(new Where(
+                sprintf(
+                    '`id` IN (%s)',
+                    $this->getRepositoryWrapper()->getSelectService()->getParametersString($ids),
+                ),
+                $ids,
+            ))
         ;
 
-        if (!$table->deletePrepared()) {
-            $exception = new DeleteError(sprintf('Slaves %s could not be deleted', implode(', ', $ids)));
-            $exception->setTable($table);
-
-            throw $exception;
+        try {
+            $this->getRepositoryWrapper()->getClient()->execute($deleteQuery);
+        } catch (ClientException) {
+            return false;
         }
+
+        return true;
     }
 }

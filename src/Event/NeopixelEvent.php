@@ -19,6 +19,7 @@ use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Service\FcmService;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\Parameter\ModuleParameter;
 use GibsonOS\Module\Hc\Dto\Parameter\Neopixel\ImageParameter;
 use GibsonOS\Module\Hc\Exception\WriteException;
@@ -47,6 +48,7 @@ class NeopixelEvent extends AbstractHcEvent
         TypeRepository $typeRepository,
         LoggerInterface $logger,
         FcmService $fcmService,
+        private readonly ModelWrapper $modelWrapper,
         private readonly NeopixelService $neopixelService,
         private readonly LedRepository $ledRepository,
     ) {
@@ -314,7 +316,7 @@ class NeopixelEvent extends AbstractHcEvent
             $blue = mt_rand($blueFrom, $blueTo);
             $this->logger->debug(sprintf('Set LED %d to %d,%d,%d', $i - 1, $red, $green, $blue));
 
-            $leds[$i - 1] = (new Led())
+            $leds[$i - 1] = (new Led($this->modelWrapper))
                 ->setModule($module)
                 ->setNumber($i - 1)
                 ->setRed($red)

@@ -5,6 +5,7 @@ namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\TwigService;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
 use GibsonOS\Module\Hc\Dto\Ir\Protocol;
 use GibsonOS\Module\Hc\Model\Ir\Key;
@@ -14,6 +15,10 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\Module\IrService;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
@@ -24,9 +29,10 @@ class IrFormatter extends AbstractHcFormatter
         TransformService $transformService,
         TwigService $twigService,
         TypeRepository $typeRepository,
+        ModelWrapper $modelWrapper,
         private readonly KeyRepository $keyRepository,
     ) {
-        parent::__construct($transformService, $twigService, $typeRepository);
+        parent::__construct($transformService, $twigService, $typeRepository, $modelWrapper);
     }
 
     /**
@@ -71,6 +77,11 @@ class IrFormatter extends AbstractHcFormatter
     }
 
     /**
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
+     *
      * @return Key[]
      */
     public function getKeys(string $data): array
@@ -91,7 +102,7 @@ class IrFormatter extends AbstractHcFormatter
             try {
                 $key = $this->keyRepository->getByProtocolAddressAndCommand($protocol, $address, $command);
             } catch (SelectError) {
-                $key = (new Key())
+                $key = (new Key($this->modelWrapper))
                     ->setProtocol($protocol)
                     ->setCommand($command)
                     ->setAddress($address)

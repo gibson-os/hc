@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Mapper\Io;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
@@ -15,6 +16,7 @@ class DirectConnectMapper
     public function __construct(
         private readonly TransformService $transformService,
         private readonly PortRepository $portRepository,
+        private readonly ModelWrapper $modelWrapper,
     ) {
     }
 
@@ -34,7 +36,7 @@ class DirectConnectMapper
 
         $value = (bool) (($setByte >> 2) & 1);
 
-        return (new DirectConnect())
+        return (new DirectConnect($this->modelWrapper))
             ->setInputPort($inputPort)
             ->setInputValue((bool) ($inputValueAndOutputPortByte >> 7))
             ->setOutputPort($this->portRepository->getByNumber(

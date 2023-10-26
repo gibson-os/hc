@@ -6,22 +6,35 @@ namespace GibsonOS\Module\Hc\Repository\Ir;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
+use GibsonOS\Core\Wrapper\RepositoryWrapper;
 use GibsonOS\Module\Hc\Dto\Ir\Protocol;
 use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Ir\Key\Name;
+use JsonException;
+use MDO\Dto\Query\Join;
+use MDO\Dto\Query\Where;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class KeyRepository extends AbstractRepository
 {
     public function __construct(
+        RepositoryWrapper $repositoryWrapper,
         #[GetTableName(Key::class)]
         private readonly string $keyTableName,
         #[GetTableName(Name::class)]
         private readonly string $nameTableName,
     ) {
+        parent::__construct($repositoryWrapper);
     }
 
     /**
      * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      */
     public function getById(int $id): Key
     {
@@ -29,6 +42,10 @@ class KeyRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getByProtocolAddressAndCommand(Protocol $protocol, int $address, int $command): Key
@@ -41,22 +58,21 @@ class KeyRepository extends AbstractRepository
     }
 
     /**
-     * @throws SelectError
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Key[]
      */
     public function findByName(string $name): array
     {
-        $table = $this->getTable($this->keyTableName)
-            ->appendJoin(
-                $this->nameTableName,
-                sprintf('`%s`.`id`=`%s`.`key_id`', $this->keyTableName, $this->nameTableName)
-            )
-            ->setWhere(sprintf('`%s`.`name` REGEXP ?', $this->nameTableName))
-            ->addWhereParameter($this->getRegexString($name))
-            ->setOrderBy(sprintf('`%s`.`name`', $this->nameTableName))
+        $selectQuery = $this->getSelectQuery($this->keyTableName, 'k')
+            ->addJoin(new Join($this->getTable($this->nameTableName), 'n', '`k`.`id`=`n`.`key_id`'))
+            ->addWhere(new Where('`n`.`name` REGEXP ?', [$this->getRegexString($name)]))
+            ->setOrder('`n`.`name`')
         ;
 
-        return $this->getModels($table, Key::class);
+        return $this->getModels($selectQuery, Key::class);
     }
 }

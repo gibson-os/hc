@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Mapper;
 
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led as AnimationLed;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
@@ -18,8 +19,10 @@ class LedMapper
 
     private const MIN_GROUP_LEDS = 2;
 
-    public function __construct(private readonly TransformService $transformService)
-    {
+    public function __construct(
+        private readonly TransformService $transformService,
+        private readonly ModelWrapper $modelWrapper,
+    ) {
     }
 
     /**
@@ -102,7 +105,7 @@ class LedMapper
 
     private function getLedByString(Module $module, string $data, int &$i): Led
     {
-        return (new Led())
+        return (new Led($this->modelWrapper))
             ->setModule($module)
             ->setRed($this->transformService->asciiToUnsignedInt($data, $i++))
             ->setGreen($this->transformService->asciiToUnsignedInt($data, $i++))

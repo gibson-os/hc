@@ -17,6 +17,7 @@ use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Exception\Neopixel\ImageExists;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Model\Module;
@@ -35,19 +36,20 @@ class NeopixelAnimationController extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function get(
         AnimationRepository $animationRepository,
+        ModelWrapper $modelWrapper,
         #[GetModel(['id' => 'moduleId'])]
         Module $module
     ): AjaxResponse {
         try {
             $startedAnimation = $animationRepository->getStarted($module);
         } catch (SelectError) {
-            $startedAnimation = new Animation();
+            $startedAnimation = new Animation($modelWrapper);
         }
 
         try {
             $transmittedAnimation = $animationRepository->getTransmitted($module);
         } catch (SelectError) {
-            $transmittedAnimation = new Animation();
+            $transmittedAnimation = new Animation($modelWrapper);
         }
 
         $return = $startedAnimation->jsonSerialize();

@@ -10,8 +10,8 @@ use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use JsonSerializable;
-use mysqlDatabase;
 
 #[Table]
 #[Key(unique: true, columns: ['protocol', 'address'])]
@@ -44,9 +44,9 @@ class Master extends AbstractModel implements JsonSerializable, AutoCompleteMode
     #[Column]
     private bool $offline = false;
 
-    public function __construct(mysqlDatabase $database = null)
+    public function __construct(ModelWrapper $modelWrapper)
     {
-        parent::__construct($database);
+        parent::__construct($modelWrapper);
 
         $this->added = new DateTimeImmutable();
         $this->modified = new DateTimeImmutable();
