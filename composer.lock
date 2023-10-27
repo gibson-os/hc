@@ -213,16 +213,16 @@
         },
         {
             "name": "gibson-os/core",
-            "version": "v4.3.0",
+            "version": "v4.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gibson-os/core.git",
-                "reference": "8bff9f759fb040624042f6a688a0c667c048ebd1"
+                "reference": "ce7432c18fe56e44f817d0674a2f2b78ba581673"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gibson-os/core/zipball/8bff9f759fb040624042f6a688a0c667c048ebd1",
-                "reference": "8bff9f759fb040624042f6a688a0c667c048ebd1",
+                "url": "https://api.github.com/repos/gibson-os/core/zipball/ce7432c18fe56e44f817d0674a2f2b78ba581673",
+                "reference": "ce7432c18fe56e44f817d0674a2f2b78ba581673",
                 "shasum": ""
             },
             "require": {
@@ -271,22 +271,22 @@
             "notification-url": "https://packagist.org/downloads/",
             "support": {
                 "issues": "https://github.com/gibson-os/core/issues",
-                "source": "https://github.com/gibson-os/core/tree/v4.3.0"
+                "source": "https://github.com/gibson-os/core/tree/v4.3.2"
             },
-            "time": "2023-10-26T22:06:16+00:00"
+            "time": "2023-10-27T10:53:03+00:00"
         },
         {
             "name": "gibson-os/mdo",
-            "version": "v2.11.1",
+            "version": "v2.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gibson-os/mdo.git",
-                "reference": "ab762546c8fef4c8ae768c27d19878a9c24cc65e"
+                "reference": "751e753ae11972101e8a9b717915548873e45b3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gibson-os/mdo/zipball/ab762546c8fef4c8ae768c27d19878a9c24cc65e",
-                "reference": "ab762546c8fef4c8ae768c27d19878a9c24cc65e",
+                "url": "https://api.github.com/repos/gibson-os/mdo/zipball/751e753ae11972101e8a9b717915548873e45b3b",
+                "reference": "751e753ae11972101e8a9b717915548873e45b3b",
                 "shasum": ""
             },
             "require": {
@@ -318,9 +318,9 @@
             "notification-url": "https://packagist.org/downloads/",
             "support": {
                 "issues": "https://github.com/gibson-os/mdo/issues",
-                "source": "https://github.com/gibson-os/mdo/tree/v2.11.1"
+                "source": "https://github.com/gibson-os/mdo/tree/v2.12.0"
             },
-            "time": "2023-10-25T19:49:44+00:00"
+            "time": "2023-10-27T07:52:29+00:00"
         },
         {
             "name": "google/auth",
@@ -3568,16 +3568,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.35.1",
+            "version": "v3.36.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "ec1ccc264994b6764882669973ca435cf05bab08"
+                "reference": "e889301f276c6ce2c391d6aafae9a162e785b064"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/ec1ccc264994b6764882669973ca435cf05bab08",
-                "reference": "ec1ccc264994b6764882669973ca435cf05bab08",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/e889301f276c6ce2c391d6aafae9a162e785b064",
+                "reference": "e889301f276c6ce2c391d6aafae9a162e785b064",
                 "shasum": ""
             },
             "require": {
@@ -3649,7 +3649,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.35.1"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.36.0"
             },
             "funding": [
                 {
@@ -3657,7 +3657,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-10-12T13:47:26+00:00"
+            "time": "2023-10-27T10:12:29+00:00"
         },
         {
             "name": "myclabs/deep-copy",

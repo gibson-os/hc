@@ -86,7 +86,7 @@ class HcSlaveController extends AbstractController
                         $moduleRepository->deleteByIds([$module->getId() ?? 0]);
                         $module->setId((int) $existingSlave->getId());
                         $typeId = $module->getTypeId();
-                        // @todo log umschreiben?
+                    // @todo log umschreiben?
                     } elseif ($deleteSlave) {
                         $moduleRepository->deleteByIds([(int) $existingSlave->getId()]);
                     } else {

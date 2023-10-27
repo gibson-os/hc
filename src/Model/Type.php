@@ -13,7 +13,7 @@ use JsonSerializable;
 #[Table]
 class Type extends AbstractModel implements JsonSerializable, AutoCompleteModelInterface
 {
-    #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
+    #[Column(type: Column::TYPE_SMALLINT, attributes: [Column::ATTRIBUTE_UNSIGNED], primary: true)]
     private ?int $id = null;
 
     #[Column(length: 32)]
