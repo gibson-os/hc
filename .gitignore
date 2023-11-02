@@ -1,2 +1,5 @@
 /vendor/
 .php-cs-fixer.cache
+.gibsonStore
+.env.test
+.phpunit.result.cache

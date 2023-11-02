@@ -19,6 +19,6 @@ class BlueprintStore extends AbstractDatabaseStore
 
     protected function getDefaultOrder(): array
     {
-        return ['name' => OrderDirection::ASC];
+        return ['`name`' => OrderDirection::ASC];
     }
 }

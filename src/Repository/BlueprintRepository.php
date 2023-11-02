@@ -24,31 +24,35 @@ class BlueprintRepository extends AbstractRepository
      */
     public function getExpanded(int $blueprintId, array $childrenTypes): Blueprint
     {
+        $wheres = [];
+
+        if (count($childrenTypes) > 0) {
+            $wheres[] = new Where(
+                sprintf(
+                    '`c`.`type` IN (%s)',
+                    $this->getRepositoryWrapper()->getSelectService()->getParametersString($childrenTypes),
+                ),
+                $childrenTypes,
+            );
+        }
+
         return $this->fetchOne(
-            '`id`=?',
-            [$blueprintId],
+            '`t`.`id`=:blueprintId',
+            ['blueprintId' => $blueprintId],
             Blueprint::class,
             children: [
                 new ChildrenMapping('geometries', 'geometry_', 'g', [
                     new ChildrenMapping('module', 'module_', 'm', [
-                        new ChildrenMapping('type', 'type_', 't'),
+                        new ChildrenMapping('type', 'type_', 'ty'),
                     ]),
                 ]),
                 new ChildrenMapping('children', 'children_', 'c', [
                     new ChildrenMapping('geometries', 'children_geometry_', 'cg', [
                         new ChildrenMapping('module', 'children_module_', 'cm', [
-                            new ChildrenMapping('type', 'children_type_', 'ct'),
+                            new ChildrenMapping('type', 'children_type_', 'cty'),
                         ]),
                     ]),
-                ], [
-                    new Where(
-                        sprintf(
-                            '`c`.`type` IN (%s)',
-                            $this->getRepositoryWrapper()->getSelectService()->getParametersString($childrenTypes),
-                        ),
-                        $childrenTypes,
-                    ),
-                ]),
+                ], $wheres),
             ],
         );
     }

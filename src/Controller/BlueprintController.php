@@ -12,14 +12,18 @@ use GibsonOS\Core\Service\Response\TwigResponse;
 use GibsonOS\Module\Hc\Repository\BlueprintRepository;
 use GibsonOS\Module\Hc\Store\BlueprintStore;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class BlueprintController extends AbstractController
 {
     /**
-     * @throws SelectError
      * @throws JsonException
      * @throws ReflectionException
+     * @throws SelectError
+     * @throws ClientException
+     * @throws RecordException
      */
     public function getIndex(
         BlueprintStore $blueprintStore,
