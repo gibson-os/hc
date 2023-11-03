@@ -9,7 +9,6 @@ use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\DateTimeService;
@@ -22,16 +21,23 @@ use GibsonOS\Module\Hc\Repository\ModuleRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Store\ModuleStore;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class ModuleController extends AbstractController
 {
     /**
-     * @throws SaveError
-     * @throws SelectError
+     * @param Master      $master
+     * @param Module|null $module
+     *
      * @throws FactoryError
      * @throws JsonException
      * @throws ReflectionException
+     * @throws SaveError
+     * @throws SelectError
+     * @throws ClientException
+     * @throws RecordException
      */
     #[CheckPermission([Permission::MANAGE, Permission::WRITE])]
     public function post(
@@ -77,7 +83,9 @@ class ModuleController extends AbstractController
     }
 
     /**
+     * @throws ClientException
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SelectError
      */
@@ -98,8 +106,6 @@ class ModuleController extends AbstractController
 
     /**
      * @param int[] $ids
-     *
-     * @throws DeleteError
      */
     #[CheckPermission([Permission::MANAGE, Permission::DELETE])]
     public function delete(ModuleRepository $moduleRepository, array $ids): AjaxResponse

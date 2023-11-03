@@ -8,6 +8,7 @@ use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Module\Hc\Model\Log;
 use MDO\Dto\Query\Where;
 use MDO\Dto\Record;
+use MDO\Enum\OrderDirection;
 use MDO\Query\SelectQuery;
 
 /**
@@ -33,30 +34,16 @@ class LogStore extends AbstractDatabaseStore
         return 'l';
     }
 
+    protected function getDefaultOrder(): array
+    {
+        return [
+            '`l`.`added`' => OrderDirection::DESC,
+            '`l`.`id`' => OrderDirection::DESC,
+        ];
+    }
+
     protected function setWheres(): void
     {
-        if ($this->masterId !== null) {
-            $this->addWhere('`l`.`master_id`=?', [$this->masterId]);
-        }
-
-        if ($this->moduleId !== null) {
-            $this->addWhere('`l`.`module_id`=?', [$this->moduleId]);
-        }
-
-        if ($this->direction !== null) {
-            $this->addWhere('`l`.`direction`=?', [$this->direction]);
-        }
-
-        if (count($this->types) > 0) {
-            $this->addWhere(
-                sprintf(
-                    '`l`.`type` IN (%s)',
-                    $this->getDatabaseStoreWrapper()->getSelectService()->getParametersString($this->types)
-                ),
-                $this->types,
-            );
-        }
-
         foreach ($this->getWheres() as $where) {
             $this->addWhere($where->getCondition(), $where->getParameters());
         }
@@ -139,10 +126,10 @@ class LogStore extends AbstractDatabaseStore
 
     public function getTraffic(): int
     {
-        $selectQuery = (new SelectQuery($this->table))
+        $selectQuery = (new SelectQuery($this->table, 'l'))
             ->setWheres($this->getWheres())
             ->setSelect(
-                'LENGTH(GROUP_CONCAT(`hc_log`.`raw_data` SEPARATOR \'\'))+(COUNT(`hc_log`.`id`)*3)',
+                'LENGTH(GROUP_CONCAT(`l`.`raw_data` SEPARATOR \'\'))+(COUNT(`l`.`id`)*3)',
                 'traffic',
             )
         ;

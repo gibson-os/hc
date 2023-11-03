@@ -310,7 +310,7 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
             'name' => $this->getName(),
             'typeId' => $this->getTypeId(),
             'type' => $this->getType()->getName(),
-            'hertz' => $this->getHertz(),
+            'hertz' => $this->getHertz() ?? $this->getType()->getHertz(),
             'helper' => $this->getType()->getHelper(),
             'address' => $this->getAddress(),
             'offline' => $this->isOffline(),

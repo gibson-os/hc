@@ -23,6 +23,8 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Store\LogStore;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class IndexController extends AbstractController
@@ -38,7 +40,7 @@ class IndexController extends AbstractController
         ?int $moduleId,
         ?array $directions,
         array $types = [],
-        array $sort = [['property' => 'added', 'direction' => 'DESC']],
+        array $sort = [],
         int $limit = 100,
         int $start = 0
     ): AjaxResponse {
@@ -47,9 +49,9 @@ class IndexController extends AbstractController
             ->setModuleId($moduleId)
             ->setDirection(empty($directions) || count($directions) !== 1 ? null : reset($directions))
             ->setTypes($types)
+            ->setLimit($limit, $start)
+            ->setSortByExt($sort)
         ;
-        $logStore->setLimit($limit, $start);
-        $logStore->setSortByExt($sort);
 
         return new AjaxResponse([
             'success' => true,
@@ -63,13 +65,15 @@ class IndexController extends AbstractController
     /**
      * @throws AbstractException
      * @throws FactoryError
+     * @throws GetError
+     * @throws JsonException
      * @throws ReceiveError
+     * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
-     * @throws GetError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws ClientException
+     * @throws RecordException
      */
     #[CheckPermission([Permission::WRITE])]
     public function postLog(ModuleFactory $slaveFactory, LogRepository $logRepository, int $id): AjaxResponse
@@ -95,6 +99,10 @@ class IndexController extends AbstractController
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     #[CheckPermission([Permission::READ])]

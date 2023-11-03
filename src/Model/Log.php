@@ -280,7 +280,7 @@ class Log extends AbstractModel implements JsonSerializable
             'slaveAddress' => $this->getSlaveAddress(),
             'type' => $this->getType(),
             'command' => $this->getCommandText() ?? $this->getCommand(),
-            'data' => utf8_encode($this->getRawData()),
+            'data' => mb_convert_encoding($this->getRawData(), 'UTF-8'),
             'direction' => $this->getDirection()->value,
             'helper' => $module?->getType()->getHelper(),
             'text' => $this->getText(),

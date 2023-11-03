@@ -3,15 +3,13 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store;
 
-use Generator;
 use GibsonOS\Core\Attribute\GetTableName;
+use GibsonOS\Core\Dto\Model\ChildrenMapping;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
 use GibsonOS\Core\Wrapper\DatabaseStoreWrapper;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
-use MDO\Dto\Query\Join;
 use MDO\Enum\OrderDirection;
-use MDO\Exception\ClientException;
 
 /**
  * @extends AbstractDatabaseStore<Module>
@@ -54,12 +52,12 @@ class ModuleStore extends AbstractDatabaseStore
     protected function getOrderMapping(): array
     {
         return [
-            'name' => '`hc_module`.`name`',
-            'type' => '`hy_type`.`name`',
-            'address' => '`hc_module`.`address`',
-            'offline' => '`hc_module`.`offline`',
-            'added' => '`hc_module`.`added`',
-            'modified' => '`hc_module`.`modified`',
+            'name' => '`m`.`name`',
+            'type' => '`t`.`name`',
+            'address' => '`m`.`address`',
+            'offline' => '`m`.`offline`',
+            'added' => '`m`.`added`',
+            'modified' => '`m`.`modified`',
         ];
     }
 
@@ -70,29 +68,9 @@ class ModuleStore extends AbstractDatabaseStore
         }
     }
 
-    public function initQuery(): void
+    protected function getExtends(): array
     {
-        parent::initQuery();
-
-        $this->selectQuery
-            ->addJoin(new Join($this->getTable($this->typeTableName), 't', '`m`.`type_id=`t`.`id`'))
-            ->setSelect('IFNULL(`hc_module`.`hertz`, `hc_type`.`hertz`)', 'hertz')
-            ->setSelect('`hc_type`.`name`', 'type')
-            ->setSelect('`hc_type`.`ui_settings`', 'settings')
-            ->setSelect('`hc_type`.`helper`', 'helper')
-        ;
-    }
-
-    /**
-     * @throws ClientException
-     */
-    public function getModels(): Generator
-    {
-        $result = $this->getDatabaseStoreWrapper()->getClient()->execute($this->selectQuery);
-
-        foreach ($result->iterateRecords() as $record) {
-            yield $record->getValuesAsArray();
-        }
+        return [new ChildrenMapping('type', 'type_', 't')];
     }
 
     public function setMasterId(?int $masterId): ModuleStore
