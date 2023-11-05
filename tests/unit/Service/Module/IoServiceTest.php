@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Test\Unit\Hc\Service\Slave;
+namespace GibsonOS\Test\Unit\Hc\Service\Module;
 
 use Codeception\Test\Unit;
 use GibsonOS\Core\Exception\GetError;
@@ -16,7 +16,6 @@ use GibsonOS\Module\Hc\Mapper\Io\DirectConnectMapper;
 use GibsonOS\Module\Hc\Mapper\Io\PortMapper;
 use GibsonOS\Module\Hc\Model\Attribute;
 use GibsonOS\Module\Hc\Model\Attribute\Value;
-use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Io\DirectConnectRepository;
@@ -112,26 +111,24 @@ class IoServiceTest extends Unit
 
     public function testSlaveHandshakeEmptyConfig(): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
             $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             210,
             'config',
             1
         );
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
             $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             250,
@@ -194,13 +191,12 @@ class IoServiceTest extends Unit
 
     public function testSlaveHandshakeExistingConfig(): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
             $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             250,
@@ -256,13 +252,12 @@ class IoServiceTest extends Unit
 
     public function testSlaveHandshakeException(): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
             $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             250,
@@ -316,13 +311,12 @@ class IoServiceTest extends Unit
 
     public function testSlaveHandshakeNoAttributes(): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
             $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             250,
@@ -428,23 +422,23 @@ class IoServiceTest extends Unit
             'pullUp' => 1,
         ];
 
-        $this->eventService->fire('beforeReadPort', ['slave' => $this->module->reveal(), 'number' => 32])
+        $this->eventService->fire('', 'beforeReadPort', ['slave' => $this->module->reveal(), 'number' => 32])
             ->shouldBeCalledOnce()
         ;
         $this->eventService->fire(
+            '',
             'afterReadPort',
             array_merge(['slave' => $this->module->reveal(), 'number' => 32], $port)
         )
             ->shouldBeCalledOnce()
         ;
 
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
             $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             32,
@@ -462,20 +456,19 @@ class IoServiceTest extends Unit
 
     public function testReadPortsFromEeprom(): void
     {
-        $this->eventService->fire('beforeReadPortsFromEeprom', ['slave' => $this->module->reveal()])
+        $this->eventService->fire('', 'beforeReadPortsFromEeprom', ['slave' => $this->module->reveal()])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterReadPortsFromEeprom', ['slave' => $this->module->reveal()])
+        $this->eventService->fire('', 'afterReadPortsFromEeprom', ['slave' => $this->module->reveal()])
             ->shouldBeCalledOnce()
         ;
 
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
             $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             135,
@@ -488,17 +481,16 @@ class IoServiceTest extends Unit
 
     public function testReadPortsFromEepromNoData(): void
     {
-        $this->eventService->fire('beforeReadPortsFromEeprom', ['slave' => $this->module->reveal()])
+        $this->eventService->fire('', 'beforeReadPortsFromEeprom', ['slave' => $this->module->reveal()])
             ->shouldBeCalledOnce()
         ;
 
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
             $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             135,
@@ -512,20 +504,18 @@ class IoServiceTest extends Unit
 
     public function testWritePortsToEeprom(): void
     {
-        $this->eventService->fire('beforeWritePortsToEeprom', ['slave' => $this->module->reveal()])
+        $this->eventService->fire('', 'beforeWritePortsToEeprom', ['slave' => $this->module->reveal()])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWritePortsToEeprom', ['slave' => $this->module->reveal()])
+        $this->eventService->fire('', 'afterWritePortsToEeprom', ['slave' => $this->module->reveal()])
             ->shouldBeCalledOnce()
         ;
 
-        AbstractSlaveTest::prophesizeWrite(
+        AbstractModuleTest::prophesizeWrite(
             $this->master,
-            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             135,
@@ -546,13 +536,11 @@ class IoServiceTest extends Unit
             ->willReturn('0', '1')
         ;
 
-        AbstractSlaveTest::prophesizeWrite(
+        AbstractModuleTest::prophesizeWrite(
             $this->master,
-            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             32,

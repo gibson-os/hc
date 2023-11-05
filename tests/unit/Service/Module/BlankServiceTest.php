@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Test\Unit\Hc\Service\Slave;
+namespace GibsonOS\Test\Unit\Hc\Service\Module;
 
 use Codeception\Test\Unit;
 use GibsonOS\Core\Service\EventService;
@@ -76,6 +76,7 @@ class BlankServiceTest extends Unit
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
         $this->slaveFactory = $this->prophesize(ModuleFactory::class);
+
         $this->blankService = new BlankService(
             $this->masterService->reveal(),
             $this->transformService,

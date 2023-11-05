@@ -108,30 +108,30 @@ class Ssd1306Service extends AbstractModule
      * @throws SaveError
      * @throws WriteException
      */
-    public function handshake(Module $slave): Module
+    public function handshake(Module $module): Module
     {
         $this
-            ->setDisplayOff($slave)
-            ->setMemoryAddressingMode($slave, self::ADDRESSING_MODE_PAGE)
-            ->setPageStart($slave)
-            ->setComOutputScanDirection($slave, self::COM_OUTPUT_SCAN_DIRECTION_REMAPPED)
-            ->setLowColumnAddress($slave)
-            ->setHighColumnAddress($slave)
-            ->setStartLineAddress($slave)
-            ->setContrastControl($slave, 63)
-            ->setSegmentReMap($slave, true)
-            ->setDisplayMode($slave, self::DISPLAY_MODE_NORMAL)
-            ->setMultiplexRatio($slave)
-            ->setEntireDisplayOff($slave)
-            ->setDisplayOffset($slave)
-            ->setDisplayClockDivide($slave, 240)
-            ->setPreChargePeriod($slave, 34)
-            ->setComPinsHardwareConfiguration($slave, true, false)
-            ->setVcomhDeselectLevel($slave, self::DESELECT_LEVEL_0_77)
-            ->setChargePumpSetting($slave, true)
+            ->setDisplayOff($module)
+            ->setMemoryAddressingMode($module, self::ADDRESSING_MODE_PAGE)
+            ->setPageStart($module)
+            ->setComOutputScanDirection($module, self::COM_OUTPUT_SCAN_DIRECTION_REMAPPED)
+            ->setLowColumnAddress($module)
+            ->setHighColumnAddress($module)
+            ->setStartLineAddress($module)
+            ->setContrastControl($module, 63)
+            ->setSegmentReMap($module, true)
+            ->setDisplayMode($module, self::DISPLAY_MODE_NORMAL)
+            ->setMultiplexRatio($module)
+            ->setEntireDisplayOff($module)
+            ->setDisplayOffset($module)
+            ->setDisplayClockDivide($module, 240)
+            ->setPreChargePeriod($module, 34)
+            ->setComPinsHardwareConfiguration($module, true, false)
+            ->setVcomhDeselectLevel($module, self::DESELECT_LEVEL_0_77)
+            ->setChargePumpSetting($module, true)
         ;
 
-        return $slave;
+        return $module;
     }
 
     /**

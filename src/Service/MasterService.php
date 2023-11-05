@@ -178,7 +178,7 @@ class MasterService
 
         try {
             $master = $this->masterRepository->getByName($data, $protocolName);
-            $this->modelManager->save(
+            $this->modelManager->saveWithoutChildren(
                 $master
                     ->setAddress($busMessage->getMasterAddress())
                     ->setModified($this->dateTimeService->get())

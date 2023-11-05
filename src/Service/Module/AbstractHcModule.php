@@ -4,8 +4,6 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Module;
 
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
@@ -27,6 +25,8 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
@@ -179,8 +179,6 @@ abstract class AbstractHcModule extends AbstractModule
 
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws EventException
      * @throws FactoryError
      * @throws GetError
      * @throws JsonException
@@ -189,83 +187,88 @@ abstract class AbstractHcModule extends AbstractModule
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
+     * @throws ClientException
+     * @throws RecordException
      */
-    public function handshake(Module $slave): Module
+    public function handshake(Module $module): Module
     {
-        $master = $slave->getMaster();
+        $master = $module->getMaster();
 
         if ($master === null) {
-            throw new WriteException(sprintf('Slave #%d has no master!', $slave->getId() ?? 0));
+            throw new WriteException(sprintf('Slave #%d has no master!', $module->getId() ?? 0));
         }
 
         $this->logger->debug(sprintf(
             'Handshake hc slave address %d on master address %s',
-            $slave->getAddress() ?? 0,
+            $module->getAddress() ?? 0,
             $master->getAddress()
         ));
 
-        $typeId = $this->readTypeId($slave);
+        $typeId = $this->readTypeId($module);
 
-        if ($typeId !== $slave->getTypeId()) {
-            $slave->setType($this->typeRepository->getById($typeId));
+        if ($typeId !== $module->getTypeId()) {
+            $module->setType($this->typeRepository->getById($typeId));
 
-            return $this->moduleFactory->get($slave->getType()->getHelper())
-                ->handshake($slave)
+            return $this->moduleFactory->get($module->getType()->getHelper())
+                ->handshake($module)
             ;
         }
 
-        $deviceId = $this->readDeviceId($slave);
+        $deviceId = $this->readDeviceId($module);
 
         if (
-            $deviceId !== $slave->getDeviceId()
-            || $slave->getId() === null
+            $deviceId !== $module->getDeviceId()
+            || $module->getId() === null
         ) {
             try {
-                $slave = $this->moduleRepository->getByDeviceId($deviceId);
-                $slave = $this->handshakeExistingSlave($slave);
+                $module = $this->moduleRepository->getByDeviceId($deviceId);
+                $module = $this->handshakeExistingSlave($module);
             } catch (SelectError) {
-                $slave->setDeviceId($deviceId);
-                $slave = $this->handshakeNewSlave($slave);
+                $module->setDeviceId($deviceId);
+                $module = $this->handshakeNewSlave($module);
             }
         } else {
-            $slave = $this->handshakeExistingSlave($slave);
+            $module = $this->handshakeExistingSlave($module);
         }
 
-        $slave->setMaster($master);
+        $module->setMaster($master);
 
         $this->logger->debug(sprintf(
             'Slave address %d on master address %s has input check',
-            $slave->getAddress() ?? 0,
+            $module->getAddress() ?? 0,
             $master->getAddress()
         ));
 
-        if ($slave->getType()->getHasInput()) {
+        if ($module->getType()->getHasInput()) {
             $busMessage = (new BusMessage($master->getAddress(), MasterService::TYPE_SLAVE_HAS_INPUT_CHECK))
-                ->setSlaveAddress($slave->getAddress())
+                ->setSlaveAddress($module->getAddress())
                 ->setPort($master->getSendPort())
             ;
             $this->masterService->send($master, $busMessage);
             $this->masterService->receiveReceiveReturn($master, $busMessage);
         }
 
-        $pwmSpeed = $this->readPwmSpeed($slave);
-        $slave
-            ->setHertz($this->readHertz($slave))
-            ->setBufferSize($this->readBufferSize($slave))
-            ->setEepromSize($this->readEepromSize($slave))
+        $pwmSpeed = $this->readPwmSpeed($module);
+        $module
+            ->setHertz($this->readHertz($module))
+            ->setBufferSize($this->readBufferSize($module))
+            ->setEepromSize($this->readEepromSize($module))
             ->setPwmSpeed($pwmSpeed === 0 ? null : $pwmSpeed)
         ;
 
-        return $this->slaveHandshake($slave);
+        return $this->slaveHandshake($module);
     }
 
     /**
      * @throws AbstractException
+     * @throws ClientException
      * @throws FactoryError
      * @throws GetError
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
+     * @throws SelectError
      * @throws WriteException
      */
     private function checkDeviceId(Module $slave): void
@@ -283,9 +286,11 @@ abstract class AbstractHcModule extends AbstractModule
 
     /**
      * @throws AbstractException
+     * @throws ClientException
      * @throws FactoryError
      * @throws GetError
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
@@ -317,11 +322,14 @@ abstract class AbstractHcModule extends AbstractModule
 
     /**
      * @throws AbstractException
+     * @throws ClientException
      * @throws FactoryError
      * @throws GetError
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
+     * @throws SelectError
      * @throws WriteException
      */
     private function handshakeExistingSlave(Module $slave): Module
@@ -411,12 +419,14 @@ abstract class AbstractHcModule extends AbstractModule
 
     /**
      * @throws AbstractException
+     * @throws ClientException
      * @throws FactoryError
      * @throws GetError
-     * @throws ReceiveError
-     * @throws SaveError
      * @throws JsonException
+     * @throws ReceiveError
+     * @throws RecordException
      * @throws ReflectionException
+     * @throws SaveError
      */
     public function readDeviceId(Module $slave): int
     {
@@ -464,10 +474,12 @@ abstract class AbstractHcModule extends AbstractModule
 
     /**
      * @throws AbstractException
+     * @throws ClientException
      * @throws FactoryError
      * @throws GetError
      * @throws JsonException
      * @throws ReceiveError
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
      */
@@ -897,10 +909,12 @@ abstract class AbstractHcModule extends AbstractModule
 
     /**
      * @throws AbstractException
+     * @throws ClientException
      * @throws FactoryError
      * @throws GetError
      * @throws JsonException
      * @throws ReceiveError
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
      */

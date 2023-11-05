@@ -27,7 +27,7 @@ abstract class AbstractModule
 {
     protected const MAX_DATA_LENGTH = 32;
 
-    abstract public function handshake(Module $slave): Module;
+    abstract public function handshake(Module $module): Module;
 
     public function __construct(
         protected readonly MasterService $masterService,

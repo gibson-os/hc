@@ -1,10 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Test\Unit\Hc\Service\Slave;
+namespace GibsonOS\Test\Unit\Hc\Service\Module;
 
 use Codeception\Test\Unit;
-use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -70,37 +69,32 @@ class Bme280ServiceTest extends Unit
             ->willReturn($config)
         ;
 
-        AbstractSlaveTest::prophesizeWrite(
+        AbstractModuleTest::prophesizeWrite(
             $master,
-            $slave,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             242,
             chr(2)
         );
-        AbstractSlaveTest::prophesizeWrite(
+        AbstractModuleTest::prophesizeWrite(
             $master,
-            $slave,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             244,
             chr((2 << 5) | (2 << 2) | 1)
         );
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $master,
             $slave,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             136,

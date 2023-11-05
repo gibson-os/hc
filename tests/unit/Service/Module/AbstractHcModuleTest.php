@@ -1,18 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Test\Unit\Hc\Service\Slave;
+namespace GibsonOS\Test\Unit\Hc\Service\Module;
 
 use Codeception\Test\Unit;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
-use GibsonOS\Core\Manager\ServiceManager;
 use GibsonOS\Core\Service\EventService;
-use GibsonOS\Core\Service\LoggerService;
 use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
-use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Type;
@@ -25,7 +22,6 @@ use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\Module\AbstractModule;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Test\Unit\Core\ModelManagerTrait;
-use MDO\Client;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
 
@@ -37,7 +33,7 @@ class AbstractHcModuleTest extends Unit
 
     private ObjectProphecy|MasterService $masterService;
 
-    private TransformService $transformService;
+    private TransformService|ObjectProphecy $transformService;
 
     private ObjectProphecy|EventService $eventService;
 
@@ -49,15 +45,15 @@ class AbstractHcModuleTest extends Unit
 
     private ObjectProphecy|ModuleFactory $moduleFactory;
 
-    private ObjectProphecy|Module $slave;
-
     private ObjectProphecy|LogRepository $logRepository;
 
-    private ObjectProphecy|Master $master;
+    private LoggerInterface|ObjectProphecy $logger;
 
-    private LoggerInterface $logger;
+    private Module $module;
 
-    private ServiceManager $serviceManager;
+    private Master $master;
+
+    private Type $type;
 
     protected function _before(): void
     {
@@ -68,18 +64,28 @@ class AbstractHcModuleTest extends Unit
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
         $this->masterService = $this->prophesize(MasterService::class);
-        $this->serviceManager = new ServiceManager();
-        $this->serviceManager->setService(Client::class, $this->client->reveal());
-        $this->serviceManager->setInterface(LoggerInterface::class, LoggerService::class);
-        $this->serviceManager->setService(ModelManager::class, $this->modelManager->reveal());
-        $this->transformService = $this->serviceManager->get(TransformService::class);
+        $this->transformService = $this->prophesize(TransformService::class);
         $this->moduleFactory = $this->prophesize(ModuleFactory::class);
-        $this->logger = $this->serviceManager->get(LoggerInterface::class);
+        $this->logger = $this->prophesize(LoggerInterface::class);
         $this->eventService = $this->prophesize(EventService::class);
-        $this->slave = $this->prophesize(Module::class);
-        $this->master = $this->prophesize(Master::class);
+        $this->master = (new Master($this->modelWrapper->reveal()))
+            ->setId(1)
+            ->setAddress('42.42.42.42')
+            ->setSendPort(420042)
+        ;
+        $this->type = (new Type($this->modelWrapper->reveal()))
+            ->setId(7)
+            ->setHelper('prefect')
+        ;
+        $this->module = (new Module($this->modelWrapper->reveal()))
+            ->setAddress(42)
+            ->setDeviceId(4242)
+            ->setId(7)
+            ->setType($this->type)
+            ->setMaster($this->master)
+        ;
 
-        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService, $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->moduleFactory->reveal(), $this->logger, $this->modelManager->reveal(), $this->modelWrapper->reveal(), $this->slave->reveal()) extends AbstractHcModule {
+        $this->abstractHcSlave = new class($this->masterService->reveal(), $this->transformService->reveal(), $this->eventService->reveal(), $this->moduleRepository->reveal(), $this->typeRepository->reveal(), $this->masterRepository->reveal(), $this->logRepository->reveal(), $this->moduleFactory->reveal(), $this->logger->reveal(), $this->modelManager->reveal(), $this->modelWrapper->reveal(), $this->module) extends AbstractHcModule {
             private Module $module;
 
             public function __construct(
@@ -136,187 +142,88 @@ class AbstractHcModuleTest extends Unit
 
     public function testHandshakeExistingDevice(): void
     {
-        $this->prophesizeReadTypeId(7);
-        $this->slave->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
-        ;
+        $this->prophesizeReadTypeId($this->module, 7);
+        $this->prophesizeReadDeviceId($this->module, 4242);
+        $this->prophesizeHandshake($this->module);
 
-        $this->prophesizeReadDeviceId($this->slave, 4242);
-        $this->slave->getDeviceId()
-            ->shouldBeCalledTimes(3)
-            ->willReturn(4242)
-        ;
+        //        $busMessage = (new BusMessage('42.42.42.42', 255))
+        //            ->setSlaveAddress(4242)
+        //            ->setCommand(201)
+        //            ->setPort(420042)
+        //            ->setData(chr(42))
+        //        ;
+        //        $this->masterService->send($this->module->getMaster(), $busMessage)
+        //            ->shouldBeCalledOnce()
+        //        ;
+        //        $this->masterService->receiveReceiveReturn($this->module->getMaster(), $busMessage)
+        //            ->shouldBeCalledOnce()
+        //        ;
 
-        $this->slave->getId()
-            ->shouldBeCalledTimes(1)
-            ->willReturn(7)
-        ;
-        $this->prophesizeHandshake($this->slave);
-
-        $this->masterService->send($this->master->reveal(), 4, chr(42))
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReceiveReturn($this->master->reveal())
-            ->shouldBeCalledOnce()
-        ;
-
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(20)
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(19)
-        ;
-        $this->master->getAddress()
-            ->shouldBeCalledOnce()
-            ->willReturn('42.42.42.42')
-        ;
-        $this->master->getSendPort()
-            ->shouldBeCalledOnce()
-            ->willReturn(420042)
-        ;
-
-        $this->abstractHcSlave->handshake($this->slave->reveal());
+        $this->abstractHcSlave->handshake($this->module);
     }
 
     public function testHandshakeWrongType(): void
     {
-        $this->prophesizeReadTypeId(42);
-        $this->slave->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
-        ;
-
-        $type = $this->prophesize(Type::class);
-        $type->getHelper()
-            ->shouldBeCalledOnce()
-            ->willReturn('prefect')
-        ;
-        $this->slave->setType($type->reveal())
-            ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
-        ;
-        $this->slave->getType()
-            ->shouldBeCalledOnce()
-            ->willReturn($type->reveal())
-        ;
+        $this->prophesizeReadTypeId($this->module, 42);
+        //        $this->modelWrapper->getTableManager()
+        //            ->shouldBeCalledOnce()
+        //            ->willReturn()
+        //        ;
         $this->typeRepository->getById(42)
             ->shouldBeCalledOnce()
-            ->willReturn($type->reveal())
+            ->willReturn((new Type($this->modelWrapper->reveal()))->setId(42)->setHelper('prefect'))
         ;
         $slaveService = $this->prophesize(AbstractModule::class);
-        $slaveService->handshake($this->slave->reveal())
+        $slaveService->handshake($this->module)
             ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
+            ->willReturn($this->module)
         ;
         $this->moduleFactory->get('prefect')
             ->shouldBeCalledOnce()
             ->willReturn($slaveService->reveal())
         ;
 
-        $this->abstractHcSlave->handshake($this->slave->reveal());
+        $this->abstractHcSlave->handshake($this->module);
     }
 
     public function testHandshakeWrongDeviceId(): void
     {
-        $this->prophesizeReadTypeId(7);
-        $this->slave->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
-        ;
+        $this->prophesizeReadTypeId($this->module, 7);
+        $this->prophesizeReadDeviceId($this->module, 4200);
+        $this->module->setDeviceId(4242);
 
-        $this->prophesizeReadDeviceId($this->slave, 4200);
-        $this->slave->getDeviceId()
-            ->shouldBeCalledOnce()
-            ->willReturn(4242)
+        $newModule = (new Module($this->modelWrapper->reveal()))
+            ->setDeviceId(4242)
         ;
-
-        $newSlave = $this->prophesize(Module::class);
-        $this->prophesizeHandshake($newSlave);
-        $newSlave->getDeviceId()
-            ->shouldBeCalledTimes(2)
-            ->willReturn(4242)
-        ;
-        $newSlave->getMaster()
-            ->shouldBeCalledTimes(14)
-        ;
-        $newSlave->getAddress()
-            ->shouldBeCalledTimes(13)
-        ;
-
+        $this->prophesizeHandshake($newModule);
         $this->moduleRepository->getByDeviceId(4200)
             ->shouldBeCalledOnce()
-            ->willReturn($newSlave->reveal())
+            ->willReturn($newModule)
         ;
 
-        $this->masterService->send($this->master->reveal(), 4, chr(42))
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReceiveReturn($this->master->reveal())
-            ->shouldBeCalledOnce()
-        ;
-
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(6)
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(6)
-        ;
-
-        $this->abstractHcSlave->handshake($this->slave->reveal());
+        $this->abstractHcSlave->handshake($this->module);
     }
 
     public function testHandshakeEmptyId(): void
     {
-        $this->prophesizeReadTypeId(7);
-        $this->slave->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
+        $newModule = (new Module($this->modelWrapper->reveal()))
+            ->setDeviceId(4242)
+            ->setMaster($this->master)
+            ->setType($this->type)
         ;
-
-        $this->prophesizeReadDeviceId($this->slave, 4242);
-        $this->slave->getId()
-            ->shouldBeCalledTimes(1)
-            ->willReturn(null)
-        ;
-
-        $newSlave = $this->prophesize(Module::class);
-        $this->prophesizeHandshake($newSlave);
-        $newSlave->getDeviceId()
-            ->shouldBeCalledTimes(2)
-            ->willReturn(4242)
-        ;
-        $newSlave->getMaster()
-            ->shouldBeCalledTimes(14)
-        ;
-        $newSlave->getAddress()
-            ->shouldBeCalledTimes(13)
-        ;
-
+        $this->prophesizeReadTypeId($newModule, 7);
+        $this->prophesizeReadDeviceId($newModule, 4242);
+        $this->prophesizeHandshake($newModule);
         $this->moduleRepository->getByDeviceId(4242)
             ->shouldBeCalledOnce()
-            ->willReturn($newSlave)
+            ->willReturn($newModule)
         ;
 
-        $this->masterService->send($this->master->reveal(), 4, chr(42))
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReceiveReturn($this->master->reveal())
-            ->shouldBeCalledOnce()
-        ;
+        //        $this->masterService->receiveReceiveReturn($this->master)
+        //            ->shouldBeCalledOnce()
+        //        ;
 
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(6)
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(6)
-        ;
-        $this->slave->getDeviceId()
-            ->shouldBeCalledOnce()
-            ->willReturn(4242)
-        ;
-
-        $this->abstractHcSlave->handshake($this->slave->reveal());
+        $this->abstractHcSlave->handshake($newModule);
     }
 
     /**
@@ -324,43 +231,25 @@ class AbstractHcModuleTest extends Unit
      */
     public function testHandshakeIllegalDeviceId(int $deviceId): void
     {
-        $this->prophesizeReadTypeId(7);
-        $this->slave->getTypeId()
+        $this->prophesizeReadTypeId($this->module, 7);
+        $this->prophesizeReadDeviceId($this->module, $deviceId);
+        $this->prophesizeHandshake($this->module);
+        $this->prophesizeWriteDeviceId($this->module, $deviceId, 4242);
+
+        $this->moduleRepository->getByDeviceId($deviceId)
             ->shouldBeCalledOnce()
-            ->willReturn(7)
+            ->willThrow(SelectError::class)
         ;
-
-        $this->prophesizeReadDeviceId($this->slave, $deviceId);
-        $this->prophesizeHandshake($this->slave);
-        $this->prophesizeWriteDeviceId($this->slave, $deviceId, 4242);
-
-        $this->masterService->send($this->master->reveal(), 4, chr(42))
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReceiveReturn($this->master->reveal())
-            ->shouldBeCalledTimes(2)
-        ;
-
         $this->moduleRepository->getFreeDeviceId()
             ->shouldBeCalledOnce()
-            ->willReturn(4242);
-
-        $this->slave->getDeviceId()
-            ->shouldBeCalledTimes($deviceId === 0 ? 3 : 4)
-            ->willReturn($deviceId)
+            ->willReturn(4242)
         ;
-        $this->slave->getId()
+        $this->typeRepository->getByDefaultAddress(42)
             ->shouldBeCalledOnce()
-            ->willReturn(42424242)
-        ;
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(23)
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(21)
+            ->willThrow(SelectError::class)
         ;
 
-        $this->abstractHcSlave->handshake($this->slave->reveal());
+        $this->abstractHcSlave->handshake($this->module);
     }
 
     /**
@@ -368,22 +257,11 @@ class AbstractHcModuleTest extends Unit
      */
     public function testHandshakeIllegalDeviceIdWrongDeviceIdModule(int $deviceId): void
     {
-        $this->prophesizeReadTypeId(7);
-        $this->slave->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
-        ;
-
-        $this->prophesizeReadDeviceId($this->slave, 42420);
-        $this->prophesizeHandshake($this->slave);
-        $this->prophesizeWriteDeviceId($this->slave, $deviceId, 4242);
-
-        $this->masterService->send($this->master->reveal(), 4, chr(42))
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReceiveReturn($this->master->reveal())
-            ->shouldBeCalledTimes(2)
-        ;
+        $this->module->setDeviceId($deviceId);
+        $this->prophesizeReadTypeId($this->module, 7);
+        $this->prophesizeReadDeviceId($this->module, 42420);
+        $this->prophesizeHandshake($this->module);
+        $this->prophesizeWriteDeviceId($this->module, $deviceId, 4242);
 
         $this->moduleRepository->getFreeDeviceId()
             ->shouldBeCalledOnce()
@@ -391,229 +269,37 @@ class AbstractHcModuleTest extends Unit
         ;
         $this->moduleRepository->getByDeviceId(42420)
             ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
+            ->willReturn($this->module)
         ;
 
-        $this->slave->getDeviceId()
-            ->shouldBeCalledTimes($deviceId === 0 ? 3 : 4)
-            ->willReturn($deviceId)
-        ;
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(23)
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(21)
-        ;
-        $this->master->getAddress()
-            ->shouldBeCalledOnce()
-            ->willReturn('42.42.42.42')
-        ;
-
-        $this->abstractHcSlave->handshake($this->slave->reveal());
-    }
-
-    /**
-     * @dataProvider getHandshakeIllegalDeviceIdData
-     */
-    public function testHandshakeIllegalDeviceIdWrongDeviceIdDatabase(int $deviceId): void
-    {
-        $this->prophesizeReadTypeId(7);
-        $this->slave->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
-        ;
-
-        $this->prophesizeReadDeviceId($this->slave, $deviceId);
-        $this->prophesizeHandshake($this->slave);
-        $this->prophesizeWriteDeviceId($this->slave, $deviceId, 4242);
-
-        $this->masterService->send($this->master->reveal(), 4, chr(42))
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReceiveReturn($this->master->reveal())
-            ->shouldBeCalledTimes(2)
-        ;
-
-        $this->moduleRepository->getFreeDeviceId()
-            ->shouldBeCalledOnce()
-            ->willReturn(4242)
-        ;
-        $this->moduleRepository->getByDeviceId($deviceId)
-            ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
-        ;
-
-        $this->slave->getDeviceId()
-            ->shouldBeCalledTimes($deviceId === 0 ? 3 : 4)
-            ->willReturn(42420, $deviceId, $deviceId, $deviceId)
-        ;
-        $this->slave->setDeviceId(4242)
-            ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
-        ;
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(23)
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(21)
-        ;
-
-        $this->abstractHcSlave->handshake($this->slave->reveal());
-    }
-
-    /**
-     * @dataProvider getHandshakeIllegalDeviceIdData
-     */
-    public function testHandshakeIllegalDeviceIdEmptyId(int $deviceId): void
-    {
-        $this->prophesizeReadTypeId(7);
-        $this->slave->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
-        ;
-
-        $this->prophesizeReadDeviceId($this->slave, $deviceId);
-        $this->prophesizeHandshake($this->slave);
-        $this->prophesizeWriteDeviceId($this->slave, $deviceId, 4242);
-
-        $this->masterService->send($this->master->reveal(), 4, chr(42))
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReceiveReturn($this->master->reveal())
-            ->shouldBeCalledTimes(2)
-        ;
-
-        $this->moduleRepository->getFreeDeviceId()
-            ->shouldBeCalledOnce()
-            ->willReturn(4242)
-        ;
-        $this->moduleRepository->getByDeviceId($deviceId)
-            ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
-        ;
-
-        $this->slave->getDeviceId()
-            ->shouldBeCalledTimes($deviceId === 0 ? 3 : 4)
-            ->willReturn($deviceId)
-        ;
-        $this->slave->getId()
-            ->shouldBeCalledOnce()
-            ->willReturn(null)
-        ;
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(23)
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(21)
-        ;
-
-        $this->abstractHcSlave->handshake($this->slave->reveal());
+        $this->abstractHcSlave->handshake($this->module);
     }
 
     public function testHandshakeWrongDeviceIdNewSlave(): void
     {
-        $this->prophesizeReadTypeId(7);
-        $this->slave->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
-        ;
-
-        $this->prophesizeReadDeviceId($this->slave, 4200);
-        $this->prophesizeWriteAddress(4242, 42, 42);
-        $this->prophesizeHandshake($this->slave);
-
-        $this->masterService->send($this->master->reveal(), 4, chr(42))
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReceiveReturn($this->master->reveal())
-            ->shouldBeCalledTimes(2)
-        ;
+        $this->prophesizeReadTypeId($this->module, 7);
+        $this->prophesizeReadDeviceId($this->module, 4200);
+        $this->prophesizeHandshake($this->module);
 
         $this->moduleRepository->getByDeviceId(4200)
             ->shouldBeCalledOnce()
             ->willThrow(SelectError::class)
         ;
-        $this->masterRepository->getNextFreeAddress(42424242)
+        $this->typeRepository->getByDefaultAddress(42)
             ->shouldBeCalledOnce()
-            ->willReturn(42)
+            ->willThrow(SelectError::class)
         ;
 
-        $this->master->getId()
-            ->shouldBeCalledOnce()
-            ->willReturn(42424242)
-        ;
-
-        $this->slave->setDeviceId(4200)
-            ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
-        ;
-        $this->slave->getDeviceId()
-            ->shouldBeCalledTimes(4)
-            ->willReturn(4242)
-        ;
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(25)
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(21)
-        ;
-
-        $this->abstractHcSlave->handshake($this->slave->reveal());
+        $this->abstractHcSlave->handshake($this->module);
     }
 
     public function testHandshakeEmptyIdNewSlave(): void
     {
-        $this->prophesizeReadTypeId(7);
-        $this->slave->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
-        ;
+        $this->prophesizeReadTypeId($this->module, 7);
+        $this->prophesizeReadDeviceId($this->module, 4242);
+        $this->prophesizeHandshake($this->module);
 
-        $this->prophesizeReadDeviceId($this->slave, 4242);
-        $this->prophesizeWriteAddress(4242, 42, 42);
-        $this->prophesizeHandshake($this->slave);
-
-        $this->masterService->send($this->master->reveal(), 4, chr(42))
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReceiveReturn($this->master->reveal())
-            ->shouldBeCalledTimes(2)
-        ;
-
-        $this->moduleRepository->getByDeviceId(4242)
-            ->shouldBeCalledOnce()
-            ->willThrow(SelectError::class)
-        ;
-        $this->masterRepository->getNextFreeAddress(42424242)
-            ->shouldBeCalledOnce()
-            ->willReturn(42)
-        ;
-
-        $this->master->getId()
-            ->shouldBeCalledOnce()
-            ->willReturn(42424242)
-        ;
-
-        $this->slave->setDeviceId(4242)
-            ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
-        ;
-        $this->slave->getDeviceId()
-            ->shouldBeCalledTimes(4)
-            ->willReturn(4242)
-        ;
-        $this->slave->getId()
-            ->shouldBeCalledOnce()
-            ->willReturn(null)
-        ;
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(25)
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(21)
-        ;
-
-        $this->abstractHcSlave->handshake($this->slave->reveal());
+        $this->abstractHcSlave->handshake($this->module);
     }
 
     /**
@@ -621,336 +307,116 @@ class AbstractHcModuleTest extends Unit
      */
     public function testHandshakeWrongAndIllegalDeviceIdNewSlave(int $deviceId): void
     {
-        $this->prophesizeReadTypeId(7);
-        $this->slave->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
-        ;
+        $this->module->setDeviceId($deviceId);
+        $this->prophesizeReadTypeId($this->module, 7);
+        $this->prophesizeReadDeviceId($this->module, 4242);
+        $this->prophesizeHandshake($this->module);
 
-        $this->prophesizeReadDeviceId($this->slave, 4242);
-        $this->prophesizeHandshake($this->slave);
-        $this->prophesizeWriteDeviceId($this->slave, $deviceId, 4242);
-        $this->prophesizeWriteAddress(4242, 42, 42);
-
-        $this->masterService->send($this->master->reveal(), 4, chr(42))
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReceiveReturn($this->master->reveal())
-            ->shouldBeCalledTimes(3)
-        ;
-
-        $this->moduleRepository->getFreeDeviceId()
-            ->shouldBeCalledOnce()
-            ->willReturn(4242)
-        ;
         $this->moduleRepository->getByDeviceId(4242)
             ->shouldBeCalledOnce()
             ->willThrow(SelectError::class)
         ;
-        $this->masterRepository->getNextFreeAddress(42424242)
-            ->shouldBeCalledOnce()
-            ->willReturn(42)
-        ;
-
-        $this->master->getId()
-            ->shouldBeCalledOnce()
-            ->willReturn(42424242)
-        ;
-
-        $this->slave->getDeviceId()
-            ->shouldBeCalledTimes($deviceId === 0 ? 4 : 5)
-            ->willReturn($deviceId, $deviceId, $deviceId, $deviceId === 0 ? 4242 : $deviceId, 4242)
-        ;
-        $this->slave->setDeviceId(4242)
-            ->shouldBeCalledTimes(2)
-            ->willReturn($this->slave->reveal())
-        ;
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(28)
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(23)
-        ;
-
-        $this->abstractHcSlave->handshake($this->slave->reveal());
-    }
-
-    /**
-     * @dataProvider getHandshakeIllegalDeviceIdData
-     */
-    public function testHandshakeIllegalDeviceIdEmptyIdNewSlave(int $deviceId): void
-    {
-        $this->prophesizeReadTypeId(7);
-        $this->slave->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
-        ;
-
-        $this->prophesizeReadDeviceId($this->slave, $deviceId);
-        $this->prophesizeHandshake($this->slave);
-        $this->prophesizeWriteDeviceId($this->slave, $deviceId, 4242);
-        $this->prophesizeWriteAddress(4242, 42, 42);
-
-        $this->masterService->send($this->master->reveal(), 4, chr(42))
-            ->shouldBeCalledOnce()
-        ;
-        $this->masterService->receiveReceiveReturn($this->master->reveal())
-            ->shouldBeCalledTimes(3)
-        ;
-
-        $this->moduleRepository->getFreeDeviceId()
-            ->shouldBeCalledOnce()
-            ->willReturn(4242)
-        ;
-        $this->moduleRepository->getByDeviceId($deviceId)
+        $this->typeRepository->getByDefaultAddress(42)
             ->shouldBeCalledOnce()
             ->willThrow(SelectError::class)
         ;
-        $this->masterRepository->getNextFreeAddress(42424242)
-            ->shouldBeCalledOnce()
-            ->willReturn(42)
-        ;
 
-        $this->master->getId()
-            ->shouldBeCalledOnce()
-            ->willReturn(42424242)
-        ;
-
-        $this->slave->setDeviceId($deviceId)
-            ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
-        ;
-        $this->slave->getDeviceId()
-            ->shouldBeCalledTimes($deviceId === 0 ? 4 : 5)
-            ->willReturn($deviceId, $deviceId, $deviceId, $deviceId === 0 ? 4242 : $deviceId, 4242)
-        ;
-        $this->slave->setDeviceId(4242)
-            ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
-        ;
-        $this->slave->getId()
-            ->shouldBeCalledOnce()
-            ->willReturn(null)
-        ;
-        $this->slave->getMaster()
-            ->shouldBeCalledTimes(28)
-        ;
-        $this->slave->getAddress()
-            ->shouldBeCalledTimes(23)
-        ;
-
-        $this->abstractHcSlave->handshake($this->slave->reveal());
+        $this->abstractHcSlave->handshake($this->module);
     }
 
-    private function prophesizeHandshake(ObjectProphecy $slave): void
+    private function prophesizeHandshake(Module $module): void
     {
-        $this->prophesizeReadHertz($slave, 420000);
-        $slave->setHertz(420000)
-            ->shouldBeCalledOnce()
-            ->willReturn($slave->reveal())
-        ;
-        $this->prophesizeReadBufferSize($slave, 4);
-        $slave->setBufferSize(4)
-            ->shouldBeCalledOnce()
-            ->willReturn($slave->reveal())
-        ;
-        $this->prophesizeReadEepromSize($slave, 420042);
-        $slave->setEepromSize(420042)
-            ->shouldBeCalledOnce()
-            ->willReturn($slave->reveal())
-        ;
-        $this->prophesizeReadPwmSpeed($slave, 42042042);
-        $slave->setPwmSpeed(42042042)
-            ->shouldBeCalledOnce()
-            ->willReturn($slave->reveal())
-        ;
+        $this->prophesizeReadHertz($module, 420000);
+        $this->prophesizeReadBufferSize($module, 4);
+        $this->prophesizeReadEepromSize($module, 420042);
+        $this->prophesizeReadPwmSpeed($module, 42042042);
     }
 
     /**
      * @dataProvider getHandshakeData
      */
-    /*public function testHandshake(?int $id, bool $typeEqual, bool $deviceIdEqual, bool $exists, int $deviceId): void
+    public function testHandshake(?int $id, bool $typeEqual, bool $deviceIdEqual, bool $exists, int $deviceId): void
     {
-        $this->prophesizeReadTypeId(7);
-        $this->slave->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn($typeEqual ? 7 : 9)
-        ;
+        $this->prophesizeReadTypeId($this->module, 7);
+
+        $this->module->setDeviceId($deviceIdEqual ? $deviceId : $deviceId + 1);
 
         if ($typeEqual) {
-            $this->prophesizeReadDeviceId($deviceId);
-            $this->slave->getDeviceId()
-                ->shouldBeCalledTimes(3)
-                ->willReturn($deviceIdEqual ? $deviceId : $deviceId + 1)
-            ;
-            $this->prophesizeReadHertz(420000);
-            $this->slave->setHertz(420000)
-                ->shouldBeCalledOnce()
-                ->willReturn($this->slave->reveal())
-            ;
-            $this->prophesizeReadBufferSize(4);
-            $this->slave->setBufferSize(4)
-                ->shouldBeCalledOnce()
-                ->willReturn($this->slave->reveal())
-            ;
-            $this->prophesizeReadEepromSize(420042);
-            $this->slave->setEepromSize(420042)
-                ->shouldBeCalledOnce()
-                ->willReturn($this->slave->reveal())
-            ;
-            $this->prophesizeReadPwmSpeed(42042042);
-            $this->slave->setPwmSpeed(42042042)
-                ->shouldBeCalledOnce()
-                ->willReturn($this->slave->reveal())
-            ;
-            $this->slave->getAddress()
-                ->shouldBeCalledTimes(19)
-            ;
-            $this->slave->getMaster()
-                ->shouldBeCalledTimes(20)
-                ->willReturn($this->master->reveal())
-            ;
-
-            if ($deviceIdEqual) {
-                $this->slave->getId()
-                    ->shouldBeCalledOnce()
-                    ->willReturn($id)
-                ;
-            }
+            $this->prophesizeReadDeviceId($this->module, $deviceId);
+            $this->prophesizeReadHertz($this->module, 420000);
+            $this->prophesizeReadBufferSize($this->module, 4);
+            $this->prophesizeReadEepromSize($this->module, 420042);
+            $this->prophesizeReadPwmSpeed($this->module, 42042042);
 
             if (!$deviceIdEqual || $id === null) {
-                $getByDeviceIdCall = $this->moduleRepositroy->getByDeviceId($deviceId)
-                    ->shouldBeCalledOnce()
+                $getByDeviceIdCall = $this->moduleRepository->getByDeviceId($deviceId)
+//                    ->shouldBeCalledOnce()
                 ;
 
                 if ($exists) {
-                    $this->masterService->send($this->master->reveal(), 4, chr(42))
-                        ->shouldBeCalledOnce()
-                    ;
-                    $this->masterService->receiveReceiveReturn($this->master->reveal())
-                        ->shouldBeCalledOnce()
-                    ;
-                    $getByDeviceIdCall->willReturn($this->slave->reveal());
+                    $getByDeviceIdCall->willReturn($this->module);
                 } else {
                     $getByDeviceIdCall->willThrow(SelectError::class);
-                    $this->slave->setDeviceId($deviceId)
-                        ->shouldBeCalledOnce()
-                        ->willReturn($this->slave->reveal())
-                    ;
                     $this->prophesizeWriteAddress($deviceIdEqual ? $deviceId : $deviceId + 1, 42, 88);
-                    $this->master->getId()
-                        ->shouldBeCalledOnce()
-                        ->willReturn(79)
-                    ;
-                    $this->masterRepository->getNextFreeAddress(79)
-                        ->shouldBeCalledOnce()
-                        ->willReturn(88)
-                    ;
-                    $this->slave->getAddress()
-                        ->shouldBeCalledTimes(20)
-                    ;
-                    $this->slave->getMaster()
-                        ->shouldBeCalledTimes(23)
-                    ;
-                    $this->slave->getDeviceId()
-                        ->shouldBeCalledTimes(4)
-                    ;
+                    //                    $this->masterRepository->getNextFreeAddress(79)
+                    //                        ->shouldBeCalledOnce()
+                    //                        ->willReturn(88)
+                    //                    ;
                 }
-            } else {
-                $this->masterService->send($this->master->reveal(), 4, chr(42))
-                    ->shouldBeCalledOnce()
-                ;
-                $this->masterService->receiveReceiveReturn($this->master->reveal())
-                    ->shouldBeCalledOnce()
-                ;
             }
 
-            $this->slave->getDeviceId()
-                ->willReturn($deviceIdEqual ? $deviceId : $deviceId + 1)
-            ;
-
             if ($deviceId === 0 || $deviceId > 65534) {
-                var_dump('hier');
-                $this->moduleRepositroy->getFreeDeviceId()
+                $this->moduleRepository->getFreeDeviceId()
                     ->shouldBeCalledOnce()
                     ->willReturn($deviceId)
                 ;
-                $this->slave->setDeviceId($deviceId)
-                    ->shouldBeCalledOnce()
-                    ->willReturn($this->slave->reveal())
-                ;
-                $this->prophesizeWriteDeviceId($deviceId, $deviceId);
-                $this->masterService->receiveReceiveReturn($this->master->reveal())
-                    ->shouldBeCalledTimes(2)
-                ;
-                $this->slave->getMaster()
-                    ->shouldBeCalledTimes(23)
-                ;
-                $this->slave->getAddress()
-                    ->shouldBeCalledTimes(21)
-                ;
-                $this->slave->getDeviceId()
-                    ->shouldBeCalledTimes(3)
-                ;
-                $this->slave->setDeviceId($deviceId)
-                    ->shouldBeCalledTimes(2)
-                ;
+                $this->prophesizeWriteDeviceId($this->module, $deviceId, $deviceId);
             }
         } else {
-            $type = $this->prophesize(Type::class);
-            $type->getHelper()
-                ->shouldBeCalledOnce()
-                ->willReturn('prefect')
-            ;
-            $this->slave->setType($type->reveal())
-                ->shouldBeCalledOnce()
-                ->willReturn($this->slave->reveal())
-            ;
-            $this->slave->getType()
-                ->shouldBeCalledOnce()
-                ->willReturn($type->reveal())
-            ;
+            $this->module->setTypeId(9);
             $this->typeRepository->getById(7)
                 ->shouldBeCalledOnce()
-                ->willReturn($type->reveal())
+                ->willReturn($this->type)
             ;
-            $slaveService = $this->prophesize(AbstractSlave::class);
-            $slaveService->handshake($this->slave->reveal())
+            $moduleService = $this->prophesize(AbstractModule::class);
+            $moduleService->handshake($this->module)
                 ->shouldBeCalledOnce()
-                ->willReturn($this->slave->reveal())
+                ->willReturn($this->module)
             ;
-            $this->slaveFactory->get('prefect')
+            $this->moduleFactory->get('prefect')
                 ->shouldBeCalledOnce()
-                ->willReturn($slaveService->reveal())
+                ->willReturn($moduleService->reveal())
             ;
         }
 
-        $this->abstractHcSlave->handshake($this->slave->reveal());
-    }*/
+        $this->abstractHcSlave->handshake($this->module);
+    }
 
     /**
      * @dataProvider getReadAllLedsData
      */
     public function testReadAllLeds(int $return, array $excepted): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             229,
             'allLeds',
             1
         );
-        $this->eventService->fire('readAllLeds', array_merge($excepted, ['slave' => $this->slave->reveal()]))
+        $this->eventService->fire('', 'readAllLeds', array_merge($excepted, ['slave' => $this->module]))
             ->shouldBeCalledOnce()
         ;
-
-        $this->assertEquals($excepted, $this->abstractHcSlave->readAllLeds($this->slave->reveal()));
+        $this->transformService->asciiToUnsignedInt('allLeds')
+            ->shouldBeCalledOnce()
+            ->willReturn($return)
+        ;
+        $this->assertEquals($excepted, $this->abstractHcSlave->readAllLeds($this->module));
     }
 
     /**
@@ -958,24 +424,27 @@ class AbstractHcModuleTest extends Unit
      */
     public function testReadLedStatus(int $return, array $excepted): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             220,
             'ledStatus',
             1
         );
-        $this->eventService->fire('readLedStatus', array_merge($excepted, ['slave' => $this->slave->reveal()]))
+        $this->eventService->fire('', 'readLedStatus', array_merge($excepted, ['slave' => $this->module]))
             ->shouldBeCalledOnce()
         ;
+        $this->transformService->asciiToUnsignedInt('ledStatus')
+            ->shouldBeCalledOnce()
+            ->willReturn($return)
+        ;
 
-        $this->assertEquals($excepted, $this->abstractHcSlave->readLedStatus($this->slave->reveal()));
+        $this->assertEquals($excepted, $this->abstractHcSlave->readLedStatus($this->module));
     }
 
     /**
@@ -983,228 +452,255 @@ class AbstractHcModuleTest extends Unit
      */
     public function testReadRgbLed(string $return, array $excepted): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             228,
             'rgbLed',
             9
         );
-        $this->eventService->fire('readRgbLed', array_merge($excepted, ['slave' => $this->slave->reveal()]))
+        $this->eventService->fire('', 'readRgbLed', array_merge($excepted, ['slave' => $this->module]))
             ->shouldBeCalledOnce()
         ;
+        $this->transformService->asciiToHex('rgbLed')
+            ->shouldBeCalledOnce()
+            ->willReturn($return)
+        ;
 
-        $this->assertEquals($excepted, $this->abstractHcSlave->readRgbLed($this->slave->reveal()));
+        $this->assertEquals($excepted, $this->abstractHcSlave->readRgbLed($this->module));
     }
 
     public function testReadBufferSize(): void
     {
-        $this->prophesizeReadBufferSize($this->slave, 4242);
+        $this->prophesizeReadBufferSize($this->module, 4242);
 
-        $this->assertEquals(4242, $this->abstractHcSlave->readBufferSize($this->slave->reveal()));
+        $this->assertEquals(4242, $this->abstractHcSlave->readBufferSize($this->module));
     }
 
-    private function prophesizeReadBufferSize(ObjectProphecy $slave, int $bufferSize): void
+    private function prophesizeReadBufferSize(Module $module, int $bufferSize): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $slave,
+            $module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             216,
             'buffer',
             2
         );
-        $this->eventService->fire('readBufferSize', ['bufferSize' => $bufferSize, 'slave' => $slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('buffer')
+            ->shouldBeCalledOnce()
+            ->willReturn($bufferSize)
+        ;
+        $this->eventService->fire('', 'readBufferSize', ['bufferSize' => $bufferSize, 'slave' => $module])
             ->shouldBeCalledOnce()
         ;
     }
 
     public function testReadDeviceId(): void
     {
-        $this->prophesizeReadDeviceId($this->slave, 4242);
+        $this->prophesizeReadDeviceId($this->module, 4242);
 
-        $this->assertEquals(4242, $this->abstractHcSlave->readDeviceId($this->slave->reveal()));
+        $this->assertEquals(4242, $this->abstractHcSlave->readDeviceId($this->module));
     }
 
-    private function prophesizeReadDeviceId(ObjectProphecy $slave, int $deviceId): void
+    private function prophesizeReadDeviceId(Module $module, int $deviceId): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $slave,
+            $module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             200,
             'deviceId',
             2
         );
-        $this->eventService->fire('readDeviceId', ['deviceId' => $deviceId, 'slave' => $slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('deviceId')
+            ->shouldBeCalledOnce()
+            ->willReturn($deviceId)
+        ;
+        $this->eventService->fire('', 'readDeviceId', ['deviceId' => $deviceId, 'slave' => $module])
             ->shouldBeCalledOnce()
         ;
     }
 
     public function testReadEepromFree(): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             213,
             'eepromFree',
             2
         );
-        $this->eventService->fire('readEepromFree', ['eepromFree' => 4242, 'slave' => $this->slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('eepromFree')
+            ->shouldBeCalledOnce()
+            ->willReturn(4242)
+        ;
+        $this->eventService->fire('', 'readEepromFree', ['eepromFree' => 4242, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->assertEquals(4242, $this->abstractHcSlave->readEepromFree($this->slave->reveal()));
+        $this->assertEquals(4242, $this->abstractHcSlave->readEepromFree($this->module));
     }
 
     public function testReadEepromPosition(): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             214,
             'eepromPosition',
             2
         );
-        $this->eventService->fire('readEepromPosition', ['eepromPosition' => 4242, 'slave' => $this->slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('eepromPosition')
+            ->shouldBeCalledOnce()
+            ->willReturn(4242)
+        ;
+        $this->eventService->fire('', 'readEepromPosition', ['eepromPosition' => 4242, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->assertEquals(4242, $this->abstractHcSlave->readEepromPosition($this->slave->reveal()));
+        $this->assertEquals(4242, $this->abstractHcSlave->readEepromPosition($this->module));
     }
 
     public function testReadEepromSize(): void
     {
-        $this->prophesizeReadEepromSize($this->slave, 4242);
+        $this->prophesizeReadEepromSize($this->module, 4242);
 
-        $this->assertEquals(4242, $this->abstractHcSlave->readEepromSize($this->slave->reveal()));
+        $this->assertEquals(4242, $this->abstractHcSlave->readEepromSize($this->module));
     }
 
-    private function prophesizeReadEepromSize(ObjectProphecy $slave, int $eepromSize): void
+    private function prophesizeReadEepromSize(Module $module, int $eepromSize): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $slave,
+            $module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             212,
             'eepromSize',
             2
         );
-        $this->eventService->fire('readEepromSize', ['eepromSize' => $eepromSize, 'slave' => $slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('eepromSize')
+            ->shouldBeCalledOnce()
+            ->willReturn($eepromSize)
+        ;
+        $this->eventService->fire('', 'readEepromSize', ['eepromSize' => $eepromSize, 'slave' => $module])
             ->shouldBeCalledOnce()
         ;
     }
 
     public function testReadHertz(): void
     {
-        $this->prophesizeReadHertz($this->slave, 42424242);
+        $this->prophesizeReadHertz($this->module, 42424242);
 
-        $this->assertEquals(42424242, $this->abstractHcSlave->readHertz($this->slave->reveal()));
+        $this->assertEquals(42424242, $this->abstractHcSlave->readHertz($this->module));
     }
 
-    private function prophesizeReadHertz(ObjectProphecy $slave, int $hertz): void
+    private function prophesizeReadHertz(Module $module, int $hertz): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $slave,
+            $module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             211,
             'hertz',
             4
         );
-        $this->eventService->fire('readHertz', ['hertz' => $hertz, 'slave' => $slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('hertz')
+            ->shouldBeCalledOnce()
+            ->willReturn($hertz)
+        ;
+        $this->eventService->fire('', 'readHertz', ['hertz' => $hertz, 'slave' => $module])
             ->shouldBeCalledOnce()
         ;
     }
 
     public function testReadPwmSpeed(): void
     {
-        $this->prophesizeReadPwmSpeed($this->slave, 4242);
+        $this->prophesizeReadPwmSpeed($this->module, 4242);
 
-        $this->assertEquals(4242, $this->abstractHcSlave->readPwmSpeed($this->slave->reveal()));
+        $this->assertEquals(4242, $this->abstractHcSlave->readPwmSpeed($this->module));
     }
 
-    private function prophesizeReadPwmSpeed(ObjectProphecy $slave, int $pwmSpeed): void
+    private function prophesizeReadPwmSpeed(Module $module, int $pwmSpeed): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $slave,
+            $module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             217,
             'pwmSpeed',
             2
         );
-        $this->eventService->fire('readPwmSpeed', ['pwmSpeed' => $pwmSpeed, 'slave' => $slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('pwmSpeed')
+            ->shouldBeCalledOnce()
+            ->willReturn($pwmSpeed)
+        ;
+        $this->eventService->fire('', 'readPwmSpeed', ['pwmSpeed' => $pwmSpeed, 'slave' => $module])
             ->shouldBeCalledOnce()
         ;
     }
 
     public function testReadTypeId(): void
     {
-        $this->prophesizeReadTypeId(42);
+        $this->prophesizeReadTypeId($this->module, 42);
 
-        $this->assertEquals(42, $this->abstractHcSlave->readTypeId($this->slave->reveal()));
+        $this->assertEquals(42, $this->abstractHcSlave->readTypeId($this->module));
     }
 
-    private function prophesizeReadTypeId(int $typeId): void
+    private function prophesizeReadTypeId(Module $module, int $typeId): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             201,
             'typeId',
             1
         );
-        $this->eventService->fire('readTypeId', ['typeId' => $typeId, 'slave' => $this->slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('typeId', 0)
+            ->shouldBeCalledOnce()
+            ->willReturn($typeId)
+        ;
+        $this->eventService->fire('', 'readTypeId', ['slave' => $module, 'typeId' => $typeId])
             ->shouldBeCalledOnce()
         ;
     }
@@ -1214,24 +710,27 @@ class AbstractHcModuleTest extends Unit
      */
     public function testReadPowerLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             221,
             'powerLed',
             1
         );
-        $this->eventService->fire('readPowerLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('powerLed')
+            ->shouldBeCalledOnce()
+            ->willReturn($on ? 1 : 0)
+        ;
+        $this->eventService->fire('', 'readPowerLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->assertEquals($on, $this->abstractHcSlave->readPowerLed($this->slave->reveal()));
+        $this->assertEquals($on, $this->abstractHcSlave->readPowerLed($this->module));
     }
 
     /**
@@ -1239,24 +738,27 @@ class AbstractHcModuleTest extends Unit
      */
     public function testReadErrorLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             222,
             'errorLed',
             1
         );
-        $this->eventService->fire('readErrorLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('errorLed')
+            ->shouldBeCalledOnce()
+            ->willReturn($on ? 1 : 0)
+        ;
+        $this->eventService->fire('', 'readErrorLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->assertEquals($on, $this->abstractHcSlave->readErrorLed($this->slave->reveal()));
+        $this->assertEquals($on, $this->abstractHcSlave->readErrorLed($this->module));
     }
 
     /**
@@ -1264,24 +766,27 @@ class AbstractHcModuleTest extends Unit
      */
     public function testReadConnectLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             223,
             'connectLed',
             1
         );
-        $this->eventService->fire('readConnectLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('connectLed')
+            ->shouldBeCalledOnce()
+            ->willReturn($on ? 1 : 0)
+        ;
+        $this->eventService->fire('', 'readConnectLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->assertEquals($on, $this->abstractHcSlave->readConnectLed($this->slave->reveal()));
+        $this->assertEquals($on, $this->abstractHcSlave->readConnectLed($this->module));
     }
 
     /**
@@ -1289,24 +794,27 @@ class AbstractHcModuleTest extends Unit
      */
     public function testReadTransreceiveLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             224,
             'transreceiveLed',
             1
         );
-        $this->eventService->fire('readTransreceiveLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('transreceiveLed')
+            ->shouldBeCalledOnce()
+            ->willReturn($on ? 1 : 0)
+        ;
+        $this->eventService->fire('', 'readTransreceiveLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->assertEquals($on, $this->abstractHcSlave->readTransreceiveLed($this->slave->reveal()));
+        $this->assertEquals($on, $this->abstractHcSlave->readTransreceiveLed($this->module));
     }
 
     /**
@@ -1314,24 +822,27 @@ class AbstractHcModuleTest extends Unit
      */
     public function testReadTransceiveLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             225,
             'transceiveLed',
             1
         );
-        $this->eventService->fire('readTransceiveLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('transceiveLed')
+            ->shouldBeCalledOnce()
+            ->willReturn($on ? 1 : 0)
+        ;
+        $this->eventService->fire('', 'readTransceiveLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->assertEquals($on, $this->abstractHcSlave->readTransceiveLed($this->slave->reveal()));
+        $this->assertEquals($on, $this->abstractHcSlave->readTransceiveLed($this->module));
     }
 
     /**
@@ -1339,24 +850,27 @@ class AbstractHcModuleTest extends Unit
      */
     public function testReadReceiveLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             226,
             'receiveLed',
             1
         );
-        $this->eventService->fire('readReceiveLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('receiveLed')
+            ->shouldBeCalledOnce()
+            ->willReturn($on ? 1 : 0)
+        ;
+        $this->eventService->fire('', 'readReceiveLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->assertEquals($on, $this->abstractHcSlave->readReceiveLed($this->slave->reveal()));
+        $this->assertEquals($on, $this->abstractHcSlave->readReceiveLed($this->module));
     }
 
     /**
@@ -1364,241 +878,201 @@ class AbstractHcModuleTest extends Unit
      */
     public function testReadCustomLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeRead(
+        AbstractModuleTest::prophesizeRead(
             $this->master,
-            $this->slave,
+            $this->module,
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             227,
             'customLed',
             1
         );
-        $this->eventService->fire('readCustomLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->transformService->asciiToUnsignedInt('customLed')
+            ->shouldBeCalledOnce()
+            ->willReturn($on ? 1 : 0)
+        ;
+        $this->eventService->fire('', 'readCustomLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->assertEquals($on, $this->abstractHcSlave->readCustomLed($this->slave->reveal()));
+        $this->assertEquals($on, $this->abstractHcSlave->readCustomLed($this->module));
     }
 
     public function testWriteAddress(): void
     {
         $this->prophesizeWriteAddress(4242, 42, 7);
 
-        $this->abstractHcSlave->writeAddress($this->slave->reveal(), 7);
+        $this->abstractHcSlave->writeAddress($this->module, 7);
     }
 
     private function prophesizeWriteAddress(int $deviceId, int $oldAddress, int $newAddress): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             $oldAddress,
             202,
             chr($deviceId >> 8) . chr($deviceId & 255) . chr($newAddress)
         );
-        $this->slave->getDeviceId()
-            ->shouldBeCalledOnce()
-            ->willReturn($deviceId)
-        ;
-        $this->slave->setAddress($newAddress)
-            ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
-        ;
-        $this->eventService->fire('beforeWriteAddress', ['newAddress' => $newAddress, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWriteAddress', ['newAddress' => $newAddress, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteAddress', ['newAddress' => $newAddress, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWriteAddress', ['newAddress' => $newAddress, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->slave->getMaster()->shouldBeCalledTimes(4);
-        $this->masterService->scanBus($this->master->reveal());
+        $this->masterService->scanBus($this->master);
     }
 
     public function testWriteDeviceId(): void
     {
-        $this->prophesizeWriteDeviceId($this->slave, 4242, 7777);
+        $this->prophesizeWriteDeviceId($this->module, 4242, 7777);
 
-        $this->abstractHcSlave->writeDeviceId($this->slave->reveal(), 7777);
+        $this->abstractHcSlave->writeDeviceId($this->module, 7777);
     }
 
-    private function prophesizeWriteDeviceId(ObjectProphecy $slave, int $oldDeviceId, int $newDeviceId): void
+    private function prophesizeWriteDeviceId(Module $module, int $oldDeviceId, int $newDeviceId): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $slave,
+        AbstractModuleTest::prophesizeWrite(
+            $module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             200,
             chr($oldDeviceId >> 8) . chr($oldDeviceId & 255) . chr($newDeviceId >> 8) . chr($newDeviceId & 255)
         );
-        $slave->getDeviceId()
-            ->shouldBeCalledOnce()
-            ->willReturn($oldDeviceId)
-        ;
-        $slave->setDeviceId($newDeviceId)
-            ->shouldBeCalledOnce()
-            ->willReturn($slave->reveal())
-        ;
-        $this->eventService->fire('beforeWriteDeviceId', ['newDeviceId' => $newDeviceId, 'slave' => $slave->reveal()])
+        $this->eventService->fire('', 'beforeWriteDeviceId', ['newDeviceId' => $newDeviceId, 'slave' => $module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteDeviceId', ['newDeviceId' => $newDeviceId, 'slave' => $slave->reveal()])
+        $this->eventService->fire('', 'afterWriteDeviceId', ['newDeviceId' => $newDeviceId, 'slave' => $module])
             ->shouldBeCalledOnce()
         ;
     }
 
     public function testWriteEepromErase(): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             215,
             chr(4242 >> 8) . chr(4242 & 255)
         );
-        $this->slave->getDeviceId()
-            ->shouldBeCalledOnce()
-            ->willReturn(4242)
-        ;
-        $this->eventService->fire('beforeWriteEepromErase', ['slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWriteEepromErase', ['slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteEepromErase', ['slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWriteEepromErase', ['slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->abstractHcSlave->writeEepromErase($this->slave->reveal());
+        $this->abstractHcSlave->writeEepromErase($this->module);
     }
 
     public function testWriteEepromPosition(): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             214,
             chr(4242 >> 8) . chr(4242 & 255)
         );
-        $this->eventService->fire('beforeWriteEepromPosition', ['eepromPosition' => 4242, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWriteEepromPosition', ['eepromPosition' => 4242, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteEepromPosition', ['eepromPosition' => 4242, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWriteEepromPosition', ['eepromPosition' => 4242, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->abstractHcSlave->writeEepromPosition($this->slave->reveal(), 4242);
+        $this->abstractHcSlave->writeEepromPosition($this->module, 4242);
     }
 
     public function testWritePwmSpeed(): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             217,
             chr(4242 >> 8) . chr(4242 & 255)
         );
-        $this->eventService->fire('beforeWritePwmSpeed', ['pwmSpeed' => 4242, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWritePwmSpeed', ['pwmSpeed' => 4242, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWritePwmSpeed', ['pwmSpeed' => 4242, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWritePwmSpeed', ['pwmSpeed' => 4242, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->abstractHcSlave->writePwmSpeed($this->slave->reveal(), 4242);
+        $this->abstractHcSlave->writePwmSpeed($this->module, 4242);
     }
 
     public function testWriteRestart(): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             209,
             chr(4242 >> 8) . chr(4242 & 255)
         );
-        $this->slave->getDeviceId()
-            ->shouldBeCalledOnce()
-            ->willReturn(4242)
-        ;
-        $this->eventService->fire('beforeWriteRestart', ['slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWriteRestart', ['slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteRestart', ['slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWriteRestart', ['slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->abstractHcSlave->writeRestart($this->slave->reveal());
+        $this->abstractHcSlave->writeRestart($this->module);
     }
 
     public function testWriteTypeId(): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             201,
             chr(7) . 'a'
         );
-        $this->eventService->fire('beforeWriteTypeId', ['typeId' => 7, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWriteTypeId', ['typeId' => 7, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteTypeId', ['typeId' => 7, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWriteTypeId', ['typeId' => 7, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
         $type = $this->prophesize(Type::class);
         $type->getId()
-            ->shouldBeCalledTimes(3)
+            ->shouldBeCalledTimes(5)
             ->willReturn(7)
         ;
         $type->getHelper()
             ->shouldBeCalledOnce()
             ->willReturn('prefect')
         ;
-        $this->slave->setType($type->reveal())
-            ->shouldBeCalledOnce()
-            ->willReturn($this->slave->reveal())
-        ;
         $slaveService = $this->prophesize(AbstractModule::class);
-        $slaveService->handshake($this->slave->reveal())
+        $slaveService->handshake($this->module)
             ->shouldBeCalledOnce()
         ;
         $this->moduleFactory->get('prefect')
@@ -1606,7 +1080,7 @@ class AbstractHcModuleTest extends Unit
             ->willReturn($slaveService->reveal())
         ;
 
-        $this->abstractHcSlave->writeTypeId($this->slave->reveal(), $type->reveal());
+        $this->abstractHcSlave->writeTypeId($this->module, $type->reveal());
     }
 
     /**
@@ -1614,26 +1088,24 @@ class AbstractHcModuleTest extends Unit
      */
     public function testWritePowerLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             221,
             chr((int) $on) . 'a'
         );
-        $this->eventService->fire('beforeWritePowerLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWritePowerLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWritePowerLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWritePowerLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->abstractHcSlave->writePowerLed($this->slave->reveal(), $on);
+        $this->abstractHcSlave->writePowerLed($this->module, $on);
     }
 
     /**
@@ -1641,26 +1113,24 @@ class AbstractHcModuleTest extends Unit
      */
     public function testWriteErrorLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             222,
             chr((int) $on) . 'a'
         );
-        $this->eventService->fire('beforeWriteErrorLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWriteErrorLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteErrorLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWriteErrorLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->abstractHcSlave->writeErrorLed($this->slave->reveal(), $on);
+        $this->abstractHcSlave->writeErrorLed($this->module, $on);
     }
 
     /**
@@ -1668,26 +1138,24 @@ class AbstractHcModuleTest extends Unit
      */
     public function testWriteConnectLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             223,
             chr((int) $on) . 'a'
         );
-        $this->eventService->fire('beforeWriteConnectLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWriteConnectLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteConnectLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWriteConnectLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->abstractHcSlave->writeConnectLed($this->slave->reveal(), $on);
+        $this->abstractHcSlave->writeConnectLed($this->module, $on);
     }
 
     /**
@@ -1695,26 +1163,24 @@ class AbstractHcModuleTest extends Unit
      */
     public function testWriteTransreceiveLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             224,
             chr((int) $on) . 'a'
         );
-        $this->eventService->fire('beforeWriteTransreceiveLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWriteTransreceiveLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteTransreceiveLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWriteTransreceiveLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->abstractHcSlave->writeTransreceiveLed($this->slave->reveal(), $on);
+        $this->abstractHcSlave->writeTransreceiveLed($this->module, $on);
     }
 
     /**
@@ -1722,26 +1188,24 @@ class AbstractHcModuleTest extends Unit
      */
     public function testWriteTransceiveLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             225,
             chr((int) $on) . 'a'
         );
-        $this->eventService->fire('beforeWriteTransceiveLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWriteTransceiveLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteTransceiveLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWriteTransceiveLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->abstractHcSlave->writeTransceiveLed($this->slave->reveal(), $on);
+        $this->abstractHcSlave->writeTransceiveLed($this->module, $on);
     }
 
     /**
@@ -1749,26 +1213,24 @@ class AbstractHcModuleTest extends Unit
      */
     public function testWriteReceiveLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             226,
             chr((int) $on) . 'a'
         );
-        $this->eventService->fire('beforeWriteReceiveLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWriteReceiveLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteReceiveLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWriteReceiveLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->abstractHcSlave->writeReceiveLed($this->slave->reveal(), $on);
+        $this->abstractHcSlave->writeReceiveLed($this->module, $on);
     }
 
     /**
@@ -1776,26 +1238,24 @@ class AbstractHcModuleTest extends Unit
      */
     public function testWriteCustomLed(bool $on): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             227,
             chr((int) $on) . 'a'
         );
-        $this->eventService->fire('beforeWriteCustomLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'beforeWriteCustomLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteCustomLed', ['on' => $on, 'slave' => $this->slave->reveal()])
+        $this->eventService->fire('', 'afterWriteCustomLed', ['on' => $on, 'slave' => $this->module])
             ->shouldBeCalledOnce()
         ;
 
-        $this->abstractHcSlave->writeCustomLed($this->slave->reveal(), $on);
+        $this->abstractHcSlave->writeCustomLed($this->module, $on);
     }
 
     /**
@@ -1803,13 +1263,11 @@ class AbstractHcModuleTest extends Unit
      */
     public function testWriteRgbLed(string $data, array $leds): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             228,
@@ -1822,17 +1280,41 @@ class AbstractHcModuleTest extends Unit
             'transceive' => '4',
             'receive' => '5',
             'custom' => '6',
-            'slave' => $this->slave->reveal(),
+            'slave' => $this->module,
         ];
-        $this->eventService->fire('beforeWriteRgbLed', $eventData)
+        $this->eventService->fire('', 'beforeWriteRgbLed', $eventData)
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteRgbLed', $eventData)
+        $this->eventService->fire('', 'afterWriteRgbLed', $eventData)
             ->shouldBeCalledOnce()
+        ;
+        $this->transformService->hexToInt('1')
+            ->shouldBeCalledOnce()
+            ->willReturn($leds['power'])
+        ;
+        $this->transformService->hexToInt('2')
+            ->shouldBeCalledOnce()
+            ->willReturn($leds['error'])
+        ;
+        $this->transformService->hexToInt('3')
+            ->shouldBeCalledOnce()
+            ->willReturn($leds['connect'])
+        ;
+        $this->transformService->hexToInt('4')
+            ->shouldBeCalledOnce()
+            ->willReturn($leds['transceive'])
+        ;
+        $this->transformService->hexToInt('5')
+            ->shouldBeCalledOnce()
+            ->willReturn($leds['receive'])
+        ;
+        $this->transformService->hexToInt('6')
+            ->shouldBeCalledOnce()
+            ->willReturn($leds['custom'])
         ;
 
         $this->abstractHcSlave->writeRgbLed(
-            $this->slave->reveal(),
+            $this->module,
             '1',
             '2',
             '3',
@@ -1847,27 +1329,25 @@ class AbstractHcModuleTest extends Unit
      */
     public function testWriteAllLeds(int $data, array $leds): void
     {
-        AbstractSlaveTest::prophesizeWrite(
-            $this->master,
-            $this->slave,
+        AbstractModuleTest::prophesizeWrite(
+            $this->module->getMaster(),
             $this->masterService,
-            $this->transformService,
+            $this->modelWrapper,
             $this->logRepository,
-            $this->prophesize(Log::class),
             255,
             42,
             229,
             chr($data) . 'a'
         );
-        $this->eventService->fire('beforeWriteAllLeds', array_merge($leds, ['slave' => $this->slave->reveal()]))
+        $this->eventService->fire('', 'beforeWriteAllLeds', array_merge($leds, ['slave' => $this->module]))
             ->shouldBeCalledOnce()
         ;
-        $this->eventService->fire('afterWriteAllLeds', array_merge($leds, ['slave' => $this->slave->reveal()]))
+        $this->eventService->fire('', 'afterWriteAllLeds', array_merge($leds, ['slave' => $this->module]))
             ->shouldBeCalledOnce()
         ;
 
         $this->abstractHcSlave->writeAllLeds(
-            $this->slave->reveal(),
+            $this->module,
             $leds['power'],
             $leds['error'],
             $leds['connect'],

@@ -72,12 +72,12 @@ class Bme280Service extends AbstractModule
      * @throws SaveError
      * @throws WriteException
      */
-    public function handshake(Module $slave): Module
+    public function handshake(Module $module): Module
     {
-        $this->init($slave);
-        $this->calibrate($slave);
+        $this->init($module);
+        $this->calibrate($module);
 
-        return $slave;
+        return $module;
     }
 
     /**
