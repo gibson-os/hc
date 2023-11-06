@@ -39,19 +39,6 @@ class MasterRepository extends AbstractRepository
     }
 
     /**
-     * @throws JsonException
-     * @throws ClientException
-     * @throws RecordException
-     * @throws ReflectionException
-     *
-     * @return Master[]
-     */
-    public function getByProtocol(string $protocol): array
-    {
-        return $this->fetchAll('`protocol`=?', [$protocol], Master::class);
-    }
-
-    /**
      * @throws ClientException
      * @throws JsonException
      * @throws RecordException

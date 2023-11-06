@@ -70,21 +70,6 @@ class ModuleRepository extends AbstractRepository
      * @throws JsonException
      * @throws RecordException
      * @throws ReflectionException
-     *
-     * @return Module[]
-     */
-    public function getByMasterId(int $masterId): array
-    {
-        $this->logger->debug(sprintf('Get slaves by master id %d', $masterId));
-
-        return $this->fetchAll('`master_id`=?', [$masterId], Module::class);
-    }
-
-    /**
-     * @throws ClientException
-     * @throws JsonException
-     * @throws RecordException
-     * @throws ReflectionException
      * @throws SelectError
      */
     public function getByDeviceId(int $deviceId): Module
@@ -117,7 +102,7 @@ class ModuleRepository extends AbstractRepository
      */
     public function getByAddress(int $address, int $masterId): Module
     {
-        $this->logger->debug(sprintf('Get slave by address %d and master id %d', $address, $masterId));
+        $this->logger->debug(sprintf('Get module by address %d and master id %d', $address, $masterId));
 
         return $this->fetchOne('`address`=? AND `master_id`=?', [$address, $masterId], Module::class);
     }
