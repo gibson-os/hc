@@ -229,7 +229,11 @@ class MasterService
         }
 
         if ($busMessage->getCommand() !== $receivedBusMessage->getCommand()) {
-            throw new ReceiveError('Command not equal!');
+            throw new ReceiveError(sprintf(
+                'Command %d not equal %d!',
+                $busMessage->getCommand() ?? 0,
+                $receivedBusMessage->getCommand() ?? 0,
+            ));
         }
 
         return $receivedBusMessage;

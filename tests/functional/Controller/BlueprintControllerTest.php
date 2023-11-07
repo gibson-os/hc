@@ -44,7 +44,7 @@ class BlueprintControllerTest extends HcFunctionalTest
         ];
 
         $response = $this->blueprintController->getIndex($this->serviceManager->get(BlueprintStore::class));
-        $this->checkSuccessResponse($response, $expected);
+        $this->checkSuccessResponse($response, $expected, 2);
     }
 
     public function testGetSvg(): void

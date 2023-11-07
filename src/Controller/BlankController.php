@@ -18,6 +18,8 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Module\BlankService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class BlankController extends AbstractController
@@ -29,13 +31,17 @@ class BlankController extends AbstractController
     private const DATA_FORMAT_INT = 'int';
 
     /**
+     * @param Module $module
+     *
      * @throws AbstractException
-     * @throws ReceiveError
-     * @throws SaveError
      * @throws FactoryError
      * @throws GetError
      * @throws JsonException
+     * @throws ReceiveError
      * @throws ReflectionException
+     * @throws SaveError
+     * @throws ClientException
+     * @throws RecordException
      */
     #[CheckPermission([Permission::READ])]
     public function get(
