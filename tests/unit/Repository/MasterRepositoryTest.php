@@ -78,11 +78,11 @@ class MasterRepositoryTest extends Unit
 
     public function testFindByName(): void
     {
-        $selectQuery = (new SelectQuery($this->table))
+        $selectQuery = (new SelectQuery($this->table, 't'))
             ->addWhere(new Where('`name` LIKE ?', ['marvin%']))
         ;
 
-        $model = $this->loadModel($selectQuery, Master::class, '');
+        $model = $this->loadModel($selectQuery, Master::class);
         $master = $this->masterRepository->findByName('marvin')[0];
         $date = new DateTimeImmutable();
         $model->setAdded($date)->setModified($date);

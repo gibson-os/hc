@@ -10,6 +10,7 @@ use GibsonOS\Module\Hc\Model\Blueprint;
 use GibsonOS\Module\Hc\Repository\BlueprintRepository;
 use GibsonOS\Test\Unit\Core\Repository\RepositoryTrait;
 use MDO\Dto\Query\Where;
+use MDO\Dto\Result;
 use MDO\Query\SelectQuery;
 use MDO\Service\SelectService;
 
@@ -41,11 +42,11 @@ class BlueprintRepositoryTest extends Unit
 
     public function testFindByName(): void
     {
-        $selectQuery = (new SelectQuery($this->table))
+        $selectQuery = (new SelectQuery($this->table, 't'))
             ->addWhere(new Where('`name` LIKE ?', ['galaxy%']))
         ;
         $this->assertEquals(
-            $this->loadModel($selectQuery, Blueprint::class, ''),
+            $this->loadModel($selectQuery, Blueprint::class),
             $this->blueprintRepository->findByName('galaxy')[0],
         );
     }
@@ -55,10 +56,31 @@ class BlueprintRepositoryTest extends Unit
      */
     public function testGetExpanded(array $childrenTypes): void
     {
-        $childrenWheres = [];
+        $selectQuery = (new SelectQuery($this->table, 't'))
+            ->addWhere(new Where('`t`.`id`=:blueprintId', ['blueprintId' => 42]))
+        ;
+        $this->childrenQuery->extend($selectQuery, Blueprint::class, [
+            new ChildrenMapping('geometries', 'geometry_', 'g', [
+                new ChildrenMapping('module', 'module_', 'm', [
+                    new ChildrenMapping('type', 'type_', 'ty'),
+                ]),
+            ]),
+        ])
+            ->shouldBeCalledOnce()
+            ->willReturn($selectQuery)
+        ;
 
-        if (count($childrenTypes)) {
-            $childrenWheres[] = new Where('`c`.`type` IN (?)', $childrenTypes);
+        $model = $this->loadModel($selectQuery, Blueprint::class)->setChildren([]);
+
+        if (count($childrenTypes) > 0) {
+            $parameters = $childrenTypes;
+            $parameters[] = 42;
+            $childrenSelectQuery = (new SelectQuery($this->table, 't'))
+                ->addWhere(new Where(
+                    '`t`.`type` IN (?) AND `t`.`parent_id`=?',
+                    $parameters,
+                ))
+            ;
             $selectService = $this->prophesize(SelectService::class);
             $selectService->getParametersString($childrenTypes)
                 ->shouldBeCalledOnce()
@@ -68,32 +90,40 @@ class BlueprintRepositoryTest extends Unit
                 ->shouldBeCalledOnce()
                 ->willReturn($selectService->reveal())
             ;
-        }
-
-        $selectQuery = (new SelectQuery($this->table, 't'))
-            ->addWhere(new Where('`t`.`id`=:blueprintId', ['blueprintId' => 42]))
-            ->setLimit(1)
-        ;
-        $this->childrenQuery->extend($selectQuery, Blueprint::class, [
-            new ChildrenMapping('geometries', 'geometry_', 'g', [
-                new ChildrenMapping('module', 'module_', 'm', [
-                    new ChildrenMapping('type', 'type_', 'ty'),
-                ]),
-            ]),
-            new ChildrenMapping('children', 'children_', 'c', [
-                new ChildrenMapping('geometries', 'children_geometry_', 'cg', [
-                    new ChildrenMapping('module', 'children_module_', 'cm', [
-                        new ChildrenMapping('type', 'children_type_', 'cty'),
+            $this->childrenQuery->extend($childrenSelectQuery, Blueprint::class, [
+                new ChildrenMapping('geometries', 'geometry_', 'g', [
+                    new ChildrenMapping('module', 'module_', 'm', [
+                        new ChildrenMapping('type', 'type_', 'ty'),
                     ]),
                 ]),
-            ], $childrenWheres),
-        ])
-            ->shouldBeCalledOnce()
-            ->willReturn($selectQuery)
-        ;
+            ])
+                ->shouldBeCalledOnce()
+                ->willReturn($childrenSelectQuery)
+            ;
+            $this->client->execute($childrenSelectQuery)
+                ->shouldBeCalledOnce()
+                ->willReturn(new Result(null))
+            ;
+            $this->tableManager->getTable('hc_blueprint')
+                ->shouldBeCalledTimes(2)
+            ;
+            $this->repositoryWrapper->getModelWrapper()
+                ->shouldBeCalledTimes(4)
+            ;
+            $this->repositoryWrapper->getTableManager()
+                ->shouldBeCalledTimes(2)
+            ;
+            $this->repositoryWrapper->getChildrenQuery()
+                ->shouldBeCalledTimes(2)
+            ;
+            $this->repositoryWrapper->getClient()
+                ->shouldBeCalledTimes(2)
+            ;
+            //            $this->loadModel($childrenSelectQuery, Blueprint::class);
+        }
 
         $this->assertEquals(
-            $this->loadModel($selectQuery, Blueprint::class),
+            $model,
             $this->blueprintRepository->getExpanded(42, $childrenTypes),
         );
     }

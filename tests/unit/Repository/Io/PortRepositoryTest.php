@@ -53,20 +53,20 @@ class PortRepositoryTest extends Unit
 
     public function testGetByModule(): void
     {
-        $selectQuery = (new SelectQuery($this->table))
+        $selectQuery = (new SelectQuery($this->table, 't'))
             ->addWhere(new Where('`module_id`=?', [42]))
             ->setOrder('`number`')
         ;
 
         $this->assertEquals(
-            $this->loadModel($selectQuery, Port::class, ''),
+            $this->loadModel($selectQuery, Port::class),
             $this->portRepository->getByModule((new Module($this->modelWrapper->reveal()))->setId(42))[0],
         );
     }
 
     public function testFindByName(): void
     {
-        $selectQuery = (new SelectQuery($this->table))
+        $selectQuery = (new SelectQuery($this->table, 't'))
             ->addWhere(new Where('`module_id`=? AND `name` REGEXP ?', [42, 'galaxy']))
         ;
         $selectService = $this->prophesize(SelectService::class);
@@ -80,7 +80,7 @@ class PortRepositoryTest extends Unit
         ;
 
         $this->assertEquals(
-            $this->loadModel($selectQuery, Port::class, ''),
+            $this->loadModel($selectQuery, Port::class),
             $this->portRepository->findByName(42, 'galaxy')[0],
         );
     }

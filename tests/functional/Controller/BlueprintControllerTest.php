@@ -275,7 +275,7 @@ class BlueprintControllerTest extends HcFunctionalTest
     public function getData(): array
     {
         return [
-            'all' => [[], '<svg
+            'none' => [[], '<svg
     width="100%"
     height="100%"
     viewBox="0 0 444 282"
@@ -289,24 +289,8 @@ class BlueprintControllerTest extends HcFunctionalTest
     id="geometry1"
         d="M 24,42 420,240,"
 />
-                <g
-    id="blueprint2"
-    >
-            <path
-    style="fill:transparent;stroke:#000000;stroke-width:1"
-    id="geometry2"
-        d="M 66,42 420,240,"
-/>
-                <g
-    id="blueprint3"
-    >
-            <path
-    style="fill:transparent;stroke:#000000;stroke-width:1"
-    id="geometry3"
-        d="M 66,84 420,240,"
-/>
-        </g>    </g>    </g></svg>'],
-            'frame' => [[Type::FRAME->name], '<svg
+        </g></svg>'],
+            'all' => [[Type::FRAME->name, Type::ROOM->name, Type::FURNISHING->name, Type::MODULE->name], '<svg
     width="100%"
     height="100%"
     viewBox="0 0 444 282"
@@ -357,6 +341,21 @@ class BlueprintControllerTest extends HcFunctionalTest
     x="24"
     y="84"
 />        </g>    </g></svg>'],
+            'frame' => [[Type::FRAME->name], '<svg
+    width="100%"
+    height="100%"
+    viewBox="0 0 444 282"
+    xmlns="http://www.w3.org/2000/svg"
+>
+    <g
+    id="blueprint1"
+    >
+            <path
+    style="fill:transparent;stroke:#000000;stroke-width:1"
+    id="geometry1"
+        d="M 24,42 420,240,"
+/>
+        </g></svg>'],
             'room' => [[Type::ROOM->name], '<svg
     width="100%"
     height="100%"
@@ -379,15 +378,7 @@ class BlueprintControllerTest extends HcFunctionalTest
     id="geometry2"
         d="M 66,42 420,240,"
 />
-                <g
-    id="blueprint3"
-    >
-            <path
-    style="fill:transparent;stroke:#000000;stroke-width:1"
-    id="geometry3"
-        d="M 66,84 420,240,"
-/>
-        </g>    </g>    </g></svg>'],
+        </g>    </g></svg>'],
             'furnishing' => [[Type::FURNISHING->name], '<svg
     width="100%"
     height="100%"
@@ -443,7 +434,17 @@ class BlueprintControllerTest extends HcFunctionalTest
     id="geometry3"
         d="M 66,84 420,240,"
 />
-        </g>    </g>    </g></svg>'],
+        </g>    </g>            <g
+    id="blueprint4"
+    >
+            <ellipse
+    style="fill:transparent;stroke:#000000;stroke-width:1"
+    id="geometry4"
+        cx="234"
+    cy="204"
+    rx="210"
+    ry="120"
+/>        </g>    </g></svg>'],
             'module' => [[Type::MODULE->name], '<svg
     width="100%"
     height="100%"

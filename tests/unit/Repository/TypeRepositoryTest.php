@@ -94,12 +94,12 @@ class TypeRepositoryTest extends Unit
         bool $hcSlave = null,
         string $network = null,
     ): void {
-        $selectQuery = (new SelectQuery($this->table))
+        $selectQuery = (new SelectQuery($this->table, 't'))
             ->addWhere(new Where($where, $parameters))
         ;
 
         $this->assertEquals(
-            $this->loadModel($selectQuery, Type::class, ''),
+            $this->loadModel($selectQuery, Type::class),
             $this->typeRepository->findByName('marvin', $hcSlave, $network)[0],
         );
     }

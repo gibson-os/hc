@@ -65,11 +65,11 @@ class ModuleRepositoryTest extends Unit
 
     public function testFindByName(): void
     {
-        $selectQuery = (new SelectQuery($this->table))
+        $selectQuery = (new SelectQuery($this->table, 't'))
             ->addWhere(new Where('`name` LIKE ?', ['marvin%']))
         ;
 
-        $model = $this->loadModel($selectQuery, Module::class, '');
+        $model = $this->loadModel($selectQuery, Module::class);
         $module = $this->moduleRepository->findByName('marvin')[0];
         $date = new DateTimeImmutable();
         $model->setAdded($date)->setModified($date);
@@ -80,11 +80,11 @@ class ModuleRepositoryTest extends Unit
 
     public function testFindByNameWithType(): void
     {
-        $selectQuery = (new SelectQuery($this->table))
+        $selectQuery = (new SelectQuery($this->table, 't'))
             ->addWhere(new Where('`name` LIKE ? AND `type_id`=?', ['marvin%', 42]))
         ;
 
-        $model = $this->loadModel($selectQuery, Module::class, '');
+        $model = $this->loadModel($selectQuery, Module::class);
         $module = $this->moduleRepository->findByName('marvin', 42)[0];
         $date = new DateTimeImmutable();
         $model->setAdded($date)->setModified($date);
