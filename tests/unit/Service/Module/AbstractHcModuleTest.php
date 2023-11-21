@@ -335,59 +335,73 @@ class AbstractHcModuleTest extends Unit
     /**
      * @dataProvider getHandshakeData
      */
-    public function testHandshake(?int $id, bool $typeEqual, bool $deviceIdEqual, bool $exists, int $deviceId): void
+    public function testHandshake(?int $id, bool $deviceIdEqual, bool $exists, int $deviceId): void
     {
         $this->prophesizeReadTypeId($this->module, 7);
 
         $this->module->setDeviceId($deviceIdEqual ? $deviceId : $deviceId + 1);
 
-        if ($typeEqual) {
-            $this->prophesizeReadDeviceId($this->module, $deviceId);
-            $this->prophesizeReadHertz($this->module, 420000);
-            $this->prophesizeReadBufferSize($this->module, 4);
-            $this->prophesizeReadEepromSize($this->module, 420042);
-            $this->prophesizeReadPwmSpeed($this->module, 42042042);
+        $this->prophesizeReadDeviceId($this->module, $deviceId);
+        $this->prophesizeReadHertz($this->module, 420000);
+        $this->prophesizeReadBufferSize($this->module, 4);
+        $this->prophesizeReadEepromSize($this->module, 420042);
+        $this->prophesizeReadPwmSpeed($this->module, 42042042);
 
-            if (!$deviceIdEqual || $id === null) {
-                $getByDeviceIdCall = $this->moduleRepository->getByDeviceId($deviceId)
+        if (!$deviceIdEqual || $id === null) {
+            $getByDeviceIdCall = $this->moduleRepository->getByDeviceId($deviceId)
 //                    ->shouldBeCalledOnce()
-                ;
+            ;
 
-                if ($exists) {
-                    $getByDeviceIdCall->willReturn($this->module);
-                } else {
-                    $getByDeviceIdCall->willThrow(SelectError::class);
-                    $this->prophesizeWriteAddress($deviceIdEqual ? $deviceId : $deviceId + 1, 42, 88);
-                    //                    $this->masterRepository->getNextFreeAddress(79)
-                    //                        ->shouldBeCalledOnce()
-                    //                        ->willReturn(88)
-                    //                    ;
-                }
-            }
-
-            if ($deviceId === 0 || $deviceId > 65534) {
-                $this->moduleRepository->getFreeDeviceId()
-                    ->shouldBeCalledOnce()
-                    ->willReturn($deviceId)
+            if ($exists) {
+                $getByDeviceIdCall->willReturn($this->module);
+            } else {
+                $getByDeviceIdCall->willThrow(SelectError::class);
+                $this->prophesizeWriteAddress($deviceIdEqual ? $deviceId : $deviceId + 1, 42, 24);
+                $this->typeRepository->getByDefaultAddress(42)
+//                    ->shouldBeCalledOnce()
+                    ->willReturn($this->type)
                 ;
-                $this->prophesizeWriteDeviceId($this->module, $deviceId, $deviceId);
+                $this->masterRepository->getNextFreeAddress(1)
+//                    ->shouldBeCalledOnce()
+                    ->willReturn(24)
+                ;
             }
-        } else {
-            $this->module->setTypeId(9);
-            $this->typeRepository->getById(7)
-                ->shouldBeCalledOnce()
-                ->willReturn($this->type)
-            ;
-            $moduleService = $this->prophesize(AbstractModule::class);
-            $moduleService->handshake($this->module)
-                ->shouldBeCalledOnce()
-                ->willReturn($this->module)
-            ;
-            $this->moduleFactory->get('prefect')
-                ->shouldBeCalledOnce()
-                ->willReturn($moduleService->reveal())
-            ;
         }
+
+        if ($deviceId === 0 || $deviceId > 65534) {
+            $this->moduleRepository->getFreeDeviceId()
+//                ->shouldBeCalledOnce()
+                ->willReturn($deviceId)
+            ;
+            $this->prophesizeWriteDeviceId($this->module, $deviceId, $deviceId);
+        }
+
+        $this->abstractHcSlave->handshake($this->module);
+    }
+
+    /**
+     * @dataProvider getHandshakeDataDifferentType
+     */
+    public function testHandshakeDifferentTypes(?int $id, bool $deviceIdEqual, int $deviceId): void
+    {
+        $this->prophesizeReadTypeId($this->module, 7);
+
+        $this->module->setDeviceId($deviceIdEqual ? $deviceId : $deviceId + 1);
+
+        $this->module->setTypeId(9);
+        $this->typeRepository->getById(7)
+            ->shouldBeCalledOnce()
+            ->willReturn($this->type)
+        ;
+        $moduleService = $this->prophesize(AbstractModule::class);
+        $moduleService->handshake($this->module)
+            ->shouldBeCalledOnce()
+            ->willReturn($this->module)
+        ;
+        $this->moduleFactory->get('prefect')
+            ->shouldBeCalledOnce()
+            ->willReturn($moduleService->reveal())
+        ;
 
         $this->abstractHcSlave->handshake($this->module);
     }
@@ -1842,56 +1856,61 @@ class AbstractHcModuleTest extends Unit
 
     public function getHandshakeData(): array
     {
-        // ?int $id, bool $typeEqual, bool $deviceIdEqual, bool $exists, int $deviceIds
         return [
-            'With Id' => [7, true, true, true, 65534],
-            'Different Type Id' => [7, false, true, true, 42420],
-            'Different Device Id' => [7, true, false, true, 42420],
-            'Different Type and Device Id' => [7, false, false, true, 42420],
-            'Existing Slave without Id' => [null, true, true, true, 42420],
-            'Different Type Id without Id' => [null, false, true, true, 42420],
-            'Different Device Id without Id' => [null, true, false, true, 65500],
-            'Different Type and Device Id without Id' => [null, false, false, true, 1],
-            'With Id new Slave' => [7, true, true, false, 42420],
-            'Different Type Id new Slave' => [7, false, true, false, 12],
-            'Different Device Id new Slave' => [7, true, false, false, 42420],
-            'Different Type and Device Id new Slave' => [7, false, false, false, 9],
-            'New Slave without Id' => [null, true, true, false, 17],
-            'Different Type Id without Id new Slave' => [null, false, true, false, 42420],
-            'Different Device Id without Id new Slave' => [null, true, false, false, 42420],
-            'Different Type and Device Id without Id new Slave' => [null, false, false, false, 42420],
-            'With Id empty device Id' => [7, true, true, true, 0],
-            'Different Type Id empty device Id' => [7, false, true, true, 0],
-            'Different Device Id empty device Id' => [7, true, false, true, 0],
-            'Different Type and Device Id empty device Id' => [7, false, false, true, 0],
-            'Existing Slave without Id empty device Id' => [null, true, true, true, 0],
-            'Different Type Id without Id empty device Id' => [null, false, true, true, 0],
-            'Different Device Id without Id empty device Id' => [null, true, false, true, 0],
-            'Different Type and Device Id without Id empty device Id' => [null, false, false, true, 0],
-            'With Id new Slave empty device Id' => [7, true, true, false, 0],
-            'Different Type Id new Slave empty device Id' => [7, false, true, false, 0],
-            'Different Device Id new Slave empty device Id' => [7, true, false, false, 0],
-            'Different Type and Device Id new Slave empty device Id' => [7, false, false, false, 0],
-            'New Slave without Id empty device Id' => [null, true, true, false, 0],
-            'Different Type Id without Id new Slave empty device Id' => [null, false, true, false, 0],
-            'Different Device Id without Id new Slave empty device Id' => [null, true, false, false, 0],
-            'Different Type and Device Id without Id new Slave empty device Id' => [null, false, false, false, 0],
-            'With Id device id to big' => [7, true, true, true, 65535],
-            'Different Type Id device id to big' => [7, false, true, true, 65535],
-            'Different Device Id device id to big' => [7, true, false, true, 65535],
-            'Different Type and Device Id device id to big' => [7, false, false, true, 65535],
-            'Existing Slave without Id device id to big' => [null, true, true, true, 65535],
-            'Different Type Id without Id device id to big' => [null, false, true, true, 65535],
-            'Different Device Id without Id device id to big' => [null, true, false, true, 65535],
-            'Different Type and Device Id without Id device id to big' => [null, false, false, true, 65535],
-            'With Id new Slave device id to big' => [7, true, true, false, 65535],
-            'Different Type Id new Slave device id to big' => [7, false, true, false, 65535],
-            'Different Device Id new Slave device id to big' => [7, true, false, false, 65535],
-            'Different Type and Device Id new Slave device id to big' => [7, false, false, false, 65535],
-            'New Slave without Id device id to big' => [null, true, true, false, 65535],
-            'Different Type Id without Id new Slave device id to big' => [null, false, true, false, 65535],
-            'Different Device Id without Id new Slave device id to big' => [null, true, false, false, 65535],
-            'Different Type and Device Id without Id new Slave device id to big' => [null, false, false, false, 65535],
+            'With Id' => [7, true, true, 65534],
+            'Different Device Id' => [7, false, true, 42420],
+            'Existing Slave without Id' => [null, true, true, 42420],
+            'Different Device Id without Id' => [null, false, true, 65500],
+            'With Id new Slave' => [7, true, false, 42420],
+            'Different Device Id new Slave' => [7, false, false, 42420],
+            'New Slave without Id' => [null, true, false, 17],
+            'Different Device Id without Id new Slave' => [null, false, false, 42420],
+            'With Id empty device Id' => [7, true, true, 0],
+            'Different Device Id empty device Id' => [7, false, true, 0],
+            'Existing Slave without Id empty device Id' => [null, true, true, 0],
+            'Different Device Id without Id empty device Id' => [null, false, true, 0],
+            'With Id new Slave empty device Id' => [7, true, false, 0],
+            'Different Device Id new Slave empty device Id' => [7, false, false, 0],
+            'New Slave without Id empty device Id' => [null, true, false, 0],
+            'Different Device Id without Id new Slave empty device Id' => [null, false, false, 0],
+            'With Id device id to big' => [7, true, true, 65535],
+            'Different Device Id device id to big' => [7, false, true, 65535],
+            'Existing Slave without Id device id to big' => [null, true, true, 65535],
+            'Different Device Id without Id device id to big' => [null, false, true, 65535],
+            'With Id new Slave device id to big' => [7, true, false, 65535],
+            'Different Device Id new Slave device id to big' => [7, false, false, 65535],
+            'New Slave without Id device id to big' => [null, true, false, 65535],
+            'Different Device Id without Id new Slave device id to big' => [null, false, false, 65535],
+        ];
+    }
+
+    public function getHandshakeDataDifferentType(): array
+    {
+        return [
+            'With id' => [7, true, 42420],
+            'Different Device Id' => [7, false, 42420],
+            'Without Id' => [null, true, 42420],
+            'Different Device Id without Id' => [null, false, 1],
+            'New Slave' => [7, true, 12],
+            'Different Device Id new Slave' => [7, false, 9],
+            'Without Id new Slave' => [null, true, 42420],
+            'Different Device Id without Id new Slave' => [null, false, 42420],
+            'Empty device Id' => [7, true, 0],
+            'Different Device Id empty device Id' => [7, false, 0],
+            'Without Id empty device Id' => [null, true, 0],
+            'Different Device Id without Id empty device Id' => [null, false, 0],
+            'New Slave empty device Id' => [7, true, 0],
+            'Different Device Id new Slave empty device Id' => [7, false, 0],
+            'Without Id new Slave empty device Id' => [null, true, 0],
+            'Different Device Id without Id new Slave empty device Id' => [null, false, 0],
+            'Device id to big' => [7, true, 65535],
+            'Different Device Id device id to big' => [7, false, 65535],
+            'Without Id device id to big' => [null, true, 65535],
+            'Different Device Id without Id device id to big' => [null, false, 65535],
+            'New Slave device id to big' => [7, true, 65535],
+            'Different Device Id new Slave device id to big' => [7, false, 65535],
+            'Without Id new Slave device id to big' => [null, true, 65535],
+            'Different Device Id without Id new Slave device id to big' => [null, false, 65535],
         ];
     }
 

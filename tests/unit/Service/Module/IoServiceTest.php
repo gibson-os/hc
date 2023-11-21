@@ -4,20 +4,18 @@ declare(strict_types=1);
 namespace GibsonOS\Test\Unit\Hc\Service\Module;
 
 use Codeception\Test\Unit;
-use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
-use GibsonOS\Core\Manager\ModelManager;
-use GibsonOS\Core\Manager\ServiceManager;
 use GibsonOS\Core\Service\DevicePushService;
 use GibsonOS\Core\Service\EventService;
-use GibsonOS\Core\Service\LoggerService;
+use GibsonOS\Module\Hc\Dto\BusMessage;
+use GibsonOS\Module\Hc\Dto\Io\Direction;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Mapper\Io\DirectConnectMapper;
 use GibsonOS\Module\Hc\Mapper\Io\PortMapper;
-use GibsonOS\Module\Hc\Model\Attribute;
-use GibsonOS\Module\Hc\Model\Attribute\Value;
+use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
+use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Repository\Io\DirectConnectRepository;
 use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -28,7 +26,6 @@ use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use GibsonOS\Test\Unit\Core\ModelManagerTrait;
-use MDO\Client;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
@@ -42,9 +39,7 @@ class IoServiceTest extends Unit
 
     private ObjectProphecy|MasterService $masterService;
 
-    private TransformService $transformService;
-
-    private EventService $eventService;
+    private ObjectProphecy|EventService $eventService;
 
     private ObjectProphecy|ModuleRepository $moduleRepository;
 
@@ -52,13 +47,13 @@ class IoServiceTest extends Unit
 
     private ObjectProphecy|MasterRepository $masterRepository;
 
-    private ModuleFactory $moduleFactory;
+    private ObjectProphecy|ModuleFactory $moduleFactory;
 
-    private ObjectProphecy|Module $module;
+    private Module $module;
 
     private ObjectProphecy|LogRepository $logRepository;
 
-    private ObjectProphecy|Master $master;
+    private Master $master;
 
     private ObjectProphecy|PortRepository $portRepository;
 
@@ -66,43 +61,54 @@ class IoServiceTest extends Unit
 
     private ObjectProphecy|DevicePushService $devicePushService;
 
-    private ServiceManager $serviceManager;
+    private ObjectProphecy|PortMapper $portMapper;
 
     protected function _before(): void
     {
         $this->loadModelManager();
+
         $this->masterService = $this->prophesize(MasterService::class);
-        $this->serviceManager = new ServiceManager();
-        $this->serviceManager->setInterface(LoggerInterface::class, LoggerService::class);
-        $this->serviceManager->setService(Client::class, $this->client->reveal());
-        $this->serviceManager->setService(ModelManager::class, $this->modelManager->reveal());
-        $this->transformService = $this->serviceManager->get(TransformService::class);
-        $this->eventService = $this->serviceManager->get(EventService::class);
+        $this->eventService = $this->prophesize(EventService::class);
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
         $this->masterRepository = $this->prophesize(MasterRepository::class);
         $this->logRepository = $this->prophesize(LogRepository::class);
         $this->portRepository = $this->prophesize(PortRepository::class);
         $this->directConnectRepository = $this->prophesize(DirectConnectRepository::class);
-        $this->moduleFactory = $this->serviceManager->get(ModuleFactory::class);
+        $this->moduleFactory = $this->prophesize(ModuleFactory::class);
         $this->devicePushService = $this->prophesize(DevicePushService::class);
-        $this->module = $this->prophesize(Module::class);
-        $this->master = $this->prophesize(Master::class);
+        $this->portMapper = $this->prophesize(PortMapper::class);
+        $this->master = (new Master($this->modelWrapper->reveal()))
+            ->setId(1)
+            ->setAddress('42.42.42.42')
+            ->setSendPort(420042)
+        ;
+        $type = (new Type($this->modelWrapper->reveal()))
+            ->setId(7)
+            ->setHelper('prefect')
+        ;
+        $this->module = (new Module($this->modelWrapper->reveal()))
+            ->setAddress(42)
+            ->setDeviceId(4242)
+            ->setId(7)
+            ->setType($type)
+            ->setMaster($this->master)
+        ;
 
         $this->ioService = new IoService(
             $this->masterService->reveal(),
-            $this->transformService,
-            $this->eventService,
+            new TransformService(),
+            $this->eventService->reveal(),
             $this->moduleRepository->reveal(),
             $this->typeRepository->reveal(),
             $this->masterRepository->reveal(),
             $this->logRepository->reveal(),
-            $this->moduleFactory,
-            $this->serviceManager->get(LoggerInterface::class),
+            $this->moduleFactory->reveal(),
+            $this->prophesize(LoggerInterface::class)->reveal(),
             $this->modelManager->reveal(),
             $this->modelWrapper->reveal(),
-            $this->serviceManager->get(PortMapper::class),
-            $this->serviceManager->get(DirectConnectMapper::class),
+            $this->portMapper->reveal(),
+            $this->prophesize(DirectConnectMapper::class)->reveal(),
             $this->devicePushService->reveal(),
             $this->portRepository->reveal(),
             $this->directConnectRepository->reveal(),
@@ -120,7 +126,7 @@ class IoServiceTest extends Unit
             255,
             42,
             210,
-            'config',
+            '2',
             1
         );
         AbstractModuleTest::prophesizeRead(
@@ -133,60 +139,30 @@ class IoServiceTest extends Unit
             42,
             250,
             'ports',
-            4
+            100,
         );
 
-        $ports = [
-            [
-                'direction' => 0,
-                'value' => 1,
-                'delay' => 100,
-                'pullUp' => 1,
+        $this->portMapper->getPorts($this->module, 'ports')
+            ->shouldBeCalledOnce()
+            ->willReturn([
+                (new Port($this->modelWrapper->reveal()))
+                    ->setDirection(Direction::INPUT)
+                    ->setValue(true)
+                    ->setDelay(100)
+                    ->setPullUp(true),
             ], [
-                'direction' => 1,
-                'value' => 0,
-                'pwm' => 4,
-                'fadeIn' => 0,
-                'blink' => 3,
-            ],
-        ];
-        $this->ioFormatter->getPortsAsArray('ports', 2)
-            ->shouldBeCalledOnce()
-            ->willReturn($ports)
+                (new Port($this->modelWrapper->reveal()))
+                    ->setDirection(Direction::OUTPUT)
+                    ->setValue(false)
+                    ->setPwm(4)
+                    ->setFadeIn(0)
+                    ->setBlink(3),
+            ])
         ;
 
-        $this->prophesizeUpdatePortAttributes(0, 42424242, $ports[0]);
-        $this->prophesizeUpdatePortAttributes(1, 42424242, $ports[1]);
-
-        $this->module->getId()
-            ->shouldBeCalledTimes(2)
-            ->willReturn(42424242)
-        ;
-        $this->module->getMaster()
-            ->shouldBeCalledTimes(6)
-            ->willReturn($this->master->reveal())
-        ;
-        $this->module->getAddress()
-            ->shouldBeCalledTimes(6)
-            ->willReturn(42)
-        ;
-        $this->module->getTypeId()
-            ->shouldBeCalledTimes(2)
-            ->willReturn(7)
-        ;
-        $this->module->getConfig()
-            ->shouldBeCalledTimes(2)
-            ->willReturn(null, '2')
-        ;
-        $this->module->setConfig('2')
-            ->shouldBeCalledOnce()
-            ->willReturn($this->module->reveal())
-        ;
-        $this->module->save()
-            ->shouldBeCalledOnce()
-        ;
-
-        $this->ioService->slaveHandshake($this->module->reveal());
+        $this->assertNull($this->module->getConfig());
+        $this->ioService->slaveHandshake($this->module);
+        $this->assertEquals(50, $this->module->getConfig());
     }
 
     public function testSlaveHandshakeExistingConfig(): void
@@ -203,171 +179,36 @@ class IoServiceTest extends Unit
             'ports',
             4
         );
-
-        $ports = [
-            [
-                'direction' => 0,
-                'value' => 1,
-                'delay' => 100,
-                'pullUp' => 1,
+        $this->portMapper->getPorts($this->module, 'ports')
+            ->shouldBeCalledOnce()
+            ->willReturn([
+                (new Port($this->modelWrapper->reveal()))
+                    ->setDirection(Direction::INPUT)
+                    ->setValue(true)
+                    ->setDelay(100)
+                    ->setPullUp(true),
             ], [
-                'direction' => 1,
-                'value' => 0,
-                'pwm' => 4,
-                'fadeIn' => 0,
-                'blink' => 3,
-            ],
-        ];
-        $this->ioFormatter->getPortsAsArray('ports', 2)
-            ->shouldBeCalledOnce()
-            ->willReturn($ports)
+                (new Port($this->modelWrapper->reveal()))
+                    ->setDirection(Direction::OUTPUT)
+                    ->setValue(false)
+                    ->setPwm(4)
+                    ->setFadeIn(0)
+                    ->setBlink(3),
+            ])
         ;
+        $this->module->setConfig('2');
 
-        $this->prophesizeUpdatePortAttributes(0, 42424242, $ports[0]);
-        $this->prophesizeUpdatePortAttributes(1, 42424242, $ports[1]);
-
-        $this->module->getId()
-            ->shouldBeCalledTimes(2)
-            ->willReturn(42424242)
-        ;
-        $this->module->getMaster()
-            ->shouldBeCalledTimes(3)
-            ->willReturn($this->master->reveal())
-        ;
-        $this->module->getAddress()
-            ->shouldBeCalledTimes(3)
-            ->willReturn(42)
-        ;
-        $this->module->getTypeId()
-            ->shouldBeCalledTimes(2)
-            ->willReturn(7)
-        ;
-        $this->module->getConfig()
-            ->shouldBeCalledTimes(2)
-            ->willReturn('2')
-        ;
-
-        $this->ioService->slaveHandshake($this->module->reveal());
-    }
-
-    public function testSlaveHandshakeException(): void
-    {
-        AbstractModuleTest::prophesizeRead(
-            $this->master,
-            $this->module,
-            $this->masterService,
-            $this->modelWrapper,
-            $this->logRepository,
-            255,
-            42,
-            250,
-            'ports',
-            4
-        );
-
-        $ports = [
-            [
-                'direction' => 0,
-                'value' => 1,
-                'delay' => 100,
-                'pullUp' => 1,
-            ], [
-                'direction' => 1,
-                'value' => 0,
-                'pwm' => 4,
-                'fadeIn' => 0,
-                'blink' => 3,
-            ],
-        ];
-        $this->ioFormatter->getPortsAsArray('ports', 2)
-            ->shouldBeCalledOnce()
-            ->willReturn($ports)
-        ;
-
-        $this->module->getId()
-            ->shouldBeCalledOnce()
-            ->willReturn(42424242)
-        ;
-        $this->module->getMaster()
-            ->shouldBeCalledTimes(3)
-            ->willReturn($this->master->reveal())
-        ;
-        $this->module->getAddress()
-            ->shouldBeCalledTimes(3)
-            ->willReturn(42)
-        ;
-        $this->module->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
-        ;
-        $this->module->getConfig()
-            ->shouldBeCalledTimes(2)
-            ->willReturn('2')
-        ;
-
-        $this->expectException(GetError::class);
-        $this->ioService->slaveHandshake($this->module->reveal());
-    }
-
-    public function testSlaveHandshakeNoAttributes(): void
-    {
-        AbstractModuleTest::prophesizeRead(
-            $this->master,
-            $this->module,
-            $this->masterService,
-            $this->modelWrapper,
-            $this->logRepository,
-            255,
-            42,
-            250,
-            'ports',
-            4
-        );
-
-        $ports = [
-            [
-                'direction' => 0,
-                'value' => 1,
-                'delay' => 100,
-                'pullUp' => 1,
-            ], [
-                'direction' => 1,
-                'value' => 0,
-                'pwm' => 4,
-                'fadeIn' => 0,
-                'blink' => 3,
-            ],
-        ];
-        $this->ioFormatter->getPortsAsArray('ports', 2)
-            ->shouldBeCalledOnce()
-            ->willReturn($ports)
-        ;
-
-        $this->prophesizeAddPortAttributes(0, $ports[0]);
-        $this->prophesizeAddPortAttributes(1, $ports[1]);
-
-        $this->module->getMaster()
-            ->shouldBeCalledTimes(3)
-            ->willReturn($this->master->reveal())
-        ;
-        $this->module->getAddress()
-            ->shouldBeCalledTimes(3)
-            ->willReturn(42)
-        ;
-        $this->module->getConfig()
-            ->shouldBeCalledTimes(2)
-            ->willReturn('2')
-        ;
-
-        $this->ioService->slaveHandshake($this->module->reveal());
+        $this->assertEquals('2', $this->module->getConfig());
+        $this->ioService->slaveHandshake($this->module);
+        $this->assertEquals('2', $this->module->getConfig());
     }
 
     public function testOnOverwriteExistingSlave(): void
     {
         $this->assertEquals(
-            $this->module->reveal(),
+            $this->module,
             $this->ioService->onOverwriteExistingSlave(
-                $this->module->reveal(),
+                $this->module,
                 $this->prophesize(Module::class)->reveal()
             )
         );
@@ -375,62 +216,42 @@ class IoServiceTest extends Unit
 
     public function testReceive(): void
     {
-        $ports = [
-            [
-                'direction' => 0,
-                'value' => 1,
-                'delay' => 100,
-                'pullUp' => 1,
+        $this->portMapper->getPorts($this->module, 'Handtuch')
+            ->shouldBeCalledOnce()
+            ->willReturn([
+                (new Port($this->modelWrapper->reveal()))
+                    ->setName('arthur')
+                    ->setNumber(1)
+                    ->setDirection(Direction::INPUT)
+                    ->setValue(true)
+                    ->setDelay(100)
+                    ->setPullUp(true),
             ], [
-                'direction' => 1,
-                'value' => 0,
-                'pwm' => 4,
-                'fadeIn' => 0,
-                'blink' => 3,
-            ],
-        ];
-        $this->ioFormatter->getPortsAsArray('Handtuch', 2)
-            ->shouldBeCalledOnce()
-            ->willReturn($ports)
+                (new Port($this->modelWrapper->reveal()))
+                    ->setName('dent')
+                    ->setNumber(2)
+                    ->setDirection(Direction::OUTPUT)
+                    ->setValue(false)
+                    ->setPwm(4)
+                    ->setFadeIn(0)
+                    ->setBlink(3),
+            ])
         ;
 
-        $this->prophesizeUpdatePortAttributes(0, 424242, $ports[0]);
-        $this->prophesizeUpdatePortAttributes(1, 424242, $ports[1]);
-
-        $this->module->getId()
-            ->shouldBeCalledTimes(2)
-            ->willReturn(424242)
-        ;
-        $this->module->getConfig()
-            ->shouldBeCalledOnce()
-            ->willReturn('2')
-        ;
-        $this->module->getTypeId()
-            ->shouldBeCalledTimes(2)
-            ->willReturn(7)
-        ;
-
-        $this->ioService->receive($this->module->reveal(), 255, 42, 'Handtuch');
+        $this->ioService->receive(
+            $this->module,
+            (new BusMessage('42.42.42.42', 255))
+                ->setSlaveAddress(42)
+                ->setData('Handtuch')
+        );
     }
 
     public function testReadPort(): void
     {
-        $port = [
-            'direction' => 0,
-            'value' => 1,
-            'delay' => 100,
-            'pullUp' => 1,
-        ];
-
-        $this->eventService->fire('', 'beforeReadPort', ['slave' => $this->module->reveal(), 'number' => 32])
-            ->shouldBeCalledOnce()
-        ;
-        $this->eventService->fire(
-            '',
-            'afterReadPort',
-            array_merge(['slave' => $this->module->reveal(), 'number' => 32], $port)
-        )
-            ->shouldBeCalledOnce()
+        $port = (new Port($this->modelWrapper->reveal()))
+            ->setName('arthur')
+            ->setModule($this->module)
+            ->setNumber(32)
         ;
 
         AbstractModuleTest::prophesizeRead(
@@ -445,24 +266,23 @@ class IoServiceTest extends Unit
             'Handtuch',
             2
         );
-        $this->ioFormatter->getPortAsArray('Handtuch')
-            ->shouldBeCalledOnce()
-            ->willReturn($port)
-        ;
-        $this->prophesizeUpdatePortAttributes(32, 424242, $port);
 
-        $this->ioService->readPort($this->module->reveal(), 32);
+        $newPort = (new Port($this->modelWrapper->reveal()))
+            ->setDirection(Direction::INPUT)
+            ->setValue(true)
+            ->setDelay(100)
+            ->setPullUp(true)
+        ;
+        $this->portMapper->getPort($port, 'Handtuch')
+            ->shouldBeCalledOnce()
+            ->willReturn($newPort)
+        ;
+
+        $this->assertEquals($newPort, $this->ioService->readPort($port));
     }
 
     public function testReadPortsFromEeprom(): void
     {
-        $this->eventService->fire('', 'beforeReadPortsFromEeprom', ['slave' => $this->module->reveal()])
-            ->shouldBeCalledOnce()
-        ;
-        $this->eventService->fire('', 'afterReadPortsFromEeprom', ['slave' => $this->module->reveal()])
-            ->shouldBeCalledOnce()
-        ;
-
         AbstractModuleTest::prophesizeRead(
             $this->master,
             $this->module,
@@ -476,15 +296,11 @@ class IoServiceTest extends Unit
             1
         );
 
-        $this->ioService->readPortsFromEeprom($this->module->reveal());
+        $this->ioService->readPortsFromEeprom($this->module);
     }
 
     public function testReadPortsFromEepromNoData(): void
     {
-        $this->eventService->fire('', 'beforeReadPortsFromEeprom', ['slave' => $this->module->reveal()])
-            ->shouldBeCalledOnce()
-        ;
-
         AbstractModuleTest::prophesizeRead(
             $this->master,
             $this->module,
@@ -494,23 +310,17 @@ class IoServiceTest extends Unit
             255,
             42,
             135,
-            'Handtuch',
+            '',
             1
         );
 
         $this->expectException(ReceiveError::class);
-        $this->ioService->readPortsFromEeprom($this->module->reveal());
+        $this->ioService->readPortsFromEeprom($this->module);
     }
 
     public function testWritePortsToEeprom(): void
     {
-        $this->eventService->fire('', 'beforeWritePortsToEeprom', ['slave' => $this->module->reveal()])
-            ->shouldBeCalledOnce()
-        ;
-        $this->eventService->fire('', 'afterWritePortsToEeprom', ['slave' => $this->module->reveal()])
-            ->shouldBeCalledOnce()
-        ;
-
+        $deviceId = $this->module->getDeviceId();
         AbstractModuleTest::prophesizeWrite(
             $this->master,
             $this->masterService,
@@ -519,10 +329,10 @@ class IoServiceTest extends Unit
             255,
             42,
             135,
-            'aa'
+            chr($deviceId >> 8) . chr($deviceId & 255)
         );
 
-        $this->ioService->writePortsToEeprom($this->module->reveal());
+        $this->ioService->writePortsToEeprom($this->module);
     }
 
     /**
@@ -530,10 +340,11 @@ class IoServiceTest extends Unit
      */
     public function testToggleValueOn(string $returnValue, string $setValue): void
     {
-        $value = $this->mockValueModel('value', '0', '1');
-        $value->getValue()
-            ->shouldBeCalledTimes(2)
-            ->willReturn('0', '1')
+        $port = (new Port($this->modelWrapper->reveal()))
+            ->setName('Marvin')
+            ->setNumber(32)
+            ->setValue(false)
+            ->setModule($this->module)
         ;
 
         AbstractModuleTest::prophesizeWrite(
@@ -546,83 +357,12 @@ class IoServiceTest extends Unit
             32,
             'Handtuch'
         );
-        $this->ioFormatter->getPortAsString(['value' => '1'])
+        $this->portMapper->getPortAsString($port)
             ->shouldBeCalledOnce()
             ->willReturn('Handtuch')
         ;
 
-        $this->eventService->fire('beforeWritePort', ['slave' => $this->module->reveal(), 'number' => 32, 'value' => '1']);
-        $this->eventService->fire('afterWritePort', ['slave' => $this->module->reveal(), 'number' => 32, 'value' => '1']);
-
-        $this->module->getId()
-            ->shouldBeCalledOnce()
-            ->willReturn(424242)
-        ;
-        $this->module->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(42)
-        ;
-
-        $this->ioService->toggleValue($this->module->reveal(), 32);
-    }
-
-    private function prophesizeAddPortAttributes(int $number, array $data): void
-    {
-    }
-
-    private function prophesizeUpdatePortAttributes(int $number, int $slaveId, array $data): void
-    {
-        $values = [];
-
-        foreach ($data as $key => $value) {
-            $value = (string) $value;
-            $values[] = $this->mockValueModel($key, $key === 'value' ? $value === '0' ? '1' : '0' : $value, $value)->reveal();
-        }
-
-        $this->module->getTypeId()
-            ->shouldBeCalledOnce()
-            ->willReturn(7)
-        ;
-        $this->module->getId()
-            ->shouldBeCalledOnce()
-            ->willReturn($slaveId)
-        ;
-    }
-
-    /**
-     * @return ObjectProphecy|Value
-     */
-    private function mockValueModel(string $key, string $returnValue, string $setValue, int $order = 0): ObjectProphecy
-    {
-        /** @var Attribute|ObjectProphecy $attribute */
-        $attribute = $this->prophesize(Attribute::class);
-        $attribute->getKey()
-            ->shouldBeCalledOnce()
-            ->willReturn($key)
-        ;
-        /** @var Value|ObjectProphecy $value */
-        $value = $this->prophesize(Value::class);
-        $value->getAttribute()
-            ->shouldBeCalledOnce()
-            ->willReturn($attribute->reveal())
-        ;
-        $value->getValue()
-            ->shouldBeCalledOnce()
-            ->willReturn($returnValue)
-        ;
-        $value->getOrder()
-            ->shouldBeCalledTimes($key === 'valueName' ? 1 : 0)
-            ->willReturn($order)
-        ;
-        $value->setValue($setValue)
-            ->shouldBeCalledTimes($returnValue === $setValue ? 0 : 1)
-            ->willReturn($value->reveal())
-        ;
-        $value->save()
-            ->shouldBeCalledTimes($returnValue === $setValue ? 0 : 1)
-        ;
-
-        return $value;
+        $this->ioService->toggleValue($port);
     }
 
     public function getToggleValueData(): array

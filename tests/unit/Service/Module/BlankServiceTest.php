@@ -5,6 +5,7 @@ namespace GibsonOS\Test\Unit\Hc\Service\Module;
 
 use Codeception\Test\Unit;
 use GibsonOS\Core\Service\EventService;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -14,62 +15,35 @@ use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\Module\BlankService;
 use GibsonOS\Module\Hc\Service\TransformService;
-use Prophecy\PhpUnit\ProphecyTrait;
+use GibsonOS\Test\Unit\Core\ModelManagerTrait;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Log\LoggerInterface;
 
 class BlankServiceTest extends Unit
 {
-    use ProphecyTrait;
+    use ModelManagerTrait;
 
-    /**
-     * @var BlankService
-     */
-    private $blankService;
+    private BlankService $blankService;
 
-    /**
-     * @var ObjectProphecy|MasterService
-     */
-    private $masterService;
+    private ObjectProphecy|MasterService $masterService;
 
-    /**
-     * @var TransformService
-     */
-    private $transformService;
+    private ObjectProphecy|EventService $eventService;
 
-    /**
-     * @var ObjectProphecy|EventService
-     */
-    private $eventService;
+    private ObjectProphecy|ModuleRepository $moduleRepository;
 
-    /**
-     * @var ObjectProphecy|ModuleRepository
-     */
-    private $moduleRepository;
+    private ObjectProphecy|TypeRepository $typeRepository;
 
-    /**
-     * @var ObjectProphecy|TypeRepository
-     */
-    private $typeRepository;
+    private ObjectProphecy|MasterRepository $masterRepository;
 
-    /**
-     * @var ObjectProphecy|MasterRepository
-     */
-    private $masterRepository;
+    private ObjectProphecy|LogRepository $logRepository;
 
-    /**
-     * @var ObjectProphecy|LogRepository
-     */
-    private $logRepository;
-
-    /**
-     * @var ObjectProphecy|ModuleFactory
-     */
-    private $slaveFactory;
+    private ObjectProphecy|ModuleFactory $slaveFactory;
 
     protected function _before()
     {
+        $this->loadModelManager();
+
         $this->masterService = $this->prophesize(MasterService::class);
-        $this->transformService = new TransformService();
         $this->eventService = $this->prophesize(EventService::class);
         $this->moduleRepository = $this->prophesize(ModuleRepository::class);
         $this->typeRepository = $this->prophesize(TypeRepository::class);
@@ -79,13 +53,16 @@ class BlankServiceTest extends Unit
 
         $this->blankService = new BlankService(
             $this->masterService->reveal(),
-            $this->transformService,
+            new TransformService(),
             $this->eventService->reveal(),
             $this->moduleRepository->reveal(),
             $this->typeRepository->reveal(),
             $this->masterRepository->reveal(),
             $this->logRepository->reveal(),
-            $this->slaveFactory->reveal()
+            $this->slaveFactory->reveal(),
+            $this->prophesize(LoggerInterface::class)->reveal(),
+            $this->modelManager->reveal(),
+            $this->modelWrapper->reveal(),
         );
     }
 
@@ -101,11 +78,12 @@ class BlankServiceTest extends Unit
 
     public function testReceive(): void
     {
+
         $this->blankService->receive(
             $this->prophesize(Module::class)->reveal(),
-            255,
-            42,
-            'Handtuch'
+            (new BusMessage('42.42.42.42', 255))
+                ->setSlaveAddress(42)
+                ->setData('Handtuch'),
         );
     }
 }

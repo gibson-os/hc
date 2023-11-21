@@ -18,6 +18,8 @@ use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
@@ -103,7 +105,7 @@ class Bme280Service extends AbstractModule
      */
     private function calibrate(Module $slave): void
     {
-        $config = JsonUtility::decode((string) $slave->getConfig());
+        $config = JsonUtility::decode($slave->getConfig() ?? 'null');
 
         if (!is_array($config)) {
             $config = [];
@@ -146,10 +148,12 @@ class Bme280Service extends AbstractModule
 
     /**
      * @throws AbstractException
+     * @throws ClientException
      * @throws FactoryError
      * @throws GetError
      * @throws JsonException
      * @throws ReceiveError
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
      */
@@ -185,6 +189,8 @@ class Bme280Service extends AbstractModule
      * @throws ReceiveError
      * @throws ReflectionException
      * @throws SaveError
+     * @throws ClientException
+     * @throws RecordException
      */
     private function calibrateHumidity(Module $slave): array
     {
