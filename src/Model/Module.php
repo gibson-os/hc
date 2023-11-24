@@ -308,6 +308,7 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
+            'deviceId' => $this->getDeviceId(),
             'typeId' => $this->getTypeId(),
             'type' => $this->getType()->getName(),
             'hertz' => $this->getHertz() ?? $this->getType()->getHertz(),

@@ -49,7 +49,7 @@ class MasterMapper
         $busMessage->setData(substr($data, 2) ?: null);
     }
 
-    private function getCheckSum(BusMessage $busMessage): ?int
+    public function getCheckSum(BusMessage $busMessage): ?int
     {
         $checkSum = $busMessage->getType();
 

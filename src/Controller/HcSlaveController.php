@@ -18,7 +18,6 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\SetError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\Response\AjaxResponse;
-use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Model\Module;
@@ -53,7 +52,7 @@ class HcSlaveController extends AbstractController
      */
     #[CheckPermission([Permission::WRITE, Permission::MANAGE])]
     public function postGeneralSettings(
-        ModuleFactory $slaveFactory,
+        ModuleFactory $moduleFactory,
         ModuleRepository $moduleRepository,
         TypeRepository $typeRepository,
         ModelManager $modelManager,
@@ -67,11 +66,11 @@ class HcSlaveController extends AbstractController
         bool $overwriteSlave = false,
         bool $deleteSlave = false
     ): AjaxResponse {
-        $slaveService = $this->getSlaveService($slaveFactory, $module);
+        $slaveService = $this->getSlaveService($moduleFactory, $module);
         $moduleRepository->startTransaction();
 
         try {
-            $modelManager->save($module->setName($name));
+            $modelManager->saveWithoutChildren($module->setName($name));
             $moduleRepository->commit();
             $moduleRepository->startTransaction();
 
@@ -81,7 +80,7 @@ class HcSlaveController extends AbstractController
 
                     if ($overwriteSlave) {
                         $module->setType($existingSlave->getType());
-                        $slaveService = $this->getSlaveService($slaveFactory, $module);
+                        $slaveService = $this->getSlaveService($moduleFactory, $module);
                         $slaveService->onOverwriteExistingSlave($module, $existingSlave);
                         $moduleRepository->deleteByIds([$module->getId() ?? 0]);
                         $module->setId((int) $existingSlave->getId());
@@ -104,14 +103,14 @@ class HcSlaveController extends AbstractController
                 }
 
                 $slaveService->writeDeviceId($module, $deviceId);
-                $modelManager->save($module);
+                $modelManager->saveWithoutChildren($module);
                 $moduleRepository->commit();
                 $moduleRepository->startTransaction();
             }
 
             if ($address !== $module->getAddress()) {
                 $slaveService->writeAddress($module, $address);
-                $modelManager->save($module);
+                $modelManager->saveWithoutChildren($module);
                 $moduleRepository->commit();
                 $moduleRepository->startTransaction();
             }
@@ -121,7 +120,7 @@ class HcSlaveController extends AbstractController
                     $slaveService->writePwmSpeed($module, $pwmSpeed);
                 }
 
-                $modelManager->save($module->setPwmSpeed($pwmSpeed));
+                $modelManager->saveWithoutChildren($module->setPwmSpeed($pwmSpeed));
                 $moduleRepository->commit();
                 $moduleRepository->startTransaction();
             }
@@ -129,7 +128,7 @@ class HcSlaveController extends AbstractController
             if ($typeId !== $module->getTypeId()) {
                 $type = $typeRepository->getById($typeId);
                 $slaveService->writeTypeId($module, $type);
-                $modelManager->save($module);
+                $modelManager->saveWithoutChildren($module);
                 $moduleRepository->commit();
             }
         } catch (AbstractException $exception) {
@@ -138,19 +137,7 @@ class HcSlaveController extends AbstractController
             throw $exception;
         }
 
-        return $this->returnSuccess([
-            'id' => $module->getId(),
-            'name' => $module->getName(),
-            'type_id' => $module->getTypeId(),
-            'address' => $module->getAddress(),
-            'hertz' => $module->getHertz(),
-            'offline' => false,
-            'added' => $module->getAdded(),
-            'modified' => $module->getModified(),
-            'type' => $module->getType()->getName(),
-            'settings' => JsonUtility::decode($module->getType()->getUiSettings() ?? '[]'),
-            'helper' => $module->getType()->getHelper(),
-        ]);
+        return $this->returnSuccess($module);
     }
 
     /**

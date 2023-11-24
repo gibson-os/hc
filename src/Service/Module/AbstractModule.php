@@ -86,23 +86,23 @@ abstract class AbstractModule
      * @throws ReflectionException
      * @throws SaveError
      */
-    public function read(Module $slave, int $command, int $length): string
+    public function read(Module $module, int $command, int $length): string
     {
-        $master = $slave->getMaster();
+        $master = $module->getMaster();
 
         if ($master === null) {
-            throw new ReceiveError(sprintf('Slave #%d has no master!', $slave->getId() ?? 0));
+            throw new ReceiveError(sprintf('Slave #%d has no master!', $module->getId() ?? 0));
         }
 
         $this->logger->debug(sprintf(
             'Read command %d with length %d from slave %d on master %s',
             $command,
             $length,
-            $slave->getAddress() ?? 0,
+            $module->getAddress() ?? 0,
             $master->getAddress()
         ));
         $busMessage = (new BusMessage($master->getAddress(), MasterService::TYPE_DATA))
-            ->setSlaveAddress($slave->getAddress())
+            ->setSlaveAddress($module->getAddress())
             ->setCommand($command)
             ->setData(chr($length))
             ->setPort($master->getSendPort())
@@ -117,7 +117,7 @@ abstract class AbstractModule
             $receivedBusMessage->getCommand() ?? ''
         ));
         $this->addLog(
-            $slave,
+            $module,
             $command,
             $receivedBusMessage->getData() ?? '',
             Direction::INPUT

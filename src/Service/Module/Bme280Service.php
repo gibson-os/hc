@@ -84,11 +84,13 @@ class Bme280Service extends AbstractModule
 
     /**
      * @throws AbstractException
-     * @throws JsonException
-     * @throws SaveError
+     * @throws ClientException
      * @throws FactoryError
-     * @throws WriteException
+     * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
+     * @throws SaveError
+     * @throws WriteException
      */
     private function init(Module $slave): void
     {
