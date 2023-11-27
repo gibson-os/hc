@@ -71,10 +71,10 @@ class TypeData extends AbstractInstall implements PriorityInterface
             ->setHasInput($hasInput)
             ->setUiSettings($uiSettings === null ? null : JsonUtility::encode($uiSettings))
         ;
-        $this->modelManager->save($type);
+        $this->modelManager->saveWithoutChildren($type);
 
         foreach ($defaultAddresses as $defaultAddress) {
-            $this->modelManager->save(
+            $this->modelManager->saveWithoutChildren(
                 (new Type\DefaultAddress($this->modelWrapper))
                     ->setType($type)
                     ->setAddress($defaultAddress)
