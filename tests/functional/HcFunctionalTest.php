@@ -17,10 +17,19 @@ class HcFunctionalTest extends FunctionalTest
 {
     protected ObjectProphecy|UdpService $udpService;
 
+    private array $readReturns = [];
+
+    private array $writeMessages = [];
+
+    private array $readMessages = [];
+
     protected function _before(): void
     {
         parent::_before();
 
+        $this->readReturns = [];
+        $this->writeMessages = [];
+        $this->readMessages = [];
         $this->udpService = $this->prophesize(UdpService::class);
         $this->serviceManager->setService(UdpService::class, $this->udpService->reveal());
     }
@@ -63,14 +72,35 @@ class HcFunctionalTest extends FunctionalTest
         $master = $module->getMaster();
         $busMessage = (new BusMessage($master->getAddress(), $type))
             ->setCommand($command)
-            ->setMasterAddress($master->getAddress())
             ->setSlaveAddress($module->getAddress())
             ->setWrite(true)
             ->setPort($master->getSendPort())
             ->setData($data)
         ;
+        $this->writeMessages[] = $busMessage;
         $this->udpService->send($busMessage)
+            ->shouldBeCalledTimes(count(array_filter(
+                $this->writeMessages,
+                fn (BusMessage $writeMessage): bool => $writeMessage == $busMessage,
+            )))
+        ;
+        $this->udpService->receiveReceiveReturn($busMessage)
             ->shouldBeCalledOnce()
+        ;
+    }
+
+    protected function prophesizeReadMaster(Master $master, string $data = null, int $type = 255): void
+    {
+        $busMessage = (new BusMessage($master->getAddress(), $type))
+            ->setPort($master->getSendPort())
+            ->setData($data)
+        ;
+        $this->writeMessages[] = $busMessage;
+        $this->udpService->send($busMessage)
+            ->shouldBeCalledTimes(count(array_filter(
+                $this->writeMessages,
+                fn (BusMessage $writeMessage): bool => $writeMessage == $busMessage,
+            )))
         ;
         $this->udpService->receiveReceiveReturn($busMessage)
             ->shouldBeCalledOnce()
@@ -88,22 +118,26 @@ class HcFunctionalTest extends FunctionalTest
         $master = $module->getMaster();
         $busMessage = (new BusMessage($master->getAddress(), $type))
             ->setCommand($command)
-            ->setMasterAddress($master->getAddress())
             ->setSlaveAddress($module->getAddress())
             ->setPort($master->getSendPort())
             ->setData(chr($length))
         ;
+        $this->readMessages[] = $busMessage;
         $this->udpService->send($busMessage)
-            ->shouldBeCalledOnce()
+            ->shouldBeCalledTimes(count(array_filter(
+                $this->readMessages,
+                fn (BusMessage $readMessage): bool => $readMessage == $busMessage,
+            )))
         ;
         $receiveBusMessage = (new BusMessage($master->getAddress(), $type))
             ->setData(chr($module->getAddress()) . chr($command) . $data)
             ->setSlaveAddress($module->getAddress())
         ;
         $receiveBusMessage->setChecksum($masterMapper->getChecksum($receiveBusMessage));
+        $this->readReturns[] = $receiveBusMessage;
         $this->udpService->receiveReadData($master->getSendPort())
-            ->shouldBeCalledOnce()
-            ->willReturn($receiveBusMessage)
+            ->shouldBeCalledTimes(count($this->readReturns))
+            ->willReturn(...$this->readReturns)
         ;
     }
 }

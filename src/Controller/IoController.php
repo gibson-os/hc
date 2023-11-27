@@ -22,6 +22,8 @@ use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Store\Io\PortStore;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class IoController extends AbstractController
@@ -48,6 +50,8 @@ class IoController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      * @throws SelectError
+     * @throws ClientException
+     * @throws RecordException
      */
     #[CheckPermission([Permission::READ])]
     public function getPorts(
@@ -80,13 +84,14 @@ class IoController extends AbstractController
 
     /**
      * @throws AbstractException
+     * @throws ClientException
      * @throws FactoryError
+     * @throws GetError
      * @throws JsonException
      * @throws ReceiveError
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
-     * @throws GetError
      */
     #[CheckPermission([Permission::WRITE])]
     public function getEeprom(
