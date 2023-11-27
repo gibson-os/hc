@@ -14,6 +14,7 @@ use GibsonOS\Module\Hc\Event\IrEvent;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Formatter\IrFormatter;
+use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
@@ -78,6 +79,8 @@ class IrService extends AbstractHcModule
     }
 
     /**
+     * @param Key[] $keys
+     *
      * @throws AbstractException
      * @throws SaveError
      * @throws WriteException

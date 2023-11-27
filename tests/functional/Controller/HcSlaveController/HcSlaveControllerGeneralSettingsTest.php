@@ -264,7 +264,7 @@ class HcSlaveControllerGeneralSettingsTest extends HcFunctionalTest
         $this->prophesizeWrite(
             $module,
             217,
-            chr(210),
+            chr(0) . chr(210),
         );
 
         $response = $this->hcSlaveController->postGeneralSettings(

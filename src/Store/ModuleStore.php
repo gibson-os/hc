@@ -3,12 +3,9 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Store;
 
-use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Dto\Model\ChildrenMapping;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
-use GibsonOS\Core\Wrapper\DatabaseStoreWrapper;
 use GibsonOS\Module\Hc\Model\Module;
-use GibsonOS\Module\Hc\Model\Type;
 use MDO\Enum\OrderDirection;
 
 /**
@@ -17,14 +14,6 @@ use MDO\Enum\OrderDirection;
 class ModuleStore extends AbstractDatabaseStore
 {
     private ?int $masterId = null;
-
-    public function __construct(
-        DatabaseStoreWrapper $databaseStoreWrapper,
-        #[GetTableName(Type::class)]
-        private readonly string $typeTableName,
-    ) {
-        parent::__construct($databaseStoreWrapper);
-    }
 
     protected function getModelClassName(): string
     {

@@ -37,6 +37,8 @@ use GibsonOS\Module\Hc\Service\Module\IrService;
 use GibsonOS\Module\Hc\Store\Ir\KeyStore;
 use GibsonOS\Module\Hc\Store\Ir\RemoteStore;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -48,13 +50,15 @@ class IrController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      * @throws SelectError
+     * @throws ClientException
+     * @throws RecordException
      */
     #[CheckPermission([Permission::READ])]
     public function getKeys(
         KeyStore $keyStore,
         int $limit = 100,
         int $start = 0,
-        array $sort = [['property' => 'name', 'direction' => 'ASC']]
+        array $sort = []
     ): AjaxResponse {
         $keyStore->setLimit($limit, $start);
         $keyStore->setSortByExt($sort);
@@ -66,7 +70,9 @@ class IrController extends AbstractController
     }
 
     /**
+     * @throws ClientException
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
      */
@@ -105,8 +111,11 @@ class IrController extends AbstractController
     }
 
     /**
+     * @throws ClientException
      * @throws JsonException
      * @throws LoaderError
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws RuntimeError
      * @throws SyntaxError
      */
@@ -197,7 +206,9 @@ class IrController extends AbstractController
     }
 
     /**
+     * @throws ClientException
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SelectError
      */
@@ -218,7 +229,9 @@ class IrController extends AbstractController
     }
 
     /**
+     * @throws ClientException
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
      */
