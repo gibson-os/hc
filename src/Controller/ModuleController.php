@@ -28,9 +28,6 @@ use ReflectionException;
 class ModuleController extends AbstractController
 {
     /**
-     * @param Master      $master
-     * @param Module|null $module
-     *
      * @throws FactoryError
      * @throws JsonException
      * @throws ReflectionException

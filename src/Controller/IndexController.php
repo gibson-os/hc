@@ -18,6 +18,7 @@ use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Exception\WriteException;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
+use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\LogRepository;
@@ -76,9 +77,11 @@ class IndexController extends AbstractController
      * @throws RecordException
      */
     #[CheckPermission([Permission::WRITE])]
-    public function postLog(ModuleFactory $slaveFactory, LogRepository $logRepository, int $id): AjaxResponse
-    {
-        $log = $logRepository->getById($id);
+    public function postLog(
+        ModuleFactory $slaveFactory,
+        #[GetModel]
+        Log $log,
+    ): AjaxResponse {
         $module = $log->getModule();
 
         if ($module === null) {
@@ -118,10 +121,14 @@ class IndexController extends AbstractController
     ) {
         $lastLog = null;
 
-        if ($master !== null) {
-            $lastLog = $logRepository->getLastEntryByMasterId($master->getId() ?? 0, $command, $type, $direction);
-        } elseif ($module !== null) {
-            $lastLog = $logRepository->getLastEntryByModuleId($module->getId() ?? 0, $command, $type, $direction);
+        try {
+            if ($master !== null) {
+                $lastLog = $logRepository->getLastEntryByMasterId($master->getId() ?? 0, $command, $type, $direction);
+            } elseif ($module !== null) {
+                $lastLog = $logRepository->getLastEntryByModuleId($module->getId() ?? 0, $command, $type, $direction);
+            }
+        } catch (SelectError) {
+            // Do nothing
         }
 
         return $this->returnSuccess($lastLog);
