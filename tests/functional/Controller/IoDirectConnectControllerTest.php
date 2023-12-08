@@ -6,6 +6,7 @@ namespace GibsonOS\Test\Functional\Hc\Controller;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\MiddlewareService;
 use GibsonOS\Module\Hc\Controller\IoDirectConnectController;
+use GibsonOS\Module\Hc\Dto\Io\DirectConnect as DirectConnectDto;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Type;
@@ -62,16 +63,19 @@ class IoDirectConnectControllerTest extends HcFunctionalTest
         $directConnectArthur = (new DirectConnect($this->modelWrapper))
             ->setInputPort($portArthur)
             ->setOutputPort($portDent)
+            ->setOrder(0)
         ;
         $modelManager->saveWithoutChildren($directConnectArthur);
         $directConnectDent = (new DirectConnect($this->modelWrapper))
             ->setInputPort($portDent)
             ->setOutputPort($portArthur)
+            ->setOrder(0)
         ;
         $modelManager->saveWithoutChildren($directConnectDent);
         $directConnectDent2 = (new DirectConnect($this->modelWrapper))
             ->setInputPort($portDent)
             ->setOutputPort($portMarvin)
+            ->setOrder(1)
         ;
         $modelManager->saveWithoutChildren($directConnectDent2);
         $this->prophesizeRead($module, 136, 1, chr(0));
@@ -92,7 +96,7 @@ class IoDirectConnectControllerTest extends HcFunctionalTest
         );
     }
 
-    public function testPostNew()
+    public function testPostNew(): void
     {
         $module = $this->addModule(
             (new Type($this->modelWrapper))
@@ -144,7 +148,7 @@ class IoDirectConnectControllerTest extends HcFunctionalTest
         $this->assertEquals($portDent->getId(), $record->get('output_port_id')->getValue());
     }
 
-    public function testPostExists()
+    public function testPostExists(): void
     {
         $module = $this->addModule(
             (new Type($this->modelWrapper))
@@ -212,7 +216,7 @@ class IoDirectConnectControllerTest extends HcFunctionalTest
         $this->assertEquals($portArthur->getId(), $record->get('output_port_id')->getValue());
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $module = $this->addModule(
             (new Type($this->modelWrapper))
@@ -272,7 +276,7 @@ class IoDirectConnectControllerTest extends HcFunctionalTest
         $this->assertNull($result->iterateRecords()->current());
     }
 
-    public function testDeleteReset()
+    public function testDeleteReset(): void
     {
         $module = $this->addModule(
             (new Type($this->modelWrapper))
@@ -332,7 +336,7 @@ class IoDirectConnectControllerTest extends HcFunctionalTest
         $this->assertNull($result->iterateRecords()->current());
     }
 
-    public function testDeleteResetOtherPort()
+    public function testDeleteResetOtherPort(): void
     {
         $module = $this->addModule(
             (new Type($this->modelWrapper))
@@ -395,7 +399,7 @@ class IoDirectConnectControllerTest extends HcFunctionalTest
         $this->assertEquals($portDent->getId(), $record->get('output_port_id')->getValue());
     }
 
-    public function testGetRead()
+    public function testGetRead(): void
     {
         $module = $this->addModule(
             (new Type($this->modelWrapper))
@@ -416,29 +420,30 @@ class IoDirectConnectControllerTest extends HcFunctionalTest
             ->setNumber(1)
         ;
         $modelManager->saveWithoutChildren($portDent);
-        $directConnect = (new DirectConnect($this->modelWrapper))
-            ->setInputPort($portArthur)
-            ->setOutputPort($portDent)
-        ;
-        $modelManager->saveWithoutChildren($directConnect);
-        $this->prophesizeWrite(
+        $modelManager->saveWithoutChildren(
+            (new DirectConnect($this->modelWrapper))
+                ->setInputPort($portArthur)
+                ->setOutputPort($portDent)
+        );
+        $modelManager->saveWithoutChildren(
+            (new DirectConnect($this->modelWrapper))
+                ->setInputPort($portDent)
+                ->setOutputPort($portArthur)
+        );
+
+        $this->prophesizeWrite($module, 133, chr(1) . chr(0));
+        $this->prophesizeRead(
             $module,
-            132,
-            chr(16) . chr(146) . chr(1),
+            133,
+            4,
+            chr(0) . chr(0) . chr(0) . chr(0),
         );
 
-        /** @var Client $client */
-        $client = $this->serviceManager->get(Client::class);
-        $result = $client->execute(
-            (new SelectQuery($this->serviceManager->get(TableManager::class)->getTable($directConnect->getTableName())))
-                ->addWhere(new Where('`id`=?', [$directConnect->getId()])),
-        );
-        /** @var Record $record */
-        $record = $result->iterateRecords()->current();
-
-        $this->assertEquals($portArthur->getId(), $record->get('input_port_id')->getValue());
-        $this->assertEquals($portDent->getId(), $record->get('output_port_id')->getValue());
-
+        $directConnect = (new DirectConnect($this->modelWrapper))
+            ->setId(2)
+            ->setInputPort($portDent)
+            ->setOutputPort($portArthur)
+        ;
         $this->checkSuccessResponse(
             $this->ioDirectConnectController->getRead(
                 $this->serviceManager->get(IoService::class),
@@ -446,17 +451,166 @@ class IoDirectConnectControllerTest extends HcFunctionalTest
                 $portDent,
                 0,
                 false,
-            )
+            ),
+            json_decode(json_encode(new DirectConnectDto($portDent, false, $directConnect)), true),
         );
 
-        $result = $client->execute(
-            (new SelectQuery($this->serviceManager->get(TableManager::class)->getTable($directConnect->getTableName())))
-                ->addWhere(new Where('`id`=?', [$directConnect->getId()])),
-        );
+        /** @var Client $client */
+        $client = $this->serviceManager->get(Client::class);
+        $table = $this->serviceManager->get(TableManager::class)->getTable($directConnect->getTableName());
+        $result = $client->execute((new SelectQuery($table))->addWhere(new Where('`id`=?', [1])));
         /** @var Record $record */
         $record = $result->iterateRecords()->current();
 
         $this->assertEquals($portArthur->getId(), $record->get('input_port_id')->getValue());
         $this->assertEquals($portDent->getId(), $record->get('output_port_id')->getValue());
+
+        $result = $client->execute((new SelectQuery($table))->addWhere(new Where('`id`=?', [2])));
+        /** @var Record $record */
+        $record = $result->iterateRecords()->current();
+
+        $this->assertEquals($portDent->getId(), $record->get('input_port_id')->getValue());
+        $this->assertEquals($portArthur->getId(), $record->get('output_port_id')->getValue());
+
+        $result = $client->execute((new SelectQuery($table))->addWhere(new Where('`id`=?', [3])));
+
+        $this->assertNull($result->iterateRecords()->current());
+    }
+
+    public function testGetReadReset(): void
+    {
+        $module = $this->addModule(
+            (new Type($this->modelWrapper))
+                ->setId(255)
+                ->setName('I/O')
+                ->setHelper('io'),
+        );
+        $modelManager = $this->serviceManager->get(ModelManager::class);
+        $portArthur = (new Port($this->modelWrapper))
+            ->setName('arthur')
+            ->setModule($module)
+            ->setNumber(0)
+        ;
+        $modelManager->saveWithoutChildren($portArthur);
+        $portDent = (new Port($this->modelWrapper))
+            ->setName('dent')
+            ->setModule($module)
+            ->setNumber(1)
+        ;
+        $modelManager->saveWithoutChildren($portDent);
+        $modelManager->saveWithoutChildren(
+            (new DirectConnect($this->modelWrapper))
+                ->setInputPort($portArthur)
+                ->setOutputPort($portDent)
+        );
+        $modelManager->saveWithoutChildren(
+            (new DirectConnect($this->modelWrapper))
+                ->setInputPort($portDent)
+                ->setOutputPort($portArthur)
+        );
+
+        $this->prophesizeWrite($module, 133, chr(1) . chr(0));
+        $this->prophesizeRead(
+            $module,
+            133,
+            4,
+            chr(0) . chr(0) . chr(0) . chr(0),
+        );
+
+        $directConnect = (new DirectConnect($this->modelWrapper))
+            ->setId(3)
+            ->setInputPort($portDent)
+            ->setOutputPort($portArthur)
+        ;
+        $this->checkSuccessResponse(
+            $this->ioDirectConnectController->getRead(
+                $this->serviceManager->get(IoService::class),
+                $module,
+                $portDent,
+                0,
+                true,
+            ),
+            json_decode(json_encode(new DirectConnectDto($portDent, false, $directConnect)), true),
+        );
+
+        /** @var Client $client */
+        $client = $this->serviceManager->get(Client::class);
+        $table = $this->serviceManager->get(TableManager::class)->getTable($directConnect->getTableName());
+        $result = $client->execute((new SelectQuery($table))->addWhere(new Where('`id`=?', [1])));
+        /** @var Record $record */
+        $record = $result->iterateRecords()->current();
+
+        $this->assertEquals($portArthur->getId(), $record->get('input_port_id')->getValue());
+        $this->assertEquals($portDent->getId(), $record->get('output_port_id')->getValue());
+
+        $result = $client->execute((new SelectQuery($table))->addWhere(new Where('`id`=?', [3])));
+        /** @var Record $record */
+        $record = $result->iterateRecords()->current();
+
+        $this->assertEquals($portDent->getId(), $record->get('input_port_id')->getValue());
+        $this->assertEquals($portArthur->getId(), $record->get('output_port_id')->getValue());
+
+        $result = $client->execute((new SelectQuery($table))->addWhere(new Where('`id`=?', [2])));
+
+        $this->assertNull($result->iterateRecords()->current());
+    }
+
+    public function testPostDefragment(): void
+    {
+        $module = $this->addModule(
+            (new Type($this->modelWrapper))
+                ->setId(255)
+                ->setName('I/O')
+                ->setHelper('io'),
+        );
+
+        $this->prophesizeWrite($module, 134, chr(16) . chr(146));
+
+        $this->checkSuccessResponse(
+            $this->ioDirectConnectController->postDefragment(
+                $this->serviceManager->get(IoService::class),
+                $module,
+            )
+        );
+    }
+
+    public function testPostActivateTrue(): void
+    {
+        $module = $this->addModule(
+            (new Type($this->modelWrapper))
+                ->setId(255)
+                ->setName('I/O')
+                ->setHelper('io'),
+        );
+
+        $this->prophesizeWrite($module, 136, chr(1) . 'a');
+
+        $this->checkSuccessResponse(
+            $this->ioDirectConnectController->postActivate(
+                $this->serviceManager->get(IoService::class),
+                $module,
+                true,
+            )
+        );
+    }
+
+    public function testPostActivateFalse(): void
+    {
+        $module = $this->addModule(
+            (new Type($this->modelWrapper))
+                ->setId(255)
+                ->setName('I/O')
+                ->setHelper('io'),
+        );
+
+        $this->prophesizeWrite($module, 136, chr(0) . 'a');
+
+        $this->checkSuccessResponse(
+            $this->ioDirectConnectController->postActivate(
+                $this->serviceManager->get(IoService::class),
+                $module,
+                false,
+            )
+        );
     }
 }
