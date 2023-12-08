@@ -4,33 +4,24 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Store\Io;
 
 use Generator;
-use GibsonOS\Core\Attribute\GetTableName;
+use GibsonOS\Core\Dto\Model\ChildrenMapping;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Store\AbstractDatabaseStore;
-use GibsonOS\Core\Wrapper\DatabaseStoreWrapper;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
-use MDO\Dto\Query\Join;
-use MDO\Dto\Select;
-use MDO\Enum\JoinType;
+use JsonException;
 use MDO\Enum\OrderDirection;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 /**
  * @extends AbstractDatabaseStore<Port>
- *
- * @method Generator<Port> getList()
  */
 class DirectConnectStore extends AbstractDatabaseStore
 {
     protected Module $module;
-
-    public function __construct(
-        DatabaseStoreWrapper $databaseStoreWrapper,
-        #[GetTableName(DirectConnect::class)]
-        private readonly string $directConnectTableName,
-    ) {
-        parent::__construct($databaseStoreWrapper);
-    }
 
     public function setModule(Module $module): void
     {
@@ -42,32 +33,29 @@ class DirectConnectStore extends AbstractDatabaseStore
         return 'p';
     }
 
-    protected function initQuery(): void
+    protected function getExtends(): array
     {
-        parent::initQuery();
+        return [new ChildrenMapping('directConnects', 'direct_connect_', 'dc', [
+            new ChildrenMapping('outputPort', 'output_port_', 'op'),
+        ])];
+    }
 
-        $directConnectTable = $this->getTable($this->directConnectTableName);
-        $this->selectQuery
-            ->addJoin(new Join(
-                $directConnectTable,
-                'dc',
-                '`p`=`id`=`dc`.`input_port_id`',
-                JoinType::LEFT,
-            ))
-            ->addJoin(new Join(
-                $this->table,
-                'op',
-                '`op`=`id`=`dc`.`output_port_id`',
-                JoinType::LEFT,
-            ))
-            ->setSelects(
-                $this->getDatabaseStoreWrapper()->getSelectService()->getSelects([
-                    new Select($this->table, 'p', 'port_'),
-                    new Select($directConnectTable, 'dc', 'direct_connect_'),
-                    new Select($this->table, 'op', 'output_port_'),
-                ])
-            )
-        ;
+    /**
+     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
+     *
+     * @return Generator<DirectConnect>
+     */
+    protected function getModels(): iterable
+    {
+        foreach (parent::getModels() as $port) {
+            foreach ($port->getDirectConnects() as $directConnect) {
+                yield $directConnect;
+            }
+        }
     }
 
     protected function getModelClassName(): string
@@ -80,11 +68,11 @@ class DirectConnectStore extends AbstractDatabaseStore
         $this->addWhere('`p`.`module_id`=?', [$this->module->getId()]);
     }
 
-    protected function getDefaultOrder(): array
-    {
-        return [
-            '`p`.`number`' => OrderDirection::ASC,
-            '`dc`.`order`' => OrderDirection::ASC,
-        ];
-    }
+    //    protected function getDefaultOrder(): array
+    //    {
+    //        return [
+    //            '`p`.`number`' => OrderDirection::ASC,
+    //            '`dc`.`order`' => OrderDirection::ASC,
+    //        ];
+    //    }
 }

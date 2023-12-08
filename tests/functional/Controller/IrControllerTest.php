@@ -5,14 +5,20 @@ namespace GibsonOS\Test\Functional\Hc\Controller;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Model\Event;
+use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Wrapper\ModelWrapper;
+use GibsonOS\Mock\Service\TestEvent;
+use GibsonOS\Mock\Service\TestEventService;
 use GibsonOS\Module\Hc\Controller\IrController;
 use GibsonOS\Module\Hc\Dto\Ir\Protocol;
 use GibsonOS\Module\Hc\Model\Ir\Key;
+use GibsonOS\Module\Hc\Model\Ir\Remote;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Repository\Ir\KeyRepository;
 use GibsonOS\Module\Hc\Service\Module\IrService;
 use GibsonOS\Module\Hc\Store\Ir\KeyStore;
+use GibsonOS\Module\Hc\Store\Ir\RemoteStore;
 use GibsonOS\Test\Functional\Hc\HcFunctionalTest;
 
 class IrControllerTest extends HcFunctionalTest
@@ -23,6 +29,10 @@ class IrControllerTest extends HcFunctionalTest
     {
         parent::_before();
 
+        $this->serviceManager->setService(
+            EventService::class,
+            $this->serviceManager->get(TestEventService::class),
+        );
         $this->irController = $this->serviceManager->get(IrController::class);
     }
 
@@ -230,5 +240,217 @@ class IrControllerTest extends HcFunctionalTest
                 $key,
             )
         );
+    }
+
+    public function testGetRemotes(): void
+    {
+        $modelManager = $this->serviceManager->get(ModelManager::class);
+        $remoteArthur = (new Remote($this->modelWrapper))
+            ->setName('arthur')
+        ;
+        $modelManager->saveWithoutChildren($remoteArthur);
+        $remoteDent = (new Remote($this->modelWrapper))
+            ->setName('dent')
+        ;
+        $modelManager->saveWithoutChildren($remoteDent);
+        $remoteFord = (new Remote($this->modelWrapper))
+            ->setName('ford')
+        ;
+        $modelManager->saveWithoutChildren($remoteFord);
+        $remotePrefect = (new Remote($this->modelWrapper))
+            ->setName('prefect')
+        ;
+        $modelManager->saveWithoutChildren($remotePrefect);
+
+        $this->checkSuccessResponse(
+            $this->irController->getRemotes($this->serviceManager->get(RemoteStore::class)),
+            [
+                $remoteArthur->jsonSerialize(),
+                $remoteDent->jsonSerialize(),
+                $remoteFord->jsonSerialize(),
+                $remotePrefect->jsonSerialize(),
+            ],
+            4,
+        );
+    }
+
+    public function testPostButton(): void
+    {
+        $modelManager = $this->serviceManager->get(ModelManager::class);
+        $key = (new Key($this->modelWrapper))
+            ->setNames([(new Key\Name($this->modelWrapper))->setName('ford')])
+            ->setProtocol(Protocol::NEC)
+            ->setAddress(42)
+            ->setCommand(24)
+        ;
+        $modelManager->save($key);
+        $event = (new Event($this->modelWrapper))
+            ->setName('ford')
+            ->setElements([
+                (new Event\Element($this->modelWrapper))
+                    ->setClass(TestEvent::class)
+                    ->setMethod('test')
+                    ->setParameters(['arthur' => 'dent']),
+            ])
+        ;
+        $modelManager->save($event);
+        $button = (new Remote\Button($this->modelWrapper))
+            ->setName('marvin')
+            ->setKeys([
+                (new Remote\Key($this->modelWrapper))
+                    ->setKey($key),
+            ])
+            ->setEvent($event)
+        ;
+        $remote = (new Remote($this->modelWrapper))
+            ->setName('arthur')
+            ->setButtons([$button])
+        ;
+        $modelManager->save($remote);
+        $module = $this->addModule(
+            (new Type($this->modelWrapper))
+                ->setId(7)
+                ->setName('IR')
+                ->setHelper('ir')
+        );
+        $testEvent = $this->serviceManager->get(TestEvent::class);
+
+        $this->prophesizeWrite(
+            $module,
+            0,
+            chr(2) . chr(0) . chr(42) . chr(0) . chr(24),
+        );
+
+        $this->assertEquals('', $testEvent->arthur);
+        $this->checkSuccessResponse(
+            $this->irController->postButton(
+                $this->serviceManager->get(EventService::class),
+                $this->serviceManager->get(IrService::class),
+                $module,
+                $button,
+            )
+        );
+        $this->assertEquals('dent', $testEvent->arthur);
+    }
+
+    public function testPostButtonEvent(): void
+    {
+        $modelManager = $this->serviceManager->get(ModelManager::class);
+        $event = (new Event($this->modelWrapper))
+            ->setName('ford')
+            ->setElements([
+                (new Event\Element($this->modelWrapper))
+                    ->setClass(TestEvent::class)
+                    ->setMethod('test')
+                    ->setParameters(['arthur' => 'dent']),
+            ])
+        ;
+        $modelManager->save($event);
+        $button = (new Remote\Button($this->modelWrapper))
+            ->setName('marvin')
+            ->setEvent($event)
+        ;
+        $remote = (new Remote($this->modelWrapper))
+            ->setName('arthur')
+            ->setButtons([$button])
+        ;
+        $modelManager->save($remote);
+        $module = $this->addModule(
+            (new Type($this->modelWrapper))
+                ->setId(7)
+                ->setName('IR')
+                ->setHelper('ir')
+        );
+        $testEvent = $this->serviceManager->get(TestEvent::class);
+
+        $this->assertEquals('', $testEvent->arthur);
+        $this->checkSuccessResponse(
+            $this->irController->postButton(
+                $this->serviceManager->get(EventService::class),
+                $this->serviceManager->get(IrService::class),
+                $module,
+                $button,
+            )
+        );
+        $this->assertEquals('dent', $testEvent->arthur);
+    }
+
+    public function testPostButtonKey(): void
+    {
+        $modelManager = $this->serviceManager->get(ModelManager::class);
+        $key = (new Key($this->modelWrapper))
+            ->setNames([(new Key\Name($this->modelWrapper))->setName('ford')])
+            ->setProtocol(Protocol::NEC)
+            ->setAddress(42)
+            ->setCommand(24)
+        ;
+        $modelManager->save($key);
+        $button = (new Remote\Button($this->modelWrapper))
+            ->setName('marvin')
+            ->setKeys([
+                (new Remote\Key($this->modelWrapper))
+                    ->setKey($key),
+            ])
+        ;
+        $remote = (new Remote($this->modelWrapper))
+            ->setName('arthur')
+            ->setButtons([$button])
+        ;
+        $modelManager->save($remote);
+        $module = $this->addModule(
+            (new Type($this->modelWrapper))
+                ->setId(7)
+                ->setName('IR')
+                ->setHelper('ir')
+        );
+        $testEvent = $this->serviceManager->get(TestEvent::class);
+
+        $this->prophesizeWrite(
+            $module,
+            0,
+            chr(2) . chr(0) . chr(42) . chr(0) . chr(24),
+        );
+
+        $this->assertEquals('', $testEvent->arthur);
+        $this->checkSuccessResponse(
+            $this->irController->postButton(
+                $this->serviceManager->get(EventService::class),
+                $this->serviceManager->get(IrService::class),
+                $module,
+                $button,
+            )
+        );
+        $this->assertEquals('', $testEvent->arthur);
+    }
+
+    public function testPostButtonNone(): void
+    {
+        $modelManager = $this->serviceManager->get(ModelManager::class);
+        $button = (new Remote\Button($this->modelWrapper))
+            ->setName('marvin')
+        ;
+        $remote = (new Remote($this->modelWrapper))
+            ->setName('arthur')
+            ->setButtons([$button])
+        ;
+        $modelManager->save($remote);
+        $module = $this->addModule(
+            (new Type($this->modelWrapper))
+                ->setId(7)
+                ->setName('IR')
+                ->setHelper('ir')
+        );
+        $testEvent = $this->serviceManager->get(TestEvent::class);
+
+        $this->assertEquals('', $testEvent->arthur);
+        $this->checkSuccessResponse(
+            $this->irController->postButton(
+                $this->serviceManager->get(EventService::class),
+                $this->serviceManager->get(IrService::class),
+                $module,
+                $button,
+            )
+        );
+        $this->assertEquals('', $testEvent->arthur);
     }
 }

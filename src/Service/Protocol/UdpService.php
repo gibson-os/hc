@@ -7,6 +7,7 @@ use GibsonOS\Core\Exception\CreateError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Exception\Server\SendError;
 use GibsonOS\Core\Exception\SetError;
+use GibsonOS\Core\Service\TracerService;
 use GibsonOS\Core\Service\UdpService as CoreUdpService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Exception\TransformException;
@@ -26,7 +27,8 @@ class UdpService implements ProtocolInterface
 
     public function __construct(
         private readonly BusMessageMapper $busMessageMapper,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly TracerService $tracerService,
     ) {
     }
 
@@ -48,7 +50,12 @@ class UdpService implements ProtocolInterface
         }
 
         $this->logger->debug(sprintf('Start UDP receive server %s:%d', $this->ip, self::RECEIVE_PORT));
-        $this->udpReceiveService = new CoreUdpService($this->logger, $this->ip, self::RECEIVE_PORT);
+        $this->udpReceiveService = new CoreUdpService(
+            $this->tracerService,
+            $this->logger,
+            $this->ip,
+            self::RECEIVE_PORT,
+        );
         $this->udpReceiveService->setTimeout(3);
 
         return $this->udpReceiveService;
@@ -148,7 +155,12 @@ class UdpService implements ProtocolInterface
      */
     private function createSendService(int $port): CoreUdpService
     {
-        $udpSendService = new CoreUdpService($this->logger, $this->ip, $port);
+        $udpSendService = new CoreUdpService(
+            $this->tracerService,
+            $this->logger,
+            $this->ip,
+            $port,
+        );
         $udpSendService->setTimeout(3);
 
         return $udpSendService;

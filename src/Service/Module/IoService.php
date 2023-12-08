@@ -339,7 +339,7 @@ class IoService extends AbstractHcModule
         }
 
         try {
-            $this->modelManager->save($port);
+            $this->modelManager->saveWithoutChildren($port);
             $this->writePort($port);
         } catch (Exception $exception) {
             $this->portRepository->rollback();
@@ -385,7 +385,7 @@ class IoService extends AbstractHcModule
         $this->directConnectRepository->startTransaction();
 
         try {
-            $new = $directConnect->getId() === 0;
+            $new = $directConnect->getId() === null;
             $this->modelManager->save($directConnect);
 
             $eventData = $directConnect->jsonSerialize();

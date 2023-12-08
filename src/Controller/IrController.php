@@ -217,7 +217,7 @@ class IrController extends AbstractController
         RemoteStore $remoteStore,
         int $limit = 100,
         int $start = 0,
-        array $sort = [['property' => 'name', 'direction' => 'ASC']]
+        array $sort = []
     ): AjaxResponse {
         $remoteStore->setLimit($limit, $start);
         $remoteStore->setSortByExt($sort);

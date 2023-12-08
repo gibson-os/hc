@@ -9,10 +9,8 @@ use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
-use GibsonOS\Core\Exception\DateTimeError;
-use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\MapperException;
+use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -24,21 +22,23 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Store\Io\DirectConnectStore;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class IoDirectConnectController extends AbstractController
 {
     /**
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws EventException
      * @throws FactoryError
      * @throws JsonException
-     * @throws MapperException
      * @throws ReceiveError
      * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
+     * @throws GetError
+     * @throws ClientException
+     * @throws RecordException
      */
     #[CheckPermission([Permission::READ])]
     public function get(
@@ -50,8 +50,10 @@ class IoDirectConnectController extends AbstractController
         $directConnectStore->setModule($module);
 
         return new AjaxResponse([
-            'data' => iterator_to_array($directConnectStore->getList()),
+            'data' => $directConnectStore->getList(),
             'active' => $ioService->isDirectConnectActive($module),
+            'success' => true,
+            'failure' => false,
         ]);
     }
 
@@ -64,10 +66,6 @@ class IoDirectConnectController extends AbstractController
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])]
         Module $module,
-        #[GetModel(['id' => 'inputPortId'])]
-        Port $inputPort,
-        #[GetModel(['id' => 'outputPortId'])]
-        Port $outputPort,
         #[GetMappedModel]
         DirectConnect $directConnect,
     ): AjaxResponse {
@@ -81,6 +79,7 @@ class IoDirectConnectController extends AbstractController
      * @throws SelectError
      * @throws WriteException
      * @throws JsonException
+     * @throws ReflectionException
      */
     #[CheckPermission([Permission::DELETE])]
     public function delete(
@@ -133,7 +132,7 @@ class IoDirectConnectController extends AbstractController
         #[GetModel(['number' => 'inputPort', 'module_id' => 'moduleId'])]
         Port $port,
         int $order,
-        bool $reset
+        bool $reset,
     ): AjaxResponse {
         if ($reset) {
             $ioService->resetDirectConnect($module, $port, true);

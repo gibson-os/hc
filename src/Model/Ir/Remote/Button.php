@@ -73,13 +73,13 @@ class Button extends AbstractModel implements JsonSerializable
     private int $remoteId;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private ?int $eventId;
+    private ?int $eventId = null;
 
     #[Constraint]
     protected Remote $remote;
 
     #[Constraint(onDelete: Constraint::RULE_SET_NULL)]
-    protected ?Event $event;
+    protected ?Event $event = null;
 
     #[Constraint('button', Key::class, orderBy: ['`order`' => OrderDirection::ASC])]
     protected array $keys = [];

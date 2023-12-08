@@ -14,8 +14,11 @@ use GibsonOS\Module\Hc\Model\Module;
 use JsonSerializable;
 
 /**
- * @method Module getModule()
- * @method Port   setModule(Module $module)
+ * @method Module          getModule()
+ * @method Port            setModule(Module $module)
+ * @method DirectConnect[] getDirectConnects()
+ * @method Port            setDirectConnects(DirectConnect[] $directConnects)
+ * @method Port            addDirectConnects(DirectConnect[] $directConnects)
  */
 #[Table]
 #[Key(unique: true, columns: ['module_id', 'number'])]
@@ -52,6 +55,9 @@ class Port extends AbstractModel implements AutoCompleteModelInterface, JsonSeri
 
     #[Constraint]
     protected Module $module;
+
+    #[Constraint('inputPort', DirectConnect::class)]
+    protected array $directConnects;
 
     public function getId(): ?int
     {
