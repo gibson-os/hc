@@ -5,7 +5,7 @@ namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Core\Utility\ArrayKeyUtility;
 use GibsonOS\Module\Hc\Constant\Rfmrhinetower as RfmrhinetowerConstant;
-use GibsonOS\Module\Hc\Dto\Direction;
+use GibsonOS\Module\Hc\Enum\Direction;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\MasterService;
 

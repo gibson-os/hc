@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Service\Warehouse\Label;
 
-use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
+use GibsonOS\Module\Hc\Enum\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Element;
 use GibsonOS\Module\Hc\Service\Warehouse\ItemService;

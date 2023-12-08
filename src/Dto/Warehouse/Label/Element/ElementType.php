@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Dto\Warehouse\Label\Element;
 
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
+use GibsonOS\Module\Hc\Enum\Warehouse\Label\Element\Type;
 use JsonSerializable;
 
 class ElementType implements JsonSerializable, AutoCompleteModelInterface

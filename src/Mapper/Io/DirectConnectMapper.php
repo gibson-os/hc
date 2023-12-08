@@ -5,7 +5,7 @@ namespace GibsonOS\Module\Hc\Mapper\Io;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Wrapper\ModelWrapper;
-use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
+use GibsonOS\Module\Hc\Enum\Io\AddOrSub;
 use GibsonOS\Module\Hc\Model\Io\DirectConnect;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Repository\Io\PortRepository;

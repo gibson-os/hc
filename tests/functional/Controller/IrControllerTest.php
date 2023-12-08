@@ -11,7 +11,7 @@ use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Mock\Service\TestEvent;
 use GibsonOS\Mock\Service\TestEventService;
 use GibsonOS\Module\Hc\Controller\IrController;
-use GibsonOS\Module\Hc\Dto\Ir\Protocol;
+use GibsonOS\Module\Hc\Enum\Ir\Protocol;
 use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Ir\Remote;
 use GibsonOS\Module\Hc\Model\Type;

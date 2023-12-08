@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\AutoComplete\Warehouse;
 
 use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
-use GibsonOS\Module\Hc\Dto\Warehouse\Code;
 use GibsonOS\Module\Hc\Dto\Warehouse\CodeType;
+use GibsonOS\Module\Hc\Enum\Warehouse\Code;
 
 class CodeTypeAutoComplete implements AutoCompleteInterface
 {

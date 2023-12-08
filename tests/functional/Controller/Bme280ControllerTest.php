@@ -6,7 +6,7 @@ namespace GibsonOS\Test\Functional\Hc\Controller;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Module\Hc\Controller\Bme280Controller;
-use GibsonOS\Module\Hc\Dto\Direction;
+use GibsonOS\Module\Hc\Enum\Direction;
 use GibsonOS\Module\Hc\Mapper\Bme280Mapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Module;

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Dto\Io;
+namespace GibsonOS\Module\Hc\Enum\Io;
 
 enum AddOrSub: int
 {

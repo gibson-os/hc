@@ -7,7 +7,7 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
-use GibsonOS\Module\Hc\Dto\Ir\Protocol;
+use GibsonOS\Module\Hc\Enum\Ir\Protocol;
 use GibsonOS\Module\Hc\Model\Ir\Key;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\Ir\KeyRepository;

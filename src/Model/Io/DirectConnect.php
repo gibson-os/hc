@@ -8,7 +8,7 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
-use GibsonOS\Module\Hc\Dto\Io\AddOrSub;
+use GibsonOS\Module\Hc\Enum\Io\AddOrSub;
 use JsonSerializable;
 
 /**

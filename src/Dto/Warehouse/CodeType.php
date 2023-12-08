@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Dto\Warehouse;
 
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
+use GibsonOS\Module\Hc\Enum\Warehouse\Code;
 use JsonSerializable;
 
 class CodeType implements JsonSerializable, AutoCompleteModelInterface

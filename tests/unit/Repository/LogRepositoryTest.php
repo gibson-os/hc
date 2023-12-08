@@ -5,7 +5,7 @@ namespace GibsonOS\Test\Unit\Hc\Repository;
 
 use Codeception\Test\Unit;
 use DateTimeImmutable;
-use GibsonOS\Module\Hc\Dto\Direction;
+use GibsonOS\Module\Hc\Enum\Direction;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Test\Unit\Core\Repository\RepositoryTrait;

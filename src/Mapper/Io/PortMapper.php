@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Mapper\Io;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
-use GibsonOS\Module\Hc\Dto\Io\Direction;
+use GibsonOS\Module\Hc\Enum\Io\Direction;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Io\PortRepository;

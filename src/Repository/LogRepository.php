@@ -5,7 +5,7 @@ namespace GibsonOS\Module\Hc\Repository;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
-use GibsonOS\Module\Hc\Dto\Direction;
+use GibsonOS\Module\Hc\Enum\Direction;
 use GibsonOS\Module\Hc\Model\Log;
 use JsonException;
 use MDO\Enum\OrderDirection;

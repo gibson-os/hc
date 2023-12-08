@@ -9,7 +9,7 @@ use GibsonOS\Core\Attribute\Install\Database\Key as KeyAttribute;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
-use GibsonOS\Module\Hc\Dto\Ir\Protocol;
+use GibsonOS\Module\Hc\Enum\Ir\Protocol;
 use GibsonOS\Module\Hc\Model\Ir\Key\Name;
 use JsonSerializable;
 use MDO\Enum\OrderDirection;

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Dto\Warehouse;
+namespace GibsonOS\Module\Hc\Enum\Warehouse;
 
 enum Code: string
 {

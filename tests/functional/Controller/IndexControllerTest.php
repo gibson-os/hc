@@ -6,7 +6,7 @@ namespace GibsonOS\Test\Functional\Hc\Controller;
 use DateTimeImmutable;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Module\Hc\Controller\IndexController;
-use GibsonOS\Module\Hc\Dto\Direction;
+use GibsonOS\Module\Hc\Enum\Direction;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Model\Master;

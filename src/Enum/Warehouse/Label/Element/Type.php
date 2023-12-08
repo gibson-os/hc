@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Dto\Warehouse\Label\Element;
+namespace GibsonOS\Module\Hc\Enum\Warehouse\Label\Element;
 
 enum Type: string
 {

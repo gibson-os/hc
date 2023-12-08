@@ -5,7 +5,7 @@ namespace GibsonOS\Module\Hc\AutoComplete\Warehouse\Label\Element;
 
 use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
 use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\ElementType;
-use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
+use GibsonOS\Module\Hc\Enum\Warehouse\Label\Element\Type;
 
 class TypeAutoComplete implements AutoCompleteInterface
 {

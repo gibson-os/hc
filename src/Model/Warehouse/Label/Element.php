@@ -7,7 +7,7 @@ use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
-use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\Type;
+use GibsonOS\Module\Hc\Enum\Warehouse\Label\Element\Type;
 use GibsonOS\Module\Hc\Model\Warehouse\Label;
 use JsonSerializable;
 

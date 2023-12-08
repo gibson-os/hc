@@ -8,7 +8,7 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
-use GibsonOS\Module\Hc\Dto\Warehouse\Code as CodeType;
+use GibsonOS\Module\Hc\Enum\Warehouse\Code as CodeType;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use JsonSerializable;
 

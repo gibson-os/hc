@@ -7,7 +7,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\MiddlewareService;
 use GibsonOS\Module\Hc\Controller\IoController;
-use GibsonOS\Module\Hc\Dto\Io\Direction;
+use GibsonOS\Module\Hc\Enum\Io\Direction;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Repository\Io\PortRepository;

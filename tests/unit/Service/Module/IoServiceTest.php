@@ -8,7 +8,7 @@ use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Service\DevicePushService;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Module\Hc\Dto\BusMessage;
-use GibsonOS\Module\Hc\Dto\Io\Direction;
+use GibsonOS\Module\Hc\Enum\Io\Direction;
 use GibsonOS\Module\Hc\Factory\ModuleFactory;
 use GibsonOS\Module\Hc\Mapper\Io\DirectConnectMapper;
 use GibsonOS\Module\Hc\Mapper\Io\PortMapper;

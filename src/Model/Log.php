@@ -11,8 +11,8 @@ use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Wrapper\ModelWrapper;
-use GibsonOS\Module\Hc\Dto\Direction;
 use GibsonOS\Module\Hc\Dto\Formatter\Explain;
+use GibsonOS\Module\Hc\Enum\Direction;
 use JsonSerializable;
 
 /**

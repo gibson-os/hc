@@ -9,7 +9,7 @@ use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\AutoCompleteModelInterface;
-use GibsonOS\Module\Hc\Dto\Io\Direction;
+use GibsonOS\Module\Hc\Enum\Io\Direction;
 use GibsonOS\Module\Hc\Model\Module;
 use JsonSerializable;
 

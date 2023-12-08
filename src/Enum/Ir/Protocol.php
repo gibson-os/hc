@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Hc\Dto\Ir;
+namespace GibsonOS\Module\Hc\Enum\Ir;
 
 enum Protocol: int
 {

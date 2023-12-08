@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Formatter;
 
 use GibsonOS\Module\Hc\Constant\Rfmbell as RfmbellConstant;
-use GibsonOS\Module\Hc\Dto\Direction;
+use GibsonOS\Module\Hc\Enum\Direction;
 use GibsonOS\Module\Hc\Model\Log;
 
 class RfmbellFormatter extends AbstractFormatter
