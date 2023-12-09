@@ -7,6 +7,10 @@ use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use GibsonOS\Module\Hc\Repository\Warehouse\Box\ItemRepository;
+use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class ItemAutoComplete implements AutoCompleteInterface
 {
@@ -15,7 +19,10 @@ class ItemAutoComplete implements AutoCompleteInterface
     }
 
     /**
-     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Item[]
      */

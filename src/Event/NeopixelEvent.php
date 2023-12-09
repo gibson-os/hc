@@ -13,7 +13,6 @@ use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
 use GibsonOS\Core\Manager\ReflectionManager;
 use GibsonOS\Core\Service\EventService;
@@ -31,6 +30,8 @@ use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Module\NeopixelService;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
@@ -498,8 +499,10 @@ class NeopixelEvent extends AbstractHcEvent
     }
 
     /**
-     * @throws SelectError
      * @throws JsonException
+     * @throws ReflectionException
+     * @throws ClientException
+     * @throws RecordException
      *
      * @return Led[]
      */

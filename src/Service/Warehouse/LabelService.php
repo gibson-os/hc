@@ -9,6 +9,10 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Label;
 use GibsonOS\Module\Hc\Repository\Warehouse\BoxRepository;
 use GibsonOS\Module\Hc\Service\Warehouse\Label\AbstractElementService;
+use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 use TCPDF;
 
 class LabelService
@@ -46,7 +50,10 @@ class LabelService
     }
 
     /**
-     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      */
     private function generateLabels(TCPDF $pdf, Module $module, Label $label, int $columnOffset, int $rowOffset): void
     {

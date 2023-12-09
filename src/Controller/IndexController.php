@@ -106,7 +106,6 @@ class IndexController extends AbstractController
      * @throws JsonException
      * @throws RecordException
      * @throws ReflectionException
-     * @throws SelectError
      */
     #[CheckPermission([Permission::READ])]
     public function getLastLog(
@@ -118,7 +117,7 @@ class IndexController extends AbstractController
         int $command = null,
         int $type = null,
         Direction $direction = null,
-    ) {
+    ): AjaxResponse {
         $lastLog = null;
 
         try {

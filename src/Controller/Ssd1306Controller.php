@@ -18,14 +18,18 @@ use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Service\Module\Ssd1306Service;
 use GibsonOS\Module\Hc\Store\Ssd1306\PixelStore;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class Ssd1306Controller extends AbstractController
 {
     /**
-     * @throws SelectError
      * @throws JsonException
      * @throws ReflectionException
+     * @throws SelectError
+     * @throws ClientException
+     * @throws RecordException
      */
     #[CheckPermission([Permission::READ])]
     public function get(

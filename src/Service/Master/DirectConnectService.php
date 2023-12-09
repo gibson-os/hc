@@ -27,8 +27,10 @@ class DirectConnectService
 
     private const TYPE_SEQUENCE_PAUSE = 112;
 
-    public function __construct(private MasterService $masterService, private BusMessageMapper $busMessageMapper)
-    {
+    public function __construct(
+        private readonly MasterService $masterService,
+        private readonly BusMessageMapper $busMessageMapper,
+    ) {
     }
 
     /**

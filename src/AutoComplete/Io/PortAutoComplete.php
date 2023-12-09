@@ -7,6 +7,10 @@ use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Repository\Io\PortRepository;
+use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class PortAutoComplete implements AutoCompleteInterface
 {
@@ -15,7 +19,10 @@ class PortAutoComplete implements AutoCompleteInterface
     }
 
     /**
-     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Port[]
      */

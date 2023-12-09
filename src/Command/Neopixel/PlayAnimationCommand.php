@@ -10,6 +10,7 @@ use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\ArgumentError;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -24,7 +25,9 @@ use GibsonOS\Module\Hc\Service\Module\NeopixelService;
 use GibsonOS\Module\Hc\Service\Neopixel\AnimationService;
 use GibsonOS\Module\Hc\Service\Neopixel\LedService;
 use JsonException;
-use mysqlDatabase;
+use MDO\Client;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
@@ -45,8 +48,14 @@ class PlayAnimationCommand extends AbstractCommand
         private readonly AnimationRepository $animationRepository,
         private readonly LedService $ledService,
         private readonly ModuleRepository $moduleRepository,
-        private readonly mysqlDatabase $mysqlDatabase,
+        private readonly Client $client,
         private readonly ModelManager $modelManager,
+        #[GetEnv('MYSQL_HOST')]
+        private readonly string $mysqlHost,
+        #[GetEnv('MYSQL_USER')]
+        private readonly string $mysqlUser,
+        #[GetEnv('MYSQL_PASS')]
+        private readonly string $mysqlPassword,
         #[GetEnv('MYSQL_DATABASE')]
         private readonly string $mysqlDatabaseName,
         LoggerInterface $logger
@@ -73,7 +82,7 @@ class PlayAnimationCommand extends AbstractCommand
 
         $steps = $this->animationService->transformToTimeSteps($animation);
         $runtimes = $this->animationService->getRuntimes($steps);
-        $this->mysqlDatabase->closeDB();
+        $this->client->close();
         $startTime = (int) (microtime(true) * 1000000);
 
         for ($i = 0; $this->iterations === 0 || $i < $this->iterations; ++$i) {
@@ -90,12 +99,13 @@ class PlayAnimationCommand extends AbstractCommand
                     ;
                 }
 
-                $this->mysqlDatabase->openDB($this->mysqlDatabaseName);
+                $this->client->connect($this->mysqlHost, $this->mysqlUser, $this->mysqlPassword);
+                $this->client->useDatabase($this->mysqlDatabaseName);
                 $changedLeds = $this->getChanges($module, $newLeds);
                 $startTime += 1000000;
                 $this->sleepToTime($startTime);
                 $this->writeLeds($module, $this->neopixelService, $newLeds, $changedLeds);
-                $this->mysqlDatabase->closeDB();
+                $this->client->close();
 
                 $startTime += ($runtimes[$time] * 1000) - 1000000;
                 $this->sleepToTime($startTime);
@@ -134,15 +144,14 @@ class PlayAnimationCommand extends AbstractCommand
     }
 
     /**
-     * @param Led[] $leds
-     * @param Led[] $changedSlaveLeds
-     *
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws SaveError
-     * @throws WriteException
      * @throws JsonException
      * @throws ReflectionException
+     * @throws SaveError
+     * @throws WriteException
+     * @throws FactoryError
+     * @throws ClientException
+     * @throws RecordException
      */
     private function writeLeds(
         Module $slave,

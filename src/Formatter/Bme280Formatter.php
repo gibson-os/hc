@@ -8,7 +8,6 @@ use GibsonOS\Module\Hc\Mapper\Bme280Mapper;
 use GibsonOS\Module\Hc\Model\Log;
 use GibsonOS\Module\Hc\Service\Module\Bme280Service;
 use GibsonOS\Module\Hc\Service\TransformService;
-use JsonException;
 
 class Bme280Formatter extends AbstractFormatter
 {
@@ -17,9 +16,6 @@ class Bme280Formatter extends AbstractFormatter
         parent::__construct($transformService);
     }
 
-    /**
-     * @throws JsonException
-     */
     public function text(Log $log): ?string
     {
         switch ($log->getCommand()) {

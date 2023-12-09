@@ -11,8 +11,10 @@ use Psr\Log\LoggerInterface;
 
 class MasterMapper
 {
-    public function __construct(private TransformService $transformService, private LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly TransformService $transformService,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**

@@ -19,10 +19,10 @@ use ReflectionException;
 class ReceiverService
 {
     public function __construct(
-        private MasterService $masterService,
-        private MasterMapper $masterMapper,
-        private MasterRepository $masterRepository,
-        private LoggerInterface $logger
+        private readonly MasterService $masterService,
+        private readonly MasterMapper $masterMapper,
+        private readonly MasterRepository $masterRepository,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -40,14 +40,15 @@ class ReceiverService
     {
         $this->logger->debug('Receive data');
         $busMessage = $protocolService->receive();
+        $data = $busMessage?->getData();
 
-        if ($busMessage === null || $busMessage->getData() === null || strlen($busMessage->getData() ?? '') === 0) {
+        if ($busMessage === null || strlen($data ?? '') === 0) {
             return;
         }
 
         $this->logger->debug(sprintf(
             'Received message "%s" from master %s',
-            $busMessage->getData() ?? '',
+            $data ?? '',
             $busMessage->getMasterAddress()
         ));
         $this->masterMapper->checksumEqual($busMessage);

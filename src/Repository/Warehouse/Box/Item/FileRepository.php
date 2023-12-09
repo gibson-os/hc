@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Repository\Warehouse\Box\Item;
 
-use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Repository\AbstractRepository;
-use GibsonOS\Core\Wrapper\RepositoryWrapper;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item\File;
 use JsonException;
@@ -15,14 +13,6 @@ use ReflectionException;
 
 class FileRepository extends AbstractRepository
 {
-    public function __construct(
-        RepositoryWrapper $repositoryWrapper,
-        #[GetTableName(File::class)]
-        private readonly string $fileTableName
-    ) {
-        parent::__construct($repositoryWrapper);
-    }
-
     /**
      * @throws JsonException
      * @throws ClientException

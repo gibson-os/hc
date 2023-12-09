@@ -11,7 +11,6 @@ use GibsonOS\Core\Exception\FileNotFound;
 use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\DeleteError as ModelDeleteError;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\SetError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\Setting;
@@ -19,6 +18,8 @@ use GibsonOS\Core\Service\FileService;
 use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use GibsonOS\Module\Hc\Repository\Warehouse\Box\Item\FileRepository;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class ItemService
@@ -107,9 +108,11 @@ class ItemService
      * @throws DeleteError
      * @throws FileNotFound
      * @throws GetError
-     * @throws ModelDeleteError
-     * @throws SelectError
      * @throws JsonException
+     * @throws ModelDeleteError
+     * @throws ReflectionException
+     * @throws ClientException
+     * @throws RecordException
      */
     public function deleteFilesNotIn(Item $item): void
     {

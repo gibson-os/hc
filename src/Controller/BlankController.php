@@ -31,8 +31,6 @@ class BlankController extends AbstractController
     private const DATA_FORMAT_INT = 'int';
 
     /**
-     * @param Module $module
-     *
      * @throws AbstractException
      * @throws FactoryError
      * @throws GetError

@@ -7,6 +7,10 @@ use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Neopixel\Led;
 use GibsonOS\Module\Hc\Repository\Neopixel\LedRepository;
+use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class LedAutoComplete implements AutoCompleteInterface
 {
@@ -15,7 +19,10 @@ class LedAutoComplete implements AutoCompleteInterface
     }
 
     /**
-     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      */
     public function getByNamePart(string $namePart, array $parameters): array
     {

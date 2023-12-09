@@ -13,8 +13,10 @@ use GibsonOS\Module\Hc\Model\Master;
 
 class SenderService
 {
-    public function __construct(private MasterMapper $masterMapper, private ProtocolFactory $protocolFactory)
-    {
+    public function __construct(
+        private readonly MasterMapper $masterMapper,
+        private readonly ProtocolFactory $protocolFactory,
+    ) {
     }
 
     /**

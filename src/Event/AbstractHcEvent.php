@@ -16,8 +16,8 @@ use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
 use GibsonOS\Core\Exception\EventException;
 use GibsonOS\Core\Exception\FactoryError;
-use GibsonOS\Core\Exception\FcmException;
 use GibsonOS\Core\Exception\GetError;
+use GibsonOS\Core\Exception\MiddlewareException;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
@@ -384,10 +384,10 @@ abstract class AbstractHcEvent extends AbstractEvent
     public function __construct(
         EventService $eventService,
         ReflectionManager $reflectionManager,
-        private TypeRepository $typeRepository,
-        protected LoggerInterface $logger,
-        private FcmService $fcmService,
-        private AbstractHcModule $slaveService,
+        private readonly TypeRepository $typeRepository,
+        protected readonly LoggerInterface $logger,
+        private readonly FcmService $fcmService,
+        private readonly AbstractHcModule $moduleService,
     ) {
         parent::__construct($eventService, $reflectionManager);
     }
@@ -409,7 +409,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(IntParameter::class, 'Adresse')]
         int $address
     ): void {
-        $this->slaveService->writeAddress($slave, $address);
+        $this->moduleService->writeAddress($slave, $address);
     }
 
     /**
@@ -427,7 +427,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): int {
-        return $this->slaveService->readDeviceId($slave);
+        return $this->moduleService->readDeviceId($slave);
     }
 
     /**
@@ -445,7 +445,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(IntParameter::class, 'Device ID')]
         int $deviceId
     ): void {
-        $this->slaveService->writeDeviceId($slave, $deviceId);
+        $this->moduleService->writeDeviceId($slave, $deviceId);
     }
 
     /**
@@ -463,7 +463,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): int {
-        return $this->slaveService->readTypeId($slave);
+        return $this->moduleService->readTypeId($slave);
     }
 
     /**
@@ -483,7 +483,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         int $typeId
     ): void {
         $type = $this->typeRepository->getById($typeId);
-        $this->slaveService->writeTypeId($slave, $type);
+        $this->moduleService->writeTypeId($slave, $type);
     }
 
     /**
@@ -499,7 +499,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): void {
-        $this->slaveService->writeRestart($slave);
+        $this->moduleService->writeRestart($slave);
     }
 
     /**
@@ -517,7 +517,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): int {
-        return $this->slaveService->readHertz($slave);
+        return $this->moduleService->readHertz($slave);
     }
 
     /**
@@ -535,7 +535,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): int {
-        return $this->slaveService->readEepromSize($slave);
+        return $this->moduleService->readEepromSize($slave);
     }
 
     /**
@@ -553,7 +553,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): int {
-        return $this->slaveService->readEepromFree($slave);
+        return $this->moduleService->readEepromFree($slave);
     }
 
     /**
@@ -571,7 +571,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): int {
-        return $this->slaveService->readEepromPosition($slave);
+        return $this->moduleService->readEepromPosition($slave);
     }
 
     /**
@@ -589,7 +589,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(IntParameter::class, 'Position')]
         int $position
     ): void {
-        $this->slaveService->writeEepromPosition($slave, $position);
+        $this->moduleService->writeEepromPosition($slave, $position);
     }
 
     /**
@@ -605,7 +605,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave,
     ): void {
-        $this->slaveService->writeEepromErase($slave);
+        $this->moduleService->writeEepromErase($slave);
     }
 
     /**
@@ -623,7 +623,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): int {
-        return $this->slaveService->readBufferSize($slave);
+        return $this->moduleService->readBufferSize($slave);
     }
 
     /**
@@ -641,7 +641,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): int {
-        return $this->slaveService->readPwmSpeed($slave);
+        return $this->moduleService->readPwmSpeed($slave);
     }
 
     /**
@@ -659,7 +659,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(IntParameter::class, 'Geschwindigkeit')]
         int $pwmSpeed
     ): void {
-        $this->slaveService->writePwmSpeed($slave, $pwmSpeed);
+        $this->moduleService->writePwmSpeed($slave, $pwmSpeed);
     }
 
     /**
@@ -684,7 +684,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): array {
-        return $this->slaveService->readLedStatus($slave);
+        return $this->moduleService->readLedStatus($slave);
     }
 
     /**
@@ -702,7 +702,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(BoolParameter::class, 'An')]
         bool $on
     ): void {
-        $this->slaveService->writePowerLed($slave, $on);
+        $this->moduleService->writePowerLed($slave, $on);
     }
 
     /**
@@ -720,7 +720,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(BoolParameter::class, 'An')]
         bool $on
     ): void {
-        $this->slaveService->writeErrorLed($slave, $on);
+        $this->moduleService->writeErrorLed($slave, $on);
     }
 
     /**
@@ -738,7 +738,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(BoolParameter::class, 'An')]
         bool $on
     ): void {
-        $this->slaveService->writeConnectLed($slave, $on);
+        $this->moduleService->writeConnectLed($slave, $on);
     }
 
     /**
@@ -756,7 +756,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(BoolParameter::class, 'An')]
         bool $on
     ): void {
-        $this->slaveService->writeTransreceiveLed($slave, $on);
+        $this->moduleService->writeTransreceiveLed($slave, $on);
     }
 
     /**
@@ -774,7 +774,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(BoolParameter::class, 'An')]
         bool $on
     ): void {
-        $this->slaveService->writeTransceiveLed($slave, $on);
+        $this->moduleService->writeTransceiveLed($slave, $on);
     }
 
     /**
@@ -792,7 +792,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(BoolParameter::class, 'An')]
         bool $on
     ): void {
-        $this->slaveService->writeReceiveLed($slave, $on);
+        $this->moduleService->writeReceiveLed($slave, $on);
     }
 
     /**
@@ -810,7 +810,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(BoolParameter::class, 'An')]
         bool $on
     ): void {
-        $this->slaveService->writeCustomLed($slave, $on);
+        $this->moduleService->writeCustomLed($slave, $on);
     }
 
     /**
@@ -828,7 +828,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): bool {
-        return $this->slaveService->readPowerLed($slave);
+        return $this->moduleService->readPowerLed($slave);
     }
 
     /**
@@ -846,7 +846,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): bool {
-        return $this->slaveService->readErrorLed($slave);
+        return $this->moduleService->readErrorLed($slave);
     }
 
     /**
@@ -864,7 +864,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): bool {
-        return $this->slaveService->readConnectLed($slave);
+        return $this->moduleService->readConnectLed($slave);
     }
 
     /**
@@ -882,7 +882,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): bool {
-        return $this->slaveService->readTransreceiveLed($slave);
+        return $this->moduleService->readTransreceiveLed($slave);
     }
 
     /**
@@ -900,7 +900,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): bool {
-        return $this->slaveService->readTransceiveLed($slave);
+        return $this->moduleService->readTransceiveLed($slave);
     }
 
     /**
@@ -918,7 +918,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): bool {
-        return $this->slaveService->readReceiveLed($slave);
+        return $this->moduleService->readReceiveLed($slave);
     }
 
     /**
@@ -936,7 +936,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): bool {
-        return $this->slaveService->readCustomLed($slave);
+        return $this->moduleService->readCustomLed($slave);
     }
 
     /**
@@ -964,7 +964,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(StringParameter::class, 'Custom LED')]
         string $custom,
     ): void {
-        $this->slaveService->writeRgbLed(
+        $this->moduleService->writeRgbLed(
             $slave,
             $power,
             $error,
@@ -995,7 +995,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): array {
-        return $this->slaveService->readRgbLed($slave);
+        return $this->moduleService->readRgbLed($slave);
     }
 
     /**
@@ -1025,7 +1025,7 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(BoolParameter::class, 'Custom LED')]
         bool $custom,
     ): void {
-        $this->slaveService->writeAllLeds(
+        $this->moduleService->writeAllLeds(
             $slave,
             $power,
             $error,
@@ -1058,13 +1058,14 @@ abstract class AbstractHcEvent extends AbstractEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $slave
     ): array {
-        return $this->slaveService->readAllLeds($slave);
+        return $this->moduleService->readAllLeds($slave);
     }
 
     /**
-     * @throws FcmException
-     * @throws WebException
      * @throws JsonException
+     * @throws SaveError
+     * @throws WebException
+     * @throws MiddlewareException
      */
     #[Event\Method('Nachricht senden')]
     public function pushMessage(

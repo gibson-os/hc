@@ -7,6 +7,10 @@ use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Blueprint;
 use GibsonOS\Module\Hc\Repository\BlueprintRepository;
+use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class BlueprintAutoComplete implements AutoCompleteInterface
 {
@@ -15,7 +19,10 @@ class BlueprintAutoComplete implements AutoCompleteInterface
     }
 
     /**
-     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      */
     public function getByNamePart(string $namePart, array $parameters): array
     {

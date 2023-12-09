@@ -6,6 +6,10 @@ namespace GibsonOS\Module\Hc\Repository\Warehouse\Label;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Hc\Model\Warehouse\Label\Template;
+use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class TemplateRepository extends AbstractRepository
 {
@@ -18,7 +22,10 @@ class TemplateRepository extends AbstractRepository
     }
 
     /**
-     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Template[]
      */

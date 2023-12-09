@@ -25,7 +25,7 @@ class FormatterFactory
         return $this->getModuleFormatter($log);
     }
 
-    public function __construct(private ServiceManager $serviceManager)
+    public function __construct(private readonly ServiceManager $serviceManager)
     {
     }
 

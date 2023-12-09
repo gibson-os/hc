@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Controller;
 
-use Exception;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetModel;
@@ -26,13 +25,12 @@ use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
 use GibsonOS\Module\Hc\Service\Neopixel\AnimationService;
 use GibsonOS\Module\Hc\Store\Neopixel\AnimationStore;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class NeopixelAnimationController extends AbstractController
 {
-    /**
-     * @throws Exception
-     */
     #[CheckPermission([Permission::READ])]
     public function get(
         AnimationRepository $animationRepository,
@@ -63,8 +61,10 @@ class NeopixelAnimationController extends AbstractController
 
     /**
      * @throws JsonException
-     * @throws SelectError
      * @throws ReflectionException
+     * @throws SelectError
+     * @throws ClientException
+     * @throws RecordException
      */
     #[CheckPermission([Permission::READ])]
     public function getList(
@@ -87,19 +87,17 @@ class NeopixelAnimationController extends AbstractController
     }
 
     /**
-     * @throws SaveError
-     * @throws SelectError
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws ClientException
      * @throws ImageExists
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
+     * @throws SaveError
      */
     #[CheckPermission([Permission::WRITE], ['id' => [Permission::WRITE, Permission::DELETE]])]
     public function post(
-        AnimationStore $animationStore,
         ModelManager $modelManager,
         ?int $id,
-        #[GetModel(['id' => 'moduleId'])]
-        Module $module,
         #[GetMappedModel(['name' => 'name', 'module_id' => 'moduleId'])]
         Animation $animation
     ): AjaxResponse {
@@ -114,15 +112,8 @@ class NeopixelAnimationController extends AbstractController
         }
 
         $modelManager->save($animation);
-        $animationStore->setModule($module);
 
-        return new AjaxResponse([
-            'data' => $animationStore->getList(),
-            'total' => $animationStore->getCount(),
-            'id' => $animation->getId(),
-            'success' => true,
-            'failure' => false,
-        ]);
+        return $this->returnSuccess($animation);
     }
 
     /**

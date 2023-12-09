@@ -7,6 +7,8 @@ use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
 use GibsonOS\Module\Hc\Dto\Warehouse\Label\Element\ElementType;
 use GibsonOS\Module\Hc\Enum\Warehouse\Label\Element\Type;
 
+use function mb_strpos;
+
 class TypeAutoComplete implements AutoCompleteInterface
 {
     public function getByNamePart(string $namePart, array $parameters): array
@@ -14,7 +16,7 @@ class TypeAutoComplete implements AutoCompleteInterface
         $codes = [];
 
         foreach (Type::cases() as $case) {
-            if ($namePart === '' || \mb_strpos($case->value, $namePart) === 0) {
+            if ($namePart === '' || mb_strpos($case->value, $namePart) === 0) {
                 $codes[] = new ElementType($case);
             }
         }

@@ -7,7 +7,7 @@ use GibsonOS\Module\Hc\Service\TransformService;
 
 class Bme280Mapper
 {
-    public function __construct(private TransformService $transformService)
+    public function __construct(private readonly TransformService $transformService)
     {
     }
 

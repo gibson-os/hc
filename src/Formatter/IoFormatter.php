@@ -18,6 +18,7 @@ use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Repository\LogRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\MasterService;
+use GibsonOS\Module\Hc\Service\Module\AbstractHcModule;
 use GibsonOS\Module\Hc\Service\Module\IoService;
 use GibsonOS\Module\Hc\Service\TransformService;
 use Throwable;
@@ -47,7 +48,9 @@ class IoFormatter extends AbstractHcFormatter
      */
     public function command(Log $log): ?string
     {
-        switch ($log->getCommand()) {
+        $command = $log->getCommand();
+
+        switch ($command) {
             case IoService::COMMAND_ADD_DIRECT_CONNECT:
                 return 'DC hinzufügen';
             case IoService::COMMAND_SET_DIRECT_CONNECT:
@@ -68,8 +71,8 @@ class IoFormatter extends AbstractHcFormatter
 
         $module = $log->getModule();
 
-        if ($module !== null && $log->getCommand() !== null && $log->getCommand() < (int) $module->getConfig()) {
-            return $this->portRepository->getByNumber($module, $log->getCommand() ?? 0)->getName();
+        if ($module !== null && $command !== null && $command < (int) $module->getConfig()) {
+            return $this->portRepository->getByNumber($module, $command)->getName();
         }
 
         return parent::command($log);
@@ -83,7 +86,7 @@ class IoFormatter extends AbstractHcFormatter
     public function text(Log $log): ?string
     {
         switch ($log->getCommand()) {
-            case IoService::COMMAND_CONFIGURATION:
+            case AbstractHcModule::COMMAND_CONFIGURATION:
                 return 'Port Anzahl: ' . $this->transformService->asciiToUnsignedInt($log->getRawData());
             case IoService::COMMAND_DEFRAGMENT_DIRECT_CONNECT:
                 return 'Defragmentieren';
@@ -132,8 +135,8 @@ class IoFormatter extends AbstractHcFormatter
         }
 
         switch ($log->getCommand()) {
-            case IoService::COMMAND_STATUS:
-            case IoService::COMMAND_DATA_CHANGED:
+            case AbstractHcModule::COMMAND_STATUS:
+            case AbstractHcModule::COMMAND_DATA_CHANGED:
                 $changedPorts = $this->getChangedPorts($log);
 
                 if (!count($changedPorts)) {

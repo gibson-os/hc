@@ -31,6 +31,8 @@ use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
 use GibsonOS\Module\Hc\Service\Module\IoService;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
@@ -331,7 +333,10 @@ class IoEvent extends AbstractHcEvent
     }
 
     /**
-     * @throws AbstractException
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws ClientException
+     * @throws RecordException
      */
     #[Event\Method('Ports auslesen')]
     public function getPorts(

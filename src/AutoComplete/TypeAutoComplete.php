@@ -7,15 +7,22 @@ use GibsonOS\Core\AutoComplete\AutoCompleteInterface;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Model\Type;
 use GibsonOS\Module\Hc\Repository\TypeRepository;
+use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class TypeAutoComplete implements AutoCompleteInterface
 {
-    public function __construct(private TypeRepository $typeRepository)
+    public function __construct(private readonly TypeRepository $typeRepository)
     {
     }
 
     /**
-     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      */
     public function getByNamePart(string $namePart, array $parameters): array
     {

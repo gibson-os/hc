@@ -14,7 +14,7 @@ use GibsonOS\Module\Hc\Model\Warehouse\Box;
 use GibsonOS\Module\Hc\Repository\Warehouse\BoxRepository;
 use GibsonOS\Module\Hc\Service\Module\NeopixelService;
 use JsonException;
-use mysqlDatabase;
+use MDO\Client;
 use ReflectionException;
 
 class BoxService
@@ -22,7 +22,7 @@ class BoxService
     public function __construct(
         private readonly NeopixelService $neopixelService,
         private readonly ModelManager $modelManager,
-        private readonly mysqlDatabase $mysqlDatabase,
+        private readonly Client $client,
         private readonly BoxRepository $boxRepository,
     ) {
     }
@@ -43,7 +43,7 @@ class BoxService
         int $fadeIn = 0,
         int $blink = 0,
     ): void {
-        $this->mysqlDatabase->startTransaction();
+        $this->client->startTransaction();
 
         $ledsByModules = [];
 
@@ -73,7 +73,7 @@ class BoxService
             try {
                 $this->modelManager->save($box->setShown(true));
             } catch (Exception $exception) {
-                $this->mysqlDatabase->rollback();
+                $this->client->rollback();
 
                 throw $exception;
             }
@@ -91,13 +91,13 @@ class BoxService
             try {
                 $this->neopixelService->writeLeds($module, $ledsByModule['leds']);
             } catch (Exception $exception) {
-                $this->mysqlDatabase->rollback();
+                $this->client->rollback();
 
                 throw $exception;
             }
         }
 
-        $this->mysqlDatabase->commit();
+        $this->client->commit();
     }
 
     /**

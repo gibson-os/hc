@@ -3,12 +3,15 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Hc\Mapper\Io;
 
-use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Module\Hc\Enum\Io\Direction;
 use GibsonOS\Module\Hc\Model\Io\Port;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Repository\Io\PortRepository;
 use GibsonOS\Module\Hc\Service\TransformService;
+use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class PortMapper
 {
@@ -53,7 +56,10 @@ class PortMapper
     }
 
     /**
-     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Port[]
      */
