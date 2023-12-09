@@ -14,8 +14,8 @@ use GibsonOS\Core\Enum\HttpStatusCode;
 use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\AbstractException;
 use GibsonOS\Core\Exception\DateTimeError;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
-use GibsonOS\Core\Exception\Repository\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\Response\AjaxResponse;
@@ -31,14 +31,18 @@ use GibsonOS\Module\Hc\Service\Neopixel\LedService;
 use GibsonOS\Module\Hc\Store\Neopixel\ImageStore;
 use GibsonOS\Module\Hc\Store\Neopixel\LedStore;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class NeopixelController extends AbstractController
 {
     /**
      * @throws JsonException
-     * @throws SelectError
      * @throws ReflectionException
+     * @throws SelectError
+     * @throws ClientException
+     * @throws RecordException
      */
     #[CheckPermission([Permission::READ])]
     public function get(LedStore $ledStore, #[GetModel(['id' => 'moduleId'])] Module $module): AjaxResponse
@@ -78,16 +82,14 @@ class NeopixelController extends AbstractController
     }
 
     /**
-     * @param Led[] $leds
-     *
      * @throws AbstractException
-     * @throws DateTimeError
-     * @throws DeleteError
+     * @throws ClientException
      * @throws JsonException
-     * @throws SaveError
-     * @throws SelectError
+     * @throws RecordException
      * @throws ReflectionException
+     * @throws SaveError
      * @throws WriteException
+     * @throws FactoryError
      */
     #[CheckPermission([Permission::MANAGE, Permission::WRITE])]
     public function postLeds(
@@ -116,7 +118,7 @@ class NeopixelController extends AbstractController
             array_walk(
                 $leds,
                 function (Led $led) use ($modelManager): void {
-                    $modelManager->save($led);
+                    $modelManager->saveWithoutChildren($led);
                 }
             );
 
@@ -151,7 +153,7 @@ class NeopixelController extends AbstractController
         $neopixelService->writeChannels(
             $module,
             array_map(
-                fn ($maxId) => $ledService->getNumberById($module, $maxId) + 1,
+                fn (int $maxId): int => $ledService->getNumberById($module, $maxId) + 1,
                 $channels
             )
         );
@@ -160,9 +162,11 @@ class NeopixelController extends AbstractController
     }
 
     /**
+     * @throws ClientException
      * @throws JsonException
-     * @throws SelectError
+     * @throws RecordException
      * @throws ReflectionException
+     * @throws SelectError
      */
     #[CheckPermission([Permission::READ])]
     public function getImages(
@@ -179,20 +183,18 @@ class NeopixelController extends AbstractController
     }
 
     /**
+     * @throws ClientException
      * @throws ImageExists
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      */
     #[CheckPermission([Permission::WRITE], ['id' => [Permission::WRITE, Permission::DELETE]])]
     public function postImage(
-        ImageStore $imageStore,
         ModelManager $modelManager,
         ?int $id,
-        #[GetModel(['id' => 'moduleId'])]
-        Module $module,
-        #[GetMappedModel(['name' => 'name'], ['module' => 'module'])]
+        #[GetMappedModel(['name' => 'name'], ['module_id' => 'moduleId'])]
         Image $image,
     ): AjaxResponse {
         if ($image->getId() !== null && $image->getId() !== $id) {
@@ -203,19 +205,12 @@ class NeopixelController extends AbstractController
                     $image->getName(),
                     PHP_EOL
                 ),
-                HttpStatusCode::CONFLICT
+                HttpStatusCode::CONFLICT->value
             );
         }
 
         $modelManager->save($image);
-        $imageStore->setModule($image->getModule());
 
-        return new AjaxResponse([
-            'data' => iterator_to_array($imageStore->getList()),
-            'total' => $imageStore->getCount(),
-            'id' => $image->getId(),
-            'success' => true,
-            'failure' => false,
-        ]);
+        return $this->returnSuccess($image);
     }
 }

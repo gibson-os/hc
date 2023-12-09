@@ -18,6 +18,8 @@ use ReflectionException;
 
 /**
  * @extends AbstractDatabaseStore<Port>
+ *
+ * @method Generator<DirectConnect> getList()
  */
 class DirectConnectStore extends AbstractDatabaseStore
 {
