@@ -15,6 +15,10 @@ use ReflectionException;
 class AnimationRepository extends AbstractRepository
 {
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getById(int $moduleId, int $id): Animation
@@ -23,6 +27,10 @@ class AnimationRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getByName(Module $module, string $name): Animation
@@ -48,6 +56,10 @@ class AnimationRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getStarted(Module $module): Animation
@@ -60,6 +72,10 @@ class AnimationRepository extends AbstractRepository
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SelectError
      */
     public function getTransmitted(Module $module): Animation

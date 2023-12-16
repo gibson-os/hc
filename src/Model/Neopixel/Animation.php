@@ -150,6 +150,7 @@ class Animation extends AbstractModel implements JsonSerializable, AutoCompleteM
             'name' => $this->getName(),
             'pid' => $this->getPid(),
             'started' => $this->isStarted(),
+            'paused' => $this->isPaused(),
             'transmitted' => $this->isTransmitted(),
         ];
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Hc\Service\Neopixel;
 
 use GibsonOS\Core\Exception\AbstractException;
+use GibsonOS\Core\Exception\FactoryError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
@@ -17,6 +18,8 @@ use GibsonOS\Module\Hc\Model\Neopixel\Animation\Led;
 use GibsonOS\Module\Hc\Repository\Neopixel\AnimationRepository;
 use GibsonOS\Module\Hc\Service\Module\NeopixelService;
 use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class AnimationService
@@ -33,10 +36,12 @@ class AnimationService
 
     /**
      * @throws AbstractException
+     * @throws ClientException
+     * @throws FactoryError
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      * @throws WriteException
      */
     public function play(Animation $animation, int $iterations): void
@@ -58,6 +63,9 @@ class AnimationService
      * @throws SaveError
      * @throws SelectError
      * @throws WriteException
+     * @throws FactoryError
+     * @throws ClientException
+     * @throws RecordException
      */
     public function start(Module $module, int $iterations): void
     {
@@ -69,11 +77,13 @@ class AnimationService
     }
 
     /**
-     * @throws JsonException
-     * @throws ReflectionException
      * @throws AbstractException
+     * @throws ClientException
+     * @throws FactoryError
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
      * @throws SaveError
-     * @throws SelectError
      * @throws WriteException
      */
     public function stop(Module $module): bool
@@ -88,28 +98,28 @@ class AnimationService
                 ->setPaused(false)
             ;
 
-            if ($pid !== null) {
-                $this->modelManager->save($startedAnimation);
-
-                return $this->processService->kill($pid);
-            }
-
             if ($startedAnimation->isTransmitted()) {
                 $this->neopixelService->writeSequenceStop($module);
-                $this->modelManager->save($startedAnimation);
+            }
 
-                return true;
+            $this->modelManager->save($startedAnimation);
+
+            if ($pid !== null) {
+                return $this->processService->kill($pid);
             }
         } catch (SelectError) {
-            // do nothing
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     /**
      * @throws AbstractException
+     * @throws ClientException
+     * @throws FactoryError
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
@@ -131,7 +141,10 @@ class AnimationService
 
     /**
      * @throws AbstractException
+     * @throws ClientException
+     * @throws FactoryError
      * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
      * @throws WriteException
