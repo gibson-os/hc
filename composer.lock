@@ -217,16 +217,16 @@
         },
         {
             "name": "gibson-os/core",
-            "version": "v4.4.6",
+            "version": "v4.4.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gibson-os/core.git",
-                "reference": "45b2d47a8459ea3e8881ec59a68ac63446f9b4f0"
+                "reference": "e1c1fefa3d2c4e45ecd6051603d3ff9b7f133469"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gibson-os/core/zipball/45b2d47a8459ea3e8881ec59a68ac63446f9b4f0",
-                "reference": "45b2d47a8459ea3e8881ec59a68ac63446f9b4f0",
+                "url": "https://api.github.com/repos/gibson-os/core/zipball/e1c1fefa3d2c4e45ecd6051603d3ff9b7f133469",
+                "reference": "e1c1fefa3d2c4e45ecd6051603d3ff9b7f133469",
                 "shasum": ""
             },
             "require": {
@@ -275,9 +275,9 @@
             "notification-url": "https://packagist.org/downloads/",
             "support": {
                 "issues": "https://github.com/gibson-os/core/issues",
-                "source": "https://github.com/gibson-os/core/tree/v4.4.6"
+                "source": "https://github.com/gibson-os/core/tree/v4.4.7"
             },
-            "time": "2023-12-08T12:32:18+00:00"
+            "time": "2023-12-17T21:22:50+00:00"
         },
         {
             "name": "gibson-os/mdo",
@@ -3888,16 +3888,16 @@
         },
         {
             "name": "pdepend/pdepend",
-            "version": "2.16.1",
+            "version": "2.16.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdepend/pdepend.git",
-                "reference": "66ceb05eaa8bf358574143c974b04463911bc700"
+                "reference": "f942b208dc2a0868454d01b29f0c75bbcfc6ed58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdepend/pdepend/zipball/66ceb05eaa8bf358574143c974b04463911bc700",
-                "reference": "66ceb05eaa8bf358574143c974b04463911bc700",
+                "url": "https://api.github.com/repos/pdepend/pdepend/zipball/f942b208dc2a0868454d01b29f0c75bbcfc6ed58",
+                "reference": "f942b208dc2a0868454d01b29f0c75bbcfc6ed58",
                 "shasum": ""
             },
             "require": {
@@ -3939,7 +3939,7 @@
             ],
             "support": {
                 "issues": "https://github.com/pdepend/pdepend/issues",
-                "source": "https://github.com/pdepend/pdepend/tree/2.16.1"
+                "source": "https://github.com/pdepend/pdepend/tree/2.16.2"
             },
             "funding": [
                 {
@@ -3947,7 +3947,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-12-10T18:38:19+00:00"
+            "time": "2023-12-17T18:09:59+00:00"
         },
         {
             "name": "phar-io/manifest",
