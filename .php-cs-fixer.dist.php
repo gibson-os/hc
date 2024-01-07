@@ -11,16 +11,17 @@ return (new PhpCsFixer\Config())
         'concat_space' => ['spacing' => 'one'],
         'combine_consecutive_issets' => true,
         'combine_consecutive_unsets' => true,
-        'compact_nullable_typehint' => true,
+        'compact_nullable_type_declaration' => true,
         'global_namespace_import' => true,
         'heredoc_to_nowdoc' => true,
         'is_null' => true,
         'list_syntax' => ['syntax' => 'long'],
         'method_argument_space' => ['on_multiline' => 'ensure_fully_multiline'],
+        'trailing_comma_in_multiline' => ['elements' => ['arguments', 'arrays', 'match', 'parameters']],
         'no_null_property_initialization' => true,
         'echo_tag_syntax' => true,
         'no_superfluous_elseif' => true,
-        'no_unneeded_curly_braces' => true,
+        'no_unneeded_braces' => true,
         'no_unneeded_final_method' => true,
         'no_unreachable_default_argument_value' => false,
         'no_useless_else' => true,
@@ -51,6 +52,6 @@ return (new PhpCsFixer\Config())
                 __DIR__ . DIRECTORY_SEPARATOR . 'src',
                 __DIR__ . DIRECTORY_SEPARATOR . 'tests',
             ])
-            ->name('*.php')
+            ->name('*.php'),
     )
 ;

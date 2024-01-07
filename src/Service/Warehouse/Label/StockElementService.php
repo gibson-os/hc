@@ -27,8 +27,8 @@ class StockElementService extends AbstractElementService
             $left,
             implode(
                 $element->getOptions()[self::OPTION_SEPARATOR] ?? ', ',
-                array_map(fn (Item $item): string => (string) $item->getStock(), $box->getItems())
-            )
+                array_map(fn (Item $item): string => (string) $item->getStock(), $box->getItems()),
+            ),
         );
     }
 }

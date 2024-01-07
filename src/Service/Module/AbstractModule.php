@@ -61,7 +61,7 @@ abstract class AbstractModule
             'Write command %d with data "%s" to %d',
             $command,
             $data,
-            $slave->getAddress() ?? 0
+            $slave->getAddress() ?? 0,
         ));
         $busMessage = (new BusMessage($master->getAddress(), MasterService::TYPE_DATA))
             ->setSlaveAddress($slave->getAddress())
@@ -99,7 +99,7 @@ abstract class AbstractModule
             $command,
             $length,
             $module->getAddress() ?? 0,
-            $master->getAddress()
+            $master->getAddress(),
         ));
         $busMessage = (new BusMessage($master->getAddress(), MasterService::TYPE_DATA))
             ->setSlaveAddress($module->getAddress())
@@ -114,13 +114,13 @@ abstract class AbstractModule
             $receivedBusMessage->getData() ?? '',
             $receivedBusMessage->getSlaveAddress() ?? 0,
             $receivedBusMessage->getMasterAddress(),
-            $receivedBusMessage->getCommand() ?? ''
+            $receivedBusMessage->getCommand() ?? '',
         ));
         $this->addLog(
             $module,
             $command,
             $receivedBusMessage->getData() ?? '',
-            Direction::INPUT
+            Direction::INPUT,
         );
 
         return $receivedBusMessage->getData() ?? '';
@@ -140,7 +140,7 @@ abstract class AbstractModule
                 ->setMaster($slave->getMaster())
                 ->setModule($slave)
                 ->setSlaveAddress($slave->getAddress())
-                ->setCommand($command)
+                ->setCommand($command),
         );
     }
 }

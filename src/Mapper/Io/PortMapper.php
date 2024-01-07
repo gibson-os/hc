@@ -84,7 +84,7 @@ class PortMapper
                     $port->getDirection()->value |
                     (((int) $port->hasPullUp()) << 1) |
                     (((int) $port->isValue()) << 2) |
-                    ($port->getDelay() << 3)
+                    ($port->getDelay() << 3),
                 ) .
                 chr($port->getDelay());
         }
@@ -100,7 +100,7 @@ class PortMapper
                 $port->getDirection()->value |
                 (((int) $port->hasPullUp()) << 1) |
                 (((int) $port->isValue()) << 2) |
-                ($port->getBlink() << 3)
+                ($port->getBlink() << 3),
             ) .
             chr($pwm)
         ;

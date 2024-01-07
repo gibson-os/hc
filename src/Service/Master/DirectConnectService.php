@@ -60,8 +60,8 @@ class DirectConnectService
                 chr($id) .
                 chr($step->getRuntime() >> 8) .
                 chr($step->getRuntime() & 255) .
-                $this->busMessageMapper->mapSlaveData($step->getBusMessage())
-            )
+                $this->busMessageMapper->mapSlaveData($step->getBusMessage()),
+            ),
         );
     }
 
@@ -88,8 +88,8 @@ class DirectConnectService
             $master,
             (new BusMessage($master->getAddress(), self::TYPE_SEQUENCE_ADD_TRIGGER))->setData(
                 chr($id) .
-                $this->busMessageMapper->mapSlaveData($busMessage)
-            )
+                $this->busMessageMapper->mapSlaveData($busMessage),
+            ),
         );
     }
 
@@ -109,7 +109,7 @@ class DirectConnectService
         $this->masterService->send(
             $master,
             (new BusMessage($master->getAddress(), self::TYPE_SEQUENCE_START))
-                ->setData(chr($slave->getAddress() ?? 0))
+                ->setData(chr($slave->getAddress() ?? 0)),
         );
     }
 
@@ -129,7 +129,7 @@ class DirectConnectService
         $this->masterService->send(
             $master,
             (new BusMessage($master->getAddress(), self::TYPE_SEQUENCE_STOP))
-                ->setData(chr($slave->getAddress() ?? 0))
+                ->setData(chr($slave->getAddress() ?? 0)),
         );
     }
 
@@ -149,7 +149,7 @@ class DirectConnectService
         $this->masterService->send(
             $master,
             (new BusMessage($master->getAddress(), self::TYPE_SEQUENCE_PAUSE))
-                ->setData(chr($slave->getAddress() ?? 0))
+                ->setData(chr($slave->getAddress() ?? 0)),
         );
     }
 }

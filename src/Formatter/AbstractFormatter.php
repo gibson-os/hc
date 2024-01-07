@@ -30,7 +30,7 @@ abstract class AbstractFormatter implements FormatterInterface
             return sprintf(
                 'Adresse %d gesendet an %s',
                 $this->transformService->asciiToUnsignedInt($log->getRawData(), 0),
-                substr($log->getRawData(), 1)
+                substr($log->getRawData(), 1),
             );
         }
         if (

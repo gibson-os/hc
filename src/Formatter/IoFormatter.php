@@ -266,7 +266,7 @@ class IoFormatter extends AbstractHcFormatter
                         $this->getDirectConnectTableRows(
                             $log,
                             $this->portRepository->getByNumber($module, $inputPort),
-                            $log->getRawData()
+                            $log->getRawData(),
                         ) .
                     '</table>';
             case IoService::COMMAND_STATUS_IN_EEPROM:
@@ -322,7 +322,7 @@ class IoFormatter extends AbstractHcFormatter
                 (int) $module->getId(),
                 $log->getCommand(),
                 $log->getType(),
-                $log->getDirection()
+                $log->getDirection(),
             )->getRawData();
         } catch (SelectError) {
             return $ports;

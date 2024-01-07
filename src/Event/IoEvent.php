@@ -327,7 +327,7 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Ports aus EEPROM lesen')]
     public function readPortsFromEeprom(
         #[Event\Parameter(ModuleParameter::class)]
-        Module $module
+        Module $module,
     ): void {
         $this->ioService->readPortsFromEeprom($module);
     }
@@ -341,7 +341,7 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Ports auslesen')]
     public function getPorts(
         #[Event\Parameter(ModuleParameter::class)]
-        Module $module
+        Module $module,
     ): array {
         return $this->portRepository->getByModule($module);
     }
@@ -366,7 +366,7 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)]
         Port $port,
         #[Event\Parameter(IntParameter::class, 'Reihenfolge')]
-        int $order
+        int $order,
     ): array {
         return $this->ioService->readDirectConnect($module, $port, $order)->getDirectConnect()?->jsonSerialize() ?? [];
     }
@@ -531,7 +531,7 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('Ports in EEPROM schreiben')]
     public function writePortsToEeprom(
         #[Event\Parameter(ModuleParameter::class)]
-        Module $module
+        Module $module,
     ): void {
         $this->ioService->writePortsToEeprom($module);
     }
@@ -564,7 +564,7 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(IntParameter::class, 'Ausgangsport Fade In')]
         int $fadeIn,
         #[Event\Parameter(IntParameter::class, 'Addieren oder subtrahieren')]
-        int $addOrSub
+        int $addOrSub,
     ): void {
         $this->ioService->saveDirectConnect(
             $module,
@@ -577,7 +577,7 @@ class IoEvent extends AbstractHcEvent
                 ->setPwm($pwm)
                 ->setBlink($blink)
                 ->setFadeIn($fadeIn)
-                ->setAddOrSub(AddOrSub::from($addOrSub))
+                ->setAddOrSub(AddOrSub::from($addOrSub)),
         );
     }
 
@@ -593,7 +593,7 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)]
         Port $port,
         #[Event\Parameter(IntParameter::class, 'Reihenfolge')]
-        int $order
+        int $order,
     ): void {
         $this->ioService->deleteDirectConnect($module, $this->directConnectRepository->getByOrder($port, $order));
     }
@@ -609,7 +609,7 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(PortParameter::class)]
         Port $port,
         #[Event\Parameter(BoolParameter::class, 'Nur Datenbank')]
-        bool $databaseOnly
+        bool $databaseOnly,
     ): void {
         $this->ioService->resetDirectConnect($module, $port, $databaseOnly);
     }
@@ -622,7 +622,7 @@ class IoEvent extends AbstractHcEvent
     #[Event\Method('DirectConnect defragmentieren')]
     public function defragmentDirectConnect(
         #[Event\Parameter(ModuleParameter::class)]
-        Module $module
+        Module $module,
     ): void {
         $this->ioService->defragmentDirectConnect($module);
     }
@@ -640,7 +640,7 @@ class IoEvent extends AbstractHcEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $module,
         #[Event\Parameter(BoolParameter::class, 'Aktiv')]
-        bool $active
+        bool $active,
     ): void {
         $this->ioService->activateDirectConnect($module, $active);
     }

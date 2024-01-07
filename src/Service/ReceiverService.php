@@ -49,7 +49,7 @@ class ReceiverService
         $this->logger->debug(sprintf(
             'Received message "%s" from master %s',
             $data ?? '',
-            $busMessage->getMasterAddress()
+            $busMessage->getMasterAddress(),
         ));
         $this->masterMapper->checksumEqual($busMessage);
 

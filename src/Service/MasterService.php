@@ -81,7 +81,7 @@ class MasterService
         $log = $this->logRepository->create(
             $busMessage->getType(),
             $data ?? '',
-            Direction::INPUT
+            Direction::INPUT,
         )
             ->setMaster($master)
         ;
@@ -109,7 +109,7 @@ class MasterService
             $this->logger->info(sprintf(
                 'Receive command %d for module address %s',
                 $command,
-                $busMessage->getSlaveAddress() ?? 0
+                $busMessage->getSlaveAddress() ?? 0,
             ));
             $module = $this->moduleReceive($master, $busMessage);
             $log->setCommand($command);
@@ -119,7 +119,7 @@ class MasterService
             try {
                 $lastLogEntry = $this->logRepository->getLastEntryByMasterId(
                     $master->getId() ?? 0,
-                    direction: Direction::INPUT
+                    direction: Direction::INPUT,
                 );
 
                 if (
@@ -137,7 +137,7 @@ class MasterService
             $this->modelManager->saveWithoutChildren(
                 $module
                     ->setOffline(false)
-                    ->setModified(new DateTime())
+                    ->setModified(new DateTime()),
             );
         }
 
@@ -153,7 +153,7 @@ class MasterService
         $this->logger->debug(sprintf(
             'Send data "%s" to %s',
             $busMessage->getData() ?? '',
-            $busMessage->getMasterAddress()
+            $busMessage->getMasterAddress(),
         ));
         $this->senderService->send($busMessage, $master->getProtocol());
     }
@@ -181,7 +181,7 @@ class MasterService
             $this->modelManager->saveWithoutChildren(
                 $master
                     ->setAddress($busMessage->getMasterAddress())
-                    ->setModified($this->dateTimeService->get())
+                    ->setModified($this->dateTimeService->get()),
             );
         } catch (SelectError) {
             $master = $this->masterRepository->add($data, $protocolName, $busMessage->getMasterAddress());
@@ -192,9 +192,9 @@ class MasterService
             (new BusMessage($master->getAddress(), MasterService::TYPE_HANDSHAKE))
                 ->setData(
                     chr($master->getSendPort() >> 8) .
-                    chr($master->getSendPort() & 255)
+                    chr($master->getSendPort() & 255),
                 )
-                ->setPort(UdpService::START_PORT)
+                ->setPort(UdpService::START_PORT),
         );
     }
 
@@ -224,7 +224,7 @@ class MasterService
             throw new ReceiveError(sprintf(
                 'Slave address %d not equal with received %d!',
                 $busMessage->getSlaveAddress() ?? 0,
-                $receivedBusMessage->getSlaveAddress() ?? 0
+                $receivedBusMessage->getSlaveAddress() ?? 0,
             ));
         }
 
@@ -263,7 +263,7 @@ class MasterService
             $this->logger->debug(sprintf(
                 'Add new slave with address %d on master address %s',
                 $address,
-                $master->getAddress()
+                $master->getAddress(),
             ));
             $slave = (new Module($this->modelWrapper))
                 ->setName('Neues Modul')
@@ -308,7 +308,7 @@ class MasterService
             throw new ReceiveError(sprintf(
                 '%s ist vom Typ %s und damit kein HC Sklave!',
                 $slaveModel->getName(),
-                $slaveModel->getType()->getName()
+                $slaveModel->getType()->getName(),
             ));
         }
 

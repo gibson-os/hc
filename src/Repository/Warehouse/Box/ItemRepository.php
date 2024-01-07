@@ -75,7 +75,7 @@ class ItemRepository extends AbstractRepository
     {
         $nameParts = array_map(
             fn (string $namePart) => $this->getRegexString($namePart),
-            $nameParts
+            $nameParts,
         );
 
         $selectQuery = $this->getSelectQuery($this->itemTableName, 'i')

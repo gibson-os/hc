@@ -72,7 +72,7 @@ class UdpService implements ProtocolInterface
             $this->logger->debug('Receive message');
 
             return $this->busMessageMapper->mapFromUdpMessage(
-                $this->getReceiveServer()->receive(self::RECEIVE_LENGTH)
+                $this->getReceiveServer()->receive(self::RECEIVE_LENGTH),
             );
         } catch (ReceiveError) {
             $this->logger->debug('Nothing received');
@@ -138,7 +138,7 @@ class UdpService implements ProtocolInterface
             throw new ReceiveError(sprintf(
                 'IP address %s not equal with received IP address %s',
                 $busMessage->getMasterAddress(),
-                $receivedBusMessage->getMasterAddress()
+                $receivedBusMessage->getMasterAddress(),
             ));
         }
 

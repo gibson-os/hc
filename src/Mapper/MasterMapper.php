@@ -28,7 +28,7 @@ class MasterMapper
             throw new ReceiveError(sprintf(
                 'Checksum not equal (%d === %d)!',
                 $busMessage->getChecksum() ?? 0,
-                $checkSum ?? 0
+                $checkSum ?? 0,
             ));
         }
     }

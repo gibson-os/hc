@@ -58,7 +58,7 @@ class PlayAnimationCommand extends AbstractCommand
         private readonly string $mysqlPassword,
         #[GetEnv('MYSQL_DATABASE')]
         private readonly string $mysqlDatabaseName,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         parent::__construct($logger);
     }
@@ -157,7 +157,7 @@ class PlayAnimationCommand extends AbstractCommand
         Module $slave,
         NeopixelService $neopixelService,
         array &$leds,
-        array &$changedSlaveLeds
+        array &$changedSlaveLeds,
     ): void {
         if (empty($changedSlaveLeds)) {
             return;
@@ -181,8 +181,8 @@ class PlayAnimationCommand extends AbstractCommand
             $slave,
             array_map(
                 fn ($lastChangedId) => $this->ledService->getNumberById($slave, $lastChangedId) + 1,
-                $lastChangedIds
-            )
+                $lastChangedIds,
+            ),
         );
     }
 

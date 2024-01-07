@@ -70,7 +70,7 @@ class NeopixelEvent extends AbstractHcEvent
     ): void {
         $this->neopixelService->writeLeds(
             $module,
-            $this->getLedsByNumbersString($module, $ledRanges)
+            $this->getLedsByNumbersString($module, $ledRanges),
         );
     }
 
@@ -88,7 +88,7 @@ class NeopixelEvent extends AbstractHcEvent
         #[Event\Parameter(IntParameter::class, 'Channel')]
         int $channel,
         #[Event\Parameter(IntParameter::class, 'Länge')]
-        int $length = 0
+        int $length = 0,
     ): void {
         $this->neopixelService->writeChannel($module, $channel, $length);
     }
@@ -106,7 +106,7 @@ class NeopixelEvent extends AbstractHcEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $module,
         #[Event\Parameter(IntParameter::class, 'Wiederholungen')]
-        int $repeat = 0
+        int $repeat = 0,
     ): void {
         $this->neopixelService->writeSequenceStart($module, $repeat);
     }
@@ -122,7 +122,7 @@ class NeopixelEvent extends AbstractHcEvent
     #[Event\Method('Sequenz stoppen')]
     public function writeSequenceStop(
         #[Event\Parameter(ModuleParameter::class)]
-        Module $module
+        Module $module,
     ): void {
         $this->neopixelService->writeSequenceStop($module);
     }
@@ -138,7 +138,7 @@ class NeopixelEvent extends AbstractHcEvent
     #[Event\Method('Sequenz pausieren')]
     public function writeSequencePause(
         #[Event\Parameter(ModuleParameter::class)]
-        Module $module
+        Module $module,
     ): void {
         $this->neopixelService->writeSequencePause($module);
     }
@@ -156,7 +156,7 @@ class NeopixelEvent extends AbstractHcEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $module,
         #[Event\Parameter(IntParameter::class, 'Adresse')]
-        int $address
+        int $address,
     ): void {
         $this->neopixelService->writeSequenceEepromAddress($module, $address);
     }
@@ -174,7 +174,7 @@ class NeopixelEvent extends AbstractHcEvent
     #[Event\ReturnValue(IntParameter::class, 'EEPROM Adresse')]
     public function readSequenceEepromAddress(
         #[Event\Parameter(ModuleParameter::class)]
-        Module $module
+        Module $module,
     ): int {
         return $this->neopixelService->readSequenceEepromAddress($module);
     }
@@ -190,7 +190,7 @@ class NeopixelEvent extends AbstractHcEvent
     #[Event\Method('Neue Sequenz übertragen')]
     public function writeSequenceNew(
         #[Event\Parameter(ModuleParameter::class)]
-        Module $module
+        Module $module,
     ): void {
         $this->neopixelService->writeSequenceNew($module);
     }
@@ -209,7 +209,7 @@ class NeopixelEvent extends AbstractHcEvent
     //    ])]
     public function readLedCounts(
         #[Event\Parameter(ModuleParameter::class)]
-        Module $module
+        Module $module,
     ): array {
         return $this->neopixelService->readLedCounts($module);
     }
@@ -230,7 +230,7 @@ class NeopixelEvent extends AbstractHcEvent
         //            'className' => [IntParameter::class],
         //            'range' => [1, LedMapper::MAX_PROTOCOL_LEDS + 1],
         //        ])] array $counts
-        array $counts
+        array $counts,
     ): void {
         $this->neopixelService->writeLedCounts($module, $counts);
     }
@@ -245,7 +245,7 @@ class NeopixelEvent extends AbstractHcEvent
         #[Event\Parameter(ModuleParameter::class)]
         Module $module,
         #[Event\Parameter(ImageParameter::class)]
-        Image $image
+        Image $image,
     ): void {
         $this->neopixelService->writeLeds($module, array_map(
             fn (Image\Led $led): Led => $led->getLed()
@@ -254,14 +254,14 @@ class NeopixelEvent extends AbstractHcEvent
                 ->setBlue($led->getBlue())
                 ->setBlink($led->getBlink())
                 ->setFadeIn($led->getFadeIn()),
-            $image->getLeds()
+            $image->getLeds(),
         ));
     }
 
     public function sendAnimation(
         #[Event\Parameter(ModuleParameter::class)]
         Module $module,
-        int $animationId
+        int $animationId,
     ): void {
     }
 
@@ -307,7 +307,7 @@ class NeopixelEvent extends AbstractHcEvent
             14 => 'Extrem schnell',
             15 => 'Verdammt schnell',
         ]]])]
-        int $fadeIn = 0
+        int $fadeIn = 0,
     ): void {
         $leds = [];
 
@@ -422,7 +422,7 @@ class NeopixelEvent extends AbstractHcEvent
             14 => 'Extrem schnell',
             15 => 'Verdammt schnell',
         ]]])]
-        int $fadeIn = 0
+        int $fadeIn = 0,
     ): void {
         $leds = [];
 
@@ -478,7 +478,7 @@ class NeopixelEvent extends AbstractHcEvent
             14 => 'Extrem schnell',
             15 => 'Verdammt schnell',
         ]]])]
-        int $fadeIn = 0
+        int $fadeIn = 0,
     ): void {
         $leds = [];
 

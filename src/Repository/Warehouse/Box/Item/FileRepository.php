@@ -30,7 +30,7 @@ class FileRepository extends AbstractRepository
         return $this->fetchAll(
             (count($files) ? '`id` NOT IN (' . $this->getRepositoryWrapper()->getSelectService()->getParametersString($files) . ') AND ' : '') . '`item_id`=?',
             $parameters,
-            File::class
+            File::class,
         );
     }
 }

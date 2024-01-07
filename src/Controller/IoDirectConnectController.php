@@ -45,7 +45,7 @@ class IoDirectConnectController extends AbstractController
         IoService $ioService,
         DirectConnectStore $directConnectStore,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         $directConnectStore->setModule($module);
 
@@ -87,7 +87,7 @@ class IoDirectConnectController extends AbstractController
         #[GetModel(['id' => 'moduleId'])]
         Module $module,
         #[GetModel(['id' => 'id'])]
-        DirectConnect $directConnect
+        DirectConnect $directConnect,
     ): AjaxResponse {
         $ioService->deleteDirectConnect($module, $directConnect);
 
@@ -153,7 +153,7 @@ class IoDirectConnectController extends AbstractController
     public function postDefragment(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         $ioService->defragmentDirectConnect($module);
 
@@ -173,7 +173,7 @@ class IoDirectConnectController extends AbstractController
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])]
         Module $module,
-        bool $activate
+        bool $activate,
     ): AjaxResponse {
         $ioService->activateDirectConnect($module, $activate);
 

@@ -20,7 +20,7 @@ class BoxRepository extends AbstractRepository
     public function __construct(
         RepositoryWrapper $repositoryWrapper,
         #[GetTableName(Box::class)]
-        private readonly string $boxTableName
+        private readonly string $boxTableName,
     ) {
         parent::__construct($repositoryWrapper);
     }

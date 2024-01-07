@@ -53,7 +53,7 @@ class KeyRepository extends AbstractRepository
         return $this->fetchOne(
             '`protocol`=? AND `address`=? AND `command`=?',
             [$protocol->name, $address, $command],
-            Key::class
+            Key::class,
         );
     }
 

@@ -57,7 +57,7 @@ class DirectConnectRepository extends AbstractRepository
         return $this->fetchOne(
             '`input_port_id`=? AND `order`=?',
             [$inputPort->getId() ?? 0, $order],
-            DirectConnect::class
+            DirectConnect::class,
         );
     }
 

@@ -40,7 +40,7 @@ class NeopixelAnimationController extends AbstractController
         AnimationRepository $animationRepository,
         ModelWrapper $modelWrapper,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         try {
             $startedAnimation = $animationRepository->getStarted($module);
@@ -72,13 +72,13 @@ class NeopixelAnimationController extends AbstractController
     public function getList(
         AnimationStore $animationStore,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         $animationStore->setModule($module);
 
         return $this->returnSuccess(
             $animationStore->getList(),
-            $animationStore->getCount()
+            $animationStore->getCount(),
         );
     }
 
@@ -101,15 +101,15 @@ class NeopixelAnimationController extends AbstractController
         ModelManager $modelManager,
         ?int $id,
         #[GetMappedModel(['name' => 'name', 'module_id' => 'moduleId'])]
-        Animation $animation
+        Animation $animation,
     ): AjaxResponse {
         if ($animation->getId() !== null && $animation->getId() !== $id) {
             throw new ImageExists(
                 (int) $animation->getId(),
                 sprintf(
                     'Es existiert schon eine Animation unter dem Namen "%s"' . PHP_EOL . 'Möchten Sie es überschreiben?',
-                    $animation->getName() ?? 'NULL'
-                )
+                    $animation->getName() ?? 'NULL',
+                ),
             );
         }
 
@@ -178,7 +178,7 @@ class NeopixelAnimationController extends AbstractController
         AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])]
         Module $module,
-        int $iterations = 0
+        int $iterations = 0,
     ): AjaxResponse {
         $animationService->start($module, $iterations);
 
@@ -200,7 +200,7 @@ class NeopixelAnimationController extends AbstractController
     public function postPause(
         AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         $animationService->pause($module);
 
@@ -221,7 +221,7 @@ class NeopixelAnimationController extends AbstractController
     public function postStop(
         AnimationService $animationService,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         return $animationService->stop($module)
             ? $this->returnSuccess()

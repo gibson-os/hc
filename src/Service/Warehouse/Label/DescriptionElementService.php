@@ -27,8 +27,8 @@ class DescriptionElementService extends AbstractElementService
             $left,
             implode(
                 $element->getOptions()[self::OPTION_SEPARATOR] ?? PHP_EOL,
-                array_map(fn (Item $item): string => $item->getDescription(), $box->getItems())
-            )
+                array_map(fn (Item $item): string => $item->getDescription(), $box->getItems()),
+            ),
         );
     }
 }

@@ -80,7 +80,7 @@ abstract class AbstractElementService
         return new Matrix(
             $width / $columns,
             $height / $rows,
-            $columns
+            $columns,
         );
     }
 }

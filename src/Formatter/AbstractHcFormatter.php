@@ -51,7 +51,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
         try {
             $this->twigService->getTwig()->addFilter(new TwigFilter(
                 'asciiToUnsignedInt',
-                [$this->transformService, 'asciiToUnsignedInt']
+                [$this->transformService, 'asciiToUnsignedInt'],
             ));
         } catch (LogicException) {
             // do nothing
@@ -60,7 +60,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
         try {
             $this->twigService->getTwig()->addFilter(new TwigFilter(
                 'transformHertz',
-                [$this->transformService, 'transformHertz']
+                [$this->transformService, 'transformHertz'],
             ));
         } catch (LogicException) {
             // do nothing
@@ -69,7 +69,7 @@ abstract class AbstractHcFormatter extends AbstractFormatter
         try {
             $this->twigService->getTwig()->addFilter(new TwigFilter(
                 'dechex',
-                'dechex'
+                'dechex',
             ));
         } catch (LogicException) {
             // do nothing

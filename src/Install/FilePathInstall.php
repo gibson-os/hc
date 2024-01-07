@@ -16,7 +16,7 @@ class FilePathInstall extends AbstractInstall implements PriorityInterface
         yield $filePathInput = $this->getSettingInput(
             'hc',
             'hc_file_path',
-            'What is the directory for homecontrol files?'
+            'What is the directory for homecontrol files?',
         );
         $value = $this->dirService->addEndSlash($filePathInput->getValue() ?? '');
 

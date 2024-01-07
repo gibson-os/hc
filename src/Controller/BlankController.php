@@ -49,7 +49,7 @@ class BlankController extends AbstractController
         Module $module,
         int $command,
         string $dataFormat,
-        int $length
+        int $length,
     ): AjaxResponse {
         $data = $blankService->read($module, $command, $length);
         $data = match ($dataFormat) {
@@ -78,7 +78,7 @@ class BlankController extends AbstractController
         int $command,
         string $dataFormat,
         string $data,
-        bool $isHcData
+        bool $isHcData,
     ): AjaxResponse {
         switch ($dataFormat) {
             case self::DATA_FORMAT_HEX:

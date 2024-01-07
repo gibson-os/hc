@@ -64,7 +64,7 @@ class HcSlaveController extends AbstractController
         int $address,
         int $pwmSpeed = null,
         bool $overwriteSlave = false,
-        bool $deleteSlave = false
+        bool $deleteSlave = false,
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($moduleFactory, $module);
         $moduleRepository->startTransaction();
@@ -154,7 +154,7 @@ class HcSlaveController extends AbstractController
     public function getEepromSettings(
         ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
 
@@ -180,7 +180,7 @@ class HcSlaveController extends AbstractController
         ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])]
         Module $module,
-        int $position
+        int $position,
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
         $slaveService->writeEepromPosition($module, $position);
@@ -202,7 +202,7 @@ class HcSlaveController extends AbstractController
     public function deleteEeprom(
         ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
         $slaveService->writeEepromErase($module);
@@ -224,7 +224,7 @@ class HcSlaveController extends AbstractController
     public function postRestart(
         ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
         $slaveService->writeRestart($module);
@@ -246,7 +246,7 @@ class HcSlaveController extends AbstractController
     public function getStatusLeds(
         ModuleFactory $slaveFactory,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
         $activeLeds = $slaveService->readLedStatus($module);
@@ -301,7 +301,7 @@ class HcSlaveController extends AbstractController
         string $connectCode = null,
         string $transceiveCode = null,
         string $receiveCode = null,
-        string $customCode = null
+        string $customCode = null,
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
 
@@ -313,7 +313,7 @@ class HcSlaveController extends AbstractController
             $transreceive,
             $transceive,
             $receive,
-            $custom
+            $custom,
         );
 
         if (
@@ -331,7 +331,7 @@ class HcSlaveController extends AbstractController
                 $connectCode ?: '000',
                 $transceiveCode ?: '000',
                 $receiveCode ?: '000',
-                $customCode ?: '000'
+                $customCode ?: '000',
             );
         }
 

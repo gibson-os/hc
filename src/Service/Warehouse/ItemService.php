@@ -142,7 +142,7 @@ class ItemService
             $file->getName() .
             $file->getType() .
             $file->getSize() .
-            $file->getTmpName()
+            $file->getTmpName(),
         );
     }
 }

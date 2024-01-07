@@ -48,7 +48,7 @@ class LedMapper
                 $data,
                 $this->getRangedColorStrings($ledsByNumber, $color),
                 [$this->getSingleColorString($color)],
-                $this->getGroupedColorStrings($color, $maxLength)
+                $this->getGroupedColorStrings($color, $maxLength),
             );
         }
 

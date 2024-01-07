@@ -119,7 +119,7 @@ class WarehouseController extends AbstractController
         #[GetEnv('WEB_URL')]
         string $webUrl,
         #[GetModel]
-        Box $box
+        Box $box,
     ): FileResponse {
         $fileName = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'qrCode' . md5((string) mt_rand());
         (new QRCode())->render($webUrl . '/hc/warehouse/box/uuid/' . $box->getUuid(), $fileName);
@@ -134,7 +134,7 @@ class WarehouseController extends AbstractController
     public function getImage(
         ItemService $itemService,
         #[GetModel]
-        ?Box\Item $item
+        ?Box\Item $item,
     ): FileResponse {
         $image = realpath(
             __DIR__ . DIRECTORY_SEPARATOR .
@@ -142,7 +142,7 @@ class WarehouseController extends AbstractController
             '..' . DIRECTORY_SEPARATOR .
             'assets' . DIRECTORY_SEPARATOR .
             'img' . DIRECTORY_SEPARATOR .
-            'placeholder-image.png'
+            'placeholder-image.png',
         );
         $mimeType = 'image/png';
 
@@ -166,11 +166,11 @@ class WarehouseController extends AbstractController
         #[GetSetting('file_path')]
         Setting $filePath,
         #[GetModel]
-        Box\Item\File $file
+        Box\Item\File $file,
     ): FileResponse {
         return (new FileResponse(
             $this->requestService,
-            $filePath->getValue() . 'warehouse' . DIRECTORY_SEPARATOR . $file->getFileName()
+            $filePath->getValue() . 'warehouse' . DIRECTORY_SEPARATOR . $file->getFileName(),
         ))
             ->setType($file->getMimeType())
         ;

@@ -34,7 +34,7 @@ class LabelRepository extends AbstractRepository
         return $this->fetchAll(
             '`name` REGEXP ?',
             [$this->getRegexString($name)],
-            Label::class
+            Label::class,
         );
     }
 }

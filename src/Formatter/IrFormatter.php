@@ -70,9 +70,9 @@ class IrFormatter extends AbstractHcFormatter
                 [
                     'irProtocols' => $this->irProtocols,
                     'keys' => $this->getKeys($log->getRawData()),
-                ]
+                ],
             ) ?? parent::render($log),
-            default => parent::render($log)
+            default => parent::render($log),
         };
     }
 
@@ -143,8 +143,8 @@ class IrFormatter extends AbstractHcFormatter
                 $this->renderBlock(
                     AbstractHcModule::COMMAND_STATUS,
                     self::BLOCK_EXPLAIN,
-                    ['protocol' => $key->getProtocol()->getName()]
-                ) ?? ''
+                    ['protocol' => $key->getProtocol()->getName()],
+                ) ?? '',
             ))->setColor(Explain::COLOR_GREEN);
             $explains[] = (new Explain(
                 $i + 1,
@@ -152,8 +152,8 @@ class IrFormatter extends AbstractHcFormatter
                 $this->renderBlock(
                     AbstractHcModule::COMMAND_STATUS,
                     self::BLOCK_EXPLAIN,
-                    ['address' => $key->getAddress()]
-                ) ?? ''
+                    ['address' => $key->getAddress()],
+                ) ?? '',
             ))->setColor(Explain::COLOR_YELLOW);
             $explains[] = (new Explain(
                 $i + 3,
@@ -161,8 +161,8 @@ class IrFormatter extends AbstractHcFormatter
                 $this->renderBlock(
                     AbstractHcModule::COMMAND_STATUS,
                     self::BLOCK_EXPLAIN,
-                    ['command' => $key->getCommand()]
-                ) ?? ''
+                    ['command' => $key->getCommand()],
+                ) ?? '',
             ))->setColor(Explain::COLOR_BLUE);
             $i += 5;
         }

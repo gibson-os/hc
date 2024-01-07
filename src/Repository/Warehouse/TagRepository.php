@@ -34,7 +34,7 @@ class TagRepository extends AbstractRepository
         return $this->fetchAll(
             '`name` REGEXP ?',
             [$this->getRegexString($name)],
-            Tag::class
+            Tag::class,
         );
     }
 }

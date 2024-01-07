@@ -74,7 +74,7 @@ class NeopixelController extends AbstractController
         #[GetModel(['id' => 'moduleId'])]
         Module $module,
         #[GetMappedModels(Led::class, ['module_id' => 'module.id', 'number' => 'number'])]
-        array $leds = []
+        array $leds = [],
     ): AjaxResponse {
         $neopixelService->writeLeds($module, $leds);
 
@@ -100,7 +100,7 @@ class NeopixelController extends AbstractController
         #[GetModel(['id' => 'moduleId'])]
         Module $module,
         #[GetMappedModels(Led::class, ['module_id' => 'module.id', 'number' => 'number'])]
-        array $leds = []
+        array $leds = [],
     ): AjaxResponse {
         $ledCounts = $ledService->getChannelCounts($module, $leds);
         $config = JsonUtility::decode($module->getConfig() ?? '[]');
@@ -119,7 +119,7 @@ class NeopixelController extends AbstractController
                 $leds,
                 function (Led $led) use ($modelManager): void {
                     $modelManager->saveWithoutChildren($led);
-                }
+                },
             );
 
             $ledRepository->deleteWithNumberBiggerAs($module, count($leds) - 1);
@@ -148,14 +148,14 @@ class NeopixelController extends AbstractController
         LedService $ledService,
         #[GetModel(['id' => 'moduleId'])]
         Module $module,
-        array $channels = []
+        array $channels = [],
     ): AjaxResponse {
         $neopixelService->writeChannels(
             $module,
             array_map(
                 fn (int $maxId): int => $ledService->getNumberById($module, $maxId) + 1,
-                $channels
-            )
+                $channels,
+            ),
         );
 
         return $this->returnSuccess();
@@ -172,13 +172,13 @@ class NeopixelController extends AbstractController
     public function getImages(
         ImageStore $imageStore,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         $imageStore->setModule($module);
 
         return $this->returnSuccess(
             $imageStore->getList(),
-            $imageStore->getCount()
+            $imageStore->getCount(),
         );
     }
 
@@ -203,9 +203,9 @@ class NeopixelController extends AbstractController
                 sprintf(
                     'Es existiert schon ein Bild unter dem Namen "%s".%sMöchten Sie es überschreiben?',
                     $image->getName(),
-                    PHP_EOL
+                    PHP_EOL,
                 ),
-                HttpStatusCode::CONFLICT->value
+                HttpStatusCode::CONFLICT->value,
             );
         }
 

@@ -154,8 +154,8 @@ class IoService extends AbstractHcModule
         if (empty($module->getConfig())) {
             $module->setConfig(
                 (string) $this->transformService->asciiToUnsignedInt(
-                    $this->readConfig($module, self::COMMAND_CONFIGURATION_READ_LENGTH)
-                )
+                    $this->readConfig($module, self::COMMAND_CONFIGURATION_READ_LENGTH),
+                ),
             );
 
             $this->modelManager->save($module);
@@ -220,7 +220,7 @@ class IoService extends AbstractHcModule
             'io',
             'index',
             (string) $module->getId(),
-            $ports
+            $ports,
         );
     }
 
@@ -239,7 +239,7 @@ class IoService extends AbstractHcModule
         $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_READ_PORT, $eventParameters);
         $port = $this->ioMapper->getPort(
             $port,
-            $this->read($port->getModule(), $port->getNumber(), self::COMMAND_PORT_LENGTH)
+            $this->read($port->getModule(), $port->getNumber(), self::COMMAND_PORT_LENGTH),
         );
         $this->modelManager->save($port);
         $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_READ_PORT, $eventParameters);
@@ -278,7 +278,7 @@ class IoService extends AbstractHcModule
         if (empty($this->transformService->asciiToUnsignedInt($this->read(
             $slave,
             self::COMMAND_STATUS_IN_EEPROM,
-            self::COMMAND_STATUS_IN_EEPROM_LENGTH
+            self::COMMAND_STATUS_IN_EEPROM_LENGTH,
         )))) {
             throw new ReceiveError('Kein Status im EEPROM vorhanden!');
         }
@@ -300,7 +300,7 @@ class IoService extends AbstractHcModule
         $this->write(
             $slave,
             self::COMMAND_STATUS_IN_EEPROM,
-            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0)
+            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0),
         );
         $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_WRITE_PORTS_TO_EEPROM, ['slave' => $slave]);
     }
@@ -395,14 +395,14 @@ class IoService extends AbstractHcModule
             $this->eventService->fire(
                 $this->getEventClassName(),
                 $new ? IoEvent::BEFORE_ADD_DIRECT_CONNECT : IoEvent::BEFORE_SET_DIRECT_CONNECT,
-                $eventData
+                $eventData,
             );
 
             $this->write(
                 $module,
                 $new ? self::COMMAND_ADD_DIRECT_CONNECT : self::COMMAND_SET_DIRECT_CONNECT,
                 $this->getDeviceIdAsString($module->getDeviceId() ?? 0) .
-                $this->directConnectMapper->getDirectConnectAsString($directConnect, $new)
+                $this->directConnectMapper->getDirectConnectAsString($directConnect, $new),
             );
         } catch (AbstractException $exception) {
             $this->directConnectRepository->rollback();
@@ -414,7 +414,7 @@ class IoService extends AbstractHcModule
         $this->eventService->fire(
             $this->getEventClassName(),
             $new ? IoEvent::AFTER_ADD_DIRECT_CONNECT : IoEvent::AFTER_SET_DIRECT_CONNECT,
-            $eventData
+            $eventData,
         );
 
         $this->directConnectRepository->commit();
@@ -512,7 +512,7 @@ class IoService extends AbstractHcModule
             $this->write(
                 $module,
                 self::COMMAND_DELETE_DIRECT_CONNECT,
-                $this->getDeviceIdAsString($module->getDeviceId() ?? 0) . chr($number) . chr($order)
+                $this->getDeviceIdAsString($module->getDeviceId() ?? 0) . chr($number) . chr($order),
             );
         } catch (Exception $exception) {
             $this->directConnectRepository->rollback();
@@ -554,7 +554,7 @@ class IoService extends AbstractHcModule
                 $this->write(
                     $module,
                     self::COMMAND_RESET_DIRECT_CONNECT,
-                    $this->getDeviceIdAsString($module->getDeviceId() ?? 0) . chr($port->getNumber())
+                    $this->getDeviceIdAsString($module->getDeviceId() ?? 0) . chr($port->getNumber()),
                 );
             }
         } catch (AbstractException $exception) {
@@ -586,7 +586,7 @@ class IoService extends AbstractHcModule
         $this->write(
             $slave,
             self::COMMAND_DEFRAGMENT_DIRECT_CONNECT,
-            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0)
+            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0),
         );
         $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_DEFRAGMENT_DIRECT_CONNECT, ['slave' => $slave]);
     }
@@ -622,7 +622,7 @@ class IoService extends AbstractHcModule
         $active = (bool) $this->transformService->asciiToUnsignedInt($this->read(
             $slave,
             self::COMMAND_DIRECT_CONNECT_STATUS,
-            self::COMMAND_DIRECT_CONNECT_STATUS_READ_LENGTH
+            self::COMMAND_DIRECT_CONNECT_STATUS_READ_LENGTH,
         ));
 
         $this->eventService->fire($this->getEventClassName(), IoEvent::AFTER_IS_DIRECT_CONNECT_ACTIVE, ['slave' => $slave, 'active' => $active]);

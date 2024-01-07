@@ -59,7 +59,7 @@ class TypeData extends AbstractInstall implements PriorityInterface
         bool $isHcSlave = true,
         bool $hasInput = false,
         array $uiSettings = null,
-        array $defaultAddresses = []
+        array $defaultAddresses = [],
     ): TypeData {
         $this->logger->info(sprintf('Add homecontrol type #%d "%s"', $id, $name));
         $type = (new Type($this->modelWrapper))
@@ -77,7 +77,7 @@ class TypeData extends AbstractInstall implements PriorityInterface
             $this->modelManager->saveWithoutChildren(
                 (new Type\DefaultAddress($this->modelWrapper))
                     ->setType($type)
-                    ->setAddress($defaultAddress)
+                    ->setAddress($defaultAddress),
             );
         }
 

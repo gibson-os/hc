@@ -33,7 +33,7 @@ class CopyLogDataToRawCommand extends AbstractCommand
         private readonly TableManager $tableManager,
         private readonly ModelWrapper $modelWrapper,
         #[GetTableName(Log::class)]
-        private readonly string $logTableName
+        private readonly string $logTableName,
     ) {
         parent::__construct($logger);
     }
@@ -61,7 +61,7 @@ class CopyLogDataToRawCommand extends AbstractCommand
                 'Transform #%d data from "%s" to "%s"',
                 $log->getId() ?? 0,
                 $log->getData(),
-                $log->getRawData()
+                $log->getRawData(),
             ));
             $this->modelManager->save($log);
         }

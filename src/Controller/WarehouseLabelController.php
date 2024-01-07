@@ -84,7 +84,7 @@ class WarehouseLabelController extends AbstractController
     public function delete(
         ModelManager $modelManager,
         #[GetModels(Label::class)]
-        array $labels
+        array $labels,
     ): AjaxResponse {
         foreach ($labels as $label) {
             $modelManager->delete($label);
@@ -117,7 +117,7 @@ class WarehouseLabelController extends AbstractController
     public function deleteTemplates(
         ModelManager $modelManager,
         #[GetModels(Template::class)]
-        array $templates
+        array $templates,
     ): AjaxResponse {
         foreach ($templates as $template) {
             $modelManager->delete($template);

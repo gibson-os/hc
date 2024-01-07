@@ -37,7 +37,7 @@ class NeopixelFormatter extends AbstractHcFormatter
         TypeRepository $typeRepository,
         ModelWrapper $modelWrapper,
         private readonly LedStore $ledStore,
-        private readonly LedMapper $ledMapper
+        private readonly LedMapper $ledMapper,
     ) {
         parent::__construct($transformService, $twigService, $typeRepository, $modelWrapper);
     }
@@ -160,12 +160,12 @@ class NeopixelFormatter extends AbstractHcFormatter
                                     '.',
                                     ',',
                                     (string) ($this->transformService->asciiToUnsignedInt(substr($data, 0, 2))
-                                    / ($module->getPwmSpeed() ?? 1))
+                                    / ($module->getPwmSpeed() ?? 1)),
                                 ),
-                            ]
-                        ) ?? ''
+                            ],
+                        ) ?? '',
                     )],
-                    $this->explainSetLeds($data, 2)
+                    $this->explainSetLeds($data, 2),
                 );
             case NeopixelService::COMMAND_SET_LEDS:
                 return $this->explainSetLeds($data);
@@ -183,8 +183,8 @@ class NeopixelFormatter extends AbstractHcFormatter
                             [
                                 'channel' => $channel++,
                                 'ledLength' => $this->transformService->asciiToUnsignedInt(substr($log->getRawData(), $i, 2)),
-                            ]
-                        ) ?? ''
+                            ],
+                        ) ?? '',
                     );
                 }
 
@@ -262,8 +262,8 @@ class NeopixelFormatter extends AbstractHcFormatter
                 $this->renderBlock(
                     NeopixelService::COMMAND_SET_LEDS,
                     AbstractHcFormatter::BLOCK_EXPLAIN,
-                    ['part' => 'address', 'address' => $address]
-                ) ?? ''
+                    ['part' => 'address', 'address' => $address],
+                ) ?? '',
             );
             $i += 2;
 
@@ -279,8 +279,8 @@ class NeopixelFormatter extends AbstractHcFormatter
                     $this->renderBlock(
                         NeopixelService::COMMAND_SET_LEDS,
                         AbstractHcFormatter::BLOCK_EXPLAIN,
-                        ['part' => 'rangeAddress', 'from' => $startAddress]
-                    ) ?? ''
+                        ['part' => 'rangeAddress', 'from' => $startAddress],
+                    ) ?? '',
                 );
                 $explains[] = new Explain(
                     $endByte + 1,
@@ -288,8 +288,8 @@ class NeopixelFormatter extends AbstractHcFormatter
                     $this->renderBlock(
                         NeopixelService::COMMAND_SET_LEDS,
                         AbstractHcFormatter::BLOCK_EXPLAIN,
-                        ['part' => 'rangeAddress', 'to' => $endAddress]
-                    ) ?? ''
+                        ['part' => 'rangeAddress', 'to' => $endAddress],
+                    ) ?? '',
                 );
                 $i += 2;
                 $explains = array_merge($explains, $this->getLedExplains($data, $i));
@@ -308,8 +308,8 @@ class NeopixelFormatter extends AbstractHcFormatter
                             [
                                 'part' => 'address',
                                 'address' => $this->transformService->asciiToUnsignedInt(substr($data, $i, 2)),
-                            ]
-                        ) ?? ''
+                            ],
+                        ) ?? '',
                     );
                     $i += 2;
                 }

@@ -51,7 +51,7 @@ class AnimationRepository extends AbstractRepository
         return $this->fetchAll(
             '`module_id`=? AND `name` REGEXP ?',
             [$moduleId, $this->getRegexString($name)],
-            Animation::class
+            Animation::class,
         );
     }
 
@@ -67,7 +67,7 @@ class AnimationRepository extends AbstractRepository
         return $this->fetchOne(
             '`module_id`=? AND `started`=?',
             [$module->getId(), 1],
-            Animation::class
+            Animation::class,
         );
     }
 
@@ -83,7 +83,7 @@ class AnimationRepository extends AbstractRepository
         return $this->fetchOne(
             '`module_id`=? AND `transmitted`=?',
             [$module->getId(), 1],
-            Animation::class
+            Animation::class,
         );
     }
 }

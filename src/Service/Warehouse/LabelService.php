@@ -23,7 +23,7 @@ class LabelService
     public function __construct(
         private readonly BoxRepository $boxRepository,
         #[GetServices(['hc/src/Service/Warehouse/Label'], AbstractElementService::class)]
-        private readonly array $elementServices
+        private readonly array $elementServices,
     ) {
     }
 

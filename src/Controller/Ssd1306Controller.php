@@ -56,11 +56,11 @@ class Ssd1306Controller extends AbstractController
         PixelMapper $pixelMapper,
         #[GetModel(['id' => 'moduleId'])]
         Module $module,
-        array $data
+        array $data,
     ): AjaxResponse {
         $ssd1306Service->writePixels(
             $module,
-            $pixelMapper->completePixels($pixelMapper->mapFromDataArray($data))
+            $pixelMapper->completePixels($pixelMapper->mapFromDataArray($data)),
         );
 
         return $this->returnSuccess();
@@ -79,7 +79,7 @@ class Ssd1306Controller extends AbstractController
         Ssd1306Service $ssd1306Service,
         #[GetModel(['id' => 'moduleId'])]
         Module $module,
-        bool $on
+        bool $on,
     ): AjaxResponse {
         if ($on) {
             $ssd1306Service->setDisplayOn($module);

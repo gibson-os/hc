@@ -150,7 +150,7 @@ class Ssd1306Service extends AbstractModule
             $this->write(
                 $slave,
                 self::COMMAND_DATA,
-                implode('', array_map(fn (int $columnByte) => chr($columnByte), $row))
+                implode('', array_map(fn (int $columnByte) => chr($columnByte), $row)),
             );
         }
 
@@ -171,7 +171,7 @@ class Ssd1306Service extends AbstractModule
             throw new WriteException(sprintf(
                 'Page %d is to big. Max %d allowed.',
                 $page,
-                self::MAX_PAGE
+                self::MAX_PAGE,
             ));
         }
 
@@ -179,14 +179,14 @@ class Ssd1306Service extends AbstractModule
             throw new WriteException(sprintf(
                 'Column %d is to big. Max %d allowed.',
                 $column,
-                self::MAX_COLUMN
+                self::MAX_COLUMN,
             ));
         }
 
         $this->sendCommand(
             $slave,
             self::COMMAND_PAGE_START + $page,
-            $column === null ? '' : chr(33) . chr($column) . chr(127)
+            $column === null ? '' : chr(33) . chr($column) . chr(127),
         );
 
         return $this;
@@ -266,7 +266,7 @@ class Ssd1306Service extends AbstractModule
             throw new WriteException(sprintf(
                 'Addressing Mode %d not allowed. Possible: %s',
                 $addressingMode,
-                implode(', ', self::ADDRESSING_MODES)
+                implode(', ', self::ADDRESSING_MODES),
             ));
         }
 
@@ -289,7 +289,7 @@ class Ssd1306Service extends AbstractModule
             throw new WriteException(sprintf(
                 'Scan direction %d not allowed. Possible: %s',
                 $scanDirection,
-                implode(', ', self::COM_OUTPUT_SCAN_DIRECTIONS)
+                implode(', ', self::COM_OUTPUT_SCAN_DIRECTIONS),
             ));
         }
 
@@ -372,7 +372,7 @@ class Ssd1306Service extends AbstractModule
             throw new WriteException(sprintf(
                 'Display mode %d not allowed. Possible: %s',
                 $displayMode,
-                implode(', ', self::DISPLAY_MODES)
+                implode(', ', self::DISPLAY_MODES),
             ));
         }
 
@@ -452,7 +452,7 @@ class Ssd1306Service extends AbstractModule
     public function setComPinsHardwareConfiguration(
         Module $slave,
         bool $alternativeConfiguration,
-        bool $leftRightRemap
+        bool $leftRightRemap,
     ): Ssd1306Service {
         $data = 2;
         $data |= ((int) $alternativeConfiguration) << 4;
@@ -477,7 +477,7 @@ class Ssd1306Service extends AbstractModule
             throw new WriteException(sprintf(
                 'Vcomh deselect level %d not allowed. Possible: %s',
                 $deselectLevel,
-                implode(', ', self::DESELECT_LEVELS)
+                implode(', ', self::DESELECT_LEVELS),
             ));
         }
 
@@ -499,7 +499,7 @@ class Ssd1306Service extends AbstractModule
         $this->sendCommand(
             $slave,
             self::COMMAND_CHARGE_PUMP_SETTING,
-            chr((16 + (int) $enableChargePump) << 3)
+            chr((16 + (int) $enableChargePump) << 3),
         );
 
         if ($enableChargePump) {

@@ -50,7 +50,7 @@ class ModuleController extends AbstractController
         string $name,
         int $address,
         int $typeId,
-        bool $withHandshake
+        bool $withHandshake,
     ): AjaxResponse {
         $type = $typeRepository->getById($typeId);
 
@@ -58,7 +58,7 @@ class ModuleController extends AbstractController
             return $this->returnFailure(sprintf(
                 'Unter der Adresse %d existiert bereits ein Modul (%s)',
                 $address,
-                $module->getName()
+                $module->getName(),
             ));
         }
 
@@ -92,7 +92,7 @@ class ModuleController extends AbstractController
         int $limit = 100,
         int $start = 0,
         array $sort = [],
-        int $masterId = null
+        int $masterId = null,
     ): AjaxResponse {
         $moduleStore->setLimit($limit, $start);
         $moduleStore->setSortByExt($sort);

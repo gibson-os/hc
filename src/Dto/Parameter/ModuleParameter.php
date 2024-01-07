@@ -13,7 +13,7 @@ class ModuleParameter extends AutoCompleteParameter
     public function __construct(
         SlaveAutoComplete $slaveAutoComplete,
         private readonly TypeRepository $typeRepository,
-        string $title = 'Modul'
+        string $title = 'Modul',
     ) {
         parent::__construct($title, $slaveAutoComplete);
     }

@@ -42,7 +42,7 @@ class IrService extends AbstractHcModule
         LoggerInterface $logger,
         ModelManager $modelManager,
         ModelWrapper $modelWrapper,
-        private readonly IrFormatter $irFormatter
+        private readonly IrFormatter $irFormatter,
     ) {
         parent::__construct(
             $masterService,
@@ -102,7 +102,7 @@ class IrService extends AbstractHcModule
                 self::COMMAND_SEND,
                 chr($key->getProtocol()->value) .
                 chr($key->getAddress() >> 8) . chr($key->getAddress() & 255) .
-                chr($key->getCommand() >> 8) . chr($key->getCommand() & 255)
+                chr($key->getCommand() >> 8) . chr($key->getCommand() & 255),
             );
             usleep(10);
         }

@@ -30,7 +30,7 @@ class ImageRepository extends AbstractRepository
         return $this->fetchOne(
             '`module_id`=? AND `name`=?',
             [$module->getId(), $name],
-            Image::class
+            Image::class,
         );
     }
 
@@ -47,7 +47,7 @@ class ImageRepository extends AbstractRepository
         return $this->fetchAll(
             '`module_id`=? AND `name` REGEXP ?',
             [$moduleId, $this->getRegexString($name)],
-            Image::class
+            Image::class,
         );
     }
 }

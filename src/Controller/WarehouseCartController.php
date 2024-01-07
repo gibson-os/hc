@@ -51,7 +51,7 @@ class WarehouseCartController extends AbstractController
         #[GetModel]
         ?Cart $cart,
         int $start = 0,
-        int $limit = 100
+        int $limit = 100,
     ): AjaxResponse {
         if ($cart === null) {
             return $this->returnSuccess([], 0);
@@ -83,7 +83,7 @@ class WarehouseCartController extends AbstractController
     public function post(
         ModelManager $modelManager,
         #[GetMappedModel]
-        Cart $cart
+        Cart $cart,
     ): AjaxResponse {
         $modelManager->save($cart);
 
@@ -111,7 +111,7 @@ class WarehouseCartController extends AbstractController
         $boxService->showLeds(
             array_map(
                 fn (Item $item): Box => $item->getItem()->getBox(),
-                $items
+                $items,
             ),
             $red,
             $green,

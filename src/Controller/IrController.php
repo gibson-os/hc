@@ -58,14 +58,14 @@ class IrController extends AbstractController
         KeyStore $keyStore,
         int $limit = 100,
         int $start = 0,
-        array $sort = []
+        array $sort = [],
     ): AjaxResponse {
         $keyStore->setLimit($limit, $start);
         $keyStore->setSortByExt($sort);
 
         return $this->returnSuccess(
             $keyStore->getList(),
-            $keyStore->getCount()
+            $keyStore->getCount(),
         );
     }
 
@@ -124,7 +124,7 @@ class IrController extends AbstractController
         LogRepository $logRepository,
         IrFormatter $irFormatter,
         int $moduleId,
-        int $lastLogId = null
+        int $lastLogId = null,
     ): AjaxResponse {
         $data = ['lastLogId' => 0];
 
@@ -148,8 +148,8 @@ class IrController extends AbstractController
                         'Taste ist bereits unter den Namen "%s" vorhanden. Trotzdem speichern?',
                         implode('", "', array_map(
                             static fn (Name $name): string => $name->getName(),
-                            $key->getNames()
-                        ))
+                            $key->getNames(),
+                        )),
                     ));
                     $exception->setType(AbstractException::QUESTION);
                     $exception->setTitle('Taste bereits vorhanden');
@@ -192,7 +192,7 @@ class IrController extends AbstractController
         #[GetModel(['id' => 'moduleId'])]
         Module $module,
         #[GetModel]
-        Key $key
+        Key $key,
     ): AjaxResponse {
         $irService->sendKeys($module, [$key]);
 
@@ -217,14 +217,14 @@ class IrController extends AbstractController
         RemoteStore $remoteStore,
         int $limit = 100,
         int $start = 0,
-        array $sort = []
+        array $sort = [],
     ): AjaxResponse {
         $remoteStore->setLimit($limit, $start);
         $remoteStore->setSortByExt($sort);
 
         return $this->returnSuccess(
             $remoteStore->getList(),
-            $remoteStore->getCount()
+            $remoteStore->getCount(),
         );
     }
 
@@ -256,7 +256,7 @@ class IrController extends AbstractController
     public function deleteRemotes(
         ModelManager $modelManager,
         #[GetModels(Remote::class)]
-        array $remotes
+        array $remotes,
     ): AjaxResponse {
         foreach ($remotes as $remote) {
             $modelManager->delete($remote);

@@ -42,7 +42,7 @@ class CodesElementService extends AbstractElementService
                 $element,
                 $top,
                 $left,
-                implode($options[self::OPTION_SEPARATOR] ?? ', ', $codes)
+                implode($options[self::OPTION_SEPARATOR] ?? ', ', $codes),
             );
 
             return;

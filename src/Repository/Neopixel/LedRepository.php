@@ -39,7 +39,7 @@ class LedRepository extends AbstractRepository
         return $this->fetchOne(
             '`module_id`=? AND `number`=?',
             [$module->getId(), $number],
-            Led::class
+            Led::class,
         );
     }
 
@@ -57,7 +57,7 @@ class LedRepository extends AbstractRepository
             '`module_id`=?',
             [$module->getId()],
             Led::class,
-            orderBy: ['`number`' => OrderDirection::ASC]
+            orderBy: ['`number`' => OrderDirection::ASC],
         );
     }
 
@@ -75,7 +75,7 @@ class LedRepository extends AbstractRepository
             '`module_id`=? AND `channel`=?',
             [$module->getId(), $channel],
             Led::class,
-            orderBy: ['`number`' => OrderDirection::ASC]
+            orderBy: ['`number`' => OrderDirection::ASC],
         );
     }
 
@@ -98,7 +98,7 @@ class LedRepository extends AbstractRepository
             ),
             [$module->getId(), ...$numbers],
             Led::class,
-            orderBy: ['`number`' => OrderDirection::ASC]
+            orderBy: ['`number`' => OrderDirection::ASC],
         );
     }
 
@@ -130,7 +130,7 @@ class LedRepository extends AbstractRepository
         return $this->fetchOne(
             '`module_id`=? AND `id`=?',
             [$moduleId, $id],
-            Led::class
+            Led::class,
         );
     }
 
@@ -147,7 +147,7 @@ class LedRepository extends AbstractRepository
         return $this->fetchAll(
             '`module_id`=? AND `number` REGEXP ?',
             [$moduleId, $this->getRegexString($name)],
-            Led::class
+            Led::class,
         );
     }
 }

@@ -42,7 +42,7 @@ class SenderService
             throw new ReceiveError(sprintf(
                 'Master Adresse %s not equal with received master %s!',
                 $master->getAddress(),
-                $busMessage->getMasterAddress()
+                $busMessage->getMasterAddress(),
             ));
         }
 
@@ -50,7 +50,7 @@ class SenderService
             throw new ReceiveError(sprintf(
                 'Type %d not equal with received type %d!',
                 $type,
-                $busMessage->getType()
+                $busMessage->getType(),
             ));
         }
 

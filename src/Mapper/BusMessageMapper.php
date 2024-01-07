@@ -19,7 +19,7 @@ class BusMessageMapper
         return new UdpMessage(
             $busMessage->getMasterAddress(),
             $busMessage->getPort() ?? 0,
-            chr($busMessage->getType()) . $this->mapSlaveData($busMessage)
+            chr($busMessage->getType()) . $this->mapSlaveData($busMessage),
         );
     }
 
@@ -52,7 +52,7 @@ class BusMessageMapper
     {
         return (new BusMessage(
             $this->transformIpFromUdpMessage($udpMessage),
-            $this->transformService->asciiToUnsignedInt($udpMessage->getMessage(), 4)
+            $this->transformService->asciiToUnsignedInt($udpMessage->getMessage(), 4),
         ))
             ->setData(substr($udpMessage->getMessage(), 5, -1) ?: null)
             ->setChecksum(ord(substr($udpMessage->getMessage(), -1)))

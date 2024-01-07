@@ -49,7 +49,7 @@ class CopyIrKeyNames extends AbstractCommand
             $this->modelManager->saveWithoutChildren(
                 (new Name($this->modelWrapper))
                     ->setName((string) ($record->get('name')->getValue() ?? ''))
-                    ->setKeyId((int) $record->get('id')->getValue())
+                    ->setKeyId((int) $record->get('id')->getValue()),
             );
         }
 

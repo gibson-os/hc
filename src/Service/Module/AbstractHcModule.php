@@ -201,7 +201,7 @@ abstract class AbstractHcModule extends AbstractModule
         $this->logger->debug(sprintf(
             'Handshake hc slave address %d on master address %s',
             $module->getAddress() ?? 0,
-            $master->getAddress()
+            $master->getAddress(),
         ));
 
         $typeId = $this->readTypeId($module);
@@ -236,7 +236,7 @@ abstract class AbstractHcModule extends AbstractModule
         $this->logger->debug(sprintf(
             'Slave address %d on master address %s has input check',
             $module->getAddress() ?? 0,
-            $master->getAddress()
+            $master->getAddress(),
         ));
 
         if ($module->getType()->getHasInput()) {
@@ -314,7 +314,7 @@ abstract class AbstractHcModule extends AbstractModule
 
         $this->writeAddress(
             $slave,
-            $this->masterRepository->getNextFreeAddress($master->getId() ?? 0)
+            $this->masterRepository->getNextFreeAddress($master->getId() ?? 0),
         );
 
         return $slave;
@@ -400,7 +400,7 @@ abstract class AbstractHcModule extends AbstractModule
             'Write new address %d to slave with current address %d and device ID %d',
             $address,
             $slave->getAddress() ?? 0,
-            $deviceId
+            $deviceId,
         ));
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::BEFORE_WRITE_ADDRESS, ['slave' => $slave, 'newAddress' => $address]);
@@ -408,7 +408,7 @@ abstract class AbstractHcModule extends AbstractModule
         $this->write(
             $slave,
             self::COMMAND_ADDRESS,
-            $this->getDeviceIdAsString($deviceId) . chr($address)
+            $this->getDeviceIdAsString($deviceId) . chr($address),
         );
         $this->masterService->scanBus($master);
 
@@ -440,7 +440,7 @@ abstract class AbstractHcModule extends AbstractModule
         $this->logger->debug(sprintf(
             'Device ID from slave %d is %d',
             $slave->getAddress() ?? 0,
-            $deviceId
+            $deviceId,
         ));
 
         return $deviceId;
@@ -464,7 +464,7 @@ abstract class AbstractHcModule extends AbstractModule
             $slave,
             self::COMMAND_DEVICE_ID,
             $this->getDeviceIdAsString($slave->getDeviceId() ?? 0) .
-            $this->getDeviceIdAsString($deviceId)
+            $this->getDeviceIdAsString($deviceId),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::AFTER_WRITE_DEVICE_ID, ['slave' => $slave, 'newDeviceId' => $deviceId]);
@@ -508,7 +508,7 @@ abstract class AbstractHcModule extends AbstractModule
         $this->logger->debug(sprintf(
             'Write type ID %d to slave %d',
             $type->getId() ?? 0,
-            $slave->getAddress() ?? 0
+            $slave->getAddress() ?? 0,
         ));
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::BEFORE_WRITE_TYPE_ID, ['slave' => $slave, 'typeId' => $type->getId()]);
@@ -539,7 +539,7 @@ abstract class AbstractHcModule extends AbstractModule
         $this->write(
             $slave,
             self::COMMAND_RESTART,
-            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0)
+            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::AFTER_WRITE_RESTART, ['slave' => $slave]);
@@ -560,7 +560,7 @@ abstract class AbstractHcModule extends AbstractModule
         $this->write(
             $slave,
             self::COMMAND_PWM_SPEED,
-            chr($speed >> 8) . chr($speed)
+            chr($speed >> 8) . chr($speed),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::AFTER_WRITE_PWM_SPEED, ['slave' => $slave, 'pwmSpeed' => $speed]);
@@ -704,7 +704,7 @@ abstract class AbstractHcModule extends AbstractModule
         $this->write(
             $slave,
             self::COMMAND_EEPROM_POSITION,
-            chr($position >> 8) . chr($position & 255)
+            chr($position >> 8) . chr($position & 255),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::AFTER_WRITE_EEPROM_POSITION, ['slave' => $slave, 'eepromPosition' => $position]);
@@ -725,7 +725,7 @@ abstract class AbstractHcModule extends AbstractModule
         $this->write(
             $slave,
             self::COMMAND_EEPROM_ERASE,
-            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0)
+            $this->getDeviceIdAsString($slave->getDeviceId() ?? 0),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::AFTER_WRITE_EEPROM_ERASE, ['slave' => $slave]);
@@ -768,7 +768,7 @@ abstract class AbstractHcModule extends AbstractModule
         $leds = $this->transformService->asciiToUnsignedInt($this->read(
             $slave,
             self::COMMAND_LEDS,
-            self::COMMAND_LEDS_READ_LENGTH
+            self::COMMAND_LEDS_READ_LENGTH,
         ));
         $ledStatus = [
             self::POWER_LED_KEY => (bool) (($leds >> self::POWER_LED_BIT) & 1),
@@ -924,8 +924,8 @@ abstract class AbstractHcModule extends AbstractModule
             $this->read(
                 $slave,
                 self::COMMAND_POWER_LED,
-                self::COMMAND_POWER_LED_READ_LENGTH
-            )
+                self::COMMAND_POWER_LED_READ_LENGTH,
+            ),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::READ_POWER_LED, ['slave' => $slave, 'on' => $on]);
@@ -948,8 +948,8 @@ abstract class AbstractHcModule extends AbstractModule
             $this->read(
                 $slave,
                 self::COMMAND_ERROR_LED,
-                self::COMMAND_ERROR_LED_READ_LENGTH
-            )
+                self::COMMAND_ERROR_LED_READ_LENGTH,
+            ),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::READ_ERROR_LED, ['slave' => $slave, 'on' => $on]);
@@ -972,8 +972,8 @@ abstract class AbstractHcModule extends AbstractModule
             $this->read(
                 $slave,
                 self::COMMAND_CONNECT_LED,
-                self::COMMAND_CONNECT_LED_READ_LENGTH
-            )
+                self::COMMAND_CONNECT_LED_READ_LENGTH,
+            ),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::READ_CONNECT_LED, ['slave' => $slave, 'on' => $on]);
@@ -996,8 +996,8 @@ abstract class AbstractHcModule extends AbstractModule
             $this->read(
                 $slave,
                 self::COMMAND_TRANSRECEIVE_LED,
-                self::COMMAND_TRANSRECEIVE_LED_READ_LENGTH
-            )
+                self::COMMAND_TRANSRECEIVE_LED_READ_LENGTH,
+            ),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::READ_TRANSRECEIVE_LED, ['slave' => $slave, 'on' => $on]);
@@ -1020,8 +1020,8 @@ abstract class AbstractHcModule extends AbstractModule
             $this->read(
                 $slave,
                 self::COMMAND_TRANSCEIVE_LED,
-                self::COMMAND_TRANSCEIVE_LED_READ_LENGTH
-            )
+                self::COMMAND_TRANSCEIVE_LED_READ_LENGTH,
+            ),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::READ_TRANSCEIVE_LED, ['slave' => $slave, 'on' => $on]);
@@ -1044,8 +1044,8 @@ abstract class AbstractHcModule extends AbstractModule
             $this->read(
                 $slave,
                 self::COMMAND_RECEIVE_LED,
-                self::COMMAND_RECEIVE_LED_READ_LENGTH
-            )
+                self::COMMAND_RECEIVE_LED_READ_LENGTH,
+            ),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::READ_RECEIVE_LED, ['slave' => $slave, 'on' => $on]);
@@ -1068,8 +1068,8 @@ abstract class AbstractHcModule extends AbstractModule
             $this->read(
                 $slave,
                 self::COMMAND_CUSTOM_LED,
-                self::COMMAND_CUSTOM_LED_READ_LENGTH
-            )
+                self::COMMAND_CUSTOM_LED_READ_LENGTH,
+            ),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::READ_CUSTOM_LED, ['slave' => $slave, 'on' => $on]);
@@ -1092,7 +1092,7 @@ abstract class AbstractHcModule extends AbstractModule
         string $connect,
         string $transceive,
         string $receive,
-        string $custom
+        string $custom,
     ): void {
         $colors = [
             self::POWER_LED_KEY => $power,
@@ -1125,7 +1125,7 @@ abstract class AbstractHcModule extends AbstractModule
             chr($transceive & 255) .
             chr($receive >> 4) .
             chr((($receive << 4) | ($custom >> 8)) & 255) .
-            chr($custom & 255)
+            chr($custom & 255),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::AFTER_WRITE_RGB_LED, $eventData);
@@ -1145,7 +1145,7 @@ abstract class AbstractHcModule extends AbstractModule
         $rgbLed = $this->transformService->asciiToHex($this->read(
             $slave,
             self::COMMAND_RGB_LED,
-            self::COMMAND_RGB_LED_READ_LENGTH
+            self::COMMAND_RGB_LED_READ_LENGTH,
         ));
         $colors = [
             self::POWER_LED_KEY => mb_substr($rgbLed, 0, 3),
@@ -1179,7 +1179,7 @@ abstract class AbstractHcModule extends AbstractModule
         bool $transreceive,
         bool $transceive,
         bool $receive,
-        bool $custom
+        bool $custom,
     ): void {
         $leds = [
             self::POWER_LED_KEY => $power,
@@ -1204,8 +1204,8 @@ abstract class AbstractHcModule extends AbstractModule
                 (((int) $transreceive) << self::TRANSRECEIVE_LED_BIT) |
                 (((int) $transceive) << self::TRANSCEIVE_LED_BIT) |
                 (((int) $receive) << self::RECEIVE_LED_BIT) |
-                (((int) $custom) << self::CUSTOM_LED_BIT)
-            )
+                (((int) $custom) << self::CUSTOM_LED_BIT),
+            ),
         );
 
         $this->eventService->fire($this->getEventClassName(), AbstractHcEvent::AFTER_WRITE_ALL_LEDS, $eventData);
@@ -1226,8 +1226,8 @@ abstract class AbstractHcModule extends AbstractModule
             $this->read(
                 $slave,
                 self::COMMAND_ALL_LEDS,
-                self::COMMAND_ALL_LEDS_READ_LENGTH
-            )
+                self::COMMAND_ALL_LEDS_READ_LENGTH,
+            ),
         );
 
         $leds = [

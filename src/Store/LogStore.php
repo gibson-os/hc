@@ -72,7 +72,7 @@ class LogStore extends AbstractDatabaseStore
             $wheres[] = new Where(
                 sprintf(
                     '`l`.`type` IN (%s)',
-                    $this->getDatabaseStoreWrapper()->getSelectService()->getParametersString($this->types)
+                    $this->getDatabaseStoreWrapper()->getSelectService()->getParametersString($this->types),
                 ),
                 $this->types,
             );

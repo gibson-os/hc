@@ -78,14 +78,14 @@ class Remote extends AbstractModel implements JsonSerializable
             'width' => max(
                 array_map(
                     static fn (Button $button): int => $button->getWidth() + $button->getLeft(),
-                    $this->getButtons()
-                ) ?: [0]
+                    $this->getButtons(),
+                ) ?: [0],
             ),
             'height' => max(
                 array_map(
                     static fn (Button $button): int => $button->getHeight() + $button->getTop(),
-                    $this->getButtons()
-                ) ?: [0]
+                    $this->getButtons(),
+                ) ?: [0],
             ),
         ];
     }

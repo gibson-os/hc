@@ -41,7 +41,7 @@ class DirectConnectMapper
             ->setInputValue((bool) ($inputValueAndOutputPortByte >> 7))
             ->setOutputPort($this->portRepository->getByNumber(
                 $inputPort->getModule(),
-                $inputValueAndOutputPortByte & 127
+                $inputValueAndOutputPortByte & 127,
             ))
             ->setValue($value)
             ->setPwm($value ? 0 : $pwmByte)
@@ -71,7 +71,7 @@ class DirectConnectMapper
 
         $return .= chr(
             (((int) $directConnect->isInputValue()) << 7) |
-            ($directConnect->getOutputPort()->getNumber() & 127)
+            ($directConnect->getOutputPort()->getNumber() & 127),
         );
         $setByte = (((int) $directConnect->isValue()) << 2) | ($directConnect->getBlink() << 3);
 

@@ -74,7 +74,7 @@ class IoController extends AbstractController
         #[GetModel(['id' => 'moduleId'])]
         Module $module,
         #[GetModel]
-        Port $port
+        Port $port,
     ): AjaxResponse {
         $ioService->toggleValue($port);
         $ioService->pushUpdate($module, [$port]);
@@ -98,7 +98,7 @@ class IoController extends AbstractController
         IoService $ioService,
         PortRepository $portRepository,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         $ioService->readPortsFromEeprom($module);
 
@@ -117,7 +117,7 @@ class IoController extends AbstractController
     public function postEeprom(
         IoService $ioService,
         #[GetModel(['id' => 'moduleId'])]
-        Module $module
+        Module $module,
     ): AjaxResponse {
         $ioService->writePortsToEeprom($module);
 

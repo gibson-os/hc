@@ -34,7 +34,7 @@ class TemplateRepository extends AbstractRepository
         return $this->fetchAll(
             '`name` REGEXP ?',
             [$this->getRegexString($name)],
-            Template::class
+            Template::class,
         );
     }
 }

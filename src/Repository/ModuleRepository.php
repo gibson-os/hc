@@ -27,7 +27,7 @@ class ModuleRepository extends AbstractRepository
         RepositoryWrapper $repositoryWrapper,
         private readonly LoggerInterface $logger,
         #[GetTableName(Module::class)]
-        private readonly string $moduleTableName
+        private readonly string $moduleTableName,
     ) {
         parent::__construct($repositoryWrapper);
     }

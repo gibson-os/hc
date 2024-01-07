@@ -27,8 +27,8 @@ class NameElementService extends AbstractElementService
             $left,
             implode(
                 $element->getOptions()[self::OPTION_SEPARATOR] ?? ', ',
-                array_map(fn (Item $item): string => $item->getName(), $box->getItems())
-            )
+                array_map(fn (Item $item): string => $item->getName(), $box->getItems()),
+            ),
         );
     }
 }

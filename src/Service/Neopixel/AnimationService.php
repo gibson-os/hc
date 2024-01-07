@@ -30,7 +30,7 @@ class AnimationService
         private readonly AnimationRepository $animationRepository,
         private readonly ProcessService $processService,
         private readonly ModelManager $modelManager,
-        private readonly LedService $ledService
+        private readonly LedService $ledService,
     ) {
     }
 

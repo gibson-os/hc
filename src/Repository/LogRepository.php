@@ -47,7 +47,7 @@ class LogRepository extends AbstractRepository
         int $moduleId,
         int $command = null,
         int $type = null,
-        Direction $direction = null
+        Direction $direction = null,
     ): Log {
         $completeWhere = $this->completeWhere($command, $type, $direction);
         $completeWhere['parameters']['moduleId'] = $moduleId;
@@ -71,7 +71,7 @@ class LogRepository extends AbstractRepository
         int $masterId,
         int $command = null,
         int $type = null,
-        Direction $direction = null
+        Direction $direction = null,
     ): Log {
         $completeWhere = $this->completeWhere($command, $type, $direction);
         $completeWhere['parameters']['masterId'] = $masterId;
@@ -90,7 +90,7 @@ class LogRepository extends AbstractRepository
     private function completeWhere(
         int $command = null,
         int $type = null,
-        Direction $direction = null
+        Direction $direction = null,
     ): array {
         $where = '';
         $parameters = [];
@@ -125,7 +125,7 @@ class LogRepository extends AbstractRepository
         int $moduleId,
         int $command = null,
         int $type = null,
-        Direction $direction = null
+        Direction $direction = null,
     ): Log {
         $completeWhere = $this->completeWhere($command, $type, $direction);
         $completeWhere['parameters']['id'] = $id;

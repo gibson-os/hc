@@ -15,7 +15,7 @@ class UuidElementService extends AbstractElementService
 
     public function __construct(
         #[GetEnv('WEB_URL')]
-        private readonly string $webUrl
+        private readonly string $webUrl,
     ) {
     }
 
@@ -32,7 +32,7 @@ class UuidElementService extends AbstractElementService
                 $element,
                 $top,
                 $left,
-                $box->getUuid()
+                $box->getUuid(),
             )
             : $pdf->write2DBarcode(
                 $this->webUrl . '/hc/warehouse/box/uuid/' . $box->getUuid(),

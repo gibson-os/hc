@@ -39,7 +39,7 @@ class PortRepository extends AbstractRepository
         return $this->fetchOne(
             '`module_id`=? AND `number`=?',
             [$module->getId() ?? 0, $number],
-            Port::class
+            Port::class,
         );
     }
 
@@ -57,7 +57,7 @@ class PortRepository extends AbstractRepository
             '`module_id`=?',
             [$module->getId()],
             Port::class,
-            orderBy: ['`number`' => OrderDirection::ASC]
+            orderBy: ['`number`' => OrderDirection::ASC],
         );
     }
 
@@ -74,7 +74,7 @@ class PortRepository extends AbstractRepository
         return $this->fetchAll(
             '`module_id`=? AND `name` REGEXP ?',
             [$moduleId, $this->getRegexString($name)],
-            Port::class
+            Port::class,
         );
     }
 }

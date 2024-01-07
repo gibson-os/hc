@@ -30,7 +30,7 @@ class ItemAutoComplete implements AutoCompleteInterface
     {
         return $this->itemRepository->findByNameParts(array_map(
             fn (string $name) => $name . '*',
-            explode(' ', $namePart)
+            explode(' ', $namePart),
         ));
     }
 

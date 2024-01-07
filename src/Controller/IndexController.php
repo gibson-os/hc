@@ -43,7 +43,7 @@ class IndexController extends AbstractController
         array $types = [],
         array $sort = [],
         int $limit = 100,
-        int $start = 0
+        int $start = 0,
     ): AjaxResponse {
         $logStore
             ->setMasterId($masterId)

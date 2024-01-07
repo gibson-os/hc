@@ -143,7 +143,7 @@ class NeopixelService extends AbstractHcModule
                         ->setNumber($number)
                         ->setChannel($channel)
                         ->setTop($channel * 3)
-                        ->setLeft($i * 3)
+                        ->setLeft($i * 3),
                 );
                 ++$number;
             }
@@ -190,14 +190,14 @@ class NeopixelService extends AbstractHcModule
         if ($config[self::CONFIG_CHANNELS] < $maxUsedChannel) {
             throw new LogicException(
                 'Slave hat ' . $config[self::CONFIG_CHANNELS] . ' Kanäle. ' .
-                'Benötig werden ' . $maxUsedChannel . ' Kanäle.'
+                'Benötig werden ' . $maxUsedChannel . ' Kanäle.',
             );
         }
 
         if ($config[self::CONFIG_MAX_LEDS] < $usedLedsCount) {
             throw new LogicException(
                 'Slave hat ' . $config[self::CONFIG_MAX_LEDS] . ' LEDs. ' .
-                'Benötig werden ' . $usedLedsCount . ' LEDs.'
+                'Benötig werden ' . $usedLedsCount . ' LEDs.',
             );
         }
 
@@ -290,7 +290,7 @@ class NeopixelService extends AbstractHcModule
                 }
 
                 return chr($length >> 8) . chr($length & 255);
-            }, $channelsLength))
+            }, $channelsLength)),
         );
 
         return $this;
@@ -354,7 +354,7 @@ class NeopixelService extends AbstractHcModule
         $this->write(
             $slave,
             self::COMMAND_SEQUENCE_EEPROM_ADDRESS,
-            chr($address >> 8) . chr($address & 255)
+            chr($address >> 8) . chr($address & 255),
         );
 
         return $this;
@@ -374,7 +374,7 @@ class NeopixelService extends AbstractHcModule
         return $this->transformService->asciiToUnsignedInt($this->read(
             $slave,
             self::COMMAND_SEQUENCE_EEPROM_ADDRESS,
-            2
+            2,
         ));
     }
 
@@ -414,7 +414,7 @@ class NeopixelService extends AbstractHcModule
             $this->write(
                 $slave,
                 self::COMMAND_SEQUENCE_ADD_STEP,
-                chr(($actualRuntime >> 8) & 255) . chr($actualRuntime & 255) . $writeString
+                chr(($actualRuntime >> 8) & 255) . chr($actualRuntime & 255) . $writeString,
             );
         }
 
@@ -499,14 +499,14 @@ class NeopixelService extends AbstractHcModule
             $leds,
             function (Led $led): void {
                 $this->modelManager->save($led);
-            }
+            },
         );
         $this->writeChannels(
             $slave,
             array_map(
                 fn ($lastChangedId) => $this->ledService->getNumberById($slave, $lastChangedId) + 1,
-                $lastChangedIds
-            )
+                $lastChangedIds,
+            ),
         );
     }
 
@@ -530,7 +530,7 @@ class NeopixelService extends AbstractHcModule
                     throw new WriteException(sprintf(
                         'Write string has a length of %d. Max allowed length is %d',
                         strlen($string),
-                        $bufferSize ?? 0
+                        $bufferSize ?? 0,
                     ));
                 }
 
