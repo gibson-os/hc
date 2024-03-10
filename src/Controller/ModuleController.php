@@ -101,6 +101,14 @@ class ModuleController extends AbstractController
         return $this->returnSuccess($moduleStore->getList(), $moduleStore->getCount());
     }
 
+    #[CheckPermission([Permission::READ])]
+    public function getById(
+        #[GetModel]
+        Module $module,
+    ): AjaxResponse {
+        return $this->returnSuccess($module);
+    }
+
     /**
      * @param int[] $ids
      */
