@@ -58,7 +58,7 @@ class TypeData extends AbstractInstall implements PriorityInterface
         int $hertz = 0,
         bool $isHcSlave = true,
         bool $hasInput = false,
-        array $uiSettings = null,
+        ?array $uiSettings = null,
         array $defaultAddresses = [],
     ): TypeData {
         $this->logger->info(sprintf('Add homecontrol type #%d "%s"', $id, $name));

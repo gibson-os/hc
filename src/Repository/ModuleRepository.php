@@ -50,7 +50,7 @@ class ModuleRepository extends AbstractRepository
      *
      * @return Module[]
      */
-    public function findByName(string $name, int $typeId = null): array
+    public function findByName(string $name, ?int $typeId = null): array
     {
         $this->logger->debug(sprintf('Find slave with name %s and type id %d', $name, $typeId ?? 0));
 

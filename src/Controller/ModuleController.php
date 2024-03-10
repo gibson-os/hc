@@ -92,7 +92,7 @@ class ModuleController extends AbstractController
         int $limit = 100,
         int $start = 0,
         array $sort = [],
-        int $masterId = null,
+        ?int $masterId = null,
     ): AjaxResponse {
         $moduleStore->setLimit($limit, $start);
         $moduleStore->setSortByExt($sort);

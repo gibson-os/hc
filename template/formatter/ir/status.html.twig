@@ -9,7 +9,7 @@
             {% if key.name is not null %}
                 {{ key.name }}
             {% else %}
-                Protokoll: {{ irProtocols[key.protocol] }}, Adresse: {{ key.address }}, Kommando: {{ key.command }}
+                Protokoll: {{ constant('GibsonOS\\Module\\Hc\\Enum\\Ir::' ~ key.protocol).name }}, Adresse: {{ key.address }}, Kommando: {{ key.command }}
             {% endif %}
         </li>
         {% endfor %}

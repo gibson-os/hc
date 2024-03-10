@@ -67,10 +67,7 @@ class IrFormatter extends AbstractHcFormatter
             IrService::COMMAND_SEND => $this->renderBlock(
                 AbstractHcModule::COMMAND_STATUS,
                 AbstractHcFormatter::BLOCK_RENDER,
-                [
-                    'irProtocols' => $this->irProtocols,
-                    'keys' => $this->getKeys($log->getRawData()),
-                ],
+                ['keys' => $this->getKeys($log->getRawData())],
             ) ?? parent::render($log),
             default => parent::render($log),
         };

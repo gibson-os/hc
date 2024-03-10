@@ -62,7 +62,7 @@ class HcSlaveController extends AbstractController
         int $deviceId,
         int $typeId,
         int $address,
-        int $pwmSpeed = null,
+        ?int $pwmSpeed = null,
         bool $overwriteSlave = false,
         bool $deleteSlave = false,
     ): AjaxResponse {
@@ -296,12 +296,12 @@ class HcSlaveController extends AbstractController
         bool $transceive = false,
         bool $receive = false,
         bool $custom = false,
-        string $powerCode = null,
-        string $errorCode = null,
-        string $connectCode = null,
-        string $transceiveCode = null,
-        string $receiveCode = null,
-        string $customCode = null,
+        ?string $powerCode = null,
+        ?string $errorCode = null,
+        ?string $connectCode = null,
+        ?string $transceiveCode = null,
+        ?string $receiveCode = null,
+        ?string $customCode = null,
     ): AjaxResponse {
         $slaveService = $this->getSlaveService($slaveFactory, $module);
 

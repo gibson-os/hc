@@ -2,7 +2,31 @@ Ext.define('GibsonOS.module.hc.ir.remote.Grid', {
     extend: 'GibsonOS.module.core.component.grid.Panel',
     alias: ['widget.gosModuleIrRemoteGrid'],
     autoScroll: true,
+    enableDrag: true,
     multiSelect: true,
+    getShortcuts(records) {
+        const me = this;
+        let shortcuts = [];
+
+        Ext.iterate(records, (record) => {
+            let parameters = record.getData();
+            parameters = {
+                moduleId: me.moduleId,
+                remoteId: record.get('id')
+            };
+            shortcuts.push({
+                id: null,
+                module: 'hc',
+                task: 'ir',
+                action: 'remote',
+                text: record.get('name'),
+                icon: 'icon_remotecontrol',
+                parameters: parameters
+            });
+        });
+
+        return shortcuts;
+    },
     addFunction() {
         const me = this;
 

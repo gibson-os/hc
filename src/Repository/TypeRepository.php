@@ -81,7 +81,7 @@ class TypeRepository extends AbstractRepository
      *
      * @return Type[]
      */
-    public function findByName(string $name, bool $getHcSlaves = null, string $network = null): array
+    public function findByName(string $name, ?bool $getHcSlaves = null, ?string $network = null): array
     {
         $where = '`name` LIKE ?';
         $parameters = [$name . '%'];

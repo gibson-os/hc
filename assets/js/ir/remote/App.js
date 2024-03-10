@@ -10,6 +10,8 @@ Ext.define('GibsonOS.module.hc.ir.remote.App', {
     },
     initComponent() {
         const me = this;
+        me.moduleId = !me.moduleId ? me.gos.data.moduleId : me.moduleId;
+        me.remoteId = !me.remoteId ? me.gos.data.remoteId : me.remoteId;
 
         me.items = [{
             xtype: 'gosModuleHcIrRemoteView',

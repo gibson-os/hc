@@ -124,7 +124,7 @@ class IrController extends AbstractController
         LogRepository $logRepository,
         IrFormatter $irFormatter,
         int $moduleId,
-        int $lastLogId = null,
+        ?int $lastLogId = null,
     ): AjaxResponse {
         $data = ['lastLogId' => 0];
 

@@ -18,7 +18,7 @@ class TransformService
         return $return;
     }
 
-    public function asciiToBin(string $asciiString, int $byte = null): string
+    public function asciiToBin(string $asciiString, ?int $byte = null): string
     {
         if ($byte !== null) {
             return sprintf("%'.08d", decbin(ord(substr($asciiString, $byte, 1))));
@@ -33,7 +33,7 @@ class TransformService
         return trim($return);
     }
 
-    public function asciiToUnsignedInt(string $asciiString, int $byte = null): int
+    public function asciiToUnsignedInt(string $asciiString, ?int $byte = null): int
     {
         $return = 0;
 
@@ -48,7 +48,7 @@ class TransformService
         return $return;
     }
 
-    public function asciiToSignedInt(string $asciiString, int $byte = null): int
+    public function asciiToSignedInt(string $asciiString, ?int $byte = null): int
     {
         return $this->getSignedInt($this->asciiToUnsignedInt($asciiString, $byte));
     }
@@ -64,7 +64,7 @@ class TransformService
         return $return;
     }
 
-    public function hexToInt(string $hexString, int $byte = null): int
+    public function hexToInt(string $hexString, ?int $byte = null): int
     {
         if ($byte === null) {
             return hexdec($hexString);
@@ -73,7 +73,7 @@ class TransformService
         return hexdec(substr($hexString, $byte * 2, 2));
     }
 
-    public function hexToBin(string $hexString, int $byte = null): string
+    public function hexToBin(string $hexString, ?int $byte = null): string
     {
         if ($byte !== null) {
             return sprintf("%'.08d", decbin($this->hexToInt($hexString, $byte)));
@@ -88,7 +88,7 @@ class TransformService
         return trim($return);
     }
 
-    public function binToAscii(string $binString, int $byte = null): string
+    public function binToAscii(string $binString, ?int $byte = null): string
     {
         $binString = trim($binString);
         $dataBytes = explode(' ', $binString);

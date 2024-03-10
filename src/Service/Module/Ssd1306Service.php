@@ -165,7 +165,7 @@ class Ssd1306Service extends AbstractModule
      * @throws SaveError
      * @throws WriteException
      */
-    public function setPageStart(Module $slave, int $page = 0, int $column = null): Ssd1306Service
+    public function setPageStart(Module $slave, int $page = 0, ?int $column = null): Ssd1306Service
     {
         if ($page > self::MAX_PAGE) {
             throw new WriteException(sprintf(

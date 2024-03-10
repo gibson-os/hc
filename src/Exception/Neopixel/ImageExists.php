@@ -8,7 +8,7 @@ use Throwable;
 
 class ImageExists extends AbstractException
 {
-    public function __construct(int $existingImageId, $message = '', $code = 0, Throwable $previous = null)
+    public function __construct(int $existingImageId, $message = '', $code = 0, ?Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
 

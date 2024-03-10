@@ -45,9 +45,9 @@ class LogRepository extends AbstractRepository
      */
     public function getLastEntryByModuleId(
         int $moduleId,
-        int $command = null,
-        int $type = null,
-        Direction $direction = null,
+        ?int $command = null,
+        ?int $type = null,
+        ?Direction $direction = null,
     ): Log {
         $completeWhere = $this->completeWhere($command, $type, $direction);
         $completeWhere['parameters']['moduleId'] = $moduleId;
@@ -69,9 +69,9 @@ class LogRepository extends AbstractRepository
      */
     public function getLastEntryByMasterId(
         int $masterId,
-        int $command = null,
-        int $type = null,
-        Direction $direction = null,
+        ?int $command = null,
+        ?int $type = null,
+        ?Direction $direction = null,
     ): Log {
         $completeWhere = $this->completeWhere($command, $type, $direction);
         $completeWhere['parameters']['masterId'] = $masterId;
@@ -88,9 +88,9 @@ class LogRepository extends AbstractRepository
      * @return array{where: string, parameters: array}
      */
     private function completeWhere(
-        int $command = null,
-        int $type = null,
-        Direction $direction = null,
+        ?int $command = null,
+        ?int $type = null,
+        ?Direction $direction = null,
     ): array {
         $where = '';
         $parameters = [];
@@ -123,9 +123,9 @@ class LogRepository extends AbstractRepository
     public function getPreviousEntryByModuleId(
         int $id,
         int $moduleId,
-        int $command = null,
-        int $type = null,
-        Direction $direction = null,
+        ?int $command = null,
+        ?int $type = null,
+        ?Direction $direction = null,
     ): Log {
         $completeWhere = $this->completeWhere($command, $type, $direction);
         $completeWhere['parameters']['id'] = $id;
