@@ -305,6 +305,8 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
 
     public function jsonSerialize(): array
     {
+        $uiSettings = $this->getType()->getUiSettings();
+
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
@@ -315,7 +317,7 @@ class Module extends AbstractModel implements JsonSerializable, AutoCompleteMode
             'helper' => $this->getType()->getHelper(),
             'address' => $this->getAddress(),
             'offline' => $this->isOffline(),
-            'settings' => JsonUtility::decode($this->getType()->getUiSettings() ?? '[]'),
+            'settings' => empty($uiSettings) ? null : JsonUtility::decode($uiSettings),
             'added' => $this->added->format('Y-m-d H:i:s'),
             'modified' => $this->modified->format('Y-m-d H:i:s'),
         ];
