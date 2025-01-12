@@ -23,8 +23,6 @@ class BlankFormatter extends AbstractHcFormatter
             ++$byte;
         }
 
-        $return .= '</table>';
-
-        return $return;
+        return $return . '</table>';
     }
 }

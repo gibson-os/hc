@@ -54,7 +54,7 @@ class ModuleController extends AbstractController
     ): AjaxResponse {
         $type = $typeRepository->getById($typeId);
 
-        if ($module !== null) {
+        if ($module instanceof Module) {
             return $this->returnFailure(sprintf(
                 'Unter der Adresse %d existiert bereits ein Modul (%s)',
                 $address,

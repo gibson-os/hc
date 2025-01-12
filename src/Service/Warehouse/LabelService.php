@@ -34,7 +34,6 @@ class LabelService
      */
     public function generate(Module $module, Label $label, int $columnOffset = 0, int $rowOffset = 0): TCPDF
     {
-        $template = $label->getTemplate();
         $pdf = new TCPDF();
         $pdf->setCreator('Gibson OS');
         $pdf->setAuthor('Gibson OS');

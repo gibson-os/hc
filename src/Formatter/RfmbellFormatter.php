@@ -25,35 +25,19 @@ class RfmbellFormatter extends AbstractFormatter
                 // Eingang
                 switch ($i) {
                     case RfmbellConstant::BUTTON1:
-                        if ($value > 0) {
-                            $returnList[] = 'Taster 1: <font color="#FF0000">gedrückt</font>';
-                        } else {
-                            $returnList[] = 'Taster 1: losgelassen';
-                        }
+                        $returnList[] = $value > 0 ? 'Taster 1: <font color="#FF0000">gedrückt</font>' : 'Taster 1: losgelassen';
 
                         break;
                     case RfmbellConstant::BUTTON2:
-                        if ($value > 0) {
-                            $returnList[] = 'Taster 2: <font color="#FF0000">gedrückt</font>';
-                        } else {
-                            $returnList[] = 'Taster 2: losgelassen';
-                        }
+                        $returnList[] = $value > 0 ? 'Taster 2: <font color="#FF0000">gedrückt</font>' : 'Taster 2: losgelassen';
 
                         break;
                     case RfmbellConstant::BELL:
-                        if ($value > 0) {
-                            $returnList[] = 'Wohnungsklingel: <font color="#FF0000">gedrückt</font>';
-                        } else {
-                            $returnList[] = 'Wohnungsklingel: losgelassen';
-                        }
+                        $returnList[] = $value > 0 ? 'Wohnungsklingel: <font color="#FF0000">gedrückt</font>' : 'Wohnungsklingel: losgelassen';
 
                         break;
                     case RfmbellConstant::SENSOR:
-                        if ($value > 0) {
-                            $returnList[] = 'Wohnungstür: geschloßen';
-                        } else {
-                            $returnList[] = 'Wohnungstür: <font color="#FF0000">offen</font>';
-                        }
+                        $returnList[] = $value > 0 ? 'Wohnungstür: geschloßen' : 'Wohnungstür: <font color="#FF0000">offen</font>';
 
                         break;
                     case RfmbellConstant::DOOR_OPENER:
@@ -65,19 +49,11 @@ class RfmbellFormatter extends AbstractFormatter
 
                         break;
                     case RfmbellConstant::SILENT:
-                        if ($value > 0) {
-                            $returnList[] = 'Gong: <font color="#FF0000">deaktiviert</font>';
-                        } else {
-                            $returnList[] = 'Gong: aktiviert';
-                        }
+                        $returnList[] = $value > 0 ? 'Gong: <font color="#FF0000">deaktiviert</font>' : 'Gong: aktiviert';
 
                         break;
                     case RfmbellConstant::BELL_HOUSE:
-                        if ($value > 0) {
-                            $returnList[] = 'Hausklingel: <font color="#FF0000">gedrückt</font>';
-                        } else {
-                            $returnList[] = 'Hausklingel: losgelassen';
-                        }
+                        $returnList[] = $value > 0 ? 'Hausklingel: <font color="#FF0000">gedrückt</font>' : 'Hausklingel: losgelassen';
 
                         break;
                     case RfmbellConstant::BELL_TIMER:
@@ -101,11 +77,7 @@ class RfmbellFormatter extends AbstractFormatter
 
                         break;
                     case RfmbellConstant::SILENT:
-                        if ($value > 0) {
-                            $returnList[] = 'Gong: deaktivieren';
-                        } else {
-                            $returnList[] = 'Gong: aktivieren';
-                        }
+                        $returnList[] = $value > 0 ? 'Gong: deaktivieren' : 'Gong: aktivieren';
 
                         break;
                     case RfmbellConstant::BELL_TIMER:

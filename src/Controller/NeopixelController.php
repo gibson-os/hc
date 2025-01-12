@@ -107,7 +107,7 @@ class NeopixelController extends AbstractController
         $ledRepository->startTransaction();
 
         try {
-            if (count(array_diff_assoc($ledCounts, $config['counts']))) {
+            if (array_diff_assoc($ledCounts, $config['counts']) !== []) {
                 $neopixelService->writeLedCounts($module, $ledCounts);
 
                 $config['counts'] = $ledCounts;

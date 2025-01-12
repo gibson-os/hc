@@ -168,7 +168,7 @@ class NeopixelService extends AbstractHcModule
      */
     public function onOverwriteExistingSlave(Module $module, Module $existingSlave): Module
     {
-        if (empty($existingSlave->getId())) {
+        if (in_array($existingSlave->getId(), [null, 0], true)) {
             throw new GetError('Keine ID vorhanden!');
         }
 
@@ -273,7 +273,7 @@ class NeopixelService extends AbstractHcModule
         }
 
         if (
-            empty($channelsLength)
+            $channelsLength === []
             || max($channelsLength) === 0
         ) {
             throw new WriteException('No channels set!');
@@ -482,7 +482,7 @@ class NeopixelService extends AbstractHcModule
         $this->writeSetLeds($slave, array_intersect_key($leds, $changedSlaveLeds));
         $lastChangedIds = $this->ledService->getLastIds($slave, $changedSlaveLeds);
 
-        if (empty($lastChangedIds)) {
+        if ($lastChangedIds === []) {
             $startCount = 0;
             $lastChangedIds = array_map(static function (int $count) use (&$startCount) {
                 if ($count === 0) {
@@ -522,7 +522,7 @@ class NeopixelService extends AbstractHcModule
         $writeStrings = [];
         $bufferSize = $slave->getBufferSize();
 
-        while (!empty($data)) {
+        while ($data !== []) {
             $dataString = '';
 
             foreach ($data as $key => $string) {

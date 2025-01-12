@@ -151,7 +151,7 @@ class IoService extends AbstractHcModule
      */
     public function slaveHandshake(Module $module): Module
     {
-        if (empty($module->getConfig())) {
+        if (in_array($module->getConfig(), [null, ''], true)) {
             $module->setConfig(
                 (string) $this->transformService->asciiToUnsignedInt(
                     $this->readConfig($module, self::COMMAND_CONFIGURATION_READ_LENGTH),
@@ -275,11 +275,11 @@ class IoService extends AbstractHcModule
     {
         $this->eventService->fire($this->getEventClassName(), IoEvent::BEFORE_READ_PORTS_FROM_EEPROM, ['slave' => $slave]);
 
-        if (empty($this->transformService->asciiToUnsignedInt($this->read(
+        if ($this->transformService->asciiToUnsignedInt($this->read(
             $slave,
             self::COMMAND_STATUS_IN_EEPROM,
             self::COMMAND_STATUS_IN_EEPROM_LENGTH,
-        )))) {
+        )) === 0) {
             throw new ReceiveError('Kein Status im EEPROM vorhanden!');
         }
 

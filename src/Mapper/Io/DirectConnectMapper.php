@@ -30,7 +30,7 @@ class DirectConnectMapper
         $pwmByte = $this->transformService->asciiToUnsignedInt($data, 2);
         $addOrSub = $setByte & 1;
 
-        if (($setByte >> 1) & 1) {
+        if (($setByte >> 1 & 1) !== 0) {
             --$addOrSub;
         }
 
@@ -83,8 +83,6 @@ class DirectConnectMapper
             $setByte += 3;
         }
 
-        $return .= chr($setByte) . chr($pwm);
-
-        return $return;
+        return $return . (chr($setByte) . chr($pwm));
     }
 }

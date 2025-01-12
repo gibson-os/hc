@@ -76,7 +76,7 @@ class BlueprintRepository extends AbstractRepository
      */
     private function collectChildren(int $blueprintId, array $childrenTypes): array
     {
-        if (count($childrenTypes) === 0) {
+        if ($childrenTypes === []) {
             return [];
         }
 

@@ -40,7 +40,7 @@ class MasterMapper
     {
         $data = $busMessage->getData();
 
-        if (empty($data)) {
+        if ($data === null || $data === '') {
             throw new GetError('No slave data transmitted!');
         }
 
@@ -61,7 +61,7 @@ class MasterMapper
 
         $data = $busMessage->getData();
 
-        if (!empty($data)) {
+        if ($data !== null && $data !== '') {
             for ($i = 0; $i < strlen($data); ++$i) {
                 $checkSum += ord($data[$i]);
             }

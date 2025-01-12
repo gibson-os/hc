@@ -48,7 +48,7 @@ class IndexController extends AbstractController
         $logStore
             ->setMasterId($masterId)
             ->setModuleId($moduleId)
-            ->setDirection(empty($directions) || count($directions) !== 1 ? null : reset($directions))
+            ->setDirection($directions === null || $directions === [] || count($directions) !== 1 ? null : reset($directions))
             ->setTypes($types)
             ->setLimit($limit, $start)
             ->setSortByExt($sort)
@@ -121,9 +121,9 @@ class IndexController extends AbstractController
         $lastLog = null;
 
         try {
-            if ($master !== null) {
+            if ($master instanceof Master) {
                 $lastLog = $logRepository->getLastEntryByMasterId($master->getId() ?? 0, $command, $type, $direction);
-            } elseif ($module !== null) {
+            } elseif ($module instanceof Module) {
                 $lastLog = $logRepository->getLastEntryByModuleId($module->getId() ?? 0, $command, $type, $direction);
             }
         } catch (SelectError) {

@@ -68,7 +68,7 @@ class LogStore extends AbstractDatabaseStore
             $wheres[] = new Where('`l`.`direction`=?', [$this->direction]);
         }
 
-        if (count($this->types) > 0) {
+        if ($this->types !== []) {
             $wheres[] = new Where(
                 sprintf(
                     '`l`.`type` IN (%s)',

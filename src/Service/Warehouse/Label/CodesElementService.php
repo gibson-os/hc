@@ -30,7 +30,7 @@ class CodesElementService extends AbstractElementService
     {
         $codes = $this->getCodes($element, $box);
 
-        if (count($codes) === 0) {
+        if ($codes === []) {
             return;
         }
 

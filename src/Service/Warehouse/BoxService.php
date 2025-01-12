@@ -84,7 +84,7 @@ class BoxService
             $module = $ledsByModule['module'];
             $this->disableLeds($module, $ledsByModules);
 
-            if (count($ledsByModule['leds']) === 0) {
+            if ($ledsByModule['leds'] === []) {
                 continue;
             }
 

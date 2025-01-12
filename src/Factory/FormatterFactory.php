@@ -18,7 +18,7 @@ class FormatterFactory
      */
     public function get(Log $log): FormatterInterface
     {
-        if (empty($log->getModuleId())) {
+        if (in_array($log->getModuleId(), [null, 0], true)) {
             return $this->serviceManager->get(MasterFormatter::class);
         }
 

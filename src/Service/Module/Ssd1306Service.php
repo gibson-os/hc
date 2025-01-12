@@ -30,8 +30,6 @@ class Ssd1306Service extends AbstractModule
 
     private const COMMAND_MEMORY_ADDRESSING_MODE = 32;
 
-    private const COMMAND_LOWER_COLUMN_START = 0;
-
     private const COMMAND_HIGHER_COLUMN_START = 16;
 
     private const COMMAND_START_LINE_START = 64;
@@ -308,7 +306,7 @@ class Ssd1306Service extends AbstractModule
      */
     public function setLowColumnAddress(Module $slave, int $lowColumnAddress = 0): Ssd1306Service
     {
-        $this->sendCommand($slave, self::COMMAND_LOWER_COLUMN_START + $lowColumnAddress);
+        $this->sendCommand($slave, $lowColumnAddress);
 
         return $this;
     }

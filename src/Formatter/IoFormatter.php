@@ -107,13 +107,13 @@ class IoFormatter extends AbstractHcFormatter
 
                 return null;
             case IoService::COMMAND_DIRECT_CONNECT_STATUS:
-                return $this->transformService->asciiToUnsignedInt($log->getRawData(), 0) ? 'Aktiv' : 'Inaktiv';
+                return $this->transformService->asciiToUnsignedInt($log->getRawData(), 0) !== 0 ? 'Aktiv' : 'Inaktiv';
             case IoService::COMMAND_STATUS_IN_EEPROM:
                 if ($log->getDirection() == Direction::OUTPUT) {
                     return 'Standard gesetzt';
                 }
 
-                if ($this->transformService->asciiToUnsignedInt($log->getRawData(), 0)) {
+                if ($this->transformService->asciiToUnsignedInt($log->getRawData(), 0) !== 0) {
                     return 'Standard geladen';
                 }
 
@@ -139,7 +139,7 @@ class IoFormatter extends AbstractHcFormatter
             case AbstractHcModule::COMMAND_DATA_CHANGED:
                 $changedPorts = $this->getChangedPorts($log);
 
-                if (!count($changedPorts)) {
+                if ($changedPorts === []) {
                     return 'Keine Änderungen';
                 }
 

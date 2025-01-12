@@ -9,6 +9,7 @@ use GibsonOS\Core\Exception\GetError;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\Server\ReceiveError;
+use GibsonOS\Module\Hc\Dto\BusMessage;
 use GibsonOS\Module\Hc\Mapper\MasterMapper;
 use GibsonOS\Module\Hc\Repository\MasterRepository;
 use GibsonOS\Module\Hc\Service\Protocol\ProtocolInterface;
@@ -42,7 +43,7 @@ class ReceiverService
         $busMessage = $protocolService->receive();
         $data = $busMessage?->getData();
 
-        if ($busMessage === null || strlen($data ?? '') === 0) {
+        if (!$busMessage instanceof BusMessage || strlen($data ?? '') === 0) {
             return;
         }
 

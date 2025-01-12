@@ -31,6 +31,7 @@ use GibsonOS\Core\Service\Response\FileResponse;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Hc\Model\Module;
 use GibsonOS\Module\Hc\Model\Warehouse\Box;
+use GibsonOS\Module\Hc\Model\Warehouse\Box\Item;
 use GibsonOS\Module\Hc\Repository\Warehouse\BoxRepository;
 use GibsonOS\Module\Hc\Service\Warehouse\BoxService;
 use GibsonOS\Module\Hc\Service\Warehouse\ItemService;
@@ -134,7 +135,7 @@ class WarehouseController extends AbstractController
     public function getImage(
         ItemService $itemService,
         #[GetModel]
-        ?Box\Item $item,
+        ?Item $item,
     ): FileResponse {
         $image = realpath(
             __DIR__ . DIRECTORY_SEPARATOR .
@@ -146,7 +147,7 @@ class WarehouseController extends AbstractController
         );
         $mimeType = 'image/png';
 
-        if ($item !== null) {
+        if ($item instanceof Item) {
             $itemImage = $item->getImage();
 
             if ($itemImage !== null) {
@@ -166,7 +167,7 @@ class WarehouseController extends AbstractController
         #[GetSetting('file_path')]
         Setting $filePath,
         #[GetModel]
-        Box\Item\File $file,
+        Item\File $file,
     ): FileResponse {
         return (new FileResponse(
             $this->requestService,

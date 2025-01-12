@@ -100,7 +100,9 @@ class TransformService
         $return = '';
 
         if ($byte === null) {
-            for ($i = 0; $i < count($dataBytes); ++$i) {
+            $counter = count($dataBytes);
+
+            for ($i = 0; $i < $counter; ++$i) {
                 $return .= chr((int) bindec($dataBytes[$i]));
             }
         } else {

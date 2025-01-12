@@ -107,24 +107,19 @@ abstract class AbstractHcFormatter extends AbstractFormatter
 
         $context = ['data' => $log->getRawData()];
 
-        switch ($command) {
-            case AbstractHcModule::COMMAND_TYPE:
-                $typeId = $this->transformService->asciiToUnsignedInt($log->getRawData());
-
-                if (!isset($this->loadedTypes[$typeId])) {
-                    try {
-                        $this->loadedTypes[$typeId] = $this->typeRepository->getById($typeId);
-                    } catch (SelectError) {
-                        $this->loadedTypes[$typeId] = (new Type($this->modelWrapper))
-                            ->setId($typeId)
-                            ->setName('Unbekannter Typ')
-                        ;
-                    }
+        if ($command === AbstractHcModule::COMMAND_TYPE) {
+            $typeId = $this->transformService->asciiToUnsignedInt($log->getRawData());
+            if (!isset($this->loadedTypes[$typeId])) {
+                try {
+                    $this->loadedTypes[$typeId] = $this->typeRepository->getById($typeId);
+                } catch (SelectError) {
+                    $this->loadedTypes[$typeId] = (new Type($this->modelWrapper))
+                        ->setId($typeId)
+                        ->setName('Unbekannter Typ')
+                    ;
                 }
-
-                $context['type'] = $this->loadedTypes[$typeId];
-
-                break;
+            }
+            $context['type'] = $this->loadedTypes[$typeId];
         }
 
         return $this->renderBlock($command, self::BLOCK_TEXT, $context) ?? parent::text($log);

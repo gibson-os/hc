@@ -46,7 +46,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
                     case RfmrhinetowerConstant::MODE_SET_CLOCK:
                         return $this->clockLogFormat(mb_substr($data, 2));
                     case RfmrhinetowerConstant::MODE_SHOW_CLOCK:
-                        if ($this->transformService->hexToInt($data, 1)) {
+                        if ($this->transformService->hexToInt($data, 1) !== 0) {
                             return 'Uhrzeit anzeigen';
                         }
 
@@ -71,7 +71,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
 
                 break;
             case MasterService::TYPE_DATA:
-                if (mb_substr($data, 0, 2) == RfmrhinetowerConstant::MODE_SET_LED) {
+                if (mb_substr($data, 0, 2) === RfmrhinetowerConstant::MODE_SET_LED) {
                     return $this->ledLogFormat(mb_substr($data, 2));
                 }
 
@@ -92,7 +92,7 @@ class RfmrhinetowerFormatter extends AbstractFormatter
 
         $i = 0;
 
-        foreach ($keyList as $x => $list) {
+        foreach (array_keys($keyList) as $x) {
             if (
                 $smallList
                 && !array_key_exists($x, self::SMALL_KEY_LIST)

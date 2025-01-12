@@ -16,7 +16,7 @@ abstract class AbstractFormatter implements FormatterInterface
 
     public function command(Log $log): ?string
     {
-        return empty($log->getCommand()) ? null : (string) $log->getCommand();
+        return in_array($log->getCommand(), [null, 0], true) ? null : (string) $log->getCommand();
     }
 
     public function render(Log $log): ?string
@@ -54,13 +54,6 @@ abstract class AbstractFormatter implements FormatterInterface
             return true;
         }
 
-        if (
-            $log->getType() === MasterService::TYPE_STATUS
-            && $log->getDirection() === Direction::OUTPUT
-        ) {
-            return true;
-        }
-
-        return false;
+        return $log->getType() === MasterService::TYPE_STATUS && $log->getDirection() === Direction::OUTPUT;
     }
 }

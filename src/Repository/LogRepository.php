@@ -105,7 +105,7 @@ class LogRepository extends AbstractRepository
             $parameters['type'] = $type;
         }
 
-        if ($direction !== null) {
+        if ($direction instanceof Direction) {
             $where .= ' AND `direction`=:direction';
             $parameters['direction'] = $direction->value;
         }

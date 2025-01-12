@@ -76,7 +76,7 @@ class NeopixelFormatter extends AbstractHcFormatter
                     'slaveLeds' => $slaveLeds,
                     'logLeds' => $this->ledMapper->mapFromString($module, $data),
                     'maxTop' => (
-                        empty($slaveLeds)
+                        $slaveLeds === []
                             ? 0
                             : max(array_map(static fn (Led $slaveLed) => $slaveLed->getTop(), $slaveLeds))
                     ) + 6,

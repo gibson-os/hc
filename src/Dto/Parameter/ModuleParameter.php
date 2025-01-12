@@ -20,8 +20,6 @@ class ModuleParameter extends AutoCompleteParameter
 
     /**
      * @throws SelectError
-     *
-     * @return $this
      */
     public function setTypeHelper(string $helperName): ModuleParameter
     {

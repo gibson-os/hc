@@ -78,7 +78,7 @@ class DirectConnectService
             $newData .= chr($equalByte) . (substr($data, $equalByte, 1) ?: '');
         }
 
-        if (empty($newData)) {
+        if ($newData === '') {
             $newData = chr(255) . $data;
         }
 

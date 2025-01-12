@@ -159,7 +159,7 @@ class PlayAnimationCommand extends AbstractCommand
         array &$leds,
         array &$changedSlaveLeds,
     ): void {
-        if (empty($changedSlaveLeds)) {
+        if ($changedSlaveLeds === []) {
             return;
         }
 
@@ -171,7 +171,7 @@ class PlayAnimationCommand extends AbstractCommand
 
         $lastChangedIds = $this->ledService->getLastIds($slave, $changedSlaveLeds);
 
-        if (empty($lastChangedIds)) {
+        if ($lastChangedIds === []) {
             $lastChangedIds = array_map(function ($count) {
                 return $count - 1;
             }, JsonUtility::decode((string) $slave->getConfig())['counts']);

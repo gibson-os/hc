@@ -53,7 +53,7 @@ class WarehouseCartController extends AbstractController
         int $start = 0,
         int $limit = 100,
     ): AjaxResponse {
-        if ($cart === null) {
+        if (!$cart instanceof Cart) {
             return $this->returnSuccess([], 0);
         }
 

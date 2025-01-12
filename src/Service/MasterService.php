@@ -133,7 +133,7 @@ class MasterService
             }
         }
 
-        if ($module !== null) {
+        if ($module instanceof Module) {
             $this->modelManager->saveWithoutChildren(
                 $module
                     ->setOffline(false)
@@ -172,7 +172,7 @@ class MasterService
         $protocolName = $protocolService->getName();
         $data = $busMessage->getData();
 
-        if (empty($data)) {
+        if ($data === null || $data === '') {
             throw new GetError('No master name transmitted!');
         }
 

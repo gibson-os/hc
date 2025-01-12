@@ -26,10 +26,10 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
             $sequenceActive = $this->transformService->hexToInt($data, 0);
             $sequenceId = $this->transformService->hexToInt(mb_substr($data, 2));
 
-            return 'Sequenz ' . $sequenceId . ($sequenceActive ? ' aktiv' : ' gestoppt');
+            return 'Sequenz ' . $sequenceId . ($sequenceActive !== 0 ? ' aktiv' : ' gestoppt');
         }
 
-        if (mb_substr($data, 0, 2) == Rfmrgbpanel5x5Constant::SEQUENCE_BYTE) {
+        if (mb_substr($data, 0, 2) === Rfmrgbpanel5x5Constant::SEQUENCE_BYTE) {
             $data = mb_substr($data, 2);
 
             return match (mb_substr($data, 0, 2)) {
@@ -54,14 +54,12 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
 
         $data = $log->getData();
 
-        if (mb_substr($data, 0, 2) == Rfmrgbpanel5x5Constant::SEQUENCE_BYTE) {
+        if (mb_substr($data, 0, 2) === Rfmrgbpanel5x5Constant::SEQUENCE_BYTE) {
             $data = mb_substr($data, 2);
 
             return match (mb_substr($data, 0, 2)) {
                 Rfmrgbpanel5x5Constant::SEQUENCE_START_BYTE, Rfmrgbpanel5x5Constant::SEQUENCE_RUN_BYTE => parent::render($log),
             };
-
-            $data = mb_substr($data, 4);
         }
 
         return $this->renderLeds($data);
@@ -100,7 +98,7 @@ class Rfmrgbpanel5x5Formatter extends AbstractFormatter
     {
         $ledList = [];
 
-        if (mb_substr($data, 0, 2) == Rfmrgbpanel5x5Constant::UNADDRESSED_BYTE) {
+        if (mb_substr($data, 0, 2) === Rfmrgbpanel5x5Constant::UNADDRESSED_BYTE) {
             // 2 Bytes pro LED 2=Effekt|Red 3=Green|Blue
             for ($i = 2; $i < mb_strlen($data); $i += 4) {
                 $ledList['l' . ($i + 2) / 4] = [

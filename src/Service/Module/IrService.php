@@ -90,7 +90,7 @@ class IrService extends AbstractHcModule
      */
     public function sendKeys(Module $module, array $keys): IrService
     {
-        if (count($keys) === 0) {
+        if ($keys === []) {
             return $this;
         }
 
