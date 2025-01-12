@@ -2,26 +2,16 @@
 
 declare(strict_types=1);
 
-use Rector\Core\Configuration\Option;
-use Rector\Php74\Rector\Property\TypedPropertyRector;
-use Rector\Set\ValueObject\SetList;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Rector\Config\RectorConfig;
+use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromStrictConstructorRector;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $containerConfigurator->import(SetList::PHP_80);
-
-//    // get parameters
-//    $parameters = $containerConfigurator->parameters();
-//    $parameters->set(Option::PATHS, [
-//        __DIR__ . '/src'
-//    ]);
-//
-//    // Define what rule sets will be applied
-//    $containerConfigurator->imporat(SetList::CODE_QUALITY);
-//
-//    // get services (needed for register a single rule)
-//    // $services = $containerConfigurator->services();
-//
-//    // register a single rule
-//    // $services->set(TypedPropertyRector::class);
-};
+return RectorConfig::configure()
+    // register single rule
+    ->withRules([
+        TypedPropertyFromStrictConstructorRector::class,
+    ])
+    // here we can define, what prepared sets of rules will be applied
+    ->withPreparedSets(
+        deadCode: true,
+        codeQuality: true,
+    );

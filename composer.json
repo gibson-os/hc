@@ -1,11 +1,11 @@
 {
   "name": "gibson-os/hc",
   "require": {
-    "php": " ^8.2",
-    "gibson-os/core": "^4.0.0",
+    "php": " ^8.4",
+    "gibson-os/core": "^5.0.0",
     "ext-mbstring": "*",
     "ext-json": "*",
-    "chillerlan/php-qrcode": "^4.3",
+    "chillerlan/php-qrcode": "^5.0",
     "tecnickcom/tcpdf": "^6.3"
   },
   "require-dev": {
@@ -15,9 +15,9 @@
     "captainhook/captainhook": "^5.0",
     "captainhook/plugin-composer": "^5.0",
     "vimeo/psalm": "^5.0",
-    "codeception/module-asserts": "^2.0",
+    "codeception/module-asserts": "^3.0",
     "phpspec/prophecy-phpunit": "^2.0",
-    "rector/rector": "^0.11.57"
+    "rector/rector": "^2.0"
   },
   "autoload": {
     "psr-4": {
@@ -36,8 +36,8 @@
       "@php:md",
       "@php:unit:run"
     ],
-    "php:cs:fix": "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose",
-    "php:cs:dry": "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose --dry-run",
+    "php:cs:fix": "cmd /V /C \"set PHP_CS_FIXER_IGNORE_ENV=1 && php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose\"",
+    "php:cs:dry": "cmd /V /C \"set PHP_CS_FIXER_IGNORE_ENV=1 && php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose --dry-run\"",
     "php:psalm": "php ./vendor/vimeo/psalm/psalm",
     "php:md": "php ./vendor/phpmd/phpmd/src/bin/phpmd src text ruleset.xml",
     "php:unit:run": "php ./vendor/codeception/codeception/codecept run unit --ext DotReporter",
@@ -48,7 +48,8 @@
     "allow-plugins": {
       "composer/package-versions-deprecated": true,
       "captainhook/plugin-composer": true,
-      "php-http/discovery": true
+      "php-http/discovery": true,
+      "tbachert/spi": true
     }
   }
 }
