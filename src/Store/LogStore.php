@@ -141,7 +141,7 @@ class LogStore extends AbstractDatabaseStore
     }
 
     /**
-     * @return string[]
+     * @return array<string, string>
      */
     protected function getOrderMapping(): array
     {
