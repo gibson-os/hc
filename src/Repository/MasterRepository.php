@@ -151,7 +151,7 @@ class MasterRepository extends AbstractRepository
         $aggregations = $this->getAggregations(
             ['count' => 'COUNT(`id`)'],
             Master::class,
-            '`send_port=?',
+            '`send_port`=?',
             [$port],
         );
 
