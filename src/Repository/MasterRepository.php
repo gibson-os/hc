@@ -109,7 +109,7 @@ class MasterRepository extends AbstractRepository
 
         $result = $this->getRepositoryWrapper()->getClient()->execute(
             sprintf(
-                'SELECT (%s) UNION ALL (%s) ORDER BY `address`',
+                '(%s) UNION ALL (%s) ORDER BY `address`',
                 $moduleSelectQuery->getQuery(),
                 $typeDefaultAddressSelectQuery->getQuery(),
             ),
